@@ -1,0 +1,72 @@
+/* circloo · the fridge door. Enamel ground, plastic magnets, paper notes. */
+:root {
+  /* Enamel door */
+  --enamel: #b9d77e;
+  --enamel-deep: #a2c564;
+  --enamel-shade: #84a944;
+  --freezer: #adcf6e;
+  --groove: #6c8f33;
+  --seal: #5d7a2c;
+  --chrome-hi: #f4f8f9;
+  --chrome: #c9d3d6;
+  --chrome-lo: #8e9ca0;
+
+  /* Ink */
+  --ink: #1b1f1c;
+  --ink-soft: #3a4a1c; /* secondary text on enamel, tinted from the door */
+  --ink-on-paper-soft: #4d5650;
+
+  /* Paper plane */
+  --paper: #ffffff;
+  --paper-line: #c9def2;
+  --paper-margin: #f08a80;
+  --sticky-yellow: #ffe066;
+  --sticky-pink: #ffb7d2;
+  --sticky-blue: #b4dcff;
+  --kraft: #e9c79a;
+
+  /* Magnet plane */
+  --tomato: #d63a26;
+  --tomato-rim: #9e2414;
+  --cobalt: #2340c4;
+  --cobalt-rim: #172a86;
+  --sunflower: #ffc21a;
+  --sunflower-rim: #c48e00;
+  --ink-magnet: #1b1f1c;
+  --ink-rim: #000000;
+
+  /* Depth planes: every shadow has an offset and a soft blur */
+  --shadow-paper: 0 1px 0 rgb(48 62 18 / 0.18), 0 10px 20px -8px rgb(48 62 18 / 0.45);
+  /* Magnet shadows use each magnet's own --rim, so they are written on the magnet rules themselves */
+
+  /* Type */
+  --font-display: 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif;
+  --font-text: 'Rubik Variable', 'Rubik', system-ui, sans-serif;
+  --step--1: clamp(0.84rem, 0.8rem + 0.15vw, 0.92rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2.1rem);
+  --step-3: clamp(2rem, 1.6rem + 1.8vw, 3.2rem);
+  --step-4: clamp(2.6rem, 1.9rem + 3.4vw, 4.8rem);
+  --step-5: clamp(3.6rem, 2.2rem + 6.4vw, 7.5rem);
+
+  /* Space: one rhythm */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+  --s-9: 7rem;
+
+  --radius-paper: 3px;
+  --radius-magnet: 14px;
+  --door-max: 76rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --handle-space: clamp(0rem, 3vw, 3.5rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+}
