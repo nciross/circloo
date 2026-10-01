@@ -28,3 +28,16 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+src/Circloo.Api/wwwroot/
+
+# Impeccable review captures (regenerated per review)
+.impeccable/review/
+.impeccable/build/
+NUL

@@ -1,0 +1,7 @@
+{
+  "otp-code": {
+    "subject": "{code} es tu código de circloo",
+    "text": "Aquí tienes tu código de circloo:\n\n{code}\n\nSirve durante {minutes} minutos y una sola vez. Si no lo pediste, ignora este correo: nadie puede entrar sin el código.\n\n¡Nos vemos en tu círculo!\n— circloo",
+    "html": "<!doctype html><html lang=\"es\" dir=\"ltr\"><body style=\"margin:0;padding:24px;background:#fff8ef;font-family:Arial,Helvetica,sans-serif;color:#2b1d14\"><div style=\"max-width:480px;margin:0 auto\"><p style=\"font-size:16px;margin:0\">Aquí tienes tu código de circloo:</p><p style=\"font-size:34px;font-weight:700;letter-spacing:8px;margin:24px 0;color:#2b1d14;direction:ltr;unicode-bidi:isolate\">{code}</p><p style=\"font-size:14px;line-height:1.5\">Sirve durante {minutes} minutos y una sola vez. Si no lo pediste, ignora este correo: nadie puede entrar sin el código.</p><p style=\"font-size:14px\">¡Nos vemos en tu círculo!<br>— circloo</p></div></body></html>"
+  }
+}

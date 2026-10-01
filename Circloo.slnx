@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Circloo.Api/Circloo.Api.csproj" />
+    <Project Path="src/Circloo.AppHost/Circloo.AppHost.csproj" />
+    <Project Path="src/Circloo.ServiceDefaults/Circloo.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Circloo.Api.Tests/Circloo.Api.Tests.csproj" />
+  </Folder>
+</Solution>

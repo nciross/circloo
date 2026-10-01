@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+src/web/test-results/
+src/web/playwright-report/
+.git/
+.azure/
+.impeccable/
+tests/
+**/.env
+**/.env.*
+.vs/
+**/*.user
+.claude/

@@ -1,0 +1,223 @@
+{
+  "common": {
+    "brand": "circloo",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signOutEverywhere": "Sign out everywhere",
+    "settings": "Settings",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ar": "العربية",
+      "es": "Español"
+    },
+    "languageShort": {
+      "en": "EN",
+      "fr": "FR",
+      "ar": "ع",
+      "es": "ES"
+    },
+    "soon": "Soon",
+    "example": "Example",
+    "loading": "Loading…",
+    "errorGeneric": "Something went wrong on our side. Please try again.",
+    "retry": "Try again",
+    "skipToContent": "Skip to content",
+    "home": "Home",
+    "account": "Account",
+    "cancel": "Cancel",
+    "signOutFailed": "Sign out did not work. Check your connection and try again."
+  },
+  "landing": {
+    "title": "circloo · your circle's fridge door",
+    "wordmarkHint": "The letters are magnets. Move them around.",
+    "headline": "The fridge door for your people.",
+    "sub": "Check in on how everyone feels, start meetings with a laugh and decide things together. One small private space for your family, your friends or your team.",
+    "languagesLine": "Speaks English, français, العربية and español.",
+    "cta": "Get your door",
+    "ctaSecondary": "See what goes on the door",
+    "teaser": {
+      "title": "Today's icebreaker",
+      "shake": "Shake the fridge",
+      "shaking": "Shaking…",
+      "answerLabel": "Your answer",
+      "answerPlaceholder": "Write it on the card…",
+      "answerHint": "Stays on your screen. Nothing is sent.",
+      "error": "The card slipped behind the fridge. Shake again."
+    },
+    "checkins": {
+      "title": "This morning on the door",
+      "items": [
+        {
+          "name": "Amina",
+          "mood": "Sunny",
+          "need": "Ready for anything"
+        },
+        {
+          "name": "Théo",
+          "mood": "Cloudy",
+          "need": "Need coffee"
+        },
+        {
+          "name": "Lucía",
+          "mood": "Bright",
+          "need": "Proud of yesterday"
+        },
+        {
+          "name": "Youssef",
+          "mood": "Foggy",
+          "need": "Need a hug"
+        }
+      ]
+    },
+    "feel": {
+      "title": "Feel together",
+      "body": "One tap in the morning tells your circle how you are. Words and faces, never just colours. A note or a small need if you want, and that is it.",
+      "moods": {
+        "1": "Stormy",
+        "2": "Foggy",
+        "3": "Cloudy",
+        "4": "Bright",
+        "5": "Sunny"
+      },
+      "weather": "Circle weather: mostly bright, one person needs coffee."
+    },
+    "work": {
+      "title": "Work together",
+      "body": "Live boards for brainstorms, retros and decisions. Stick notes, drag them, vote with dots, watch everyone's cursor move. On a phone or on the big screen.",
+      "columns": {
+        "well": "Went well",
+        "improve": "To improve",
+        "actions": "Actions"
+      },
+      "notes": [
+        "Sunday lunch at grandma's",
+        "Too many meetings on Monday",
+        "Book the train tickets",
+        "New coffee machine",
+        "Shorter stand-ups"
+      ],
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes"
+    },
+    "fun": {
+      "title": "Have fun together",
+      "body": "Icebreakers, riddles and jokes written by people in each language, not translated by a machine. Kind humour only. Soon, AI will suggest fresh ones that fit your circle."
+    },
+    "integrations": {
+      "title": "Plugs into your week",
+      "body": "circloo will meet you where you already work. These are on the way, not ready yet.",
+      "items": {
+        "teams": "Start Teams meetings with an icebreaker",
+        "salesforce": "Celebrate the deals your team wins",
+        "jira": "Turn retro actions into issues",
+        "confluence": "Publish a board as a page",
+        "notion": "Send boards and notes to your workspace"
+      },
+      "stamp": "Coming soon"
+    },
+    "how": {
+      "title": "Three steps, no password",
+      "steps": [
+        {
+          "title": "Type your email",
+          "body": "We send you a six-digit code. No password to remember."
+        },
+        {
+          "title": "Make your circle",
+          "body": "Family, friends or team. Invite people by email or with a simple code."
+        },
+        {
+          "title": "Stick things on the door",
+          "body": "Check-ins, icebreakers and boards, all in one place."
+        }
+      ]
+    },
+    "final": {
+      "title": "Your circle is waiting by the fridge.",
+      "body": "Private by default. Only the people you invite can see what is on your door.",
+      "cta": "Get your door"
+    },
+    "footer": {
+      "private": "Private by default. No ads.",
+      "made": "Made for families, friends and teams in four languages."
+    }
+  },
+  "auth": {
+    "title": "Sign in or join",
+    "lead": "Just your email. We send you a code, no password.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "send": "Send me a code",
+    "sending": "Sending…",
+    "neutral": "If this address can receive email, a code is on its way.",
+    "codeTitle": "Check your email",
+    "codeLead": "Type the six-digit code we sent to <email>{{email}}</email>.",
+    "codeLabel": "Six-digit code",
+    "verify": "Open my door",
+    "verifying": "Checking…",
+    "resend": "Send a new code",
+    "resendIn": "New code available in {{seconds}} s",
+    "changeEmail": "Use another email",
+    "errors": {
+      "invalidEmail": "This email address does not look right. Please check it.",
+      "invalidCode": "That code does not work. It may be wrong, already used or expired.",
+      "incompleteCode": "The code has six digits.",
+      "rateLimited": "Slow down a little. Try again in {{minutes}} min.",
+      "generic": "We could not reach circloo. Check your connection and try again."
+    }
+  },
+  "welcome": {
+    "title": "Hello, my name is",
+    "lead": "This is how your circle will see you.",
+    "nameLabel": "Your name",
+    "namePlaceholder": "Write your name on the line",
+    "nameHelp": "1 to 40 characters. You can change it later.",
+    "languageLabel": "Your language",
+    "submit": "Stick it on the door",
+    "saving": "Saving…",
+    "errors": {
+      "name": "Please write a name between 1 and 40 characters."
+    }
+  },
+  "home": {
+    "greeting": "Hi <name>{{name}}</name>!",
+    "lead": "Your door is ready. Here is what we are sticking on it next.",
+    "nextTitle": "Coming to your door",
+    "modules": {
+      "icebreakers": {
+        "title": "Icebreakers",
+        "body": "Fresh questions and jokes for your circle, suggested by AI and checked for kindness.",
+        "tag": "First up"
+      },
+      "checkins": {
+        "title": "Daily check-in",
+        "body": "One tap to share your mood. See your circle's weather."
+      },
+      "boards": {
+        "title": "Live boards",
+        "body": "Brainstorms, retros and votes with everyone at once."
+      },
+      "integrations": {
+        "title": "Integrations",
+        "body": "Teams, Salesforce, Jira, Confluence and Notion."
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profileTitle": "Your name tag",
+    "save": "Save",
+    "saved": "Saved.",
+    "sessionsTitle": "Your devices",
+    "sessionsBody": "Signed in on a computer you no longer use? Sign out everywhere, including here.",
+    "confirmEverywhere": "Yes, sign out on every device",
+    "everywhereFailed": "We could not sign you out everywhere. Your sessions are still active. Please try again."
+  },
+  "notFound": {
+    "title": "This note fell behind the fridge.",
+    "body": "The page you are looking for does not exist or moved.",
+    "home": "Back to the door"
+  }
+}
