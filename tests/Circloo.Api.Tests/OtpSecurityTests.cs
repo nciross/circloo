@@ -100,6 +100,22 @@ public sealed class OtpSecurityTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Parallel_wrong_guesses_cannot_exceed_the_attempt_limit()
+    {
+        var email = NewEmail();
+        var (csrf, code) = await RequestCodeAsync(email);
+        var wrong = Enumerable.Range(0, 30).Select(i => ((int.Parse(code, System.Globalization.CultureInfo.InvariantCulture) + 1 + i) % 1_000_000).ToString("D6", System.Globalization.CultureInfo.InvariantCulture));
+
+        await Task.WhenAll(wrong.Select(c => _client.PostJsonAsync("/api/auth/otp/verify", new { email, code = c }, csrf)));
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+        var challenge = await db.OtpChallenges.AsNoTracking().SingleAsync(c => c.Email == email);
+        Assert.Equal(5, challenge.Attempts);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostJsonAsync("/api/auth/otp/verify", new { email, code }, csrf)).StatusCode);
+    }
+
+    [Fact]
     public async Task Newer_code_supersedes_older_one()
     {
         var email = NewEmail();

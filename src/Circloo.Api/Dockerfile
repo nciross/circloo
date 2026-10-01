@@ -24,9 +24,9 @@ RUN dotnet publish src/Circloo.Api/Circloo.Api.csproj -c Release -o /app --no-re
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS final
 WORKDIR /app
 COPY --from=api /app ./
+# Forwarded-header trust is turned on by the deployment (Bicep), never baked into the image.
 ENV ASPNETCORE_HTTP_PORTS=3000 \
-    DOTNET_RUNNING_IN_CONTAINER=true \
-    Security__TrustForwardedHeaders=true
+    DOTNET_RUNNING_IN_CONTAINER=true
 EXPOSE 3000
 USER $APP_UID
 ENTRYPOINT ["dotnet", "Circloo.Api.dll"]

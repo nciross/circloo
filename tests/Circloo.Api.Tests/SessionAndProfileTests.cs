@@ -45,6 +45,9 @@ public sealed class SessionAndProfileTests(PostgresFixture pg) : IAsyncLifetime
         var tooLong = await client.PutJsonAsync("/api/me/profile", new { displayName = new string('a', 41), locale = "ar" }, csrf);
         Assert.Equal(HttpStatusCode.BadRequest, tooLong.StatusCode);
 
+        var spoof = await client.PutJsonAsync("/api/me/profile", new { displayName = "Amina\u202Enimda", locale = "en" }, csrf);
+        Assert.Equal(HttpStatusCode.BadRequest, spoof.StatusCode);
+
         var ok = await client.PutJsonAsync("/api/me/profile", new { displayName = "  يوسف  ", locale = "ar" }, csrf);
         Assert.Equal(HttpStatusCode.OK, ok.StatusCode);
         var body = await ok.Content.ReadFromJsonAsync<JsonElement>();

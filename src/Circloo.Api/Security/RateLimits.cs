@@ -10,6 +10,7 @@ public sealed class RateLimitOptions
     public int OtpRequestsPerIpPerHour { get; set; } = 20;
     public int OtpVerifiesPerIpPer10Min { get; set; } = 30;
     public int OtpRequestsPerEmailPer15Min { get; set; } = 3;
+    public int OtpFailedGuessesPerEmailPerDay { get; set; } = 25;
 }
 
 public static class RateLimits

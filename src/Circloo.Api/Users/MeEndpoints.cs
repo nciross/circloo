@@ -54,7 +54,7 @@ public static class MeEndpoints
     {
         var errors = new Dictionary<string, string[]>();
         name = (body.DisplayName ?? "").Trim();
-        if (name.Length is 0 or > DisplayNameMaxLength || name.Any(char.IsControl))
+        if (name.Length is 0 or > DisplayNameMaxLength || name.Any(c => char.IsControl(c) || IsBidiControl(c)))
         {
             errors["displayName"] = [$"Display name must be 1 to {DisplayNameMaxLength} characters."];
         }
@@ -64,4 +64,8 @@ public static class MeEndpoints
         }
         return errors;
     }
+
+    /// <summary>Directional overrides and isolates let a name visually spoof another (e.g. U+202E).</summary>
+    private static bool IsBidiControl(char c) =>
+        c is '\u200E' or '\u200F' or '\u061C' || (c >= '\u202A' && c <= '\u202E') || (c >= '\u2066' && c <= '\u2069');
 }

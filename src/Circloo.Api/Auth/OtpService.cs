@@ -42,7 +42,11 @@ public sealed class OtpService(
         var now = clock.GetUtcNow();
 
         var recent = await db.OtpChallenges.CountAsync(c => c.Email == normalized && c.CreatedAt > now.AddMinutes(-15), ct);
-        if (recent >= limits.Value.OtpRequestsPerEmailPer15Min)
+        // Daily guess budget per email: caps online brute force across many IPs (~30 guesses/day vs a 10^6 space).
+        var guessesToday = await db.OtpChallenges
+            .Where(c => c.Email == normalized && c.CreatedAt > now.AddDays(-1) && c.ConsumedAt == null)
+            .SumAsync(c => c.Attempts, ct);
+        if (recent >= limits.Value.OtpRequestsPerEmailPer15Min || guessesToday >= limits.Value.OtpFailedGuessesPerEmailPerDay)
         {
             // Same response as success: the caller cannot tell a limited email from a sent one.
             await audit.WriteAsync(AuditTypes.OtpRateLimited, normalizedEmail: normalized, ip: ip, detail: new { scope = "email" }, ct: ct);
@@ -96,21 +100,26 @@ public sealed class OtpService(
             .OrderByDescending(c => c.CreatedAt)
             .FirstOrDefaultAsync(ct);
 
-        if (challenge is null || code is null || !Hasher.FixedTimeEquals(challenge.CodeHash, hasher.Code(normalized, code)))
+        if (challenge is null || code is null)
         {
-            if (challenge is not null)
-            {
-                await db.OtpChallenges
-                    .Where(c => c.Id == challenge.Id && c.Attempts < _otp.MaxAttempts)
-                    .ExecuteUpdateAsync(s => s.SetProperty(c => c.Attempts, c => c.Attempts + 1), ct);
-            }
+            await audit.WriteAsync(AuditTypes.OtpVerifyFailed, normalizedEmail: normalized, ip: ip, ct: ct);
+            return OtpVerifyResult.Failed;
+        }
+
+        // Reserve an attempt atomically BEFORE comparing, so parallel guesses can never exceed the limit.
+        var reserved = await db.OtpChallenges
+            .Where(c => c.Id == challenge.Id && c.ConsumedAt == null && c.SupersededAt == null
+                        && c.ExpiresAt > now && c.Attempts < _otp.MaxAttempts)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.Attempts, c => c.Attempts + 1), ct);
+        if (reserved != 1 || !Hasher.FixedTimeEquals(challenge.CodeHash, hasher.Code(normalized, code)))
+        {
             await audit.WriteAsync(AuditTypes.OtpVerifyFailed, normalizedEmail: normalized, ip: ip, ct: ct);
             return OtpVerifyResult.Failed;
         }
 
         // Atomic single use: only one concurrent verify can flip ConsumedAt.
         var consumed = await db.OtpChallenges
-            .Where(c => c.Id == challenge.Id && c.ConsumedAt == null && c.SupersededAt == null && c.Attempts < _otp.MaxAttempts)
+            .Where(c => c.Id == challenge.Id && c.ConsumedAt == null && c.SupersededAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.ConsumedAt, now), ct);
         if (consumed != 1)
         {
