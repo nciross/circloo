@@ -9,9 +9,10 @@ infra:
   module: main
 services:
   web:
-    project: ./src/web
-    language: ts
+    project: ./src/Circloo.Api
+    language: dotnet
     host: containerapp
     docker:
       path: ./Dockerfile
+      context: ../..
       remoteBuild: true

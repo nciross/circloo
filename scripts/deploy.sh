@@ -29,10 +29,10 @@ for name in POSTGRES_ADMIN_PASSWORD AUTH_SECRET; do
   grep -q "^$name=" <<<"$VALUES" || azd env set "$name" "$(new_secret)" >/dev/null
 done
 
-if [ -f src/web/Dockerfile ]; then
+if [ -f src/Circloo.Api/Dockerfile ]; then
   azd up --no-prompt
 else
-  echo "No app yet (src/web/Dockerfile missing) - provisioning infrastructure only."
+  echo "No app yet (src/Circloo.Api/Dockerfile missing) - provisioning infrastructure only."
   azd provision --no-prompt
 fi
 

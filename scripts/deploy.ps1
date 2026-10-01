@@ -47,10 +47,10 @@ foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET') {
   if (-not ($values -match "^$name=")) { azd env set $name (New-Secret) | Out-Null }
 }
 
-if (Test-Path 'src/web/Dockerfile') {
+if (Test-Path 'src/Circloo.Api/Dockerfile') {
   azd up --no-prompt
 } else {
-  Write-Host 'No app yet (src/web/Dockerfile missing) - provisioning infrastructure only.' -ForegroundColor Yellow
+  Write-Host 'No app yet (src/Circloo.Api/Dockerfile missing) - provisioning infrastructure only.' -ForegroundColor Yellow
   azd provision --no-prompt
 }
 if ($LASTEXITCODE -ne 0) { throw 'Deployment failed.' }

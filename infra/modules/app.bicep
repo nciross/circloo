@@ -189,7 +189,8 @@ resource kvSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-var databaseUrl = 'postgresql://${postgresAdmin}:${uriComponent(postgresAdminPassword)}@${postgres.properties.fullyQualifiedDomainName}:5432/${postgresDb}?sslmode=require'
+// Npgsql connection string, read by the API as ConnectionStrings__circloodb.
+var databaseUrl = 'Host=${postgres.properties.fullyQualifiedDomainName};Port=5432;Database=${postgresDb};Username=${postgresAdmin};Password=${postgresAdminPassword};SSL Mode=Require'
 
 resource secretDatabaseUrl 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: vault
@@ -268,10 +269,14 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
           resources: { cpu: json('0.5'), memory: '1Gi' }
           env: [
             { name: 'PORT', value: string(webPort) }
-            { name: 'NODE_ENV', value: 'production' }
-            { name: 'AUTH_TRUST_HOST', value: 'true' }
-            { name: 'DATABASE_URL', secretRef: 'database-url' }
-            { name: 'AUTH_SECRET', secretRef: 'auth-secret' }
+            { name: 'ASPNETCORE_HTTP_PORTS', value: string(webPort) }
+            { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
+            { name: 'Security__TrustForwardedHeaders', value: 'true' }
+            { name: 'ConnectionStrings__circloodb', secretRef: 'database-url' }
+            { name: 'Security__Pepper', secretRef: 'auth-secret' }
+            { name: 'Email__Provider', value: 'Acs' }
+            { name: 'Email__AcsConnectionString', secretRef: 'acs-connection-string' }
+            { name: 'Email__From', value: emailSender }
             { name: 'WEB_PUBSUB_CONNECTION_STRING', secretRef: 'webpubsub-connection-string' }
             { name: 'ACS_CONNECTION_STRING', secretRef: 'acs-connection-string' }
             { name: 'EMAIL_FROM', value: emailSender }

@@ -35,6 +35,17 @@ cd circloo
 claude                   # approve the github MCP server + impeccable plugin
 ```
 
+### Run it locally (costs zero)
+Needs the .NET 10 SDK, Node 24, and Docker Desktop **or** Podman (`podman machine start`, then set `ASPIRE_CONTAINER_RUNTIME=podman`).
+
+```powershell
+cd src/web; npm ci; cd ../..
+dotnet run --project src/Circloo.AppHost      # Postgres + Mailpit + API + Vite, all local
+```
+Open the Aspire dashboard link it prints. Use the `web` endpoint for the app and the `mailpit` endpoint to read your sign-in codes. No email ever leaves your machine.
+
+Tests: `dotnet test` (API against a real Postgres through Testcontainers) and, in `src/web`, `npm test`, plus `npx playwright test` with `E2E_BASE_URL` and `MAILPIT_URL` set.
+
 Ship it to Azure (one resource group, one command) or make it vanish just as fast:
 
 ```powershell
