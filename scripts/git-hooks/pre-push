@@ -3,7 +3,7 @@
 . "$(git rev-parse --show-toplevel)/scripts/git-hooks/_conventions.sh"
 zero='0000000000000000000000000000000000000000'
 
-status=0
+status=0; commit_fail=0
 while read -r local_ref local_sha remote_ref remote_sha; do
   case "$remote_ref" in refs/heads/*) ;; *) continue ;; esac
   branch="${remote_ref#refs/heads/}"
@@ -28,9 +28,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     esac
     if ! conv_subject_ok "$subject" || ! conv_issue_ok "$msg"; then
       echo "✋ circloo: commit $(git rev-parse --short "$c") \"$subject\" breaks the commit convention." >&2
-      status=1
+      status=1; commit_fail=1
     fi
   done
 done
-[ $status -eq 0 ] || conv_commit_help
+[ $commit_fail -eq 0 ] || conv_commit_help
 exit $status
