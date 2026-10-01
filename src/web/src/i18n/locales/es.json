@@ -235,7 +235,7 @@
         "work": "Trabajo"
       },
       "tones": {
-        "silly": "Loco",
+        "silly": "Gracioso",
         "cozy": "Acogedor",
         "deep": "Profundo"
       },
@@ -249,13 +249,14 @@
     "card": {
       "label": "Tarjeta actual",
       "shake": "Sacudir",
-      "favourite": "Dejarla en la nevera",
-      "unfavourite": "Quitarla de la nevera",
+      "favourite": "Favorita",
       "showAnswer": "Ver la respuesta",
       "empty": "Ninguna tarjeta encaja con estos imanes. Mueve uno o pregunta a la nevera.",
       "exhausted": "Ya viste todas las tarjetas. Volvemos a barajar.",
-      "error": "La tarjeta se cayó detrás de la nevera. Sacude otra vez.",
-      "fresh": "Recién salida de la nevera"
+      "error": "No pudimos cargar una tarjeta. Inténtalo de nuevo.",
+      "fresh": "Sugerido por IA",
+      "favouriteFailed": "No pudimos guardar esta favorita. Inténtalo de nuevo.",
+      "pinned": "Ahora en el tablero: {{text}}"
     },
     "ask": {
       "title": "Pregunta a la nevera",
@@ -264,8 +265,8 @@
       "themePlaceholder": "vacaciones de verano",
       "ask": "Preguntar",
       "asking": "La nevera está pensando…",
-      "remaining_one": "Te queda {{count}} pregunta hoy",
-      "remaining_other": "Te quedan {{count}} preguntas hoy",
+      "remaining_one": "Te queda {{count}} consulta hoy",
+      "remaining_other": "Te quedan {{count}} consultas hoy",
       "results": "Tarjetas nuevas",
       "keep": "Guardar",
       "kept": "Guardada",
@@ -275,8 +276,12 @@
         "limited": "Se acabó la magia de la nevera por hoy. Vuelve a las {{time}}.",
         "inFlight": "La nevera ya está pensando. Un momento.",
         "unavailable": "La nevera no tiene ideas ahora mismo. Inténtalo pronto; la baraja sigue funcionando.",
-        "expired": "Estas tarjetas caducaron. Pregunta otra vez a la nevera."
-      }
+        "expired": "Estas sugerencias caducaron. Pide otras nuevas.",
+        "limitedNoTime": "Ya usaste todas tus consultas de hoy. Vuelve a intentarlo mañana."
+      },
+      "freshCount_one": "{{count}} tarjeta nueva lista.",
+      "freshCount_other": "{{count}} tarjetas nuevas listas.",
+      "aiLabel": "Sugerido por IA"
     },
     "line": {
       "title": "¿Quién está aquí?",
@@ -293,10 +298,19 @@
       "shuffle": "Mezclar el orden",
       "done": "Ya pasaron todos. ¡Bien jugado!",
       "again": "Otra ronda",
-      "keys": "Espacio: siguiente · S: mezclar",
       "fullscreen": "Pantalla grande",
       "exitFullscreen": "Salir de la pantalla grande",
-      "seconds": "{{count}} s"
+      "seconds": "{{count}} s",
+      "hadTurn": "(ya participó)",
+      "addErrors": {
+        "empty": "Escribe un nombre primero.",
+        "duplicate": "Este nombre ya está en la fila.",
+        "full": "La fila está llena: 30 personas como máximo."
+      },
+      "timesUp": "Se acabó el tiempo de {{name}}.",
+      "timesUpShort": "Tiempo",
+      "turnOfPlain": "Turno de {{name}}.",
+      "keysHint": "Con el foco en esta lista: <k>Espacio</k> siguiente persona · <k>S</k> mezclar"
     },
     "keepers": {
       "title": "Mis tesoros",
@@ -304,7 +318,8 @@
       "mine": "Mis tarjetas",
       "emptyFavourites": "Toca el corazón de una tarjeta para guardarla aquí.",
       "emptyMine": "Las tarjetas que guardas de la nevera aparecen aquí.",
-      "delete": "Borrar esta tarjeta"
+      "delete": "Borrar esta tarjeta",
+      "putOnBoard": "Poner en el tablero"
     }
   }
 }

@@ -24,11 +24,12 @@ describe('meeting mode (US3, FR-112)', () => {
 
   it('refuses blanks, duplicates (any case) and more than the limit', () => {
     const s = useMeetingStore.getState()
-    expect(s.addName('  ')).toBe(false)
-    expect(s.addName('Amina')).toBe(true)
-    expect(useMeetingStore.getState().addName('amina')).toBe(false)
+    expect(s.addName('  ')).toBe('empty')
+    expect(s.addName('Amina')).toBe('added')
+    expect(useMeetingStore.getState().addName('amina')).toBe('duplicate')
     for (let i = 0; i < MAX_PEOPLE + 5; i++) useMeetingStore.getState().addName(`P${i}`)
     expect(useMeetingStore.getState().names).toHaveLength(MAX_PEOPLE)
+    expect(useMeetingStore.getState().addName('Late')).toBe('full')
   })
 
   it('needs at least two people to start', () => {
@@ -44,6 +45,41 @@ describe('meeting mode (US3, FR-112)', () => {
     useMeetingStore.setState({ turn: 2 })
     useMeetingStore.getState().removeName(last)
     expect(useMeetingStore.getState().turn).toBe(1)
+    expect(useMeetingStore.getState().phase).toBe('done')
+  })
+
+  it('removing someone who already went does not skip the current person', () => {
+    for (const n of ['A', 'B', 'C', 'D']) useMeetingStore.getState().addName(n)
+    useMeetingStore.getState().start()
+    useMeetingStore.setState({ turn: 2 })
+    const { order } = useMeetingStore.getState()
+    useMeetingStore.getState().removeName(order[0]!)
+    const st = useMeetingStore.getState()
+    expect(st.order[st.turn]).toBe(order[2])
+  })
+
+  it('someone added during a round joins the end of the line and gets a turn', () => {
+    for (const n of ['A', 'B']) useMeetingStore.getState().addName(n)
+    useMeetingStore.getState().start()
+    expect(useMeetingStore.getState().addName('Late')).toBe('added')
+    expect(useMeetingStore.getState().order.at(-1)).toBe('Late')
+    useMeetingStore.getState().next()
+    useMeetingStore.getState().next()
+    const st = useMeetingStore.getState()
+    expect(st.phase).toBe('round')
+    expect(st.order[st.turn]).toBe('Late')
+  })
+
+  it('someone added after the round ends gets their own turn', () => {
+    for (const n of ['A', 'B']) useMeetingStore.getState().addName(n)
+    useMeetingStore.getState().start()
+    useMeetingStore.getState().next()
+    useMeetingStore.getState().next()
+    expect(useMeetingStore.getState().phase).toBe('done')
+    useMeetingStore.getState().addName('Late')
+    const st = useMeetingStore.getState()
+    expect(st.phase).toBe('round')
+    expect(st.order[st.turn]).toBe('Late')
   })
 
   it('shuffle is a permutation and uses the injected randomness', () => {

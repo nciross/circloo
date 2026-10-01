@@ -7,6 +7,7 @@ public static class AuditTypes
 {
     public const string OtpRequested = "otp.requested";
     public const string OtpRateLimited = "otp.rate_limited";
+    public const string AiRateLimited = "ai.rate_limited";
     public const string OtpVerifyFailed = "otp.verify_failed";
     public const string SignedIn = "auth.signed_in";
     public const string SignedUp = "auth.signed_up";

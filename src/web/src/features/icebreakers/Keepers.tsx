@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Heart, Trash2 } from 'lucide-react'
 import { useDeleteMine, useFavourites, useMine, useToggleFavourite, type Spark } from '../../api/sparks'
@@ -14,7 +14,19 @@ export function Keepers() {
   const toggle = useToggleFavourite()
   const remove = useDeleteMine()
   const pin = useDeckStore((s) => s.pin)
-  const list: Spark[] | undefined = tab === 'favourites' ? favourites.data : mine.data
+  const query = tab === 'favourites' ? favourites : mine
+  const list: Spark[] | undefined = query.data
+  const listRef = useRef<HTMLUListElement>(null)
+  const [failed, setFailed] = useState(false)
+
+  // The removed card's button disappears: focus the next card, or the tabs when the list is empty.
+  const afterRemove = (index: number) =>
+    requestAnimationFrame(() => {
+      const opens = listRef.current?.querySelectorAll<HTMLButtonElement>('.keeper-note__open')
+      const next = opens?.[Math.min(index, (opens?.length ?? 1) - 1)]
+      ;(next ?? document.querySelector<HTMLButtonElement>('.keepers .choice-magnet[aria-pressed="true"]'))?.focus()
+    })
+  const onFail = () => setFailed(true)
 
   return (
     <section className="keepers" aria-labelledby="keepers-title">
@@ -32,19 +44,26 @@ export function Keepers() {
           ]}
         />
       </div>
-      {list && list.length === 0 ? (
+      {failed ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
+      {query.isPending ? (
+        <p className="keepers__empty" role="status">{t('common.loading')}</p>
+      ) : query.isError ? (
+        <p className="field__error" role="alert">{t('common.errorGeneric')}</p>
+      ) : list && list.length === 0 ? (
         <p className="keepers__empty">{tab === 'favourites' ? t('ice.keepers.emptyFavourites') : t('ice.keepers.emptyMine')}</p>
       ) : (
-        <ul className="keeper-notes">
-          {(list ?? []).map((s) => (
+        <ul ref={listRef} className="keeper-notes">
+          {(list ?? []).map((s, i) => (
             <li key={s.id} className={`keeper-note keeper-note--${s.kind}`} lang={s.lang}>
-              <button type="button" className="keeper-note__open" onClick={() => pin(s)}>{s.text}</button>
+              <button type="button" className="keeper-note__open" dir="auto" aria-describedby="keepers-put" onClick={() => pin(s)}>{s.text}</button>
               {tab === 'favourites' ? (
-                <button type="button" className="keeper-note__icon" aria-label={t('ice.card.unfavourite')} onClick={() => toggle.mutate({ id: s.id, on: false })}>
+                <button type="button" className="keeper-note__icon" aria-label={`${t('ice.card.favourite')}: ${s.text.slice(0, 40)}`} aria-pressed="true"
+                  onClick={() => { setFailed(false); toggle.mutate({ id: s.id, on: false }, { onSuccess: () => afterRemove(i), onError: onFail }) }}>
                   <Heart size={16} strokeWidth={2.5} aria-hidden="true" />
                 </button>
               ) : (
-                <button type="button" className="keeper-note__icon" aria-label={t('ice.keepers.delete')} onClick={() => remove.mutate(s.id)}>
+                <button type="button" className="keeper-note__icon" aria-label={`${t('ice.keepers.delete')}: ${s.text.slice(0, 40)}`} aria-busy={remove.isPending || undefined}
+                  onClick={() => { if (remove.isPending) return; setFailed(false); remove.mutate(s.id, { onSuccess: () => afterRemove(i), onError: onFail }) }}>
                   <Trash2 size={16} strokeWidth={2.5} aria-hidden="true" />
                 </button>
               )}
@@ -52,6 +71,7 @@ export function Keepers() {
           ))}
         </ul>
       )}
+      <p id="keepers-put" className="visually-hidden">{t('ice.keepers.putOnBoard')}</p>
     </section>
   )
 }

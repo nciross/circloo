@@ -5,6 +5,7 @@ export class ApiError extends Error {
   readonly type: string | undefined
   readonly retryAfterSeconds: number | undefined
   readonly errors: Record<string, string[]> | undefined
+  readonly resetsAt: string | undefined
 
   constructor(status: number, problem: Partial<Problem> = {}, retryAfterSeconds?: number) {
     super(problem.title ?? `HTTP ${status}`)
@@ -12,6 +13,7 @@ export class ApiError extends Error {
     this.type = problem.type
     this.errors = problem.errors
     this.retryAfterSeconds = retryAfterSeconds ?? problem.retryAfterSeconds
+    this.resetsAt = problem.resetsAt
   }
 }
 
@@ -21,6 +23,7 @@ interface Problem {
   status: number
   errors: Record<string, string[]>
   retryAfterSeconds: number
+  resetsAt: string
 }
 
 const CSRF_COOKIE = 'XSRF-TOKEN'

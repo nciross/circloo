@@ -12,11 +12,11 @@ function shakeDoor() {
   window.setTimeout(() => document.documentElement.classList.remove('is-shaking'), 520)
 }
 
-function RiddleAnswer({ answer, lang }: { answer: string; lang: string }) {
+export function RiddleAnswer({ answer, lang }: { answer: string; lang: string }) {
   const { t } = useTranslation()
   const [shown, setShown] = useState(false)
   return shown ? (
-    <p className="ritual-card__answer" lang={lang}>{answer}</p>
+    <p className="ritual-card__answer" lang={lang} dir="auto">{answer}</p>
   ) : (
     <button type="button" className="text-link ritual-card__reveal" onClick={() => setShown(true)}>
       {t('ice.card.showAnswer')}
@@ -32,6 +32,7 @@ export function RitualCard({ big = false }: { big?: boolean }) {
   const { audience, tone, kind, kidsSafe, deal, pinned, shake, pin } = useDeckStore()
   const favourite = useToggleFavourite()
   const [shaken, setShaken] = useState(false)
+  const [favFailed, setFavFailed] = useState(false)
 
   const key = ['draw', locale, audience, tone, kind, kidsSafe, deal] as const
   const draw = useQuery({
@@ -60,21 +61,26 @@ export function RitualCard({ big = false }: { big?: boolean }) {
       if (pinned?.id === s.id) pin({ ...pinned, favourite: value })
       else qc.setQueryData<DrawResult>(key, (d) => (d?.spark ? { ...d, spark: { ...d.spark, favourite: value } } : d))
     }
+    setFavFailed(false)
     apply(on)
-    favourite.mutate({ id: s.id, on }, { onError: () => apply(!on) })
+    favourite.mutate({ id: s.id, on }, { onError: () => { apply(!on); setFavFailed(true) } })
   }
 
   const loading = !pinned && draw.isFetching
   return (
     <article className={`ritual-card${big ? ' ritual-card--big' : ''}`} aria-label={t('ice.card.label')}>
       <span className="pin-magnet pin-magnet--cobalt" aria-hidden="true" />
-      <p className="visually-hidden" aria-live="polite">{shaken && current ? current.text : ''}</p>
+      <h2 className="visually-hidden">{t('ice.card.label')}</h2>
+      <p className="visually-hidden" aria-live="polite" lang={current?.lang}>
+        {pinned ? t('ice.card.pinned', { text: pinned.text }) : shaken && current ? current.text : ''}
+      </p>
       {current?.source === 'ai' ? <span className="fresh-stamp">{t('ice.card.fresh')}</span> : null}
+      {favFailed ? <p className="field__error" role="alert">{t('ice.card.favouriteFailed')}</p> : null}
       <div className="ritual-card__body">
         {!pinned && draw.isError ? (
           <p className="ritual-card__message" role="alert">{t('ice.card.error')}</p>
         ) : current ? (
-          <h2 key={current.id} className="ritual-card__question is-dealt" lang={current.lang}>{current.text}</h2>
+          <p key={current.id} className="ritual-card__question is-dealt" lang={current.lang} dir="auto">{current.text}</p>
         ) : draw.isPending || loading ? (
           <p className="ritual-card__message">{t('common.loading')}</p>
         ) : (
@@ -92,7 +98,7 @@ export function RitualCard({ big = false }: { big?: boolean }) {
             type="button"
             className="heart-magnet"
             aria-pressed={current.favourite}
-            aria-label={current.favourite ? t('ice.card.unfavourite') : t('ice.card.favourite')}
+            aria-label={t('ice.card.favourite')}
             onClick={() => toggleFav(current)}
           >
             <Heart size={22} strokeWidth={2.5} aria-hidden="true" />

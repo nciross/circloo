@@ -249,13 +249,14 @@
     "card": {
       "label": "Carte du moment",
       "shake": "Secouer",
-      "favourite": "La garder sur le frigo",
-      "unfavourite": "La retirer du frigo",
+      "favourite": "Favori",
       "showAnswer": "Voir la réponse",
       "empty": "Aucune carte ne correspond à ces aimants. Déplaces-en un, ou demande au frigo.",
       "exhausted": "Tu as vu toutes les cartes ici. On remélange le paquet.",
-      "error": "La carte a glissé derrière le frigo. Secoue encore.",
-      "fresh": "Tout droit du frigo"
+      "error": "Impossible de charger une carte. Réessayez.",
+      "fresh": "Suggéré par l'IA",
+      "favouriteFailed": "Impossible d'enregistrer ce favori. Réessayez.",
+      "pinned": "Maintenant sur le tableau : {{text}}"
     },
     "ask": {
       "title": "Demander au frigo",
@@ -275,8 +276,12 @@
         "limited": "Plus de magie du frigo pour aujourd'hui. Retour à {{time}}.",
         "inFlight": "Le frigo réfléchit déjà. Un instant.",
         "unavailable": "Le frigo est à court d'idées. Réessaie bientôt, le paquet marche toujours.",
-        "expired": "Ces cartes ont tourné. Redemande au frigo."
-      }
+        "expired": "Ces suggestions ont expiré. Redemandez-en de nouvelles.",
+        "limitedNoTime": "Vous avez utilisé toutes vos demandes du jour. Réessayez demain."
+      },
+      "freshCount_one": "{{count}} nouvelle carte est prête.",
+      "freshCount_other": "{{count}} nouvelles cartes sont prêtes.",
+      "aiLabel": "Suggéré par l'IA"
     },
     "line": {
       "title": "Qui est là ?",
@@ -293,10 +298,19 @@
       "shuffle": "Mélanger l'ordre",
       "done": "Tout le monde est passé. Bravo !",
       "again": "Un autre tour",
-      "keys": "Espace : suivant · S : mélanger",
       "fullscreen": "Grand écran",
       "exitFullscreen": "Quitter le grand écran",
-      "seconds": "{{count}} s"
+      "seconds": "{{count}} s",
+      "hadTurn": "(a déjà joué)",
+      "addErrors": {
+        "empty": "Écrivez d'abord un prénom.",
+        "duplicate": "Ce prénom est déjà sur la ligne.",
+        "full": "La ligne est pleine : 30 personnes au maximum."
+      },
+      "timesUp": "Temps écoulé pour {{name}}.",
+      "timesUpShort": "Temps écoulé",
+      "turnOfPlain": "Au tour de {{name}}.",
+      "keysHint": "Quand cette liste a le focus : <k>Espace</k> personne suivante · <k>S</k> mélanger"
     },
     "keepers": {
       "title": "Mes trésors",
@@ -304,7 +318,8 @@
       "mine": "Mes cartes",
       "emptyFavourites": "Touche le cœur d’une carte pour la garder ici.",
       "emptyMine": "Les cartes que tu gardes du frigo arrivent ici.",
-      "delete": "Supprimer cette carte"
+      "delete": "Supprimer cette carte",
+      "putOnBoard": "Mettre sur le tableau"
     }
   }
 }

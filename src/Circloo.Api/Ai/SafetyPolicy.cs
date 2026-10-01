@@ -11,28 +11,40 @@ namespace Circloo.Api.Ai;
 public sealed partial class SafetyPolicy
 {
     // Harmful in any spark (theme or output), per language, matched on normalized words/prefixes.
+    // A trailing space marks a whole word: "kill " refuses "kill" but not "killer whale"; everyday words such as
+    // "hate" ("which chore do you hate?") or "ugly" ("ugly sweater party") are deliberately absent.
     private static readonly string[] Harmful =
     [
         // en
-        "sex", "porn", "nude", "naked", "kill", "murder", "suicide", "drunk", "cocaine", "heroin", "weed", "gun", "bomb", "terroris",
-        "stupid", "idiot", "ugly", "loser", "hate",
+        "sex", "porn", "nude", "naked", "kill ", "killing", "murder", "suicide", "drunk", "cocaine", "heroin", "weed", "gun ", "guns ", "bomb", "terroris",
+        "stupid", "idiot", "loser",
         // fr
         "sexe", "porno", "nu ", "tuer", "meurtre", "suicid", "ivre", "drogue", "cocaine", "arme", "bombe", "terroris", "debile", "idiot", "moche", "connard",
         // es
         "sexo", "desnud", "matar", "asesin", "suicid", "borrach", "droga", "cocaina", "pistola", "bomba", "terroris", "estupid", "idiota", "feo ", "imbecil",
         // ar
-        "جنس", "اباحي", "عاري", "قتل", "انتحار", "سكران", "مخدر", "كوكايين", "مسدس", "قنبلة", "ارهاب", "غبي", "احمق", "قبيح",
+        "جنس ", "اباحي", "عاري", "قتل", "انتحار", "سكران", "مخدر", "كوكايين", "مسدس", "قنبلة", "ارهاب", "غبي", "احمق", "قبيح",
     ];
 
-    // Topics jokes must never be about (PRODUCT.md): fine in a respectful question, refused in a joke.
+    // Topics humour must never be about (PRODUCT.md, spec FR-106): religion, politics, nationality, ethnicity, gender
+    // and sexuality. Fine in a respectful question; refused as a joke or riddle theme and in joke or riddle output.
     private static readonly string[] JokeTaboo =
     [
-        "god", "allah", "jesus", "church", "mosque", "synagogue", "muslim", "christian", "jewish", "religion", "priest", "imam", "rabbi",
-        "politic", "president", "election", "immigrant", "blonde", "women are", "men are",
-        "dieu", "eglise", "mosquee", "musulman", "chretien", "juif", "religion", "pretre", "politique", "president", "immigre", "les femmes", "les hommes",
-        "dios", "iglesia", "mezquita", "musulman", "cristiano", "judio", "religion", "cura", "politic", "presidente", "inmigrante", "las mujeres", "los hombres",
-        "الله", "مسجد", "كنيسة", "مسلم", "مسيحي", "يهودي", "دين", "شيخ", "سياس", "رئيس", "مهاجر", "النساء", "الرجال",
+        "god ", "gods ", "allah", "jesus", "church", "mosque", "synagogue", "muslim", "christian", "jew ", "jews ", "jewish", "religio", "priest", "imam", "rabbi",
+        "politic", "president", "election", "immigrant", "refugee", "blonde", "women are", "men are", "gay", "lesbian", "trans ",
+        "french", "arab", "mexican", "asian", "african", "chinese", "indian", "black people", "white people", "race ", "ethnic", "nationalit",
+        "dieu", "eglise", "mosquee", "musulman", "chretien", "juif", "juive", "religio", "pretre", "politique", "president", "immigre", "refugie",
+        "les femmes", "les hommes", "homosexuel", "francais", "arabe", "mexicain", "asiatique", "africain", "chinois", "les noirs", "les blancs", "ethni",
+        "dios", "iglesia", "mezquita", "musulman", "cristiano", "judio", "religio", "cura ", "presidente", "inmigrante", "refugiad",
+        "las mujeres", "los hombres", "homosexual", "frances", "mexicano", "asiatico", "africano", "chino", "los negros", "gitano", "etnia",
+        "الله", "مسجد", "كنيسه", "مسلم", "مسيحي", "يهود", "دين ", "اديان", "سياس", "رئيس", "انتخاب", "مهاجر", "لاجئ", "النساء", "الرجال",
+        "عرب", "افارقه", "افريقي", "صيني", "فرنسي", "مكسيكي", "عنصري",
     ];
+
+    // Arabic attaches clitics and verb prefixes to the front of a word ("والمدينة", "بالدين", "سأقتل"); a term matches at a
+    // word start after any of them, never inside another word ("دين" must not match "مدينة").
+    private static readonly string[] ArabicProclitics =
+        ["", "ال", "و", "ف", "ب", "ل", "ك", "وال", "فال", "بال", "كال", "لل", "ولل", "س", "سا", "سي", "ست", "سن", "ي", "ت", "ن", "ا", "وي", "وت", "ون", "فا"];
 
     private static readonly string[] InjectionMarkers =
     [
@@ -82,14 +94,17 @@ public sealed partial class SafetyPolicy
     private static readonly Term[] JokeTabooTerms = Prepare(JokeTaboo);
     private static readonly Term[] InjectionTerms = Prepare(InjectionMarkers);
 
-    /// <summary>Latin terms match at a word start (prefix) or as a whole word; Arabic terms match anywhere, since Arabic attaches prefixes (و، ب، ال).</summary>
+    /// <summary>Terms match at a word start (prefix) or, when marked, as a whole word. Arabic terms may follow a proclitic.</summary>
     private static bool ContainsAny(string normalized, Term[] terms) =>
         terms.Any(t => t.Arabic
-            ? normalized.Contains(t.Core, StringComparison.Ordinal)
+            ? ArabicProclitics.Any(p => normalized.Contains(t.WholeWord ? $" {p}{t.Core} " : $" {p}{t.Core}", StringComparison.Ordinal))
             : normalized.Contains(t.WholeWord ? $" {t.Core} " : $" {t.Core}", StringComparison.Ordinal));
 
+    /// <summary>Kinds that are humour: their themes and output must stay off the taboo topics.</summary>
+    public static bool IsHumour(string? kind) => kind is "joke" or "riddle";
+
     /// <summary>Refuses unsafe themes before any model call, so they cost nothing and never reach a model.</summary>
-    public bool IsThemeSafe(string? theme)
+    public bool IsThemeSafe(string? theme, string? kind = null)
     {
         if (string.IsNullOrWhiteSpace(theme))
         {
@@ -100,7 +115,7 @@ public sealed partial class SafetyPolicy
             return false;
         }
         var n = Normalize(theme);
-        return !ContainsAny(n, HarmfulTerms) && !ContainsAny(n, InjectionTerms);
+        return !ContainsAny(n, HarmfulTerms) && !ContainsAny(n, InjectionTerms) && !(IsHumour(kind) && ContainsAny(n, JokeTabooTerms));
     }
 
     /// <summary>Checks one generated item: script matches the language, lengths, no harmful content, no personal data.</summary>
@@ -120,7 +135,7 @@ public sealed partial class SafetyPolicy
             return false;
         }
         var n = Normalize(all);
-        return !ContainsAny(n, HarmfulTerms) && !(item.Kind == "joke" && ContainsAny(n, JokeTabooTerms));
+        return !ContainsAny(n, HarmfulTerms) && !(IsHumour(item.Kind) && ContainsAny(n, JokeTabooTerms));
     }
 
     private static bool IsArabic(char c) => c is >= '\u0600' and <= '\u06FF';

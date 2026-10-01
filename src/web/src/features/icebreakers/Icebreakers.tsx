@@ -68,10 +68,10 @@ export default function Icebreakers() {
           <div ref={boardRef} className={`ritual-board${full ? ' is-full' : ''}`}>
             <RitualCard big={full} />
             <RitualLine onNextCard={nextCard} />
-            <button type="button" className="text-link ritual-board__full" onClick={toggleFull}>
+            {document.fullscreenEnabled ? <button type="button" className="text-link ritual-board__full" onClick={toggleFull}>
               {full ? <Minimize2 size={16} aria-hidden="true" /> : <Maximize2 size={16} aria-hidden="true" />}
               {full ? t('ice.line.exitFullscreen') : t('ice.line.fullscreen')}
-            </button>
+            </button> : null}
           </div>
           <AskFridge />
         </div>
