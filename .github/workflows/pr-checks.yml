@@ -24,6 +24,34 @@ jobs:
             exit 1
           fi
 
+  conventions:
+    name: Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Branch name, PR title and commits
+        env:
+          BRANCH: ${{ github.head_ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          . scripts/git-hooks/_conventions.sh
+          fail=0
+          conv_branch_ok "$BRANCH" || { echo "::error::Branch '$BRANCH' must be <type>/<number>-<slug> (e.g. feat/42-daily-checkin)."; fail=1; }
+          # The PR title becomes the single squash commit on main.
+          conv_subject_ok "$TITLE" || { echo "::error::PR title '$TITLE' must be a Conventional Commit subject (e.g. 'feat(mood): one-tap check-in (#42)')."; fail=1; }
+          conv_issue_ok "$TITLE"   || { echo "::error::PR title must reference the issue, e.g. '(#42)'."; fail=1; }
+          for c in $(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA"); do
+            msg="$(git log -1 --format=%B "$c")"; subject="$(printf '%s\n' "$msg" | head -n1)"
+            if ! conv_subject_ok "$subject" || ! conv_issue_ok "$msg"; then
+              echo "::error::Commit $(git rev-parse --short "$c") '$subject' is not a Conventional Commit with an issue reference."; fail=1
+            fi
+          done
+          exit $fail
+
   bicep:
     name: Bicep compiles
     runs-on: ubuntu-latest

@@ -15,7 +15,8 @@ Never start implementing without a GitHub issue. If there is none, create one th
 type:idea issue → /speckit-specify → /speckit-clarify → /speckit-plan → /speckit-tasks → /speckit-analyze
 → /speckit-taskstoissues (task issues "T001: …", only after the plan) → implement one issue → PR "Closes #N"
 ```
-- Commit messages must contain `#N`. `scripts/git-hooks/commit-msg` enforces it once `scripts/setup` has run.
+- **Branches**: `<type>/<number>-<slug>` (e.g. `feat/42-daily-checkin`). **Commits**: Conventional Commits with `#N` (`feat(mood): one-tap check-in (#42)`). **PR title** must be a conventional subject with `(#N)`, because it becomes the single squash commit on `main`. See `docs/workflow/git-conventions.md`. The git hooks (`reference-transaction`, `commit-msg`, `pre-push`, all enabled by `scripts/setup`) block bad branch names, bad commits and any push to `main`.
+- `main` only changes through squash merges done by Nicolas. Merged branches are deleted. Never push or commit to `main`.
 - PRs must contain `Closes #N`; `.github/workflows/pr-checks.yml` fails otherwise and also compiles the Bicep.
 - Bugs and chores need an issue but may skip Spec-Kit.
 
@@ -30,6 +31,7 @@ type:idea issue → /speckit-specify → /speckit-clarify → /speckit-plan → 
 The `.ps1` scripts need PowerShell 7 (`pwsh`); bash twins (`.sh`) exist.
 ```powershell
 ./scripts/setup.ps1                       # once: gh login, git hooks, GitHub labels   (bash: ./scripts/setup.sh)
+./scripts/protect-repo.ps1                # admin: squash-only, auto-delete branches, rulesets (needs Pro/public)
 ./scripts/deploy.ps1 [-Environment dev] [-Location francecentral]   # azd up → rg-circloo-<env>
 ./scripts/destroy.ps1 [-Environment dev] [-Yes]                     # azd down --purge (whole RG)
 az bicep build --file infra/main.bicep --stdout > $null             # validate IaC

@@ -1,3 +1,4 @@
+<!-- PR title = the squash commit on main: <type>(<scope>): <summary> (#issue) -->
 Closes #<!-- issue number: no issue, no development -->
 
 ## What changed

@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# circloo: refuse to CREATE local branches that don't follow <type>/<number>-<slug>.
+# Runs for every ref update; only blocks brand-new refs/heads/* in the "prepared" phase. An all-zero old value
+# also shows up on force updates (git branch -f), so a ref only counts as new when it doesn't exist yet.
+[ "$1" = "prepared" ] || exit 0
+. "$(git rev-parse --show-toplevel)/scripts/git-hooks/_conventions.sh"
+
+status=0
+while read -r old new ref; do
+  case "$ref" in refs/heads/*) ;; *) continue ;; esac
+  case "$old" in *[!0]*) continue ;; esac          # existing branch being updated: fine
+  case "$new" in *[!0]*) ;; *) continue ;; esac     # deletion: fine
+  git rev-parse -q --verify "$ref" >/dev/null && continue   # force update of an existing branch: fine
+  name="${ref#refs/heads/}"
+  [ "$name" = "main" ] && continue
+  if ! conv_branch_ok "$name"; then
+    echo "✋ circloo: branch '$name' doesn't follow the naming convention." >&2
+    conv_branch_help
+    status=1
+  fi
+done
+exit $status

@@ -15,7 +15,7 @@ Nicolas is circloo's lead maintainer agent. He closes the loop that [issue-drive
               ┌─────────▼───┐  ┌───────▼──────┐  ┌────▼───────┐
               │  reviewer   │  │ ux-designer  │  │ azure-infra│   findings only, no edits
               │ spec, i18n, │  │ /impeccable  │  │ bicep, 1 RG│
-              │ correctness │  │ audit,review │  │ invariant  │
+              │ correctness │  │audit,critique│  │ invariant  │
               └─────────┬───┘  └───────┬──────┘  └────┬───────┘
                         └──────────────┼──────────────┘
                               ┌────────▼────────┐
@@ -26,7 +26,7 @@ Nicolas is circloo's lead maintainer agent. He closes the loop that [issue-drive
                 small in-scope   │      │    │  big / out of scope
                  fix + push (#N) │      │    └──▶ request changes, label, new issue
                                  ▼      ▼
-                         CI green → approve → squash-merge → delete branch
+            CI green → nicolas/review ✓ → squash-merge (1 commit on main) → delete branch → restack dependents
                                         │
                      close linked issues · comment summary · tick checklists
                      tasks.md follow-up PR · progress on parent idea issue
@@ -38,15 +38,20 @@ The skill is the orchestrator because Claude Code subagents can't start other su
 | Gate | Check |
 |---|---|
 | Not a draft | `isDraft == false` |
+| Conventions | Branch `<type>/<number>-<slug>`, PR title conventional with `(#N)`, all commits conventional with `#N` |
 | Linked issue | PR body has `Closes/Fixes/Resolves #N`, and commits reference `#N` |
 | In scope | Diff matches the issue, with nothing unrelated |
-| CI green | All checks completed and passing (never on pending) |
+| CI green | All checks completed and passing, and the named checks `No issue, no development`, `Conventions` and `Bicep compiles` are present (never on pending, never on an empty list) |
 | Mergeable | No conflicts; stacked PRs merge base-first |
 | Constitution | Tests for acceptance scenarios, 4 locales + RTL, Impeccable audit for UI, no secrets, SSO as config, Bicep compiles with one RG |
+| Correctness and security | Circle-scoped data checks membership, invites honour expiry/max uses/revocation, no obvious bugs in the changed lines |
+
+## Approval
+Nicolas approves with the commit status **`nicolas/review`** (a required check in `.github/rulesets/main.json`). He also posts a review: a real `--approve` if `NICOLAS_GITHUB_TOKEN` (a bot account or GitHub App token) is set, otherwise a comment, because GitHub forbids approving your own PR.
 
 ## What Nicolas may change
 - **Fixes himself** (pushed to the PR branch, commit `fix: … (#issue)`): small (about ≤ 50 lines) and in scope. Examples: missing translation keys, typos, lint, obvious test fixes, `tasks.md` ticks.
-- **Never**: force-push, rewrite history, `--admin` merges, disabling checks, commits to `main`, product decisions. Those become `--request-changes` plus a label, or a new issue.
+- **Never**: force-push or rewrite history (the one exception is the `git push --force-with-lease` restack of a dependent short-lived branch after its base was squash-merged), `--admin` merges, disabling checks, commits to `main`, product decisions. Those become `--request-changes` plus a label, or a new issue.
 
 ## Labels
 - `status:changes-requested`: Nicolas bounced the PR, so the author acts next.

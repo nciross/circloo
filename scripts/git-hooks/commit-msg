@@ -1,18 +1,22 @@
 #!/usr/bin/env sh
-# circloo rule: no issue, no development. Every commit must reference a GitHub issue (#123).
-# Installed by scripts/setup (git config core.hooksPath scripts/git-hooks).
+# circloo: Conventional Commits + an issue reference. No issue, no development.
+. "$(git rev-parse --show-toplevel)/scripts/git-hooks/_conventions.sh"
+
 msg_file="$1"
-first_line="$(head -n1 "$msg_file")"
+# Merge commits from git merge/pull are not ours to name; they never reach main (squash only).
+[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ] && exit 0
+# Ignore comment lines git adds to the editor buffer.
+subject="$(grep -v '^#' "$msg_file" | sed '/^[[:space:]]*$/d' | head -n1)"
+body="$(grep -v '^#' "$msg_file")"
 
-case "$first_line" in
-  Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
-esac
+# Autosquash helpers are folded into a conventional commit before the branch is pushed.
+case "$subject" in fixup!*|squash!*|amend!*) exit 0 ;; esac
 
-if grep -Eq '#[0-9]+' "$msg_file"; then
-  exit 0
+ok=0
+if ! conv_subject_ok "$subject"; then
+  echo "✋ circloo: commit subject is not a Conventional Commit: \"$subject\"" >&2; ok=1
 fi
-
-echo "✋ circloo: no issue, no development." >&2
-echo "   Reference the GitHub issue in your commit message, e.g. 'feat(mood): daily check-in card (#42)'." >&2
-echo "   No issue yet? Ask Claude to create one (GitHub MCP) or run: gh issue create" >&2
-exit 1
+if ! conv_issue_ok "$body"; then
+  echo "✋ circloo: no issue, no development. Reference the issue (#N) in the commit message." >&2; ok=1
+fi
+[ $ok -eq 0 ] || { conv_commit_help; exit 1; }

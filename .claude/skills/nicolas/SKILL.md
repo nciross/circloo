@@ -17,7 +17,14 @@ $ARGUMENTS
 ## Modes
 
 ### `/nicolas <PR#>`: take one PR to a decision
-1. **Triage**: `gh pr view <PR> --json number,title,isDraft,baseRefName,files,closingIssuesReferences`. If there's no linked issue, comment `No issue, no development: please add "Closes #N"`, add `status:changes-requested` and stop.
+1. **Triage**: `gh pr view <PR> --json number,title,isDraft,baseRefName,files,closingIssuesReferences`. If there's no linked issue, bounce it and stop:
+   ```bash
+   gh pr comment <PR> --body 'No issue, no development: please add "Closes #N" to the PR description.'
+   gh pr edit <PR> --add-label status:changes-requested
+   gh api repos/{owner}/{repo}/statuses/$(gh pr view <PR> --json headRefOid -q .headRefOid) \
+     -f state=failure -f context=nicolas/review -f description="No linked issue"
+   ```
+   Nicolas fixes a non-conventional PR title or branch name himself. Non-conventional commits get bounced (see `docs/workflow/git-conventions.md`).
 2. **Specialist reviews**, in parallel in one message, chosen by the changed paths:
    - always: `reviewer` (traceability, spec, correctness, i18n)
    - UI files (`src/web/**/*.{tsx,css}`, `messages/**`, `DESIGN.md`): `ux-designer`, asked to run `/impeccable audit` and `/impeccable critique` on the changed surfaces
@@ -39,4 +46,4 @@ $ARGUMENTS
 
 ## Guardrails
 - Merging is an outward-facing action. Each `gh pr merge` goes through the normal permission prompt unless the user has allowed it.
-- Never merge with pending or failing checks, never use `--admin`, never force-push, never commit to `main`.
+- `main` only gets squash merges (`--squash --delete-branch`, subject `<PR title> (#PR)`). Never merge with pending or failing checks, never use `--admin`, never commit to `main`. The only force-push allowed is `--force-with-lease` when restacking a dependent short-lived branch after its base was squash-merged.
