@@ -1,0 +1,27 @@
+{
+  "lang": "fr",
+  "sparks": [
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Si ta semaine était une météo, ce serait quoi ?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Quelle petite chose t'a fait sourire cette semaine ?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "Quel est ton talent le plus inutile ?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Quel personnage de dessin animé serait le pire colocataire ?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Raconte ta matinée avec seulement trois emojis." },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work"], "text": "Quel plat de ton enfance défendrais-tu encore aujourd'hui, coûte que coûte ?" },
+    { "kind": "icebreaker", "tags": ["work"], "text": "Quelle habitude ou quel outil te fait gagner une heure par semaine sans que personne ne le sache ?" },
+    { "kind": "icebreaker", "tags": ["family", "kids-safe"], "text": "Si notre famille avait un générique de série, ce serait lequel ?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Tu peux maîtriser une compétence instantanément. Laquelle ? Et pourquoi pas une utile ?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "Quel est le meilleur conseil que tu n'as jamais suivi ?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Tu préfères toujours arriver 10 minutes en retard ou toujours 20 minutes en avance ?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Tu préfères parler aux animaux ou parler toutes les langues du monde ?" },
+    { "kind": "would-you-rather", "tags": ["friends", "work"], "text": "Tu préfères un café illimité ou des siestes illimitées ?" },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Que dit un escargot quand il croise une limace ? « Oh, un nudiste ! »" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Pourquoi les plongeurs plongent-ils toujours en arrière ? Parce que sinon, ils tombent dans le bateau." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Quel est le comble pour un électricien ? De ne pas être au courant." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Qu'est-ce qui est jaune et qui attend ? Jonathan." },
+    { "kind": "joke", "tags": ["friends", "work"], "text": "Cette réunion aurait pu être un mail. Ce mail aurait pu être un post-it. Ce post-it est devenu cette réunion." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Pourquoi les poissons détestent l'ordinateur ? À cause du net." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Quel est le comble pour un jardinier ? De raconter des salades." },
+    { "kind": "joke", "tags": ["work"], "text": "Mon code marche et je ne sais pas pourquoi. Mon code ne marche pas et je ne sais pas pourquoi. Bref, je suis développeur." },
+    { "kind": "riddle", "tags": ["family", "friends", "work", "kids-safe"], "text": "Plus j'ai de gardiens, moins je suis gardé. Qui suis-je ? (Un secret.)" }
+  ]
+}

@@ -1,0 +1,23 @@
+name: 💡 Idea
+description: A new idea for circloo. It becomes a Spec-Kit spec before anyone writes code.
+labels: ["type:idea"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Who is this for and what's the problem?
+      placeholder: "Families in different countries can't tell how everyone is doing day to day…"
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Which circles?
+      multiple: true
+      options: [Friends, Family, Company]

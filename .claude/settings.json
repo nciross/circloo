@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "impeccable": {
+      "source": { "source": "github", "repo": "pbakaus/impeccable" }
+    }
+  },
+  "enabledPlugins": {
+    "impeccable@impeccable": true
+  },
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": ["github"],
+  "permissions": {
+    "allow": [
+      "mcp__github__get_issue",
+      "mcp__github__list_issues",
+      "mcp__github__search_issues",
+      "mcp__github__get_pull_request",
+      "mcp__github__list_pull_requests",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(az bicep build:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Bash(az group delete:*)",
+      "Bash(azd down:*)",
+      "Read(./.azure/**)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}

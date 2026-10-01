@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# circloo rule: no issue, no development. Every commit must reference a GitHub issue (#123).
+# Installed by scripts/setup (git config core.hooksPath scripts/git-hooks).
+msg_file="$1"
+first_line="$(head -n1 "$msg_file")"
+
+case "$first_line" in
+  Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
+esac
+
+if grep -Eq '#[0-9]+' "$msg_file"; then
+  exit 0
+fi
+
+echo "✋ circloo: no issue, no development." >&2
+echo "   Reference the GitHub issue in your commit message, e.g. 'feat(mood): daily check-in card (#42)'." >&2
+echo "   No issue yet? Ask Claude to create one (GitHub MCP) or run: gh issue create" >&2
+exit 1

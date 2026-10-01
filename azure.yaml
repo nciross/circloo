@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+# Azure Developer CLI project. Use scripts/deploy.* and scripts/destroy.* (they wrap `azd up` / `azd down`).
+name: circloo
+metadata:
+  template: circloo@0.1.0
+infra:
+  provider: bicep
+  path: infra
+  module: main
+services:
+  web:
+    project: ./src/web
+    language: ts
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      remoteBuild: true

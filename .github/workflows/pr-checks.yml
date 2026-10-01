@@ -1,0 +1,32 @@
+name: PR checks
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  linked-issue:
+    name: No issue, no development
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a linked issue in the PR description
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if echo "$BODY" | grep -Eiq '(close[sd]?|fix(e[sd])?|resolve[sd]?|refs?):?[[:space:]]+([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)?#[0-9]+'; then
+            echo "Linked issue found."
+          else
+            echo "::error::Link an issue in the PR description (e.g. 'Closes #42'). No issue, no development."
+            exit 1
+          fi
+
+  bicep:
+    name: Bicep compiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: az bicep install && az bicep build --file infra/main.bicep --stdout > /dev/null

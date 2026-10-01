@@ -10,9 +10,15 @@
 
 ## 🤔 What is circloo?
 
-Great question. We're still deciding — and that's the fun part.
+A private little universe for your people: friends, family or your whole company.
 
-What we **do** know:
+- 🌤️ **Feel together.** One-tap daily mood and motivation check-ins. See your circle's "weather".
+- 🧠 **Work together.** Live shared boards (sticky notes, votes, retros), Klaxoon-style.
+- 😂 **Laugh together.** Icebreakers and jokes in English, Français, العربية and Español.
+- ✉️ **Join easily.** Sign up with just your email; invite friends by email *or* with a simple link/code.
+- 🏢 **Enterprise-ready.** Plug in your company SSO (Entra ID, Google, Okta, any OIDC/SAML) with no code changes.
+
+And the important stuff:
 
 - 🔁 It's a circle. Everyone's in it. Nobody gets left in the corner (circles don't have corners).
 - 🤝 It's built for collaboration — bring your ideas, your code and your worst puns.
@@ -20,11 +26,24 @@ What we **do** know:
 
 ## 🚀 Getting started
 
-```bash
+The `.ps1` scripts need PowerShell 7 (`pwsh`); each one has a bash twin (`.sh`).
+
+```powershell
 git clone https://github.com/nciross/circloo.git
 cd circloo
-# stare at the empty folder with hope and determination
+./scripts/setup.ps1      # GitHub login, git hooks, labels (or ./scripts/setup.sh)
+claude                   # approve the github MCP server + impeccable plugin
 ```
+
+Ship it to Azure (one resource group, one command) or make it vanish just as fast:
+
+```powershell
+./scripts/deploy.ps1  -Environment dev
+./scripts/destroy.ps1 -Environment dev
+```
+
+### How we build
+**No issue, no development.** Idea → GitHub issue → Spec-Kit spec & plan → task issues → code → PR `Closes #N`. Details in [docs/workflow](docs/workflow/issue-driven-development.md). Product: [PRODUCT.md](PRODUCT.md) · [PRD](docs/product/prd.md) · Design: [no AI look](docs/design/anti-ai-look.md) · Architecture: [overview](docs/architecture/overview.md).
 
 ## 🧭 The circloo commandments
 
@@ -44,7 +63,7 @@ cd circloo
 ## 📜 Status
 
 ```
-[█░░░░░░░░░] 1%  — the README exists. Historic day.
+[██░░░░░░░░] 15% — the plan exists, the robots are briefed, the jokes are ready.
 ```
 
 ---
