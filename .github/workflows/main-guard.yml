@@ -1,0 +1,49 @@
+name: Main guard
+
+# Every change on main must come from a merged pull request (#57).
+# Server-side protection (rulesets) needs GitHub Pro or a public repo; until then this guard
+# turns any direct push into a red build and an alert issue, so it can never go unnoticed.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  merged-through-pr:
+    name: Merged through a pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check every pushed commit belongs to a merged PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PUSHER: ${{ github.event.pusher.name }}
+        run: |
+          set -euo pipefail
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            commits="$AFTER"
+          else
+            commits="$(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq '.commits[].sha')"
+          fi
+          bad=""
+          for sha in $commits; do
+            merged="$(gh api "repos/$REPO/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "main")] | length')"
+            if [ "$merged" = "0" ]; then
+              bad="$bad $sha"
+            fi
+          done
+          if [ -n "$bad" ]; then
+            body="These commits reached \`main\` without a merged pull request (pushed by @$PUSHER):"
+            for sha in $bad; do body="$body"$'\n'"- $sha"; done
+            body="$body"$'\n\n'"Every change must land through a PR (see docs/workflow/git-conventions.md). Revert through a PR and redo the change on a branch."
+            gh issue create --repo "$REPO" --title "alert: direct push to main" --label "type:bug" --body "$body"
+            echo "::error::Direct push to main detected:$bad"
+            exit 1
+          fi
+          echo "All commits on main came from merged pull requests."
