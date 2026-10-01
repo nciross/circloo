@@ -1,0 +1,6 @@
+# Generated EF Core migrations: don't apply style/perf analyzers.
+root = false
+
+[*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
