@@ -14,7 +14,7 @@
     { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Tu préfères toujours arriver 10 minutes en retard ou toujours 20 minutes en avance ?" },
     { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Tu préfères parler aux animaux ou parler toutes les langues du monde ?" },
     { "kind": "would-you-rather", "tags": ["friends", "work"], "text": "Tu préfères un café illimité ou des siestes illimitées ?" },
-    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Que dit un escargot quand il croise une limace ? « Oh, un nudiste ! »" },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Que dit un escargot quand il croise une limace ? « Oh, un nudiste ! »" },
     { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Pourquoi les plongeurs plongent-ils toujours en arrière ? Parce que sinon, ils tombent dans le bateau." },
     { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Quel est le comble pour un électricien ? De ne pas être au courant." },
     { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Qu'est-ce qui est jaune et qui attend ? Jonathan." },

@@ -21,7 +21,7 @@
     { "kind": "joke", "tags": ["friends", "work"], "text": "Esta reunión podría haber sido un correo. Ese correo podría haber sido un pósit. Ese pósit ahora es esta reunión." },
     { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "—¿Qué le dice un techo a otro? —Techo de menos." },
     { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "—¿Cómo se despiden los químicos? —Ácido un placer." },
-    { "kind": "joke", "tags": ["work"], "text": "—Mamá, en el trabajo me llaman despistado. —Hijo, tú no trabajas aquí." },
+    { "kind": "joke", "tags": ["family", "friends", "work"], "text": "—Mamá, en el colegio me llaman despistado. —Niño, tú vives enfrente." },
     { "kind": "riddle", "tags": ["family", "friends", "work", "kids-safe"], "text": "Cuanto más le quitas, más grande es. ¿Qué es? (Un agujero.)" }
   ]
 }

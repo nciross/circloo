@@ -42,7 +42,7 @@ Product truth (users, purpose, principles) lives in [`/PRODUCT.md`](../../PRODUC
 - "Spark of the day" on the circle home page; a "start a meeting" button that shows an icebreaker.
 - Content in EN, FR, AR and ES. Each spark has a language, a category (icebreaker / joke / would-you-rather / riddle) and audience tags (`family`, `friends`, `work`, `kids-safe`).
 - Members can add their own sparks to a circle and upvote favourites.
-- Seed content: [`content/fun/`](../../content/fun/). All content must be kind: no jokes about religion, ethnicity, gender or politics.
+- Seed content: [`content/fun/`](../../content/fun/). All content must be kind: no jokes about religion, ethnicity, gender, nationality or politics.
 
 ### E6: Enterprise SSO and configuration
 - An organization admin configures SSO **at runtime** (stored in the database, secrets in Key Vault): OIDC (Entra ID, Google Workspace, Okta, Auth0, generic) and SAML 2.0.
