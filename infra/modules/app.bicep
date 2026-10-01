@@ -2,7 +2,6 @@
 param location string
 param tags object
 param token string
-param environmentName string
 @secure()
 param postgresAdminPassword string
 @secure()
@@ -235,7 +234,7 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
 var emailSender = 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'
 
 resource web 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'ca-circloo-web-${environmentName}'
+  name: 'ca-circloo-${token}' // ≤ 32 chars; azd finds it by the azd-service-name tag
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })
   identity: {
@@ -248,7 +247,7 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
     configuration: {
       ingress: {
         external: true
-        targetPort: webPort
+        targetPort: empty(webImageName) ? 80 : webPort // placeholder image listens on 80
         transport: 'auto' // HTTP + WebSocket
       }
       registries: [

@@ -45,7 +45,6 @@ module app 'modules/app.bicep' = {
     location: location
     tags: tags
     token: token
-    environmentName: environmentName
     postgresAdminPassword: postgresAdminPassword
     authSecret: authSecret
     webImageName: webImageName
