@@ -1,0 +1,7 @@
+{
+  "otp-code": {
+    "subject": "رمز circloo الخاص بك: {code}",
+    "text": "هذا هو رمز الدخول إلى circloo:\n\n{code}\n\nالرمز صالح لمدة {minutes} دقائق ولمرة واحدة فقط. إذا لم تطلبه، تجاهل هذه الرسالة؛ لا أحد يستطيع الدخول بدون الرمز.\n\nنراك قريبًا في دائرتك!\n— circloo",
+    "html": "<!doctype html><html lang=\"ar\" dir=\"rtl\"><body style=\"margin:0;padding:24px;background:#fff8ef;font-family:Arial,Helvetica,sans-serif;color:#2b1d14\"><div style=\"max-width:480px;margin:0 auto\"><p style=\"font-size:16px;margin:0\">هذا هو رمز الدخول إلى circloo:</p><p style=\"font-size:34px;font-weight:700;letter-spacing:8px;margin:24px 0;color:#2b1d14;direction:ltr;unicode-bidi:isolate\">{code}</p><p style=\"font-size:14px;line-height:1.5\">الرمز صالح لمدة {minutes} دقائق ولمرة واحدة فقط. إذا لم تطلبه، تجاهل هذه الرسالة؛ لا أحد يستطيع الدخول بدون الرمز.</p><p style=\"font-size:14px\">نراك قريبًا في دائرتك!<br>— circloo</p></div></body></html>"
+  }
+}
