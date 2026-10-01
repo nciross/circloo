@@ -14,12 +14,19 @@ azd auth login --check-status >/dev/null 2>&1 || azd auth login
 az account show >/dev/null 2>&1 || az login >/dev/null
 SUB_ID="$(az account show --query id -o tsv)"
 
-azd env select "$ENV_NAME" >/dev/null 2>&1 || azd env new "$ENV_NAME" --subscription "$SUB_ID" --location "$LOCATION" --no-prompt
+# The location is part of every resource name, so only set it for a new env or when passed explicitly.
+if ! azd env select "$ENV_NAME" >/dev/null 2>&1; then
+  azd env new "$ENV_NAME" --subscription "$SUB_ID" --location "$LOCATION" --no-prompt
+  azd env set AZURE_LOCATION "$LOCATION" >/dev/null
+elif [ $# -ge 2 ]; then
+  azd env set AZURE_LOCATION "$LOCATION" >/dev/null
+fi
 azd env set AZURE_SUBSCRIPTION_ID "$SUB_ID" >/dev/null
-azd env set AZURE_LOCATION "$LOCATION" >/dev/null
 
+# Capture first: grep -q on a live pipe can SIGPIPE under pipefail and regenerate the secrets.
+VALUES="$(azd env get-values)"
 for name in POSTGRES_ADMIN_PASSWORD AUTH_SECRET; do
-  azd env get-values | grep -q "^$name=" || azd env set "$name" "$(new_secret)" >/dev/null
+  grep -q "^$name=" <<<"$VALUES" || azd env set "$name" "$(new_secret)" >/dev/null
 done
 
 if [ -f src/web/Dockerfile ]; then

@@ -1,3 +1,4 @@
+#Requires -Version 7
 <#
 .SYNOPSIS
   Destroy a circloo environment: deletes the whole resource group rg-circloo-<env> and purges Key Vault.
@@ -24,6 +25,12 @@ if ($LASTEXITCODE -eq 0) {
 } else {
   # No local azd env (e.g. different machine): fall back to deleting the resource group directly.
   az group delete --name $rg --yes
+  if ($LASTEXITCODE -ne 0) { throw 'Destroy failed.' }
+  # Purge the soft-deleted Key Vault, or the next deploy of this env collides with it.
+  $query = "[?starts_with(name, 'kv-circloo-') && properties.tags.""azd-env-name"" == '$Environment'].name"
+  foreach ($kv in @(az keyvault list-deleted --resource-type vault --query $query -o tsv | Where-Object { $_ })) {
+    az keyvault purge --name $kv
+  }
 }
 if ($LASTEXITCODE -ne 0) { throw 'Destroy failed.' }
 Write-Host "$rg destroyed." -ForegroundColor Green

@@ -26,6 +26,7 @@ type:idea issue → /speckit-specify → /speckit-clarify → /speckit-plan → 
 - **Subagents** (`.claude/agents/`): `product-owner` (ideas → idea issues), `architect` (plans), `ux-designer` (Impeccable), `issue-planner` (tasks → issues), `developer` (one issue), `reviewer` (PR gate), `azure-infra` (IaC).
 
 ## Commands
+The `.ps1` scripts need PowerShell 7 (`pwsh`); bash twins (`.sh`) exist.
 ```powershell
 ./scripts/setup.ps1                       # once: gh login, git hooks, GitHub labels   (bash: ./scripts/setup.sh)
 ./scripts/deploy.ps1 [-Environment dev] [-Location francecentral]   # azd up → rg-circloo-<env>

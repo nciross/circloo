@@ -1,3 +1,4 @@
+#Requires -Version 7
 <#
 .SYNOPSIS
   One-time developer setup for circloo: GitHub login (used by the GitHub MCP server), git hooks, issue labels.

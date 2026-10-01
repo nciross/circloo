@@ -1,3 +1,4 @@
+#Requires -Version 7
 <#
 .SYNOPSIS
   Deploy circloo to Azure in one command. Everything goes into ONE resource group: rg-circloo-<env>.
@@ -30,10 +31,15 @@ if ($Subscription) { az account set --subscription $Subscription }
 $subId = az account show --query id -o tsv
 
 # Create or select the azd environment.
+# The location is part of every resource name, so only set it for a new env or when passed explicitly.
 azd env select $Environment *> $null
-if ($LASTEXITCODE -ne 0) { azd env new $Environment --subscription $subId --location $Location --no-prompt }
+if ($LASTEXITCODE -ne 0) {
+  azd env new $Environment --subscription $subId --location $Location --no-prompt
+  azd env set AZURE_LOCATION $Location | Out-Null
+} elseif ($PSBoundParameters.ContainsKey('Location')) {
+  azd env set AZURE_LOCATION $Location | Out-Null
+}
 azd env set AZURE_SUBSCRIPTION_ID $subId | Out-Null
-azd env set AZURE_LOCATION $Location | Out-Null
 
 # Generate secrets once; they are stored in .azure/<env>/.env (gitignored) and pushed to Key Vault by Bicep.
 $values = azd env get-values

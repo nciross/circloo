@@ -26,6 +26,8 @@ And the important stuff:
 
 ## 🚀 Getting started
 
+The `.ps1` scripts need PowerShell 7 (`pwsh`); each one has a bash twin (`.sh`).
+
 ```powershell
 git clone https://github.com/nciross/circloo.git
 cd circloo
