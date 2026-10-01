@@ -188,8 +188,8 @@
     "modules": {
       "icebreakers": {
         "title": "Brise-glaces",
-        "body": "Des questions et des blagues toutes fraîches pour ton cercle, proposées par l'IA et vérifiées pour rester gentilles.",
-        "tag": "En premier"
+        "body": "C'est en ligne : tire une carte, lance un tour avec tout le monde et demande au frigo des cartes fraîches.",
+        "tag": "En ligne"
       },
       "checkins": {
         "title": "Humeur du jour",
@@ -203,7 +203,8 @@
         "title": "Intégrations",
         "body": "Teams, Salesforce, Jira, Confluence et Notion."
       }
-    }
+    },
+    "start": "Lancer un brise-glace"
   },
   "settings": {
     "title": "Réglages",
@@ -219,5 +220,91 @@
     "title": "Cette note est tombée derrière le frigo.",
     "body": "La page que tu cherches n'existe pas ou a déménagé.",
     "home": "Retour à la porte"
+  },
+  "ice": {
+    "title": "Brise-glaces",
+    "filters": {
+      "label": "Quel genre de carte",
+      "audience": "Pour",
+      "tone": "Humeur",
+      "kind": "Type",
+      "kidsSafe": "Avec des enfants",
+      "audiences": {
+        "family": "Famille",
+        "friends": "Amis",
+        "work": "Boulot"
+      },
+      "tones": {
+        "silly": "Loufoque",
+        "cozy": "Douillet",
+        "deep": "Profond"
+      },
+      "kinds": {
+        "icebreaker": "Question",
+        "would-you-rather": "Tu préfères",
+        "joke": "Blague",
+        "riddle": "Devinette"
+      }
+    },
+    "card": {
+      "label": "Carte du moment",
+      "shake": "Secouer",
+      "favourite": "La garder sur le frigo",
+      "unfavourite": "La retirer du frigo",
+      "showAnswer": "Voir la réponse",
+      "empty": "Aucune carte ne correspond à ces aimants. Déplaces-en un, ou demande au frigo.",
+      "exhausted": "Tu as vu toutes les cartes ici. On remélange le paquet.",
+      "error": "La carte a glissé derrière le frigo. Secoue encore.",
+      "fresh": "Tout droit du frigo"
+    },
+    "ask": {
+      "title": "Demander au frigo",
+      "lead": "Cinq cartes toutes fraîches qui collent à tes aimants. Proposées par l'IA, vérifiées pour rester gentilles.",
+      "themeLabel": "Thème (facultatif)",
+      "themePlaceholder": "vacances d'été",
+      "ask": "Demander",
+      "asking": "Le frigo réfléchit…",
+      "remaining_one": "{{count}} demande restante aujourd'hui",
+      "remaining_other": "{{count}} demandes restantes aujourd'hui",
+      "results": "Cartes fraîches",
+      "keep": "Garder",
+      "kept": "Gardée",
+      "dismiss": "Écarter cette carte",
+      "errors": {
+        "unsafe": "Le frigo n'écrit que des choses gentilles. Essaie un autre thème.",
+        "limited": "Plus de magie du frigo pour aujourd'hui. Retour à {{time}}.",
+        "inFlight": "Le frigo réfléchit déjà. Un instant.",
+        "unavailable": "Le frigo est à court d'idées. Réessaie bientôt, le paquet marche toujours.",
+        "expired": "Ces cartes ont tourné. Redemande au frigo."
+      }
+    },
+    "line": {
+      "title": "Qui est là ?",
+      "timer": "Minuteur par tour",
+      "timerOff": "Sans minuteur",
+      "addLabel": "Ajouter un prénom",
+      "addPlaceholder": "Ajouter un prénom",
+      "add": "Ajouter",
+      "remove": "Retirer {{name}}",
+      "empty": "Ajoute au moins deux prénoms pour lancer un tour.",
+      "start": "Lancer le tour",
+      "turnOf": "À toi, <name>{{name}}</name> !",
+      "next": "Personne suivante",
+      "shuffle": "Mélanger l'ordre",
+      "done": "Tout le monde est passé. Bravo !",
+      "again": "Un autre tour",
+      "keys": "Espace : suivant · S : mélanger",
+      "fullscreen": "Grand écran",
+      "exitFullscreen": "Quitter le grand écran",
+      "seconds": "{{count}} s"
+    },
+    "keepers": {
+      "title": "Mes trésors",
+      "favourites": "Favoris",
+      "mine": "Mes cartes",
+      "emptyFavourites": "Touche le cœur d’une carte pour la garder ici.",
+      "emptyMine": "Les cartes que tu gardes du frigo arrivent ici.",
+      "delete": "Supprimer cette carte"
+    }
   }
 }

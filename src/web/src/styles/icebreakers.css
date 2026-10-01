@@ -1,0 +1,610 @@
+/* ───────── Icebreakers: the ritual line (surface brief: src-web-src-features-icebreakers) ───────── */
+
+/* Filter magnets: three small single-choice groups and a kids switch along the top of the door */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--s-4) var(--s-6);
+  margin-block-end: var(--s-6);
+}
+.choice-magnets {
+  --on-face: var(--cobalt);
+  --on-rim: var(--cobalt-rim);
+  --on-label: #ffffff;
+  display: grid;
+  gap: var(--s-2);
+}
+.choice-magnets--tomato { --on-face: var(--tomato); --on-rim: var(--tomato-rim); }
+.choice-magnets--sunflower { --on-face: var(--sunflower); --on-rim: var(--sunflower-rim); --on-label: var(--ink); }
+.choice-magnets--ink { --on-face: var(--ink-magnet); --on-rim: #000000; --on-label: var(--sunflower); }
+.choice-magnets__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.choice-magnets__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.choice-magnet {
+  --rim: #8f9f6c;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-block-size: 2.6rem;
+  padding: 0.35rem 0.85rem;
+  border: 0;
+  border-radius: 11px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step--1);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--rim), 0 6px 9px -3px rgb(36 48 10 / 0.45);
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background 140ms;
+}
+.choice-magnet:hover {
+  transform: translateY(-1px) rotate(-1.5deg);
+}
+.choice-magnet[aria-pressed='true'] {
+  --rim: var(--on-rim);
+  background: var(--on-face);
+  color: var(--on-label);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45);
+}
+.choice-magnet__icon {
+  display: inline-flex;
+}
+
+/* Kids switch: a slide magnet on a groove */
+.kids-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-block-size: 2.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.kids-switch__track {
+  position: relative;
+  inline-size: 3rem;
+  block-size: 1.6rem;
+  border-radius: 999px;
+  background: var(--enamel-deep);
+  box-shadow: inset 0 2px 0 var(--groove);
+}
+.kids-switch__knob {
+  position: absolute;
+  inset-block-start: 0.15rem;
+  inset-inline-start: 0.2rem;
+  inline-size: 1.3rem;
+  block-size: 1.3rem;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 2px 0 #8f9f6c;
+  transition: inset-inline-start 180ms var(--ease-out), background 180ms;
+}
+.kids-switch[aria-pressed='true'] .kids-switch__knob {
+  inset-inline-start: 1.5rem;
+  background: var(--sunflower);
+  box-shadow: 0 2px 0 var(--sunflower-rim);
+}
+
+/* Door layout: the board (card + line) and the notepad pinned at the inline end */
+.ritual-door {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 0.85fr);
+  gap: var(--s-7) var(--s-7);
+  align-items: start;
+}
+.ritual-board {
+  display: grid;
+  gap: var(--s-6);
+}
+.ritual-board__full {
+  justify-self: end;
+}
+
+/* The big card */
+.ritual-card {
+  position: relative;
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 calc(2.4rem - 1px), var(--paper-line) calc(2.4rem - 1px) 2.4rem);
+  background-position: 0 4rem;
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+  padding: var(--s-7) var(--s-7) var(--s-6);
+  padding-inline-start: calc(var(--s-7) + 1.2rem);
+  display: grid;
+  gap: var(--s-5);
+  min-block-size: 22rem;
+  rotate: -0.8deg;
+}
+.ritual-card::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 2.6rem;
+  inline-size: 2px;
+  background: var(--paper-margin);
+  opacity: 0.7;
+}
+.ritual-card__body {
+  display: grid;
+  gap: var(--s-4);
+  align-content: center;
+  min-block-size: 11rem;
+}
+.ritual-card__question {
+  font-size: var(--step-4);
+  line-height: 1.08;
+}
+.ritual-card__question.is-dealt {
+  animation: card-deal 520ms var(--ease-out);
+  transform-origin: 50% -2rem;
+}
+.ritual-card__message {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-2);
+  color: var(--ink-on-paper-soft);
+}
+.ritual-card__answer {
+  justify-self: start;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-2);
+  color: var(--cobalt);
+  background: var(--sticky-yellow);
+  padding: var(--s-1) var(--s-3);
+  rotate: -2deg;
+}
+.ritual-card__reveal {
+  justify-self: start;
+  font-size: var(--step-1);
+}
+.ritual-card__note {
+  font-size: var(--step--1);
+  color: var(--ink-on-paper-soft);
+}
+.ritual-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.fresh-stamp {
+  position: absolute;
+  inset-block-start: var(--s-5);
+  inset-inline-end: var(--s-5);
+  padding: 0.2rem 0.7rem;
+  border: 3px double var(--tomato);
+  border-radius: 6px;
+  color: var(--tomato-rim);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step--1);
+  rotate: 7deg;
+}
+
+.heart-magnet {
+  --rim: #8f9f6c;
+  display: grid;
+  place-items: center;
+  inline-size: 3.2rem;
+  block-size: 3.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--tomato);
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5);
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background 140ms;
+}
+.heart-magnet:hover {
+  transform: translateY(-1px) scale(1.05);
+}
+.heart-magnet[aria-pressed='true'] {
+  --rim: var(--tomato-rim);
+  background: var(--tomato);
+  color: #ffffff;
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45);
+}
+.heart-magnet[aria-pressed='true'] svg {
+  fill: currentcolor;
+  animation: heart-pop 320ms var(--ease-out);
+}
+@keyframes heart-pop {
+  0% { scale: 0.6; }
+  60% { scale: 1.25; }
+  100% { scale: 1; }
+}
+
+/* The ritual line: a chrome magnetic strip with everyone in the room */
+.ritual-line {
+  display: grid;
+  gap: var(--s-4);
+}
+.ritual-line__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-5);
+}
+.ritual-line__title {
+  font-size: var(--step-2);
+}
+.ritual-line__strip {
+  position: relative;
+  padding: var(--s-4) var(--s-4) var(--s-3);
+  border-radius: 12px;
+  background: var(--chrome);
+  box-shadow: inset 0 3px 0 var(--chrome-hi), inset 0 -3px 0 var(--chrome-lo), 0 8px 14px -8px rgb(36 48 10 / 0.5);
+}
+.name-magnets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  min-block-size: 3.4rem;
+}
+.name-magnet {
+  --face: var(--paper);
+  --rim: #8f9f6c;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 0.45rem 0.4rem 0.45rem 0.9rem;
+  border-radius: 12px;
+  background: var(--face);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step-1);
+  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5);
+  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out), opacity 260ms, background 260ms;
+}
+[dir='rtl'] .name-magnet {
+  padding: 0.45rem 0.9rem 0.45rem 0.4rem;
+}
+.name-magnet:nth-child(3n + 1) { rotate: -2deg; }
+.name-magnet:nth-child(3n + 2) { rotate: 1.5deg; }
+.name-magnet:nth-child(3n) { rotate: -0.5deg; }
+.name-magnet.is-now {
+  --face: var(--tomato);
+  --rim: var(--tomato-rim);
+  color: #ffffff;
+  rotate: -3deg;
+  transform: translateY(-0.7rem) scale(1.14);
+  box-shadow: 0 5px 0 var(--rim), 0 22px 22px -8px rgb(36 48 10 / 0.55);
+  z-index: 1;
+}
+.name-magnet.is-done {
+  opacity: 0.55;
+  transform: translateY(0.15rem);
+}
+.name-magnet__remove,
+.name-magnet__add {
+  display: grid;
+  place-items: center;
+  inline-size: 1.8rem;
+  block-size: 1.8rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.name-magnet__remove:hover,
+.name-magnet__add:hover {
+  background: rgb(27 31 28 / 0.08);
+}
+.name-magnet--add {
+  --face: transparent;
+  box-shadow: none;
+  outline: 2.5px dashed var(--chrome-lo);
+  outline-offset: -2px;
+  padding-block: 0.25rem;
+}
+.name-magnet--add form {
+  display: flex;
+  align-items: center;
+}
+.name-magnet--add input {
+  inline-size: 9rem;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--step-0);
+  color: var(--ink);
+}
+.name-magnet--add input::placeholder {
+  color: #4f5a5e;
+}
+.name-magnet--add input:focus-visible {
+  outline: none;
+}
+.name-magnet--add:focus-within {
+  outline-color: var(--cobalt);
+  outline-style: solid;
+}
+
+.ritual-line__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+}
+.ritual-line__hint {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.ritual-line__turn {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step-2);
+}
+.ritual-line__who {
+  color: var(--tomato-rim);
+}
+.ritual-line__keys {
+  flex-basis: 100%;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.kitchen-timer {
+  --rim: var(--sunflower-rim);
+  display: grid;
+  place-items: center;
+  inline-size: 4.2rem;
+  block-size: 4.2rem;
+  border-radius: 50%;
+  background: var(--sunflower);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step-1);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5), inset 0 0 0 4px rgb(255 255 255 / 0.55);
+}
+.kitchen-timer.is-ringing {
+  animation: timer-ring 600ms var(--ease-out) 3;
+}
+@keyframes timer-ring {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -9deg; }
+  75% { rotate: 9deg; }
+}
+
+/* Big screen: readable from 3 m (SC-104) */
+.ritual-board.is-full {
+  background: var(--enamel);
+  padding: clamp(1.5rem, 4vw, 4rem);
+  align-content: center;
+  overflow: auto;
+}
+.ritual-board.is-full .ritual-card__question {
+  font-size: clamp(3rem, 5.5vw, 6rem);
+}
+.ritual-board.is-full .name-magnet {
+  font-size: var(--step-2);
+}
+
+/* Ask the fridge: a yellow notepad pinned at the inline end */
+.notepad {
+  position: relative;
+  display: grid;
+  gap: var(--s-3);
+  background: var(--sticky-yellow);
+  border-radius: 2px 2px 22px 2px;
+  box-shadow: var(--shadow-paper);
+  padding: var(--s-7) var(--s-5) var(--s-5);
+  border-block-start: 14px solid var(--tomato);
+  rotate: 1.2deg;
+}
+[dir='rtl'] .notepad {
+  border-radius: 2px 2px 2px 22px;
+}
+.notepad__title {
+  font-size: var(--step-2);
+}
+.notepad__lead {
+  font-size: var(--step--1);
+}
+.notepad__form {
+  display: grid;
+  gap: var(--s-3);
+}
+.notepad__field {
+  display: grid;
+  gap: var(--s-1);
+  font-weight: 600;
+  font-size: var(--step--1);
+}
+.notepad__field input {
+  border: 0;
+  border-block-end: 2px solid var(--ink);
+  background: transparent;
+  padding: var(--s-1) 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+.notepad__field input::placeholder {
+  color: #6f6440;
+}
+.notepad__field input:focus-visible {
+  outline: 3px solid var(--cobalt);
+  outline-offset: 4px;
+}
+.notepad__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+.notepad__allowance {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+.fresh-list {
+  display: grid;
+  gap: var(--s-3);
+  margin-block-start: var(--s-2);
+}
+.fresh-card {
+  display: grid;
+  gap: var(--s-2);
+  background: var(--paper);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.3;
+  animation: card-deal 420ms var(--ease-out) both;
+}
+.fresh-card:nth-child(2) { animation-delay: 70ms; rotate: 0.8deg; }
+.fresh-card:nth-child(3) { animation-delay: 140ms; rotate: -0.6deg; }
+.fresh-card:nth-child(4) { animation-delay: 210ms; rotate: 0.5deg; }
+.fresh-card:nth-child(5) { animation-delay: 280ms; rotate: -0.9deg; }
+.fresh-card.is-kept {
+  background: #f1f9e4;
+}
+.fresh-card__answer {
+  color: var(--cobalt);
+  font-size: var(--step--1);
+}
+.fresh-card__actions {
+  display: flex;
+  gap: var(--s-2);
+}
+.mini-magnet {
+  --face: var(--paper);
+  --rim: #8f9f6c;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-block-size: 2.2rem;
+  min-inline-size: 2.2rem;
+  justify-content: center;
+  padding: 0.25rem 0.7rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--face);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step--1);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--rim), 0 6px 9px -3px rgb(36 48 10 / 0.45);
+}
+.mini-magnet--cobalt {
+  --face: var(--cobalt);
+  --rim: var(--cobalt-rim);
+  color: #ffffff;
+}
+.mini-magnet:disabled {
+  cursor: default;
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rim);
+}
+
+/* Keepers shelf */
+.keepers {
+  margin-block-start: var(--s-9);
+  display: grid;
+  gap: var(--s-5);
+}
+.keepers__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--s-3) var(--s-6);
+}
+.keepers__title {
+  font-size: var(--step-3);
+}
+.keepers__empty {
+  justify-self: start;
+  background: var(--paper);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-paper);
+  box-shadow: var(--shadow-paper);
+  rotate: -0.6deg;
+}
+.keeper-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s-5);
+}
+.keeper-note {
+  position: relative;
+  display: flex;
+  align-items: start;
+  gap: var(--s-2);
+  background: var(--sticky-blue);
+  padding: var(--s-4);
+  border-radius: 2px 2px 14px 2px;
+  box-shadow: var(--shadow-paper);
+}
+[dir='rtl'] .keeper-note {
+  border-radius: 2px 2px 2px 14px;
+}
+.keeper-note--joke { background: var(--sticky-pink); }
+.keeper-note--riddle { background: var(--sticky-yellow); }
+.keeper-note--would-you-rather { background: var(--paper); }
+.keeper-note:nth-child(odd) { rotate: -1.2deg; }
+.keeper-note:nth-child(even) { rotate: 1deg; }
+.keeper-note__open {
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: start;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-0);
+  line-height: 1.3;
+  color: var(--ink);
+  cursor: pointer;
+}
+.keeper-note__icon {
+  display: grid;
+  place-items: center;
+  inline-size: 2.2rem;
+  block-size: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.7);
+  color: var(--tomato-rim);
+  cursor: pointer;
+}
+
+@media (max-width: 63.99rem) {
+  .ritual-door {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 39.99rem) {
+  .ritual-card {
+    padding: var(--s-6) var(--s-4) var(--s-5);
+    padding-inline-start: calc(var(--s-4) + 1.4rem);
+    min-block-size: 18rem;
+  }
+  .ritual-card::before {
+    inset-inline-start: 1.6rem;
+  }
+  .ritual-card__question {
+    font-size: var(--step-3);
+  }
+}

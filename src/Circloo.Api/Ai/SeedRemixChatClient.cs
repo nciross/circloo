@@ -17,10 +17,10 @@ public sealed class SeedRemixChatClient(IServiceScopeFactory scopes) : IChatClie
 
     private static readonly Dictionary<string, string> ThemeFrames = new()
     {
-        ["en"] = "Theme \"{0}\": {1}",
-        ["fr"] = "Thème « {0} » : {1}",
-        ["ar"] = "الموضوع «{0}»: {1}",
-        ["es"] = "Tema «{0}»: {1}",
+        ["en"] = "{0} edition: {1}",
+        ["fr"] = "Spécial {0} : {1}",
+        ["ar"] = "على طريقة {0}: {1}",
+        ["es"] = "Edición {0}: {1}",
     };
 
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
