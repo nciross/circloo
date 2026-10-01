@@ -1,4 +1,5 @@
 using Circloo.Api;
+using Circloo.Api.Ai;
 using Circloo.Api.Auth;
 using Circloo.Api.Data;
 using Circloo.Api.Email;
@@ -46,8 +47,8 @@ builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<EmailOutbox>();
 builder.Services.AddSingleton<EmailOutboxSignal>();
 builder.Services.AddSingleton<EmailTemplates>();
-builder.Services.AddSingleton<SparkCatalog>();
 builder.Services.AddHostedService<EmailOutboxWorker>();
+builder.Services.AddCirclooAi(builder.Configuration);
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
     builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
@@ -65,7 +66,9 @@ _ = app.Services.GetRequiredService<Hasher>();
 if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 {
     using var scope = app.Services.CreateScope();
-    await scope.ServiceProvider.GetRequiredService<CirclooDbContext>().Database.MigrateAsync();
+    var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+    await db.Database.MigrateAsync();
+    await SeedImporter.ImportAsync(db, SeedImporter.ContentDirectory(app.Environment), TimeProvider.System, CancellationToken.None);
 }
 
 if (app.Configuration.GetValue<bool>("Security:TrustForwardedHeaders"))
@@ -101,6 +104,8 @@ var api = app.MapGroup("/api").RequireAntiforgery();
 api.MapAuthEndpoints();
 api.MapMeEndpoints();
 api.MapPublicSparkEndpoints();
+api.MapSparkEndpoints();
+api.MapAiEndpoints();
 api.MapFallback(() => Results.NotFound());
 
 app.MapDefaultEndpoints();
