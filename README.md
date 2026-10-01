@@ -21,7 +21,7 @@ What we **do** know:
 ## 🚀 Getting started
 
 ```bash
-git clone https://github.com/<your-username>/circloo.git
+git clone https://github.com/nciross/circloo.git
 cd circloo
 # stare at the empty folder with hope and determination
 ```
