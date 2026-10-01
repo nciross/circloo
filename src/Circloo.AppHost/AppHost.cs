@@ -16,6 +16,7 @@ var api = builder.AddProject<Projects.Circloo_Api>("api")
     .WithReference(db).WaitFor(db)
     .WithReference(mailpit).WaitFor(mailpit)
     .WithEnvironment("Security__Pepper", pepper)
+    .WithEnvironment("Ai__Provider", "Seed") // zero cost: remix seeds locally; switch to OpenAICompatible for Foundry Local
     .WithHttpHealthCheck("/health");
 
 builder.AddViteApp("web", "../web")
