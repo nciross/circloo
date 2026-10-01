@@ -1,0 +1,697 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T18:15:53.596Z",
+  "title": "Design System: circloo",
+  "extensions": {
+    "colorMeta": {
+      "tomato": {
+        "role": "primary",
+        "displayName": "Tomato Magnet",
+        "canonical": "oklch(59% 0.19 33)",
+        "tonalRamp": [
+          "oklch(15% 0.086 33)",
+          "oklch(25% 0.190 33)",
+          "oklch(35% 0.190 33)",
+          "oklch(45% 0.190 33)",
+          "oklch(55% 0.190 33)",
+          "oklch(65% 0.190 33)",
+          "oklch(80% 0.190 33)",
+          "oklch(95% 0.086 33)"
+        ]
+      },
+      "tomato-rim": {
+        "role": "primary",
+        "displayName": "Tomato Rim",
+        "canonical": "oklch(44% 0.15 33)",
+        "tonalRamp": [
+          "oklch(15% 0.068 33)",
+          "oklch(25% 0.150 33)",
+          "oklch(35% 0.150 33)",
+          "oklch(45% 0.150 33)",
+          "oklch(55% 0.150 33)",
+          "oklch(65% 0.150 33)",
+          "oklch(80% 0.150 33)",
+          "oklch(95% 0.068 33)"
+        ]
+      },
+      "cobalt": {
+        "role": "secondary",
+        "displayName": "Cobalt Magnet",
+        "canonical": "oklch(43% 0.21 266)",
+        "tonalRamp": [
+          "oklch(15% 0.095 266)",
+          "oklch(25% 0.210 266)",
+          "oklch(35% 0.210 266)",
+          "oklch(45% 0.210 266)",
+          "oklch(55% 0.210 266)",
+          "oklch(65% 0.210 266)",
+          "oklch(80% 0.210 266)",
+          "oklch(95% 0.095 266)"
+        ]
+      },
+      "cobalt-rim": {
+        "role": "secondary",
+        "displayName": "Cobalt Rim",
+        "canonical": "oklch(33% 0.16 266)",
+        "tonalRamp": [
+          "oklch(15% 0.072 266)",
+          "oklch(25% 0.160 266)",
+          "oklch(35% 0.160 266)",
+          "oklch(45% 0.160 266)",
+          "oklch(55% 0.160 266)",
+          "oklch(65% 0.160 266)",
+          "oklch(80% 0.160 266)",
+          "oklch(95% 0.072 266)"
+        ]
+      },
+      "sunflower": {
+        "role": "tertiary",
+        "displayName": "Sunflower Magnet",
+        "canonical": "oklch(85% 0.17 85)",
+        "tonalRamp": [
+          "oklch(15% 0.077 85)",
+          "oklch(25% 0.170 85)",
+          "oklch(35% 0.170 85)",
+          "oklch(45% 0.170 85)",
+          "oklch(55% 0.170 85)",
+          "oklch(65% 0.170 85)",
+          "oklch(80% 0.170 85)",
+          "oklch(95% 0.077 85)"
+        ]
+      },
+      "sunflower-rim": {
+        "role": "tertiary",
+        "displayName": "Sunflower Rim",
+        "canonical": "oklch(68% 0.14 85)",
+        "tonalRamp": [
+          "oklch(15% 0.063 85)",
+          "oklch(25% 0.140 85)",
+          "oklch(35% 0.140 85)",
+          "oklch(45% 0.140 85)",
+          "oklch(55% 0.140 85)",
+          "oklch(65% 0.140 85)",
+          "oklch(80% 0.140 85)",
+          "oklch(95% 0.063 85)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Fridge Ink",
+        "canonical": "oklch(23% 0.008 155)",
+        "tonalRamp": [
+          "oklch(15% 0.004 155)",
+          "oklch(25% 0.008 155)",
+          "oklch(35% 0.008 155)",
+          "oklch(45% 0.008 155)",
+          "oklch(55% 0.008 155)",
+          "oklch(65% 0.008 155)",
+          "oklch(80% 0.008 155)",
+          "oklch(95% 0.004 155)"
+        ]
+      },
+      "ink-rim": {
+        "role": "neutral",
+        "displayName": "Ink Magnet Rim",
+        "canonical": "oklch(0% 0 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(65% 0.000 0)",
+          "oklch(80% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Door-tinted Ink",
+        "canonical": "oklch(37% 0.07 125)",
+        "tonalRamp": [
+          "oklch(15% 0.032 125)",
+          "oklch(25% 0.070 125)",
+          "oklch(35% 0.070 125)",
+          "oklch(45% 0.070 125)",
+          "oklch(55% 0.070 125)",
+          "oklch(65% 0.070 125)",
+          "oklch(80% 0.070 125)",
+          "oklch(95% 0.032 125)"
+        ]
+      },
+      "ink-on-paper-soft": {
+        "role": "neutral",
+        "displayName": "Paper-grey Ink",
+        "canonical": "oklch(44% 0.012 155)",
+        "tonalRamp": [
+          "oklch(15% 0.005 155)",
+          "oklch(25% 0.012 155)",
+          "oklch(35% 0.012 155)",
+          "oklch(45% 0.012 155)",
+          "oklch(55% 0.012 155)",
+          "oklch(65% 0.012 155)",
+          "oklch(80% 0.012 155)",
+          "oklch(95% 0.005 155)"
+        ]
+      },
+      "enamel": {
+        "role": "neutral",
+        "displayName": "Pistachio Enamel",
+        "canonical": "oklch(84% 0.12 125)",
+        "tonalRamp": [
+          "oklch(15% 0.054 125)",
+          "oklch(25% 0.120 125)",
+          "oklch(35% 0.120 125)",
+          "oklch(45% 0.120 125)",
+          "oklch(55% 0.120 125)",
+          "oklch(65% 0.120 125)",
+          "oklch(80% 0.120 125)",
+          "oklch(95% 0.054 125)"
+        ]
+      },
+      "enamel-deep": {
+        "role": "neutral",
+        "displayName": "Enamel Deep",
+        "canonical": "oklch(78% 0.13 125)",
+        "tonalRamp": [
+          "oklch(15% 0.059 125)",
+          "oklch(25% 0.130 125)",
+          "oklch(35% 0.130 125)",
+          "oklch(45% 0.130 125)",
+          "oklch(55% 0.130 125)",
+          "oklch(65% 0.130 125)",
+          "oklch(80% 0.130 125)",
+          "oklch(95% 0.059 125)"
+        ]
+      },
+      "enamel-shade": {
+        "role": "neutral",
+        "displayName": "Enamel Shade",
+        "canonical": "oklch(68% 0.14 125)",
+        "tonalRamp": [
+          "oklch(15% 0.063 125)",
+          "oklch(25% 0.140 125)",
+          "oklch(35% 0.140 125)",
+          "oklch(45% 0.140 125)",
+          "oklch(55% 0.140 125)",
+          "oklch(65% 0.140 125)",
+          "oklch(80% 0.140 125)",
+          "oklch(95% 0.063 125)"
+        ]
+      },
+      "freezer": {
+        "role": "neutral",
+        "displayName": "Freezer Green",
+        "canonical": "oklch(81% 0.12 125)",
+        "tonalRamp": [
+          "oklch(15% 0.054 125)",
+          "oklch(25% 0.120 125)",
+          "oklch(35% 0.120 125)",
+          "oklch(45% 0.120 125)",
+          "oklch(55% 0.120 125)",
+          "oklch(65% 0.120 125)",
+          "oklch(80% 0.120 125)",
+          "oklch(95% 0.054 125)"
+        ]
+      },
+      "groove": {
+        "role": "neutral",
+        "displayName": "Door Groove",
+        "canonical": "oklch(58% 0.12 125)",
+        "tonalRamp": [
+          "oklch(15% 0.054 125)",
+          "oklch(25% 0.120 125)",
+          "oklch(35% 0.120 125)",
+          "oklch(45% 0.120 125)",
+          "oklch(55% 0.120 125)",
+          "oklch(65% 0.120 125)",
+          "oklch(80% 0.120 125)",
+          "oklch(95% 0.054 125)"
+        ]
+      },
+      "seal": {
+        "role": "neutral",
+        "displayName": "Rubber Seal",
+        "canonical": "oklch(52% 0.1 125)",
+        "tonalRamp": [
+          "oklch(15% 0.045 125)",
+          "oklch(25% 0.100 125)",
+          "oklch(35% 0.100 125)",
+          "oklch(45% 0.100 125)",
+          "oklch(55% 0.100 125)",
+          "oklch(65% 0.100 125)",
+          "oklch(80% 0.100 125)",
+          "oklch(95% 0.045 125)"
+        ]
+      },
+      "chrome-hi": {
+        "role": "neutral",
+        "displayName": "Chrome Highlight",
+        "canonical": "oklch(98% 0.003 220)",
+        "tonalRamp": [
+          "oklch(15% 0.005 220)",
+          "oklch(25% 0.012 220)",
+          "oklch(35% 0.012 220)",
+          "oklch(45% 0.012 220)",
+          "oklch(55% 0.012 220)",
+          "oklch(65% 0.012 220)",
+          "oklch(80% 0.012 220)",
+          "oklch(95% 0.005 220)"
+        ]
+      },
+      "chrome": {
+        "role": "neutral",
+        "displayName": "Chrome",
+        "canonical": "oklch(85% 0.012 220)",
+        "tonalRamp": [
+          "oklch(15% 0.005 220)",
+          "oklch(25% 0.012 220)",
+          "oklch(35% 0.012 220)",
+          "oklch(45% 0.012 220)",
+          "oklch(55% 0.012 220)",
+          "oklch(65% 0.012 220)",
+          "oklch(80% 0.012 220)",
+          "oklch(95% 0.005 220)"
+        ]
+      },
+      "chrome-lo": {
+        "role": "neutral",
+        "displayName": "Chrome Low",
+        "canonical": "oklch(67% 0.017 220)",
+        "tonalRamp": [
+          "oklch(15% 0.008 220)",
+          "oklch(25% 0.017 220)",
+          "oklch(35% 0.017 220)",
+          "oklch(45% 0.017 220)",
+          "oklch(55% 0.017 220)",
+          "oklch(65% 0.017 220)",
+          "oklch(80% 0.017 220)",
+          "oklch(95% 0.008 220)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Index White",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(65% 0.000 0)",
+          "oklch(80% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "paper-rim": {
+        "role": "neutral",
+        "displayName": "Paper Rim",
+        "canonical": "oklch(67% 0.06 120)",
+        "tonalRamp": [
+          "oklch(15% 0.027 120)",
+          "oklch(25% 0.060 120)",
+          "oklch(35% 0.060 120)",
+          "oklch(45% 0.060 120)",
+          "oklch(55% 0.060 120)",
+          "oklch(65% 0.060 120)",
+          "oklch(80% 0.060 120)",
+          "oklch(95% 0.027 120)"
+        ]
+      },
+      "paper-line": {
+        "role": "neutral",
+        "displayName": "Ruled Line",
+        "canonical": "oklch(89% 0.04 245)",
+        "tonalRamp": [
+          "oklch(15% 0.018 245)",
+          "oklch(25% 0.040 245)",
+          "oklch(35% 0.040 245)",
+          "oklch(45% 0.040 245)",
+          "oklch(55% 0.040 245)",
+          "oklch(65% 0.040 245)",
+          "oklch(80% 0.040 245)",
+          "oklch(95% 0.018 245)"
+        ]
+      },
+      "paper-margin": {
+        "role": "neutral",
+        "displayName": "Margin Red",
+        "canonical": "oklch(72% 0.13 25)",
+        "tonalRamp": [
+          "oklch(15% 0.059 25)",
+          "oklch(25% 0.130 25)",
+          "oklch(35% 0.130 25)",
+          "oklch(45% 0.130 25)",
+          "oklch(55% 0.130 25)",
+          "oklch(65% 0.130 25)",
+          "oklch(80% 0.130 25)",
+          "oklch(95% 0.059 25)"
+        ]
+      },
+      "sticky-yellow": {
+        "role": "neutral",
+        "displayName": "Sticky Yellow",
+        "canonical": "oklch(91% 0.15 95)",
+        "tonalRamp": [
+          "oklch(15% 0.068 95)",
+          "oklch(25% 0.150 95)",
+          "oklch(35% 0.150 95)",
+          "oklch(45% 0.150 95)",
+          "oklch(55% 0.150 95)",
+          "oklch(65% 0.150 95)",
+          "oklch(80% 0.150 95)",
+          "oklch(95% 0.068 95)"
+        ]
+      },
+      "sticky-pink": {
+        "role": "neutral",
+        "displayName": "Sticky Pink",
+        "canonical": "oklch(84% 0.09 355)",
+        "tonalRamp": [
+          "oklch(15% 0.041 355)",
+          "oklch(25% 0.090 355)",
+          "oklch(35% 0.090 355)",
+          "oklch(45% 0.090 355)",
+          "oklch(55% 0.090 355)",
+          "oklch(65% 0.090 355)",
+          "oklch(80% 0.090 355)",
+          "oklch(95% 0.041 355)"
+        ]
+      },
+      "sticky-blue": {
+        "role": "neutral",
+        "displayName": "Sticky Blue",
+        "canonical": "oklch(87% 0.07 245)",
+        "tonalRamp": [
+          "oklch(15% 0.032 245)",
+          "oklch(25% 0.070 245)",
+          "oklch(35% 0.070 245)",
+          "oklch(45% 0.070 245)",
+          "oklch(55% 0.070 245)",
+          "oklch(65% 0.070 245)",
+          "oklch(80% 0.070 245)",
+          "oklch(95% 0.032 245)"
+        ]
+      },
+      "kraft": {
+        "role": "neutral",
+        "displayName": "Kraft",
+        "canonical": "oklch(84% 0.07 75)",
+        "tonalRamp": [
+          "oklch(15% 0.032 75)",
+          "oklch(25% 0.070 75)",
+          "oklch(35% 0.070 75)",
+          "oklch(45% 0.070 75)",
+          "oklch(55% 0.070 75)",
+          "oklch(65% 0.070 75)",
+          "oklch(80% 0.070 75)",
+          "oklch(95% 0.032 75)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Magnet Letters",
+        "purpose": "The draggable circloo wordmark only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Landing h1 on the paper strip and the final call."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section notes, sheet titles, name tag, handwritten name field."
+      },
+      "title-sm": {
+        "displayName": "Title Small",
+        "purpose": "Icebreaker question, chore steps, checklist title."
+      },
+      "magnet-label": {
+        "displayName": "Magnet Label",
+        "purpose": "Every magnet button label."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Hero sub and section-note paragraphs, about 36ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All reading text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Tags, help text, answer labels, kick plate."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-paper",
+        "value": "0 1px 0 rgb(48 62 18 / 0.18), 0 10px 20px -8px rgb(48 62 18 / 0.45)",
+        "purpose": "Paper plane: every card, sheet, sticky, strip and postcard. The only :root shadow token."
+      },
+      {
+        "name": "magnet-rest",
+        "value": "0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5)",
+        "purpose": "Magnet plane at rest. Written on each magnet rule so --rim resolves per magnet, never at :root."
+      },
+      {
+        "name": "magnet-hover",
+        "value": "0 5px 0 var(--rim), 0 12px 16px -4px rgb(36 48 10 / 0.5)",
+        "purpose": "Magnet hover, with translateY(-1px) and brightness(1.06)."
+      },
+      {
+        "name": "magnet-pressed",
+        "value": "0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45)",
+        "purpose": "Pressed, selected and busy: snapped into the door."
+      },
+      {
+        "name": "magnet-small",
+        "value": "0 3px 0 var(--rim), 0 7px 10px -3px rgb(36 48 10 / 0.5)",
+        "purpose": "Pin magnets, language magnets, filled code tiles."
+      },
+      {
+        "name": "letter-rim",
+        "value": "0 0.035em 0 var(--rim), 0 0.06em 0 var(--rim), 0 0.11em 0.12em rgb(36 48 10 / 0.42)",
+        "purpose": "text-shadow for alphabet magnet letters. The cast deepens to 0.24em 0.22em when a letter is lifted."
+      },
+      {
+        "name": "door-freezer-inset",
+        "value": "0 2px 0 var(--enamel-deep) inset, 0 1px 0 rgb(255 255 255 / 0.35)",
+        "purpose": "Door plane: structure only, no cast shadow."
+      },
+      {
+        "name": "handle",
+        "value": "3px 0 0 var(--chrome-lo), 6px 10px 14px -6px rgb(36 48 10 / 0.5)",
+        "purpose": "Chrome handle. The x offsets negate under [dir=rtl]."
+      },
+      {
+        "name": "focus-ring-field",
+        "value": "0 0 0 3px rgb(35 64 196 / 0.25)",
+        "purpose": "Text field focus, paired with a cobalt border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Magnet press and hover (140ms), card deal (520ms), fridge shake (0.5s), loading hop (900ms)."
+      },
+      {
+        "name": "ease-snap",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Letter lift scale (160ms), code tile fill (160ms), joke card straighten (220ms)."
+      },
+      {
+        "name": "magnet-press",
+        "value": "140ms",
+        "purpose": "Transform and box-shadow on every magnet."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "prefers-reduced-motion collapses all animation and transition durations."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "63.99rem"
+      },
+      {
+        "name": "handle-hidden",
+        "value": "47.99rem"
+      },
+      {
+        "name": "single-column",
+        "value": "39.99rem"
+      },
+      {
+        "name": "door-max",
+        "value": "76rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Tomato Magnet",
+      "kind": "button",
+      "refersTo": "magnet-primary",
+      "description": "The go-forward action, one per viewport. Snaps into the door on press.",
+      "html": "<button class=\"ds-magnet-tomato\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg><span>Start your circle</span></button>",
+      "css": ".ds-magnet-tomato { --rim: var(--tomato-rim, #9e2414); display: inline-flex; align-items: center; gap: 0.5rem; border: 0; border-radius: 14px; background: var(--tomato, #d63a26); color: #ffffff; font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 700; line-height: 1.1; padding: 0.7rem 1.3rem; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), filter 140ms; } .ds-magnet-tomato:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 5px 0 var(--rim), 0 12px 16px -4px rgb(36 48 10 / 0.5); } .ds-magnet-tomato:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45); } .ds-magnet-tomato:focus-visible { outline: 3px solid var(--cobalt, #2340c4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Sunflower Magnet",
+      "kind": "button",
+      "refersTo": "magnet-sunflower",
+      "description": "Play actions such as Shake the fridge.",
+      "html": "<button class=\"ds-magnet-sunflower\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22\"/><path d=\"m18 2 4 4-4 4\"/><path d=\"M2 6h1.9c1.5 0 2.9.9 3.6 2.2\"/><path d=\"M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8\"/><path d=\"m18 14 4 4-4 4\"/></svg><span>Shake the fridge</span></button>",
+      "css": ".ds-magnet-sunflower { --rim: var(--sunflower-rim, #c48e00); display: inline-flex; align-items: center; gap: 0.5rem; border: 0; border-radius: 14px; background: var(--sunflower, #ffc21a); color: var(--ink, #1b1f1c); font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 700; line-height: 1.1; padding: 0.7rem 1.3rem; font-size: 1.05rem; cursor: pointer; box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), filter 140ms; } .ds-magnet-sunflower:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 5px 0 var(--rim), 0 12px 16px -4px rgb(36 48 10 / 0.5); } .ds-magnet-sunflower:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45); } .ds-magnet-sunflower:focus-visible { outline: 3px solid var(--cobalt, #2340c4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ink Magnet (small)",
+      "kind": "button",
+      "refersTo": "magnet-ink",
+      "description": "Quiet account actions in the freezer, such as Sign out.",
+      "html": "<button class=\"ds-magnet-ink\">Sign out</button>",
+      "css": ".ds-magnet-ink { --rim: var(--ink-rim, #000000); display: inline-flex; align-items: center; gap: 0.5rem; border: 0; border-radius: 11px; background: var(--ink-magnet, #1b1f1c); color: var(--enamel, #b9d77e); font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 700; line-height: 1.1; padding: 0.45rem 0.9rem; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), filter 140ms; } .ds-magnet-ink:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 5px 0 var(--rim), 0 12px 16px -4px rgb(36 48 10 / 0.5); } .ds-magnet-ink:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45); } .ds-magnet-ink:focus-visible { outline: 3px solid var(--cobalt, #2340c4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Paper Magnet (small)",
+      "kind": "button",
+      "refersTo": "magnet-paper",
+      "description": "White magnet for Sign in and Settings in the freezer.",
+      "html": "<button class=\"ds-magnet-paper\">Sign in</button>",
+      "css": ".ds-magnet-paper { --rim: #7d8d58; display: inline-flex; align-items: center; gap: 0.5rem; border: 0; border-radius: 11px; background: var(--paper, #ffffff); color: var(--ink, #1b1f1c); font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 700; line-height: 1.1; padding: 0.45rem 0.9rem; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), filter 140ms; } .ds-magnet-paper:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 5px 0 var(--rim), 0 12px 16px -4px rgb(36 48 10 / 0.5); } .ds-magnet-paper:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45); } .ds-magnet-paper:focus-visible { outline: 3px solid var(--cobalt, #2340c4); outline-offset: 3px; }"
+    },
+    {
+      "name": "Language Magnets",
+      "kind": "nav",
+      "refersTo": "lang-magnet",
+      "description": "Radio group of four white magnets in the freezer. The selected one turns cobalt and snaps in.",
+      "html": "<div class=\"ds-langs\" role=\"radiogroup\" aria-label=\"Language\"><label class=\"ds-lang\"><input type=\"radio\" name=\"ds-lang\" checked><span>EN</span></label><label class=\"ds-lang\"><input type=\"radio\" name=\"ds-lang\"><span>FR</span></label><label class=\"ds-lang\"><input type=\"radio\" name=\"ds-lang\"><span class=\"ds-lang-ar\" lang=\"ar\">ع</span></label><label class=\"ds-lang\"><input type=\"radio\" name=\"ds-lang\"><span>ES</span></label></div>",
+      "css": ".ds-langs { display: flex; gap: 0.5rem; padding: 1rem; background: var(--freezer, #adcf6e); } .ds-lang { position: relative; cursor: pointer; } .ds-lang input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; } .ds-lang span { --rim: #8f9f6c; display: grid; place-items: center; min-inline-size: 2.6rem; block-size: 2.4rem; padding-inline: 0.5rem; border-radius: 10px; background: #ffffff; color: #1b1f1c; font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 800; font-size: 1rem; box-shadow: 0 3px 0 var(--rim), 0 6px 9px -3px rgb(36 48 10 / 0.45); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1), background 140ms; } .ds-lang span.ds-lang-ar { font-size: 1.25rem; } .ds-lang:hover span { transform: translateY(-1px) rotate(-3deg); } .ds-lang input:checked + span { --rim: #172a86; background: #2340c4; color: #ffffff; transform: translateY(2px); box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45); } .ds-lang input:focus-visible + span { outline: 3px solid #1b1f1c; outline-offset: 3px; }"
+    },
+    {
+      "name": "Pinned Paper Strip",
+      "kind": "card",
+      "refersTo": "paper-strip",
+      "description": "A heading on white paper, tilted and held to the door by a pin magnet.",
+      "html": "<div class=\"ds-door\"><div class=\"ds-strip\"><span class=\"ds-pin\" aria-hidden=\"true\"></span><h1>The fridge door for your people.</h1></div></div>",
+      "css": ".ds-door { background: var(--enamel, #b9d77e); padding: 3rem 2rem; } .ds-strip { position: relative; display: inline-block; max-inline-size: 34rem; background: #ffffff; padding: 1.5rem 2rem 1rem; border-radius: 3px; box-shadow: var(--shadow-paper, 0 1px 0 rgb(48 62 18 / 0.18), 0 10px 20px -8px rgb(48 62 18 / 0.45)); rotate: -1.2deg; } .ds-strip h1 { margin: 0; font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 800; font-size: clamp(2.6rem, 1.9rem + 3.4vw, 4.8rem); line-height: 1; letter-spacing: -0.01em; color: #1b1f1c; } .ds-pin { position: absolute; inset-block-start: -14px; inset-inline-start: 12%; inline-size: 34px; block-size: 34px; border-radius: 50%; background: #d63a26; border: 4px solid color-mix(in srgb, #d63a26 82%, #ffffff); box-shadow: 0 3px 0 #9e2414, 0 7px 10px -3px rgb(36 48 10 / 0.5); z-index: 2; }"
+    },
+    {
+      "name": "Icebreaker Index Card",
+      "kind": "card",
+      "refersTo": "index-card",
+      "description": "Ruled index card with a red margin line, a cobalt pin and a writable answer line.",
+      "html": "<div class=\"ds-door\"><div class=\"ds-index\"><span class=\"ds-pin\" aria-hidden=\"true\"></span><p class=\"ds-q\">If our family had a theme song, what would it be?</p><label class=\"ds-answer\"><span>Your answer</span><input placeholder=\"Write it on the card…\"></label></div></div>",
+      "css": ".ds-door { background: var(--enamel, #b9d77e); padding: 3rem 2rem; } .ds-index { position: relative; max-inline-size: 28rem; display: grid; gap: 1rem; background-color: #ffffff; background-image: repeating-linear-gradient(to bottom, transparent 0 calc(1.9rem - 1px), #c9def2 calc(1.9rem - 1px) 1.9rem); background-position: 0 3.2rem; border-radius: 3px; box-shadow: var(--shadow-paper, 0 1px 0 rgb(48 62 18 / 0.18), 0 10px 20px -8px rgb(48 62 18 / 0.45)); padding: 2rem 1.5rem 1.5rem; padding-inline-start: calc(1.5rem + 1.9rem); rotate: 1.6deg; } .ds-index::before { content: ''; position: absolute; inset-block: 0; inset-inline-start: 2.4rem; inline-size: 2px; background: #f08a80; opacity: 0.7; } .ds-q { margin: 0; font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-weight: 700; font-size: clamp(1.5rem, 1.3rem + 0.9vw, 2.1rem); line-height: 1.2; color: #1b1f1c; } .ds-answer { display: grid; gap: 0.25rem; font-family: var(--font-text, 'Rubik Variable', 'Rubik', system-ui, sans-serif); font-weight: 600; font-size: 0.88rem; color: #1b1f1c; } .ds-answer input { border: 0; border-block-end: 2px dashed #2340c4; background: transparent; padding: 0.25rem 0; font-family: var(--font-display, 'Baloo Bhaijaan 2 Variable', 'Baloo Bhaijaan 2', ui-rounded, sans-serif); font-size: 1.3rem; color: #2340c4; } .ds-answer input::placeholder { color: #5f6fae; } .ds-answer input:focus-visible { outline: none; border-block-end-style: solid; } .ds-pin { position: absolute; inset-block-start: -14px; inset-inline-start: calc(50% - 17px); inline-size: 34px; block-size: 34px; border-radius: 50%; background: #2340c4; border: 4px solid color-mix(in srgb, #2340c4 82%, #ffffff); box-shadow: 0 3px 0 #172a86, 0 7px 10px -3px rgb(36 48 10 / 0.5); z-index: 2; }"
+    },
+    {
+      "name": "Sticky Notes",
+      "kind": "card",
+      "refersTo": "sticky-note",
+      "description": "Pastel stickies with a curled bottom corner that flips in RTL.",
+      "html": "<div class=\"ds-board\"><div class=\"ds-sticky\"><p>Start on time, end on time.</p></div><div class=\"ds-sticky ds-sticky--pink\"><p>Fewer slides, more coffee.</p></div><div class=\"ds-sticky ds-sticky--blue\"><p>Demo on Fridays.</p></div></div>",
+      "css": ".ds-board { display: flex; gap: 1rem; background: var(--enamel, #b9d77e); padding: 2rem; } .ds-sticky { max-inline-size: 12rem; padding: 1rem; background: #ffe066; border-radius: 2px 2px 14px 2px; box-shadow: var(--shadow-paper, 0 1px 0 rgb(48 62 18 / 0.18), 0 10px 20px -8px rgb(48 62 18 / 0.45)); font-family: var(--font-text, 'Rubik Variable', 'Rubik', system-ui, sans-serif); font-weight: 500; font-size: 0.9rem; color: #1b1f1c; rotate: -1.2deg; } .ds-sticky p { margin: 0; } .ds-sticky--pink { background: #ffb7d2; rotate: 1.5deg; } .ds-sticky--blue { background: #b4dcff; } [dir='rtl'] .ds-sticky { border-radius: 2px 2px 2px 14px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "Bordered white field on a sheet. Cobalt border and soft ring on focus, tomato border on error.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-email\">Email</label><input id=\"ds-email\" type=\"email\" placeholder=\"you@example.com\"><p class=\"ds-help\">We send you a code, no password.</p></div>",
+      "css": ".ds-field { display: grid; gap: 0.5rem; max-inline-size: 26rem; font-family: var(--font-text, 'Rubik Variable', 'Rubik', system-ui, sans-serif); color: #1b1f1c; } .ds-field label { font-weight: 600; } .ds-field input { inline-size: 100%; border: 2px solid #1b1f1c; border-radius: 10px; background: #ffffff; padding: 0.75rem 0.9rem; font: inherit; font-size: 1.3rem; transition: border-color 140ms, box-shadow 140ms; } .ds-field input::placeholder { color: #737b76; } .ds-field input:focus-visible { outline: none; border-color: #2340c4; box-shadow: 0 0 0 3px rgb(35 64 196 / 0.25); } .ds-field input[aria-invalid='true'] { border-color: #d63a26; } .ds-help { margin: 0; font-size: 0.88rem; color: #4d5650; }"
+    },
+    {
+      "name": "Tags",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Honest labels for demo and upcoming content: Example, Soon, First up.",
+      "html": "<p class=\"ds-tags\"><span class=\"ds-tag\">Example</span> <span class=\"ds-tag ds-tag--soon\">Soon</span> <span class=\"ds-tag ds-tag--first\">First up</span></p>",
+      "css": ".ds-tags { display: flex; gap: 0.5rem; padding: 1rem; background: #ffe066; margin: 0; } .ds-tag { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px; border: 2px solid currentcolor; font-family: var(--font-text, 'Rubik Variable', 'Rubik', system-ui, sans-serif); font-size: 0.88rem; font-weight: 600; line-height: 1.4; color: #1b1f1c; } .ds-tag--soon { background: #ffffff; border-color: #1b1f1c; } .ds-tag--first { color: #ffffff; background: #d63a26; border-color: #d63a26; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Fridge Door",
+    "overview": "Every circloo surface is the door of a shared fridge. The ground is a drenched pistachio enamel that fills the viewport edge to edge. A freezer compartment sits on top, separated by a groove, and a black kick plate closes the bottom. A rubber seal and a full-length chrome handle run down the inline-end edge. Anything the circle says or does is stuck to this door: words go on paper (white index cards, sticky notes, kraft strips, postcards, name tags), and anything you can press is a chunky plastic magnet. The landing page and the signed-in app share one world. The app's forms are sheets of paper pinned to the same door.\n\nThe density is relaxed and physical. Papers sit slightly crooked, magnets stand proud of the door and snap flat when pressed, and the alphabet magnets that spell the wordmark can be dragged. The palette has four magnet colours (tomato, cobalt, sunflower, ink) against the enamel and the paper. Type comes in two voices: a round, heavy display face that looks like moulded plastic letters, and a calm geometric text face for reading.\n\nThe world is built for four languages, including Arabic in RTL. The door mirrors: the handle and seal move to the left edge, sticky-note curls flip corners, and the display face covers Arabic natively.",
+    "keyCharacteristics": [
+      "Pistachio enamel ground everywhere. No white page and no neutral grey canvas.",
+      "Three depth planes: door (flat, inset grooves only), paper (soft lift), magnet (a coloured plastic rim plus a cast shadow).",
+      "Paper sits at a small tilt (between -4deg and +4deg). Every heading is set on paper, never straight on the enamel.",
+      "Buttons and links that act are magnets, and pressing one snaps it into the door.",
+      "Baloo Bhaijaan 2 for display (Latin and Arabic), Rubik for text. Both are self-hosted.",
+      "Logical properties throughout, with explicit `[dir='rtl']` mirrors for every asymmetric detail."
+    ],
+    "rules": [
+      {
+        "name": "The Four Plastics Rule",
+        "body": "Magnets come only in tomato, cobalt, sunflower, ink and white paper, each with its own darker rim. A new magnet colour needs a design decision, not a one-off hex.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Tomato Rule",
+        "body": "Each viewport has one tomato action, and it is the step forward. Secondary actions are paper, ink or sunflower magnets, or an underlined text link.",
+        "section": "colors"
+      },
+      {
+        "name": "The Enamel Is Not Paper Rule",
+        "body": "Text set straight on the enamel uses ink or ink-soft. Grey text tones made for paper (ink-on-paper-soft) never go on the door.",
+        "section": "colors"
+      },
+      {
+        "name": "The Arabic Display Rule",
+        "body": "Under `:lang(ar)`, display headings drop the -0.01em tracking to 0 and open line height to 1.25 for dots and marks. Never uppercase or letter-space Arabic.",
+        "section": "typography"
+      },
+      {
+        "name": "The Magnet Word Stays LTR Rule",
+        "body": "The \"circloo\" magnet wordmark is pinned `direction: ltr` in every locale. It is a brand object, not running text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Handle Lane Rule",
+        "body": "Nothing on the door may sit in the inline-end `handle-space`. The handle runs from 9rem down for min(62vh, 34rem) and must stay clear.",
+        "section": "layout"
+      },
+      {
+        "name": "The Own-Rim Rule",
+        "body": "A magnet's shadow is written on the magnet's own rule, because it reads that magnet's `--rim`. A `:root` shadow token would resolve `--rim` at the root and break every colour variant. Only the paper shadow lives at `:root`.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Three Planes Rule",
+        "body": "Rims belong only to magnets. Paper gets `--shadow-paper` and never a solid offset. The door gets no cast shadow at all. If an element has a rim, it must be pressable or be a magnet holding something.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Snap Rule",
+        "body": "Press feedback is physical: the magnet drops 2 to 3px and its rim collapses to 1px over 140ms on `--ease-out`. Selected states (language) and busy states use the same snapped-in pose.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** set every heading on paper held by a pin magnet. Supporting paragraphs may sit on the enamel in ink or ink-soft.",
+      "**Do** write magnet shadows on the magnet's own rule using its `--rim`, and keep `--shadow-paper` as the only shared shadow token.",
+      "**Do** give each paper a small, different tilt between -4deg and +4deg. Keep controls upright relative to their paper.",
+      "**Do** use logical properties (`inset-inline-*`, `padding-inline-*`, `border-block-*`) and add a `[dir='rtl']` mirror for every asymmetric detail: curled corners, handle shadow, pin translate, margin-note rotation, directional icons.",
+      "**Do** pass every dynamic position or value through CSS custom properties set from script (`setProperty`). The CSP forbids inline style attributes.",
+      "**Do** pair a mood with both an icon and a word. Mood is never colour alone.",
+      "**Do** use Lucide SVG icons at stroke 2.25 to 2.5, decorative and `aria-hidden` beside a visible label.",
+      "**Do** honour reduced motion: the global rule collapses animations and transitions to 0.01ms, and the shake, deal and hop animations depend on it."
+    ],
+    "donts": [
+      "**Don't** give paper a solid offset shadow or give the door a cast shadow. Rims are for magnets only.",
+      "**Don't** declare a magnet shadow token at `:root`. It resolves `--rim` at the root and breaks every colour variant.",
+      "**Don't** introduce a fifth magnet colour or a one-off button hex. Use tomato, cobalt, sunflower, ink or paper.",
+      "**Don't** put more than one tomato action in a viewport.",
+      "**Don't** set display type in Rubik or a system face. Don't set body copy in Baloo Bhaijaan 2.",
+      "**Don't** add small labels or eyebrows above headings. The heading on its pinned paper is the hierarchy.",
+      "**Don't** use emoji or text glyphs as icons.",
+      "**Don't** place content in the handle lane at the inline-end edge, or use physical left/right properties.",
+      "**Don't** apply negative tracking, uppercase or letter-spacing to Arabic text."
+    ]
+  }
+}

@@ -187,7 +187,7 @@
 .magnet--cobalt { --face: var(--cobalt); --rim: var(--cobalt-rim); --label: #ffffff; }
 .magnet--sunflower { --face: var(--sunflower); --rim: var(--sunflower-rim); --label: var(--ink); }
 .magnet--ink { --face: var(--ink-magnet); --rim: var(--ink-rim); --label: var(--enamel); }
-.magnet--paper { --face: var(--paper); --rim: #7d8d58; --label: var(--ink); }
+.magnet--paper { --face: var(--paper); --rim: #8f9f6c; --label: var(--ink); }
 .magnet__icon {
   display: inline-flex;
 }
