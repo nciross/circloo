@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report
-Version: 0.0.0 → 1.0.0 (initial ratification)
+Version: 1.0.0 → 1.1.0 (git conventions: conventional branches/commits, squash-only main via Nicolas)
 Principles added: I–VII. Sections added: Technology & Infrastructure Constraints, Development Workflow, Governance.
 Templates: plan/spec/tasks templates are compatible (Constitution Check reads the principles below).
 -->
@@ -10,7 +10,7 @@ Templates: plan/spec/tasks templates are compatible (Constitution Check reads th
 ## Core Principles
 
 ### I. No Issue, No Development (NON-NEGOTIABLE)
-Every change traces to a GitHub issue. Features flow idea issue → spec → plan → tasks → task issues (`/speckit-taskstoissues`) → code. Task issues are created only **after** the plan exists. Commits reference `#N`; PRs contain `Closes #N`. Bugs and chores need an issue but may skip the spec.
+Every change traces to a GitHub issue. Features flow idea issue → spec → plan → tasks → task issues (`/speckit-taskstoissues`) → code. Task issues are created only **after** the plan exists. Commits reference `#N`; PRs contain `Closes #N`. Branch names and commit messages follow Conventional Commits (`docs/workflow/git-conventions.md`). Bugs and chores need an issue but may skip the spec.
 
 ### II. Spec Before Code
 `spec.md` describes user value and acceptance scenarios without implementation detail. `plan.md` holds the technical decisions and must pass the Constitution Check. Ambiguities are resolved with `/speckit-clarify`, never guessed in code.
@@ -36,11 +36,12 @@ All Azure resources for an environment live in **one** resource group `rg-circlo
 - Humour content is kind: no jokes targeting religion, ethnicity, gender, nationality or politics.
 
 ## Development Workflow
-- Branches come from Spec-Kit (`NNN-slug`) for features, or `fix/<issue>-slug` / `chore/<issue>-slug`.
+- Branches are `<type>/<number>-<slug>` (Spec-Kit creates `feat/NNN-slug`). Commits are Conventional Commits with `#N`. PR titles are conventional subjects with `(#N)`.
+- `main` receives only squash merges (one commit per PR, subject `<PR title> (#PR)`), performed by Nicolas after the `nicolas/review` approval. Branches are deleted on merge. Nobody pushes to `main`. See `docs/workflow/git-conventions.md`.
 - PR checks: linked issue, Bicep compiles, tests pass. UI PRs include Impeccable audit results.
 - Product truth lives in `PRODUCT.md`; epics in `docs/product/prd.md`; architecture in `docs/architecture/overview.md`. Plans that change these decisions update the documents in the same PR.
 
 ## Governance
 This constitution supersedes other practices. Amendments are made with `/speckit-constitution` in a PR linked to an issue, with a version bump (MAJOR: principle removed/redefined; MINOR: principle added; PATCH: wording). Every plan's Constitution Check gate must pass or carry a justified exception.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01
+**Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01

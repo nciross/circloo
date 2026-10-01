@@ -1,0 +1,18 @@
+{
+  "name": "branches: <type>/<number>-<slug> only",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [],
+  "conditions": {
+    "ref_name": {
+      "include": ["~ALL"],
+      "exclude": [
+        "~DEFAULT_BRANCH",
+        "refs/heads/feat/*", "refs/heads/fix/*", "refs/heads/chore/*", "refs/heads/docs/*",
+        "refs/heads/refactor/*", "refs/heads/test/*", "refs/heads/ci/*", "refs/heads/perf/*",
+        "refs/heads/build/*", "refs/heads/style/*", "refs/heads/revert/*"
+      ]
+    }
+  },
+  "rules": [ { "type": "creation" } ]
+}

@@ -1,0 +1,30 @@
+name: Branch guard
+
+# Server-side enforcement of branch names: any branch pushed to GitHub that isn't
+# <type>/<number>-<slug> is deleted right away, and its author gets an explanation in the run log.
+# (A repository ruleset blocks it before creation once the plan allows rulesets. See scripts/protect-repo.)
+on: create
+
+permissions:
+  contents: write
+
+jobs:
+  guard:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts/git-hooks
+      - name: Delete non-conventional branch
+        env:
+          BRANCH: ${{ github.event.ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . scripts/git-hooks/_conventions.sh
+          if [ "$BRANCH" = "main" ] || conv_branch_ok "$BRANCH"; then
+            echo "Branch '$BRANCH' follows the convention."; exit 0
+          fi
+          echo "::error::Branch '$BRANCH' is not <type>/<number>-<slug>. Deleting it."
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$BRANCH"
+          exit 1
