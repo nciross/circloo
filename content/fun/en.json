@@ -1,0 +1,27 @@
+{
+  "lang": "en",
+  "sparks": [
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "If your week were a weather forecast, what would it be?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "What's a small thing that made you smile this week?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "What's the most useless talent you have?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Which fictional character would be the worst roommate?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Describe your morning using only three emojis." },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work"], "text": "What's a food you loved as a kid that you'd still defend today?" },
+    { "kind": "icebreaker", "tags": ["work"], "text": "What's one tool or habit that quietly saves you an hour a week?" },
+    { "kind": "icebreaker", "tags": ["family", "kids-safe"], "text": "If our family had a theme song, what would it be?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "You can instantly master one skill. Which one, and why not something useful?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "What's the best piece of advice you ignored?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Would you rather always be 10 minutes late or always 20 minutes early?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "Would you rather talk to animals or speak every human language?" },
+    { "kind": "would-you-rather", "tags": ["friends", "work"], "text": "Would you rather have unlimited coffee or unlimited naps?" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "I told my computer I needed a break. It said: \"No problem, I'll go to sleep.\"" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "Why don't eggs tell jokes? They'd crack each other up." },
+    { "kind": "joke", "tags": ["friends", "work"], "text": "Our team meeting could have been an email. Our email could have been a sticky note. Our sticky note is now this meeting." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "What do you call a fake noodle? An impasta." },
+    { "kind": "joke", "tags": ["work"], "text": "There are 10 kinds of people: those who understand binary and those who don't." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "Why did the scarecrow get promoted? He was outstanding in his field." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "I'm reading a book about anti-gravity. I can't put it down." },
+    { "kind": "joke", "tags": ["friends", "work"], "text": "My plants and I have an understanding: I forget to water them, they forgive me, nobody talks about it." },
+    { "kind": "riddle", "tags": ["family", "friends", "work", "kids-safe"], "text": "What has keys but can't open locks? (A piano.)" }
+  ]
+}

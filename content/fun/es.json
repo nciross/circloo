@@ -1,0 +1,27 @@
+{
+  "lang": "es",
+  "sparks": [
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Si tu semana fuera un pronóstico del tiempo, ¿cuál sería?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "¿Qué cosa pequeña te hizo sonreír esta semana?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "¿Cuál es tu talento más inútil?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "¿Qué personaje de dibujos animados sería el peor compañero de piso?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Cuenta tu mañana usando solo tres emojis." },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work"], "text": "¿Qué comida de tu infancia seguirías defendiendo hoy a muerte?" },
+    { "kind": "icebreaker", "tags": ["work"], "text": "¿Qué hábito o herramienta te ahorra una hora a la semana sin que nadie lo sepa?" },
+    { "kind": "icebreaker", "tags": ["family", "kids-safe"], "text": "Si nuestra familia tuviera una canción oficial, ¿cuál sería?" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "Puedes dominar una habilidad al instante. ¿Cuál? ¿Y por qué no una útil?" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "¿Cuál es el mejor consejo que nunca seguiste?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "¿Prefieres llegar siempre 10 minutos tarde o siempre 20 minutos antes?" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "¿Prefieres hablar con los animales o hablar todos los idiomas del mundo?" },
+    { "kind": "would-you-rather", "tags": ["friends", "work"], "text": "¿Prefieres café ilimitado o siestas ilimitadas?" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "—¿Qué le dice una iguana a su hermana gemela? —¡Somos iguanitas!" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "—¿Cuál es el café más peligroso del mundo? —El ex-preso." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "—¿Qué hace una abeja en el gimnasio? —¡Zum-ba!" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "—¿Por qué el libro de matemáticas está triste? —Porque tiene muchos problemas." },
+    { "kind": "joke", "tags": ["friends", "work"], "text": "Esta reunión podría haber sido un correo. Ese correo podría haber sido un pósit. Ese pósit ahora es esta reunión." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "—¿Qué le dice un techo a otro? —Techo de menos." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "—¿Cómo se despiden los químicos? —Ácido un placer." },
+    { "kind": "joke", "tags": ["work"], "text": "—Mamá, en el trabajo me llaman despistado. —Hijo, tú no trabajas aquí." },
+    { "kind": "riddle", "tags": ["family", "friends", "work", "kids-safe"], "text": "Cuanto más le quitas, más grande es. ¿Qué es? (Un agujero.)" }
+  ]
+}

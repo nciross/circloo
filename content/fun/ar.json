@@ -1,0 +1,28 @@
+{
+  "lang": "ar",
+  "dir": "rtl",
+  "sparks": [
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "لو كان أسبوعك نشرة جوية، كيف سيكون الطقس؟" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "ما هي أكثر موهبة عندك بلا أي فائدة؟" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "أي شخصية كرتونية ستكون أسوأ شريك سكن؟" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "صف صباحك باستخدام ثلاثة رموز تعبيرية فقط." },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work"], "text": "ما الأكلة التي كنت تحبها في طفولتك وما زلت تدافع عنها حتى اليوم؟" },
+    { "kind": "icebreaker", "tags": ["work"], "text": "ما العادة أو الأداة التي توفر لك ساعة كل أسبوع دون أن يعرف أحد؟" },
+    { "kind": "icebreaker", "tags": ["family", "kids-safe"], "text": "لو كان لعائلتنا نشيد خاص، ماذا سيكون؟" },
+    { "kind": "icebreaker", "tags": ["family", "friends", "work", "kids-safe"], "text": "تستطيع إتقان مهارة واحدة فورًا. أي مهارة تختار؟" },
+    { "kind": "icebreaker", "tags": ["friends", "work"], "text": "ما أفضل نصيحة سمعتها ولم تعمل بها؟" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "هل تفضّل أن تتأخر دائمًا عشر دقائق أم أن تصل مبكرًا دائمًا بعشرين دقيقة؟" },
+    { "kind": "would-you-rather", "tags": ["family", "friends", "work", "kids-safe"], "text": "هل تفضّل أن تتكلم مع الحيوانات أم أن تتقن كل لغات العالم؟" },
+    { "kind": "would-you-rather", "tags": ["friends", "work"], "text": "هل تفضّل قهوة بلا حدود أم قيلولة بلا حدود؟" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "قال الحاسوب لصاحبه: أنا متعب. فقال له: نَم قليلًا. فدخل في وضع السكون!" },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "لماذا يحمل الطالب سلّمًا إلى المدرسة؟ لأنه يريد أن يدخل المرحلة الثانوية!" },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "سألت السمكة أمها: لماذا لا نذهب إلى المدرسة؟ قالت: لأننا نسبح في المعلومات طوال اليوم!" },
+    { "kind": "joke", "tags": ["friends", "work"], "text": "هذا الاجتماع كان يمكن أن يكون رسالة بريد. والرسالة كان يمكن أن تكون ورقة لاصقة. والورقة اللاصقة أصبحت هذا الاجتماع." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "قال القلم للممحاة: كل ما أفعله أنتِ تمسحينه! قالت: وأنا أصحح أخطاءك يا صديقي." },
+    { "kind": "joke", "tags": ["family", "friends", "kids-safe"], "text": "لماذا لا تلعب الساعة كرة القدم؟ لأنها دائمًا تضيّع الوقت... لا، بل لأن عقاربها تلدغ!" },
+    { "kind": "joke", "tags": ["work"], "text": "مبرمج قال: الكود يعمل ولا أعرف لماذا. وفي اليوم التالي: الكود لا يعمل ولا أعرف لماذا." },
+    { "kind": "joke", "tags": ["family", "friends", "work", "kids-safe"], "text": "قالت البطيخة للخيارة: لماذا أنتِ خضراء؟ قالت: وأنتِ لماذا كبيرة؟ ومنذ ذلك اليوم لم تتكلما." },
+    { "kind": "riddle", "tags": ["family", "friends", "work", "kids-safe"], "text": "شيء كلما أخذت منه كبر. ما هو؟ (الحفرة)" }
+  ]
+}

@@ -1,0 +1,30 @@
+# Azure Developer CLI environments (contain generated secrets)
+.azure/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# Claude Code personal settings
+.claude/settings.local.json
+
+# Impeccable local config
+.impeccable/config.local.json
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

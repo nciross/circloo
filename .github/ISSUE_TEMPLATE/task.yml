@@ -1,0 +1,22 @@
+name: 🧩 Task
+description: A unit of development work. Normally created by /speckit-taskstoissues from a feature's tasks.md.
+labels: ["type:task"]
+body:
+  - type: input
+    id: spec
+    attributes:
+      label: Spec folder
+      placeholder: specs/001-daily-mood/
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What to build
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      placeholder: "- [ ] tests pass\n- [ ] works in EN/FR/AR/ES (RTL checked)\n- [ ] /impeccable audit clean (UI tasks)"
