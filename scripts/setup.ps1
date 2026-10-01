@@ -28,7 +28,9 @@ $labels = @(
   @('area:auth',    'fbca04', 'Email sign-in, invites, enterprise SSO'),
   @('area:i18n',    'fbca04', 'EN / FR / AR (RTL) / ES'),
   @('area:infra',   'fbca04', 'Azure IaC and deployment'),
-  @('area:design',  'fbca04', 'UI/UX, Impeccable reviews')
+  @('area:design',  'fbca04', 'UI/UX, Impeccable reviews'),
+  @('status:changes-requested', 'e99695', 'Nicolas bounced it - author acts next'),
+  @('status:ready-to-merge',    '0e8a16', 'All merge gates passed')
 )
 foreach ($l in $labels) { gh label create $l[0] --color $l[1] --description $l[2] --force | Out-Null }
 Write-Host "Labels synced."

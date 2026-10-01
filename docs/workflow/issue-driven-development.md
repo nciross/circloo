@@ -17,6 +17,7 @@ idea issue ──▶ /speckit-specify ──▶ /speckit-clarify ──▶ /spec
 6. **Issues are written after the plan**: `/speckit-taskstoissues` creates one GitHub issue per task (`T001: …`) through the GitHub MCP server, skipping tasks that already have one. Label them `type:task` and the matching `area:*`.
 7. **Develop** one task issue at a time (`/speckit-implement` or by hand). Every commit message references the issue (`#N`). The `commit-msg` hook enforces this.
 8. **PR** with `Closes #N`. CI (`.github/workflows/pr-checks.yml`) fails without a linked issue.
+9. **Review and merge** with `/nicolas <PR#>`. Nicolas reviews with the specialist agents, fixes small issues, merges and updates the issues. See [nicolas.md](nicolas.md).
 
 ## Enforcement
 | Where | What |
