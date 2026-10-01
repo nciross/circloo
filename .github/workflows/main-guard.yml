@@ -1,0 +1,66 @@
+name: Main guard
+
+# Every change on main must come from a merged pull request (#57).
+# Server-side protection (rulesets) needs GitHub Pro or a public repo; until then this guard
+# turns any direct push into a red build and an alert issue, so it can never go unnoticed.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  merged-through-pr:
+    name: Merged through a pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check every pushed commit belongs to a merged PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PUSHER: ${{ github.event.pusher.name }}
+          FORCED: ${{ github.event.forced }}
+        run: |
+          set -euo pipefail
+          zero=0000000000000000000000000000000000000000
+          # A force-push that only rewinds main has no new commits to check, and a deletion has none at all.
+          reason=""
+          if [ "$AFTER" = "$zero" ]; then
+            reason="main was deleted"
+          elif [ "$FORCED" = "true" ]; then
+            reason="main was force-pushed from $BEFORE to $AFTER (history rewritten)"
+          fi
+          if [ "$AFTER" = "$zero" ]; then
+            commits=""
+          elif [ "$BEFORE" = "$zero" ]; then
+            commits="$AFTER"
+          else
+            commits="$(gh api --paginate "repos/$REPO/compare/$BEFORE...$AFTER" --jq '.commits[].sha')"
+          fi
+          bad=""
+          for sha in $commits; do
+            # The commit-to-PR link can lag the push by a few seconds, so retry before raising an alert.
+            for attempt in 1 2 3; do
+              merged="$(gh api "repos/$REPO/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "main")] | length')"
+              if [ "$merged" != "0" ] || [ "$attempt" = "3" ]; then break; fi
+              sleep 10
+            done
+            if [ "$merged" = "0" ]; then
+              bad="$bad $sha"
+            fi
+          done
+          if [ -n "$bad" ] || [ -n "$reason" ]; then
+            body="This push to \`main\` (by @$PUSHER) did not go through a merged pull request:"
+            if [ -n "$reason" ]; then body="$body"$'\n'"- $reason"; fi
+            for sha in $bad; do body="$body"$'\n'"- $sha has no merged pull request"; done
+            body="$body"$'\n\n'"Every change must land through a PR (see docs/workflow/git-conventions.md). Revert through a PR and redo the change on a branch."
+            gh issue create --repo "$REPO" --title "alert: direct push to main" --label "type:bug" --body "$body"
+            echo "::error::Direct push to main detected: ${reason}${bad}"
+            exit 1
+          fi
+          echo "All commits on main came from merged pull requests."

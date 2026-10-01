@@ -38,9 +38,12 @@ main:  ● feat(mood): one-tap daily check-in (#42) (#51)
 | Repo settings | Merge commits and rebase merges (squash only); merged branches auto-deleted | `scripts/protect-repo.*` |
 | Rulesets *(GitHub Pro or public repo)* | Direct pushes/force-pushes to `main`, merging without green checks + `nicolas/review`, creating bad branch names | `.github/rulesets/*.json`, applied by `scripts/protect-repo.*` |
 | Nicolas | Merging anything that fails a gate | `.claude/agents/nicolas.md` |
+| Main guard | Any commit on `main` that did not come from a merged PR turns the build red and opens an alert issue (#57) | `.github/workflows/main-guard.yml` |
 
 The hooks are enabled by `scripts/setup.*` (`git config core.hooksPath scripts/git-hooks`). A repo admin runs `scripts/protect-repo.*` once, and again after changing the plan or a ruleset file. The shared regexes live in `scripts/git-hooks/_conventions.sh` and are used by both the hooks and CI.
 
+> **Rule:** every change, including documentation and fixes by agents, lands on `main` through a pull request. There are no exceptions.
+>
 > **Current limit:** the repo is private on GitHub Free, so rulesets can't be enforced yet. GitHub will still *allow* a human to merge a red PR or push to `main` from a machine without the hooks. Upgrade to Pro or make the repo public, then re-run `scripts/protect-repo.ps1`.
 >
 > `nicolas/review` is a plain commit status, so anyone with status-write access (write access to the repo, or a token with `repo:status`) can set it. It records Nicolas's decision. It doesn't prove who made it.
