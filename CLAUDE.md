@@ -23,7 +23,8 @@ type:idea issue → /speckit-specify → /speckit-clarify → /speckit-plan → 
 - **Spec-Kit** (`.specify/`, skills in `.claude/skills/speckit-*`): specs live in `specs/NNN-slug/`. The git extension creates feature branches `NNN-slug` on `/speckit-specify`.
 - **Impeccable** design plugin: enabled in `.claude/settings.json` from the `pbakaus/impeccable` marketplace. Run all UI work through `/impeccable shape|craft|critique|audit|harden`. The root `DESIGN.md` doesn't exist yet. The first `/impeccable craft` creates it, so don't hand-write it. The UI must not look AI-generated (banned patterns in `docs/design/anti-ai-look.md`).
 - **GitHub MCP**: remote server `https://api.githubcopilot.com/mcp/`. Auth comes from `scripts/mcp-github-headers.mjs`, which uses `GITHUB_PERSONAL_ACCESS_TOKEN` or else `gh auth token`. Nothing is stored in the repo.
-- **Subagents** (`.claude/agents/`): `product-owner` (ideas → idea issues), `architect` (plans), `ux-designer` (Impeccable), `issue-planner` (tasks → issues), `developer` (one issue), `reviewer` (PR gate), `azure-infra` (IaC).
+- **Subagents** (`.claude/agents/`): `product-owner` (ideas → idea issues), `architect` (plans), `ux-designer` (Impeccable), `issue-planner` (tasks → issues), `developer` (one issue), `reviewer` (PR checklist), `azure-infra` (IaC), and **`nicolas`**, the lead maintainer who makes the final call on a PR.
+- **Nicolas** (`/nicolas <PR#> | sweep | ship <issue#>`, skill in `.claude/skills/nicolas/`): the skill fans out to `reviewer`, plus `ux-designer` for UI changes and `azure-infra` for infra changes. The `nicolas` subagent then verifies their findings, pushes small in-scope fixes, squash-merges when every gate passes, and updates the linked issues, `tasks.md` and the parent idea issue. Gates and limits: `docs/workflow/nicolas.md`. Never merge on pending/failing CI, never `--admin`, never force-push.
 
 ## Commands
 The `.ps1` scripts need PowerShell 7 (`pwsh`); bash twins (`.sh`) exist.
