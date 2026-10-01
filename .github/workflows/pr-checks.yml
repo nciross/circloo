@@ -52,6 +52,35 @@ jobs:
           done
           exit $fail
 
+  api:
+    name: API build and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - run: dotnet build Circloo.slnx -c Release
+      - run: dotnet test Circloo.slnx -c Release --no-build
+
+  web:
+    name: Web lint, tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
   bicep:
     name: Bicep compiles
     runs-on: ubuntu-latest
