@@ -25,6 +25,11 @@ jobs:
           if [ "$BRANCH" = "main" ] || conv_branch_ok "$BRANCH"; then
             echo "Branch '$BRANCH' follows the convention."; exit 0
           fi
+          # URL-encode the name so characters like '#', '?' or '..' can't retarget the API call (e.g. at main).
+          enc=$(jq -rn --arg b "$BRANCH" '$b|@uri')
+          if [ -z "$enc" ] || [ "$enc" = "main" ]; then
+            echo "::error::Refusing to delete '$BRANCH' (encoded: '$enc')."; exit 1
+          fi
           echo "::error::Branch '$BRANCH' is not <type>/<number>-<slug>. Deleting it."
-          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$BRANCH"
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$enc"
           exit 1
