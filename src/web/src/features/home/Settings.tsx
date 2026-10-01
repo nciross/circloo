@@ -24,6 +24,7 @@ export default function Settings() {
   const [locale, setLocale] = useState<Locale>(me?.locale ?? 'en')
   const [status, setStatus] = useState<'idle' | 'saved' | 'error' | 'invalid'>('idle')
   const [confirming, setConfirming] = useState(false)
+  const [everywhereFailed, setEverywhereFailed] = useState(false)
   const statusId = useId()
 
   const save = async (e: FormEvent) => {
@@ -43,12 +44,17 @@ export default function Settings() {
 
   return (
     <div className="fridge">
-      <Freezer homeTo="/app">
+      <Freezer homeTo="/app" showLanguages={false}>
         <AccountMenu />
       </Freezer>
       <main id="main" className="door">
         <span className="door__handle" aria-hidden="true" />
-        <h1 className="section-title door__panel">{t('settings.title')}</h1>
+        <div className="door__panel">
+          <div className="paper-strip">
+            <span className="pin-magnet pin-magnet--cobalt" aria-hidden="true" />
+            <h1 className="paper-strip__title">{t('settings.title')}</h1>
+          </div>
+        </div>
         <div className="door__panel settings-grid">
           <form className="sheet" onSubmit={save} noValidate aria-describedby={statusId}>
             <span className="pin-magnet pin-magnet--tomato" aria-hidden="true" />
@@ -65,31 +71,40 @@ export default function Settings() {
             </label>
             <div className="field">
               <span className="field__label">{t('welcome.languageLabel')}</span>
-              <LanguageMagnets value={locale} onChange={(l) => { setLocale(l); setStatus('idle') }} name="settings-language" />
+              <LanguageMagnets value={locale} onChange={(l) => { setLocale(l); setStatus('idle') }} />
             </div>
             <p id={statusId} className={status === 'saved' ? 'sheet__notice' : 'field__error'} role="status">
               {status === 'saved' ? t('settings.saved') : status === 'invalid' ? t('welcome.errors.name') : status === 'error' ? t('common.errorGeneric') : ''}
             </p>
-            <MagnetButton type="submit" busy={update.isPending}>{t('settings.save')}</MagnetButton>
+            <MagnetButton type="submit" color="cobalt" busy={update.isPending}>{t('settings.save')}</MagnetButton>
           </form>
 
           <section className="sheet sheet--quiet" aria-labelledby="devices">
             <h2 id="devices" className="sheet__title">{t('settings.sessionsTitle')}</h2>
             <p className="sheet__lead">{t('settings.sessionsBody')}</p>
             {confirming ? (
-              <MagnetButton
-                color="tomato"
-                busy={everywhere.isPending}
-                onClick={async () => {
-                  await everywhere.mutateAsync().catch(() => undefined)
-                  navigate('/', { replace: true })
-                }}
-              >
-                {t('settings.confirmEverywhere')}
-              </MagnetButton>
+              <div className="sheet__actions">
+                <MagnetButton
+                  color="ink"
+                  busy={everywhere.isPending}
+                  onClick={async () => {
+                    setEverywhereFailed(false)
+                    try {
+                      await everywhere.mutateAsync()
+                      navigate('/', { replace: true })
+                    } catch {
+                      setEverywhereFailed(true)
+                    }
+                  }}
+                >
+                  {t('settings.confirmEverywhere')}
+                </MagnetButton>
+                <button type="button" className="text-link" onClick={() => setConfirming(false)}>{t('common.cancel')}</button>
+              </div>
             ) : (
               <MagnetButton color="ink" onClick={() => setConfirming(true)}>{t('common.signOutEverywhere')}</MagnetButton>
             )}
+            {everywhereFailed ? <p className="field__error" role="alert">{t('settings.everywhereFailed')}</p> : null}
           </section>
         </div>
       </main>

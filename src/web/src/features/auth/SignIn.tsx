@@ -168,7 +168,7 @@ function CodeStep() {
             aria-describedby={error ? errorId : undefined}
           />
           {digits.map((d, i) => (
-            <span key={i} className={`code-tile${d ? ' is-filled' : ''}${i === code.length ? ' is-next' : ''}`} aria-hidden="true">
+            <span key={i} className={`code-tile${d ? ' is-filled' : ''}${i === code.length ? ' is-next' : ''}${code.length === 6 && i === 5 ? ' is-last' : ''}`} aria-hidden="true">
               {d}
             </span>
           ))}

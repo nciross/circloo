@@ -16,6 +16,6 @@ export async function codeFor(email: string): Promise<string> {
 }
 
 export async function pickLanguage(page: Page, locale: 'en' | 'ar') {
-  // The language magnets are a radio group; the accessible name is the language's own name.
-  await page.getByRole('radio', { name: locale === 'ar' ? 'العربية' : 'English' }).first().check({ force: true })
+  // The language magnets are toggle buttons named in their own language.
+  await page.getByRole('button', { name: locale === 'ar' ? 'العربية' : 'English' }).first().click()
 }

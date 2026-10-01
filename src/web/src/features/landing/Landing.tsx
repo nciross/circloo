@@ -27,7 +27,7 @@ const FUN_CARDS = [
 ] as const
 
 const INTEGRATIONS = [
-  { id: 'teams', name: 'Microsoft Teams · Office 365' },
+  { id: 'teams', name: 'Teams & Office 365' },
   { id: 'salesforce', name: 'Salesforce' },
   { id: 'jira', name: 'Jira' },
   { id: 'confluence', name: 'Confluence' },

@@ -145,3 +145,10 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Without JavaScript the landing still says what circloo is */
+.noscript {
+  max-inline-size: 40rem;
+  margin: 4rem auto;
+  padding-inline: 1rem;
+}

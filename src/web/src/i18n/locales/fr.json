@@ -25,7 +25,9 @@
     "retry": "Réessayer",
     "skipToContent": "Aller au contenu",
     "home": "Accueil",
-    "account": "Compte"
+    "account": "Compte",
+    "cancel": "Annuler",
+    "signOutFailed": "La déconnexion a échoué. Vérifie ta connexion et réessaie."
   },
   "landing": {
     "title": "circloo · la porte du frigo de ton cercle",
@@ -33,7 +35,7 @@
     "headline": "La porte du frigo de tes proches.",
     "sub": "Prendre des nouvelles du moral de chacun, commencer les réunions par un fou rire, décider ensemble. Un petit espace privé pour ta famille, tes amis ou ton équipe.",
     "languagesLine": "Parle English, français, العربية et español.",
-    "cta": "Créer mon cercle",
+    "cta": "Ouvrir ma porte",
     "ctaSecondary": "Voir ce qu'on colle sur la porte",
     "teaser": {
       "title": "Le brise-glace du jour",
@@ -101,7 +103,7 @@
     },
     "fun": {
       "title": "S'amuser ensemble",
-      "body": "Des brise-glaces, des devinettes et des blagues écrits par des humains dans chaque langue, pas traduits par une machine. De l'humour gentil uniquement. L'IA en propose de nouveaux, adaptés à ton cercle."
+      "body": "Des brise-glaces, des devinettes et des blagues écrits par des humains dans chaque langue, pas traduits par une machine. De l'humour gentil uniquement. Bientôt, l'IA en proposera de nouveaux, adaptés à ton cercle."
     },
     "integrations": {
       "title": "Branché sur ta semaine",
@@ -135,7 +137,7 @@
     "final": {
       "title": "Ton cercle t'attend près du frigo.",
       "body": "Privé par défaut. Seules les personnes que tu invites voient ce qu'il y a sur ta porte.",
-      "cta": "Créer mon cercle"
+      "cta": "Ouvrir ma porte"
     },
     "footer": {
       "private": "Privé par défaut. Sans pub.",
@@ -180,7 +182,7 @@
     }
   },
   "home": {
-    "greeting": "Salut {{name}} !",
+    "greeting": "Salut <name>{{name}}</name> !",
     "lead": "Ta porte est prête. Voici ce qu'on y colle bientôt.",
     "nextTitle": "Bientôt sur ta porte",
     "modules": {
@@ -210,7 +212,8 @@
     "saved": "Enregistré.",
     "sessionsTitle": "Tes appareils",
     "sessionsBody": "Connecté sur un ordinateur que tu n'utilises plus ? Déconnecte-toi partout, ici compris.",
-    "confirmEverywhere": "Oui, me déconnecter partout"
+    "confirmEverywhere": "Oui, me déconnecter partout",
+    "everywhereFailed": "Impossible de te déconnecter partout. Tes sessions sont toujours actives. Réessaie."
   },
   "notFound": {
     "title": "Cette note est tombée derrière le frigo.",

@@ -25,7 +25,9 @@
     "retry": "Reintentar",
     "skipToContent": "Ir al contenido",
     "home": "Inicio",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "cancel": "Cancelar",
+    "signOutFailed": "No se pudo cerrar sesión. Revisa tu conexión e inténtalo de nuevo."
   },
   "landing": {
     "title": "circloo · la puerta de la nevera de tu círculo",
@@ -33,7 +35,7 @@
     "headline": "La puerta de la nevera de los tuyos.",
     "sub": "Saber cómo está cada uno, empezar las reuniones con una risa y decidir juntos. Un pequeño espacio privado para tu familia, tus amigos o tu equipo.",
     "languagesLine": "Habla English, français, العربية y español.",
-    "cta": "Crear mi círculo",
+    "cta": "Abrir mi puerta",
     "ctaSecondary": "Ver qué se pega en la puerta",
     "teaser": {
       "title": "El rompehielos de hoy",
@@ -101,7 +103,7 @@
     },
     "fun": {
       "title": "Divertirse juntos",
-      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, no traducidos por una máquina. Solo humor amable. La IA propone nuevos que encajan con tu círculo."
+      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, no traducidos por una máquina. Solo humor amable. Pronto, la IA propondrá nuevos que encajen con tu círculo."
     },
     "integrations": {
       "title": "Conectado a tu semana",
@@ -135,7 +137,7 @@
     "final": {
       "title": "Tu círculo te espera junto a la nevera.",
       "body": "Privado por defecto. Solo las personas que invitas ven lo que hay en tu puerta.",
-      "cta": "Crear mi círculo"
+      "cta": "Abrir mi puerta"
     },
     "footer": {
       "private": "Privado por defecto. Sin anuncios.",
@@ -180,7 +182,7 @@
     }
   },
   "home": {
-    "greeting": "¡Hola, {{name}}!",
+    "greeting": "¡Hola, <name>{{name}}</name>!",
     "lead": "Tu puerta está lista. Esto es lo próximo que vamos a pegar en ella.",
     "nextTitle": "Pronto en tu puerta",
     "modules": {
@@ -210,7 +212,8 @@
     "saved": "Guardado.",
     "sessionsTitle": "Tus dispositivos",
     "sessionsBody": "¿Sesión abierta en un ordenador que ya no usas? Cierra sesión en todas partes, también aquí.",
-    "confirmEverywhere": "Sí, cerrar sesión en todas partes"
+    "confirmEverywhere": "Sí, cerrar sesión en todas partes",
+    "everywhereFailed": "No pudimos cerrar tu sesión en todas partes. Tus sesiones siguen activas. Inténtalo de nuevo."
   },
   "notFound": {
     "title": "Esta nota se cayó detrás de la nevera.",

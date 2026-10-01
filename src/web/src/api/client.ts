@@ -46,7 +46,7 @@ async function ensureCsrf() {
   await (csrfPromise ?? refreshCsrf())
 }
 
-export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
+export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal } = {}, retried = false): Promise<T> {
   const method = init.method ?? 'GET'
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (init.body !== undefined) headers['Content-Type'] = 'application/json'
@@ -68,6 +68,11 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
   const isJson = res.headers.get('content-type')?.includes('json') ?? false
   const payload: unknown = isJson ? await res.json() : undefined
   if (!res.ok) {
+    // A token bound to an identity that no longer exists (session revoked elsewhere): refresh once and retry.
+    if (!retried && UNSAFE.has(method) && res.status === 400 && (payload as Partial<Problem> | undefined)?.type === 'antiforgery') {
+      await refreshCsrf()
+      return api<T>(path, init, true)
+    }
     const retry = Number(res.headers.get('Retry-After'))
     throw new ApiError(res.status, (payload ?? {}) as Partial<Problem>, Number.isFinite(retry) && retry > 0 ? retry : undefined)
   }

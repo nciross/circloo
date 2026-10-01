@@ -12,7 +12,7 @@ export function RequireAuth({ children, allowIncompleteProfile = false }: { chil
     return <Navigate to={`/signin?returnTo=${encodeURIComponent(returnTo)}`} replace />
   }
   if (!me.profileCompleted && !allowIncompleteProfile) {
-    return <Navigate to={`/app/welcome?returnTo=${encodeURIComponent(location.pathname)}`} replace />
+    return <Navigate to={`/app/welcome?returnTo=${encodeURIComponent(location.pathname + location.search)}`} replace />
   }
   return <>{children}</>
 }

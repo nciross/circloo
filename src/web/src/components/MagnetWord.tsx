@@ -11,6 +11,7 @@ export function MagnetWord({ word = 'circloo', label, size = 'xl' }: { word?: st
   const drag = useRef<{ el: HTMLElement; startX: number; startY: number; baseX: number; baseY: number } | null>(null)
 
   const onDown = (e: PointerEvent<HTMLSpanElement>) => {
+    if (e.pointerType === 'touch') return
     const el = e.currentTarget
     el.setPointerCapture(e.pointerId)
     drag.current = {
@@ -26,8 +27,9 @@ export function MagnetWord({ word = 'circloo', label, size = 'xl' }: { word?: st
   const onMove = (e: PointerEvent<HTMLSpanElement>) => {
     const d = drag.current
     if (!d) return
-    const x = d.baseX + e.clientX - d.startX
-    const y = d.baseY + e.clientY - d.startY
+    // Letters stay on the door: clamp the travel so none can be lost off-screen.
+    const x = Math.max(-240, Math.min(240, d.baseX + e.clientX - d.startX))
+    const y = Math.max(-160, Math.min(220, d.baseY + e.clientY - d.startY))
     d.el.dataset.x = String(x)
     d.el.dataset.y = String(y)
     d.el.style.setProperty('--dx', `${x}px`)
@@ -50,6 +52,14 @@ export function MagnetWord({ word = 'circloo', label, size = 'xl' }: { word?: st
           onPointerMove={onMove}
           onPointerUp={onUp}
           onPointerCancel={onUp}
+          onLostPointerCapture={onUp}
+          onDoubleClick={(e) => {
+            const el = e.currentTarget
+            el.dataset.x = '0'
+            el.dataset.y = '0'
+            el.style.setProperty('--dx', '0px')
+            el.style.setProperty('--dy', '0px')
+          }}
         >
           {ch}
         </span>

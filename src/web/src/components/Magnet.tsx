@@ -14,13 +14,22 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 /** A button that is a fridge magnet: it sits proud of the door and snaps flat when pressed. */
-export function MagnetButton({ color = 'tomato', size = 'md', icon, busy, className, children, disabled, ...rest }: ButtonProps) {
+export function MagnetButton({ color = 'tomato', size = 'md', icon, busy, className, children, disabled, onClick, ...rest }: ButtonProps) {
+  // While busy the button stays focusable (aria-disabled) so keyboard focus is never dropped to <body>.
   return (
     <button
       type="button"
       {...rest}
-      disabled={disabled ?? busy}
+      disabled={disabled}
+      aria-disabled={busy || undefined}
       aria-busy={busy || undefined}
+      onClick={(e) => {
+        if (busy) {
+          e.preventDefault()
+          return
+        }
+        onClick?.(e)
+      }}
       className={cls(color, size, className)}
     >
       {icon ? <span className="magnet__icon" aria-hidden="true">{icon}</span> : null}

@@ -4,12 +4,14 @@ export function DoorLoading() {
   const { t } = useTranslation()
   return (
     <div className="door door--center" role="status" aria-live="polite">
-      <div className="loading-magnets" aria-hidden="true">
-        <span className="dot dot--tomato" />
-        <span className="dot dot--cobalt" />
-        <span className="dot dot--sunflower" />
+      <div className="door-loading">
+        <div className="loading-magnets" aria-hidden="true">
+          <span className="dot dot--tomato" />
+          <span className="dot dot--cobalt" />
+          <span className="dot dot--sunflower" />
+        </div>
+        <p>{t('common.loading')}</p>
       </div>
-      <p className="visually-hidden">{t('common.loading')}</p>
     </div>
   )
 }

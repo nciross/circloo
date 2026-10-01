@@ -16,6 +16,7 @@ export function IcebreakerCard() {
   const qc = useQueryClient()
   const [shaking, setShaking] = useState(false)
   const [answer, setAnswer] = useState('')
+  const [announce, setAnnounce] = useState('')
 
   const key = ['spark', locale] as const
   const spark = useQuery({
@@ -31,6 +32,7 @@ export function IcebreakerCard() {
       const next = await fetchRandomSpark(locale, spark.data?.id)
       qc.setQueryData<PublicSpark>(key, next)
       setAnswer('')
+      setAnnounce(next.text)
     } catch {
       await qc.invalidateQueries({ queryKey: key })
     } finally {
@@ -45,9 +47,10 @@ export function IcebreakerCard() {
     <article className="index-card" aria-label={t('landing.teaser.title')}>
       <span className="pin-magnet pin-magnet--cobalt" aria-hidden="true" />
       <p className="index-card__margin" aria-hidden="true">{t('landing.teaser.title')}</p>
-      <div className="index-card__body" aria-live="polite">
+      <p className="visually-hidden" aria-live="polite">{announce}</p>
+      <div className="index-card__body">
         {spark.isPending ? (
-          <h2 className="index-card__question index-card__question--placeholder">{t('common.loading')}</h2>
+          <p className="index-card__question index-card__question--placeholder">{t('common.loading')}</p>
         ) : spark.isError || !spark.data ? (
           <h2 className="index-card__question">{t('landing.teaser.error')}</h2>
         ) : (

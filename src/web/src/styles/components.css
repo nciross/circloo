@@ -66,8 +66,11 @@
   inset-inline-end: 0;
   inline-size: 12px;
   background: var(--seal);
-  border-inline-start: 3px solid var(--groove);
+  box-shadow: inset 3px 0 0 var(--groove);
   pointer-events: none;
+}
+[dir='rtl'] .fridge::after {
+  box-shadow: inset -3px 0 0 var(--groove);
 }
 .door__handle {
   position: absolute;
@@ -77,13 +80,12 @@
   inline-size: 16px;
   border-radius: 8px;
   background: var(--chrome);
-  border-inline-start: 4px solid var(--chrome-hi);
-  box-shadow: 3px 0 0 var(--chrome-lo), 6px 10px 14px -6px rgb(36 48 10 / 0.5);
+  box-shadow: inset 4px 0 0 var(--chrome-hi), 3px 0 0 var(--chrome-lo), 6px 10px 14px -6px rgb(36 48 10 / 0.5);
   pointer-events: none;
   z-index: 1;
 }
 [dir='rtl'] .door__handle {
-  box-shadow: -3px 0 0 var(--chrome-lo), -6px 10px 14px -6px rgb(36 48 10 / 0.5);
+  box-shadow: inset -4px 0 0 var(--chrome-hi), -3px 0 0 var(--chrome-lo), -6px 10px 14px -6px rgb(36 48 10 / 0.5);
 }
 /* Mounting feet that bolt the bar to the door */
 .door__handle::before,
@@ -219,20 +221,23 @@
 .lang-magnets {
   display: flex;
   gap: var(--s-2);
-  border: 0;
-  padding: 0;
-  margin: 0;
 }
 .lang-magnet {
   position: relative;
   cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: none;
+  min-block-size: 44px;
+  display: grid;
+  place-items: center;
 }
 .lang-magnet__face {
   --rim: #8f9f6c;
   display: grid;
   place-items: center;
-  min-inline-size: 2.6rem;
-  block-size: 2.4rem;
+  min-inline-size: 2.75rem;
+  block-size: 2.6rem;
   padding-inline: 0.5rem;
   border-radius: 10px;
   background: var(--paper);
@@ -249,14 +254,17 @@
 .lang-magnet:hover .lang-magnet__face {
   transform: translateY(-1px) rotate(-3deg);
 }
-.lang-magnet input:checked + .lang-magnet__face {
+.lang-magnet[aria-pressed='true'] .lang-magnet__face {
   --rim: var(--cobalt-rim);
   background: var(--cobalt);
   color: #ffffff;
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45);
 }
-.lang-magnet input:focus-visible + .lang-magnet__face {
+.lang-magnet:focus-visible {
+  outline: none;
+}
+.lang-magnet:focus-visible .lang-magnet__face {
   outline: 3px solid var(--ink);
   outline-offset: 3px;
 }
@@ -291,6 +299,12 @@
   transition: text-shadow 160ms var(--ease-out), scale 160ms var(--ease-snap);
   cursor: grab;
   touch-action: none;
+}
+@media (pointer: coarse) {
+  .letter {
+    touch-action: auto;
+    cursor: default;
+  }
 }
 .letter.is-lifted {
   cursor: grabbing;
@@ -364,8 +378,10 @@
 /* The card's label is written up the red margin line, like a note to self */
 .index-card__margin {
   position: absolute;
-  inset-inline-start: 0.35rem;
-  inset-block: var(--s-6) var(--s-5);
+  /* Physical sides on purpose: logical insets would resolve against the vertical writing mode */
+  left: 0.35rem;
+  top: var(--s-6);
+  bottom: var(--s-5);
   writing-mode: vertical-rl;
   rotate: 180deg;
   font-family: var(--font-display);
@@ -375,6 +391,8 @@
   text-align: end;
 }
 [dir='rtl'] .index-card__margin {
+  left: auto;
+  right: 0.35rem;
   rotate: 0deg;
   text-align: start;
 }
@@ -420,7 +438,8 @@
   color: #5f6fae;
 }
 .index-card__answer input:focus-visible {
-  outline: none;
+  outline: 3px solid var(--cobalt);
+  outline-offset: 4px;
   border-block-end-style: solid;
 }
 .index-card__hint {
@@ -490,6 +509,13 @@
 }
 
 /* ───────── Loading: three magnets hopping ───────── */
+.door-loading {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  color: var(--ink-soft);
+  font-weight: 600;
+}
 .loading-magnets {
   display: flex;
   gap: var(--s-3);

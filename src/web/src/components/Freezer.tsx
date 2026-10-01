@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageMagnets } from './LanguageMagnets'
 
 /** The freezer compartment on top of the door: brand, languages and the account corner. */
-export function Freezer({ children, homeTo = '/' }: { children?: ReactNode; homeTo?: string }) {
+export function Freezer({ children, homeTo = '/', showLanguages = true }: { children?: ReactNode; homeTo?: string; showLanguages?: boolean }) {
   const { t } = useTranslation()
   return (
     <header className="freezer">
@@ -14,7 +14,7 @@ export function Freezer({ children, homeTo = '/' }: { children?: ReactNode; home
           circloo
         </Link>
         <div className="freezer__end">
-          <LanguageMagnets />
+          {showLanguages ? <LanguageMagnets /> : null}
           {children}
         </div>
       </div>

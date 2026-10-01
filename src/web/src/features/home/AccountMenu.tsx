@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { LogOut, Settings as SettingsIcon } from 'lucide-react'
@@ -8,6 +9,7 @@ export function AccountMenu() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const signOut = useSignOut()
+  const [failed, setFailed] = useState(false)
   return (
     <nav className="account" aria-label={t('common.account')}>
       <MagnetLink to="/app/settings" color="paper" size="sm" icon={<SettingsIcon size={16} strokeWidth={2.5} />}>
@@ -19,13 +21,19 @@ export function AccountMenu() {
         icon={<LogOut className="flip-rtl" size={16} strokeWidth={2.5} />}
         busy={signOut.isPending}
         onClick={async () => {
-          // Router-level navigate still works after the guard unmounts this menu.
-          await signOut.mutateAsync().catch(() => undefined)
-          navigate('/', { replace: true })
+          setFailed(false)
+          try {
+            await signOut.mutateAsync()
+            // Router-level navigate still works after the guard unmounts this menu.
+            navigate('/', { replace: true })
+          } catch {
+            setFailed(true)
+          }
         }}
       >
         {t('common.signOut')}
       </MagnetButton>
+      {failed ? <p className="account__error" role="alert">{t('common.signOutFailed')}</p> : null}
     </nav>
   )
 }

@@ -27,7 +27,11 @@ export function useMe() {
       try {
         return await api<Me>('/api/me', { signal })
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) return null
+        if (e instanceof ApiError && e.status === 401) {
+          // Our identity is gone (expired or revoked): the old CSRF token is bound to it.
+          await refreshCsrf()
+          return null
+        }
         throw e
       }
     },
@@ -64,7 +68,8 @@ function useSignOutBase(path: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => api<void>(path, { method: 'POST', body: {} }),
-    onSettled: async () => {
+    // Only forget the session when the server confirmed it: a failed sign-out must not look successful.
+    onSuccess: async () => {
       qc.setQueryData(meKey, null)
       qc.removeQueries({ predicate: (q) => q.queryKey[0] !== 'me' && q.queryKey[0] !== 'spark' })
       await refreshCsrf()

@@ -3,8 +3,11 @@ import { LOCALES, type Locale } from '../i18n'
 import { useUiStore } from '../stores/ui'
 import { useChangeLocale } from '../app/locale'
 
-/** Four letter magnets, one per language. A real radio group, so it works with keys and screen readers. */
-export function LanguageMagnets({ value, onChange, name = 'language' }: { value?: Locale; onChange?: (l: Locale) => void; name?: string }) {
+/**
+ * Four letter magnets, one per language. Toggle buttons (aria-pressed) that apply only when
+ * activated, so moving focus never flips the whole page (WCAG 3.2.2 On Input).
+ */
+export function LanguageMagnets({ value, onChange }: { value?: Locale; onChange?: (l: Locale) => void }) {
   const { t } = useTranslation()
   const current = useUiStore((s) => s.locale)
   const change = useChangeLocale()
@@ -12,22 +15,20 @@ export function LanguageMagnets({ value, onChange, name = 'language' }: { value?
   const pick = onChange ?? change
 
   return (
-    <fieldset className="lang-magnets">
-      <legend className="visually-hidden">{t('common.language')}</legend>
+    <div className="lang-magnets" role="group" aria-label={t('common.language')}>
       {LOCALES.map((l) => (
-        <label key={l} className={`lang-magnet lang-magnet--${l}`} lang={l}>
-          <input
-            type="radio"
-            name={name}
-            value={l}
-            checked={selected === l}
-            onChange={() => pick(l)}
-            className="visually-hidden"
-          />
+        <button
+          key={l}
+          type="button"
+          className={`lang-magnet lang-magnet--${l}`}
+          lang={l}
+          aria-pressed={selected === l}
+          aria-label={t(`common.languages.${l}`)}
+          onClick={() => pick(l)}
+        >
           <span className="lang-magnet__face" aria-hidden="true">{t(`common.languageShort.${l}`)}</span>
-          <span className="visually-hidden">{t(`common.languages.${l}`)}</span>
-        </label>
+        </button>
       ))}
-    </fieldset>
+    </div>
   )
 }

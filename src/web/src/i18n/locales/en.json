@@ -25,7 +25,9 @@
     "retry": "Try again",
     "skipToContent": "Skip to content",
     "home": "Home",
-    "account": "Account"
+    "account": "Account",
+    "cancel": "Cancel",
+    "signOutFailed": "Sign out did not work. Check your connection and try again."
   },
   "landing": {
     "title": "circloo · your circle's fridge door",
@@ -33,7 +35,7 @@
     "headline": "The fridge door for your people.",
     "sub": "Check in on how everyone feels, start meetings with a laugh and decide things together. One small private space for your family, your friends or your team.",
     "languagesLine": "Speaks English, français, العربية and español.",
-    "cta": "Start your circle",
+    "cta": "Get your door",
     "ctaSecondary": "See what goes on the door",
     "teaser": {
       "title": "Today's icebreaker",
@@ -101,7 +103,7 @@
     },
     "fun": {
       "title": "Have fun together",
-      "body": "Icebreakers, riddles and jokes written by people in each language, not translated by a machine. Kind humour only. AI suggests fresh ones that fit your circle."
+      "body": "Icebreakers, riddles and jokes written by people in each language, not translated by a machine. Kind humour only. Soon, AI will suggest fresh ones that fit your circle."
     },
     "integrations": {
       "title": "Plugs into your week",
@@ -135,7 +137,7 @@
     "final": {
       "title": "Your circle is waiting by the fridge.",
       "body": "Private by default. Only the people you invite can see what is on your door.",
-      "cta": "Start your circle"
+      "cta": "Get your door"
     },
     "footer": {
       "private": "Private by default. No ads.",
@@ -180,7 +182,7 @@
     }
   },
   "home": {
-    "greeting": "Hi {{name}}!",
+    "greeting": "Hi <name>{{name}}</name>!",
     "lead": "Your door is ready. Here is what we are sticking on it next.",
     "nextTitle": "Coming to your door",
     "modules": {
@@ -210,7 +212,8 @@
     "saved": "Saved.",
     "sessionsTitle": "Your devices",
     "sessionsBody": "Signed in on a computer you no longer use? Sign out everywhere, including here.",
-    "confirmEverywhere": "Yes, sign out on every device"
+    "confirmEverywhere": "Yes, sign out on every device",
+    "everywhereFailed": "We could not sign you out everywhere. Your sessions are still active. Please try again."
   },
   "notFound": {
     "title": "This note fell behind the fridge.",

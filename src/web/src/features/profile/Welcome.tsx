@@ -49,7 +49,7 @@ export default function Welcome() {
 
   return (
     <div className="fridge">
-      <Freezer homeTo="/app" />
+      <Freezer homeTo="/app" showLanguages={false} />
       <main id="main" className="door door--center">
         <span className="door__handle" aria-hidden="true" />
         <form className="name-tag" onSubmit={submit} noValidate>
@@ -76,7 +76,7 @@ export default function Welcome() {
             {error ? <p id={errorId} className="field__error" role="alert">{error}</p> : null}
             <div className="field">
               <span className="field__label" id="lang-label">{t('welcome.languageLabel')}</span>
-              <LanguageMagnets value={locale} onChange={pickLocale} name="profile-language" />
+              <LanguageMagnets value={locale} onChange={pickLocale} />
             </div>
             <MagnetButton type="submit" size="lg" busy={update.isPending}>
               {update.isPending ? t('welcome.saving') : t('welcome.submit')}

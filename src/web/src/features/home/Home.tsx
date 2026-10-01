@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useMe } from '../../api/hooks'
 import { useDocumentTitle } from '../../app/locale'
 import { Freezer } from '../../components/Freezer'
@@ -24,7 +24,9 @@ export default function Home() {
           <section className="home-hello" aria-labelledby="hello">
             <div className="paper-strip paper-strip--wide">
               <span className="pin-magnet pin-magnet--sunflower" aria-hidden="true" />
-              <h1 id="hello" className="paper-strip__title">{t('home.greeting', { name: me?.displayName ?? '' })}</h1>
+              <h1 id="hello" className="paper-strip__title">
+                <Trans i18nKey="home.greeting" values={{ name: me?.displayName ?? '' }} components={{ name: <bdi /> }} />
+              </h1>
             </div>
             <p className="hero__sub">{t('home.lead')}</p>
             <div className="home-play">
