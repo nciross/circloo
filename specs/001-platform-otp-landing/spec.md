@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-01
 
-**Status**: Draft
+**Status**: Implemented (PR #43)
 
 **Input**: User description: "Platform foundation, OTP sign-in and public landing page for circloo (idea issues #2 E1, #18 E8, chore #17). circloo re-platforms on .NET Aspire with a React + TypeScript SPA using explicit state management, production-ready and secure by design, with zero-cost dev mode. Visitors land on a fun, playful public landing page in EN/FR/AR(RTL)/ES that explains circloo (collaborate, work together, share happiness) with a playable icebreaker teaser and an honest integrations teaser (Teams/Office 365, Salesforce, Jira, Confluence, Notion as coming soon). They sign up or sign in with an email one-time code (6 digits, 10-minute expiry, single use, rate-limited, no account enumeration), set a display name and preferred language, and reach an authenticated app home. They can sign out and sign out everywhere."
 
@@ -51,8 +51,8 @@ Théo enters his email, receives a 6-digit code within seconds, types it (or pas
 2. **Given** a code was sent, **When** the visitor enters the correct code within 10 minutes, **Then** they are signed in. A new account is created if none existed for that email.
 3. **Given** a code was used once, **When** anyone submits it again, **Then** it is rejected.
 4. **Given** a code, **When** it is entered wrong 5 times, **Then** the code is invalidated and the visitor must request a new one.
-5. **Given** a code older than 10 minutes, **When** it is entered, **Then** it is rejected with an "expired" message and a "send a new code" action.
-6. **Given** a visitor requesting codes repeatedly, **When** they exceed the request limit for an email or a network address, **Then** further requests are refused with a friendly "slow down" message and a retry time, and no email is sent.
+5. **Given** a code older than 10 minutes, **When** it is entered, **Then** it is rejected with the same generic "not valid (wrong, used or expired)" message as any other invalid code, plus a "send a new code" action. One message for every failure keeps the flow free of hints for attackers.
+6. **Given** a visitor requesting codes repeatedly, **When** they exceed the limit for a network address, **Then** further requests are refused with a friendly "slow down" message and a retry time. **When** they exceed the per-email limit or the daily guess budget for an email, **Then** the response looks the same as a success, no email is sent, and the event is audited (see Clarifications).
 7. **Given** a new code was requested, **When** an older code for the same email is entered, **Then** it is rejected (only the latest code is valid).
 
 ---

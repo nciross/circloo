@@ -190,7 +190,7 @@ resource kvSecretsUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 }
 
 // Npgsql connection string, read by the API as ConnectionStrings__circloodb.
-var databaseUrl = 'Host=${postgres.properties.fullyQualifiedDomainName};Port=5432;Database=${postgresDb};Username=${postgresAdmin};Password=${postgresAdminPassword};SSL Mode=Require'
+var databaseUrl = 'Host=${postgres.properties.fullyQualifiedDomainName};Port=5432;Database=${postgresDb};Username=${postgresAdmin};Password=${postgresAdminPassword};SSL Mode=VerifyFull'
 
 resource secretDatabaseUrl 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: vault
@@ -216,7 +216,7 @@ resource secretAcs 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   properties: { value: communication.listKeys().primaryConnectionString }
 }
 
-// ---------- Web app (Next.js) on Container Apps ----------
+// ---------- circloo app (ASP.NET Core API serving the React SPA) on Container Apps ----------
 resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'cae-circloo-${token}'
   location: location
@@ -268,7 +268,6 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
           image: empty(webImageName) ? placeholderImage : webImageName
           resources: { cpu: json('0.5'), memory: '1Gi' }
           env: [
-            { name: 'PORT', value: string(webPort) }
             { name: 'ASPNETCORE_HTTP_PORTS', value: string(webPort) }
             { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
             { name: 'Security__TrustForwardedHeaders', value: 'true' }
@@ -277,13 +276,16 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'Email__Provider', value: 'Acs' }
             { name: 'Email__AcsConnectionString', secretRef: 'acs-connection-string' }
             { name: 'Email__From', value: emailSender }
-            { name: 'WEB_PUBSUB_CONNECTION_STRING', secretRef: 'webpubsub-connection-string' }
-            { name: 'ACS_CONNECTION_STRING', secretRef: 'acs-connection-string' }
-            { name: 'EMAIL_FROM', value: emailSender }
             { name: 'AZURE_STORAGE_ACCOUNT', value: storage.name }
             { name: 'AZURE_STORAGE_CONTAINER', value: uploads.name }
             { name: 'AZURE_CLIENT_ID', value: identity.properties.clientId }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
+          ]
+          // Probes only for the real app; the placeholder image has no /health.
+          probes: empty(webImageName) ? [] : [
+            { type: 'Liveness', httpGet: { path: '/alive', port: webPort }, periodSeconds: 30 }
+            { type: 'Readiness', httpGet: { path: '/health', port: webPort }, periodSeconds: 15 }
+            { type: 'Startup', httpGet: { path: '/alive', port: webPort }, periodSeconds: 5, failureThreshold: 24 }
           ]
         }
       ]

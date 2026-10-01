@@ -48,7 +48,12 @@ foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET') {
 }
 
 if (Test-Path 'src/Circloo.Api/Dockerfile') {
+  $firstDeploy = -not ((azd env get-values) -match '^SERVICE_WEB_IMAGE_NAME=".+"')
   azd up --no-prompt
+  if ($LASTEXITCODE -eq 0 -and $firstDeploy) {
+    # The first provision pointed ingress at the placeholder's port 80; re-provision so it targets the app (idempotent).
+    azd provision --no-prompt
+  }
 } else {
   Write-Host 'No app yet (src/Circloo.Api/Dockerfile missing) - provisioning infrastructure only.' -ForegroundColor Yellow
   azd provision --no-prompt

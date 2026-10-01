@@ -30,7 +30,13 @@ for name in POSTGRES_ADMIN_PASSWORD AUTH_SECRET; do
 done
 
 if [ -f src/Circloo.Api/Dockerfile ]; then
+  FIRST_DEPLOY=1
+  azd env get-values | grep -Eq '^SERVICE_WEB_IMAGE_NAME=".+"' && FIRST_DEPLOY=0
   azd up --no-prompt
+  if [ "$FIRST_DEPLOY" = 1 ]; then
+    # The first provision pointed ingress at the placeholder's port 80; re-provision so it targets the app (idempotent).
+    azd provision --no-prompt
+  fi
 else
   echo "No app yet (src/Circloo.Api/Dockerfile missing) - provisioning infrastructure only."
   azd provision --no-prompt

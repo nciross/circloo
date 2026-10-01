@@ -46,7 +46,7 @@ description: "Tasks for 001 platform foundation, OTP sign-in and landing page"
 
 ## Phase 6: User Story 4 - Sign out (P2)
 
-- [x] T021 [US4] Session validation (30 s cache), sign-out, sign-out-everywhere endpoints and tests in `src/Circloo.Api/Auth/Sessions.cs`, `tests/Circloo.Api.Tests/SessionTests.cs`, plus UI actions (#40)
+- [x] T021 [US4] Session validation (30 s cache), sign-out, sign-out-everywhere endpoints and tests in `src/Circloo.Api/Auth/Sessions.cs`, `tests/Circloo.Api.Tests/SessionAndProfileTests.cs`, plus UI actions (#40)
 
 ## Phase 7: User Story 5 - Zero-cost local platform (P3) and polish
 
