@@ -28,7 +28,7 @@ public sealed class AiOptions
     public int DailyGlobal { get; set; } = 200;
     public int TimeoutSeconds { get; set; } = 15;
 
-    public bool IsSeed => !string.Equals(Provider, "OpenAICompatible", StringComparison.OrdinalIgnoreCase);
+    public bool IsSeed => Provider != "OpenAICompatible";
 }
 
 public static class AiServiceCollectionExtensions
@@ -41,7 +41,12 @@ public static class AiServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddCirclooAi(this IServiceCollection services, IConfiguration config)
     {
-        services.AddOptions<AiOptions>().BindConfiguration(AiOptions.Section);
+        // A misspelt provider or auth mode fails at startup instead of silently falling back to the free seed remix.
+        services.AddOptions<AiOptions>().BindConfiguration(AiOptions.Section)
+            .Validate(o => o.Provider is "Seed" or "OpenAICompatible", "Ai:Provider must be Seed or OpenAICompatible.")
+            .Validate(o => o.Auth is "ManagedIdentity" or "ApiKey" or "None", "Ai:Auth must be ManagedIdentity, ApiKey or None.")
+            .Validate(o => o.DailyPerUser > 0 && o.DailyGlobal > 0 && o.TimeoutSeconds > 0, "Ai limits must be positive.")
+            .ValidateOnStart();
         services.AddSingleton<SeedRemixChatClient>();
         services.AddSingleton<IChatClient>(sp =>
         {
@@ -66,11 +71,17 @@ public static class AiServiceCollectionExtensions
         {
             // Entra token for Microsoft Foundry; this constructor is marked evaluation-only in the OpenAI SDK.
 #pragma warning disable OPENAI001
-            "ManagedIdentity" => new OpenAIClient(new BearerTokenPolicy(new DefaultAzureCredential(), CognitiveServicesScope), options),
+            "ManagedIdentity" => new OpenAIClient(new BearerTokenPolicy(ManagedIdentity(), CognitiveServicesScope), options),
 #pragma warning restore OPENAI001
             "ApiKey" => new OpenAIClient(new ApiKeyCredential(o.ApiKey ?? throw new InvalidOperationException("Ai:ApiKey is required.")), options),
             _ => new OpenAIClient(new ApiKeyCredential("not-needed"), options),
         };
         return client.GetChatClient(o.Model).AsIChatClient();
     }
+
+    // The container app runs as a user-assigned identity whose client id arrives in AZURE_CLIENT_ID.
+    private static ManagedIdentityCredential ManagedIdentity() =>
+        Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is { Length: > 0 } clientId
+            ? new ManagedIdentityCredential(ManagedIdentityId.FromUserAssignedClientId(clientId))
+            : new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
 }

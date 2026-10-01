@@ -2,8 +2,10 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Circloo.Api.Auth;
 using Circloo.Api.Data;
+using Circloo.Api.Security;
 using Circloo.Api.Sparks;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Circloo.Api.Ai;
 
@@ -31,7 +33,7 @@ public static class AiEndpoints
                     extensions: new Dictionary<string, object?> { ["resetsAt"] = r.ResetsAt }),
                 _ => Results.Problem(statusCode: 503, type: "ai-unavailable", title: "The fridge could not come up with anything right now."),
             };
-        });
+        }).RequireRateLimiting(RateLimits.Ai);
 
         ai.MapPost("/sparks/keep", async (KeepRequest body, HttpContext ctx, IDataProtectionProvider dp, CirclooDbContext db, TimeProvider clock, CancellationToken ct) =>
         {
@@ -46,12 +48,19 @@ public static class AiEndpoints
             {
                 payload = null;
             }
-            if (payload is null || payload.UserId != userId || body.Index < 0 || body.Index >= payload.Items.Count)
+            if (payload is null || payload.UserId != userId || payload.ExpiresAt <= clock.GetUtcNow() || body.Index < 0 || body.Index >= payload.Items.Count)
             {
                 return Results.Problem(statusCode: 400, type: "invalid-keep", title: "This suggestion has expired. Ask the fridge again.");
             }
 
             var item = payload.Items[body.Index];
+            // Keeping is idempotent: replaying the same token and index returns the card already kept, never a copy.
+            var existing = await db.Sparks.AsNoTracking()
+                .FirstOrDefaultAsync(s => s.OwnerId == userId && s.Source == "ai" && s.Lang == payload.Lang && s.Text == item.Text, ct);
+            if (existing is not null)
+            {
+                return Results.Ok(SparkDto.From(existing, false));
+            }
             var spark = new Spark
             {
                 Id = $"ai-{Guid.CreateVersion7():N}",
@@ -69,7 +78,7 @@ public static class AiEndpoints
             db.Sparks.Add(spark);
             await db.SaveChangesAsync(ct);
             return Results.Created($"/api/sparks/mine/{spark.Id}", SparkDto.From(spark, false));
-        });
+        }).RequireRateLimiting(RateLimits.Ai);
 
         return api;
     }

@@ -57,6 +57,8 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
         builder.UseSetting("Security:Pepper", Convert.ToBase64String(new byte[32].Select((_, i) => (byte)(i * 7 + 3)).ToArray()));
         builder.UseSetting("RateLimits:OtpRequestsPerIpPerHour", "10000");
         builder.UseSetting("RateLimits:OtpVerifiesPerIpPer10Min", "10000");
+        // Every test shares one database: the global AI budget is tested on its own, never exhausted by neighbours.
+        builder.UseSetting("Ai:DailyGlobal", "100000");
         foreach (var (k, v) in overrides ?? new Dictionary<string, string?>())
         {
             builder.UseSetting(k, v);

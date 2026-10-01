@@ -141,4 +141,51 @@ public sealed class IcebreakerTests(PostgresFixture pg) : IAsyncLifetime
         Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
         Assert.Contains("resetsAt", await limited.Content.ReadAsStringAsync(), StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task Keeping_is_idempotent_and_out_of_range_or_expired_keeps_are_refused()
+    {
+        var res = await _client.PostJsonAsync("/api/ai/sparks", new { lang = "fr", audience = "friends", tone = "cozy", kind = "icebreaker", kidsSafe = true, theme = "la mer" }, _csrf);
+        var body = await res.Content.ReadFromJsonAsync<JsonElement>();
+        var token = body.GetProperty("keepToken").GetString();
+        var count = body.GetProperty("items").GetArrayLength();
+
+        var first = await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = 0 }, _csrf);
+        var again = await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = 0 }, _csrf);
+        Assert.Equal(HttpStatusCode.Created, first.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+        Assert.Equal(
+            (await first.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetString(),
+            (await again.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetString());
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = count }, _csrf)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = -1 }, _csrf)).StatusCode);
+
+        // The keep token is time limited (15 minutes).
+        _factory.Clock.Advance(TimeSpan.FromMinutes(16));
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = 0 }, _csrf)).StatusCode);
+    }
+
+    [Fact]
+    public async Task New_routes_refuse_requests_without_the_csrf_token()
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostJsonAsync("/api/ai/sparks", new { lang = "en", audience = "work", tone = "silly", kind = "joke", kidsSafe = true }, csrf: null)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PutJsonAsync("/api/sparks/en-ib-01/favourite", new { }, csrf: null)).StatusCode);
+        using var del = new HttpRequestMessage(HttpMethod.Delete, "/api/sparks/mine/ai-anything");
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(del)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_member_can_neither_see_favourite_nor_delete_another_members_ai_spark()
+    {
+        var res = await _client.PostJsonAsync("/api/ai/sparks", new { lang = "en", audience = "work", tone = "deep", kind = "icebreaker", kidsSafe = false }, _csrf);
+        var token = (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("keepToken").GetString();
+        var kept = await (await _client.PostJsonAsync("/api/ai/sparks/keep", new { keepToken = token, index = 0 }, _csrf)).Content.ReadFromJsonAsync<JsonElement>();
+        var id = kept.GetProperty("id").GetString();
+
+        var other = _factory.CreateHttpsClient();
+        var otherCsrf = await other.SignInAsync(_factory, $"other-{Guid.NewGuid():N}@example.test");
+        Assert.Equal(HttpStatusCode.NotFound, (await other.PutJsonAsync($"/api/sparks/{id}/favourite", new { }, otherCsrf)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await other.DeleteAsync($"/api/sparks/mine/{id}", otherCsrf)).StatusCode);
+        Assert.Empty((await other.GetFromJsonAsync<JsonElement[]>("/api/sparks/mine"))!);
+    }
 }

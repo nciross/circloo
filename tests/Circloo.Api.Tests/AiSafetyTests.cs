@@ -71,10 +71,12 @@ public sealed class AiSafetyTests(PostgresFixture pg) : IAsyncLifetime
     [Fact]
     public async Task Arabic_harmful_words_are_caught_even_with_diacritics()
     {
-        _model.Reply = _ => Batch(new { text = "سأقْتُل الملل بنكتة: لماذا يضحك الحاسوب؟", kind = "joke" }, new { text = "لماذا لا تلعب السمكة كرة السلة؟ لأنها تخاف من الشبكة!", kind = "joke" });
-        var items = (await (await Ask(lang: "ar")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("items").EnumerateArray().ToList();
+        _model.Reply = _ => Batch(new { text = "سأقْتُل الملل بنكتة: لماذا يضحك الحاسوب؟", kind = "joke" }, new { text = "لماذا يرتدي البطريق بدلة دائمًا؟ لأنه مدعو إلى حفلة كل يوم!", kind = "joke" });
+        var res = await Ask(lang: "ar");
+        Assert.True(res.IsSuccessStatusCode, await res.Content.ReadAsStringAsync());
+        var items = (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("items").EnumerateArray().ToList();
         Assert.Single(items);
-        Assert.Contains("السمكة", items[0].GetProperty("text").GetString(), StringComparison.Ordinal);
+        Assert.Contains("البطريق", items[0].GetProperty("text").GetString(), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -89,6 +91,82 @@ public sealed class AiSafetyTests(PostgresFixture pg) : IAsyncLifetime
         var res = await Ask(theme: theme);
         Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
         Assert.Equal(before, _model.Calls.Count);
+    }
+
+    [Theory]
+    [InlineData("joke", "muslims")]
+    [InlineData("joke", "politics at work")]
+    [InlineData("joke", "Mexicans")]
+    [InlineData("joke", "les Français")]
+    [InlineData("riddle", "the president")]
+    [InlineData("joke", "اليهود")]
+    [InlineData("joke", "women are")]
+    public async Task Humour_about_taboo_topics_is_refused_before_any_model_call(string kind, string theme)
+    {
+        var before = _model.Calls.Count;
+        var res = await Ask(kind: kind, theme: theme);
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
+        Assert.Contains("unsafe-theme", await res.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+        Assert.Equal(before, _model.Calls.Count);
+    }
+
+    [Theory]
+    [InlineData("icebreaker", "en", "which chore do you hate")]
+    [InlineData("joke", "en", "ugly sweater party")]
+    [InlineData("joke", "en", "jewellery and gold")]
+    [InlineData("icebreaker", "ar", "مدينة الطفولة")]
+    [InlineData("icebreaker", "ar", "معاريف المدرسة")]
+    [InlineData("icebreaker", "en", "Eid and Christmas traditions")]
+    public async Task Everyday_themes_are_not_false_positives(string kind, string lang, string theme)
+    {
+        _model.Reply = _ => Batch(new { text = lang == "ar" ? "ما أجمل ذكرى عندك من طفولتك؟" : "What is the best thing about today?", kind });
+        Assert.Equal(HttpStatusCode.OK, (await Ask(kind: kind, lang: lang, theme: theme)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Repeated_failures_are_capped_so_a_member_cannot_spend_tokens_forever()
+    {
+        await using var capped = new ApiFactory(pg.Container.GetConnectionString(), new Dictionary<string, string?> { ["Ai:DailyPerUser"] = "2" }, _model);
+        var client = capped.CreateHttpsClient();
+        var csrf = await client.SignInAsync(capped, $"failing-{Guid.NewGuid():N}@example.test");
+        _model.Reply = _ => "not json";
+        Task<HttpResponseMessage> ask() => client.PostJsonAsync("/api/ai/sparks", new { lang = "en", audience = "work", tone = "silly", kind = "joke", kidsSafe = true }, csrf);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await ask()).StatusCode);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await ask()).StatusCode);
+        var calls = _model.Calls.Count;
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await ask()).StatusCode);
+        Assert.Equal(calls, _model.Calls.Count);
+    }
+
+    [Fact]
+    public async Task The_global_budget_counts_failures_and_reports_when_it_frees_up()
+    {
+        await using var tiny = new ApiFactory(pg.Container.GetConnectionString(), new Dictionary<string, string?> { ["Ai:DailyGlobal"] = "1" }, _model);
+        // The shared database already holds other tests' generations: move this factory's clock to a quiet day.
+        tiny.Clock.Advance(TimeSpan.FromDays(400));
+        var client = tiny.CreateHttpsClient();
+        var csrf = await client.SignInAsync(tiny, $"global-{Guid.NewGuid():N}@example.test");
+        _model.Reply = _ => "not json";
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await client.PostJsonAsync("/api/ai/sparks", new { lang = "en", audience = "work", tone = "silly", kind = "joke", kidsSafe = true }, csrf)).StatusCode);
+        var limited = await client.PostJsonAsync("/api/ai/sparks", new { lang = "en", audience = "work", tone = "silly", kind = "joke", kidsSafe = true }, csrf);
+        Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
+        var resetsAt = (await limited.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("resetsAt").GetDateTimeOffset();
+        Assert.True(resetsAt > tiny.Clock.GetUtcNow());
+    }
+
+    [Fact]
+    public async Task Fresh_cards_that_repeat_a_seed_are_dropped_even_with_a_theme()
+    {
+        string seed;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+            seed = await db.Sparks.Where(s => s.Lang == "en" && s.Source == "seed" && s.Kind == "joke").Select(s => s.Text).FirstAsync();
+        }
+        _model.Reply = _ => Batch(new { text = seed, kind = "joke" }, new { text = "Why did the calendar blush? It saw the dates.", kind = "joke" });
+        var items = (await (await Ask(theme: "office")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("items").EnumerateArray().ToList();
+        Assert.Single(items);
+        Assert.DoesNotContain(items, i => i.GetProperty("text").GetString() == seed);
     }
 
     [Fact]
@@ -139,5 +217,9 @@ public sealed class AiSafetyTests(PostgresFixture pg) : IAsyncLifetime
         Assert.True(policy.IsOutputSafe(new GeneratedItem("¿Qué hace una abeja en el gimnasio? ¡Zum-ba!", "joke", null), "es", "joke"));
         Assert.False(policy.IsOutputSafe(new GeneratedItem("Riddle without answer?", "riddle", null), "en", "riddle"));
         Assert.True(policy.IsOutputSafe(new GeneratedItem("What has keys but no locks?", "riddle", "A piano."), "en", "riddle"));
+        Assert.True(policy.IsOutputSafe(new GeneratedItem("لماذا لا تلعب السمكة كرة السلة؟ لأنها تخاف من الشبكة!", "joke", null), "ar", "joke"));
+        Assert.False(policy.IsOutputSafe(new GeneratedItem("سأقْتُل الملل بنكتة: لماذا يضحك الحاسوب؟", "joke", null), "ar", "joke"));
+        Assert.True(policy.IsThemeSafe("مدينة الطفولة", "joke"));
+        Assert.False(policy.IsThemeSafe("نكت عن الدين", "joke"));
     }
 }
