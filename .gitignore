@@ -28,3 +28,11 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+src/Circloo.Api/wwwroot/

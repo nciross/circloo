@@ -11,7 +11,7 @@ web (responsive, mobile-first; installable PWA *(inferred)*)
 
 ## Stack
 
-Delegated: Next.js (App Router, TypeScript) + PostgreSQL + Auth.js, hosted on Azure Container Apps. Real-time boards go through Azure Web PubSub. See `docs/architecture/overview.md`.
+Delegated: .NET Aspire (ASP.NET Core API, EF Core + PostgreSQL) + React/TypeScript SPA (Zustand, TanStack Query), AI through Microsoft Foundry, hosted on Azure Container Apps. Dev runs locally at zero cost. See `docs/architecture/overview.md`.
 
 ## Users
 
