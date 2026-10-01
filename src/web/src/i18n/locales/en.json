@@ -249,13 +249,14 @@
     "card": {
       "label": "Current card",
       "shake": "Shake",
-      "favourite": "Keep it on the fridge",
-      "unfavourite": "Take it off the fridge",
+      "favourite": "Favourite",
       "showAnswer": "Show the answer",
       "empty": "No card matches these magnets. Move one, or ask the fridge.",
       "exhausted": "You have seen every card here. The deck starts again.",
-      "error": "The card slipped behind the fridge. Shake again.",
-      "fresh": "Fresh from the fridge"
+      "error": "We could not load a card. Try again.",
+      "fresh": "Suggested by AI",
+      "favouriteFailed": "We could not save this favourite. Try again.",
+      "pinned": "Now on the board: {{text}}"
     },
     "ask": {
       "title": "Ask the fridge",
@@ -275,8 +276,12 @@
         "limited": "That is all the fridge magic for today. Back at {{time}}.",
         "inFlight": "The fridge is already thinking. One moment.",
         "unavailable": "The fridge has no ideas right now. Try again soon, the deck still works.",
-        "expired": "These cards went stale. Ask the fridge again."
-      }
+        "expired": "These suggestions have expired. Ask again for new ones.",
+        "limitedNoTime": "You have used all your asks for today. Try again tomorrow."
+      },
+      "freshCount_one": "{{count}} new card is ready.",
+      "freshCount_other": "{{count}} new cards are ready.",
+      "aiLabel": "Suggested by AI"
     },
     "line": {
       "title": "Who is in the room?",
@@ -293,10 +298,19 @@
       "shuffle": "Shuffle the order",
       "done": "Everyone had a turn. Well played!",
       "again": "Another round",
-      "keys": "Space: next person · S: shuffle",
       "fullscreen": "Big screen",
       "exitFullscreen": "Leave big screen",
-      "seconds": "{{count}} s"
+      "seconds": "{{count}} s",
+      "hadTurn": "(had a turn)",
+      "addErrors": {
+        "empty": "Type a name first.",
+        "duplicate": "This name is already on the line.",
+        "full": "The line is full: 30 people at most."
+      },
+      "timesUp": "Time's up for {{name}}.",
+      "timesUpShort": "Time's up",
+      "turnOfPlain": "{{name}}'s turn.",
+      "keysHint": "With focus on this list: <k>Space</k> next person · <k>S</k> shuffle"
     },
     "keepers": {
       "title": "Keepers",
@@ -304,7 +318,8 @@
       "mine": "My sparks",
       "emptyFavourites": "Tap the heart on a card to keep it here.",
       "emptyMine": "Cards you keep from the fridge land here.",
-      "delete": "Delete this card"
+      "delete": "Delete this card",
+      "putOnBoard": "Put on the board"
     }
   }
 }

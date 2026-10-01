@@ -26,6 +26,7 @@ function cryptoInt(max: number): number {
 }
 
 type Phase = 'gathering' | 'round' | 'done'
+export type AddResult = 'added' | 'empty' | 'duplicate' | 'full'
 
 interface MeetingState {
   names: string[]
@@ -35,7 +36,7 @@ interface MeetingState {
   timer: TimerChoice
   /** When the current turn began (epoch ms): the kitchen timer derives from it. */
   turnStartedAt: number
-  addName: (raw: string) => boolean
+  addName: (raw: string) => AddResult
   removeName: (name: string) => void
   setTimer: (t: TimerChoice) => void
   start: () => void
@@ -55,19 +56,30 @@ export const useMeetingStore = create<MeetingState>()(
       turnStartedAt: 0,
       addName: (raw) => {
         const name = raw.trim().slice(0, NAME_MAX)
-        const { names } = get()
-        if (!name || names.length >= MAX_PEOPLE || names.some((n) => n.toLocaleLowerCase() === name.toLocaleLowerCase())) return false
-        set({ names: [...names, name] })
-        return true
+        const { names, phase, order } = get()
+        if (!name) return 'empty'
+        if (names.some((n) => n.toLocaleLowerCase() === name.toLocaleLowerCase())) return 'duplicate'
+        if (names.length >= MAX_PEOPLE) return 'full'
+        // Someone who walks in during a round still gets a turn: they join the end of the line.
+        set({ names: [...names, name], order: phase === 'gathering' ? order : [...order, name], phase: phase === 'done' ? 'round' : phase, turnStartedAt: phase === 'done' ? Date.now() : get().turnStartedAt, turn: phase === 'done' ? order.length : get().turn })
+        return 'added'
       },
       removeName: (name) =>
         set((s) => {
           const names = s.names.filter((n) => n !== name)
+          const removed = s.order.indexOf(name)
           const order = s.order.filter((n) => n !== name)
-          const turn = Math.min(s.turn, Math.max(0, order.length - 1))
-          return { names, order, turn, phase: s.phase === 'round' && order.length === 0 ? 'gathering' : s.phase }
+          // Removing someone before the current person must not skip anyone; removing the current person hands
+          // the turn to the next one with a fresh timer.
+          let turn = removed !== -1 && removed < s.turn ? s.turn - 1 : s.turn
+          const restart = removed === s.turn
+          let phase = s.phase
+          if (phase === 'round' && order.length === 0) phase = 'gathering'
+          else if (phase === 'round' && turn >= order.length) { phase = 'done'; turn = Math.max(0, order.length - 1) }
+          return { names, order, turn, phase, turnStartedAt: restart ? Date.now() : s.turnStartedAt }
         }),
-      setTimer: (timer) => set({ timer }),
+      // A new timer applies to the current turn from now, so it never hits zero the moment it is picked.
+      setTimer: (timer) => set({ timer, turnStartedAt: Date.now() }),
       start: () => {
         const { names } = get()
         if (names.length < 2) return
@@ -78,7 +90,8 @@ export const useMeetingStore = create<MeetingState>()(
           if (s.phase !== 'round') return {}
           return s.turn + 1 >= s.order.length ? { phase: 'done' } : { turn: s.turn + 1, turnStartedAt: Date.now() }
         }),
-      reshuffle: () => set((s) => ({ order: shuffle(s.names), turn: 0, phase: s.names.length >= 2 ? 'round' : s.phase, turnStartedAt: Date.now() })),
+      reshuffle: () =>
+        set((s) => (s.phase === 'round' && s.names.length >= 2 ? { order: shuffle(s.names), turn: 0, turnStartedAt: Date.now() } : {})),
       reset: () => set({ order: [], turn: 0, phase: 'gathering' }),
     }),
     { name: 'circloo-meeting', storage: createJSONStorage(() => sessionStorage) },

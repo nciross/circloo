@@ -30,7 +30,11 @@ export const useDeckStore = create<DeckState>()(
       deal: 0,
       pinned: null,
       // Changing a filter starts a fresh deck.
-      setFilter: (patch) => set({ ...patch, seen: [], pinned: null }),
+      setFilter: (patch) =>
+        set((s) => {
+          const changed = (Object.keys(patch) as (keyof typeof patch)[]).some((k) => patch[k] !== s[k])
+          return changed ? { ...patch, seen: [], pinned: null } : {}
+        }),
       shake: () => set((s) => ({ deal: s.deal + 1, pinned: null })),
       dealt: (spark, exhausted) => set((s) => ({ seen: spark ? [...(exhausted ? [] : s.seen), spark.id] : s.seen })),
       pin: (spark) => set({ pinned: spark }),

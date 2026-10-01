@@ -82,7 +82,7 @@ test('meeting: everyone gets one turn, keyboard drives the round (US3)', async (
     const now = page.locator('.name-magnet.is-now bdi')
     await expect(now).toHaveCount(1)
     turns.push((await now.textContent()) ?? '')
-    await page.locator('body').press(' ')
+    await page.keyboard.press('Space')
   }
   expect([...turns].sort()).toEqual([...names].sort())
   await expect(page.locator('.name-magnet.is-now')).toHaveCount(0)
