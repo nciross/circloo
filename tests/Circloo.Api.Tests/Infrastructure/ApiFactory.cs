@@ -44,7 +44,7 @@ public sealed class CapturingEmailSender : IEmailSender
     }
 }
 
-public sealed partial class ApiFactory(string connectionString, IDictionary<string, string?>? overrides = null)
+public sealed partial class ApiFactory(string connectionString, IDictionary<string, string?>? overrides = null, FakeChatClient? fakeAi = null)
     : WebApplicationFactory<Program>
 {
     public FakeTimeProvider Clock { get; } = new(DateTimeOffset.Parse("2026-10-01T08:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
@@ -67,6 +67,11 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
             s.AddSingleton<TimeProvider>(Clock);
             s.RemoveAll<IEmailSender>();
             s.AddSingleton<IEmailSender>(Emails);
+            if (fakeAi is not null)
+            {
+                s.RemoveAll<Microsoft.Extensions.AI.IChatClient>();
+                s.AddSingleton<Microsoft.Extensions.AI.IChatClient>(fakeAi);
+            }
         });
     }
 
@@ -115,6 +120,13 @@ public static class ClientExtensions
         {
             req.Headers.Add("X-XSRF-TOKEN", csrf);
         }
+        return await client.SendAsync(req);
+    }
+
+    public static async Task<HttpResponseMessage> DeleteAsync(this HttpClient client, string url, string csrf)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Delete, url);
+        req.Headers.Add("X-XSRF-TOKEN", csrf);
         return await client.SendAsync(req);
     }
 
