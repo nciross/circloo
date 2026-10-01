@@ -12,6 +12,9 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
     public DbSet<EmailOutboxMessage> EmailOutbox => Set<EmailOutboxMessage>();
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+    public DbSet<Spark> Sparks => Set<Spark>();
+    public DbSet<SparkFavorite> SparkFavorites => Set<SparkFavorite>();
+    public DbSet<AiGeneration> AiGenerations => Set<AiGeneration>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +56,37 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(m => m.Template).HasMaxLength(64);
             e.Property(m => m.Locale).HasMaxLength(5);
             e.HasIndex(m => m.NextAttemptAt);
+        });
+
+        modelBuilder.Entity<Spark>(e =>
+        {
+            e.Property(x => x.Id).HasMaxLength(64);
+            e.Property(x => x.Lang).HasMaxLength(5);
+            e.Property(x => x.Kind).HasMaxLength(24);
+            e.Property(x => x.Tone).HasMaxLength(12);
+            e.Property(x => x.Source).HasMaxLength(8);
+            e.Property(x => x.Text).HasMaxLength(240);
+            e.Property(x => x.Answer).HasMaxLength(140);
+            e.HasIndex(x => new { x.Lang, x.Kind, x.Tone });
+            e.HasIndex(x => x.OwnerId);
+            e.HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SparkFavorite>(e =>
+        {
+            e.HasKey(x => new { x.UserId, x.SparkId });
+            e.Property(x => x.SparkId).HasMaxLength(64);
+            e.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Spark).WithMany().HasForeignKey(x => x.SparkId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AiGeneration>(e =>
+        {
+            e.Property(x => x.Provider).HasMaxLength(40);
+            e.Property(x => x.Model).HasMaxLength(80);
+            e.Property(x => x.Outcome).HasMaxLength(12);
+            e.HasIndex(x => new { x.UserId, x.At });
+            e.HasIndex(x => x.At);
         });
     }
 }

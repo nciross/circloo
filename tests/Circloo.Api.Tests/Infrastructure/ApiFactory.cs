@@ -44,7 +44,7 @@ public sealed class CapturingEmailSender : IEmailSender
     }
 }
 
-public sealed partial class ApiFactory(string connectionString, IDictionary<string, string?>? overrides = null)
+public sealed partial class ApiFactory(string connectionString, IDictionary<string, string?>? overrides = null, FakeChatClient? fakeAi = null)
     : WebApplicationFactory<Program>
 {
     public FakeTimeProvider Clock { get; } = new(DateTimeOffset.Parse("2026-10-01T08:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
@@ -57,6 +57,8 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
         builder.UseSetting("Security:Pepper", Convert.ToBase64String(new byte[32].Select((_, i) => (byte)(i * 7 + 3)).ToArray()));
         builder.UseSetting("RateLimits:OtpRequestsPerIpPerHour", "10000");
         builder.UseSetting("RateLimits:OtpVerifiesPerIpPer10Min", "10000");
+        // Every test shares one database: the global AI budget is tested on its own, never exhausted by neighbours.
+        builder.UseSetting("Ai:DailyGlobal", "100000");
         foreach (var (k, v) in overrides ?? new Dictionary<string, string?>())
         {
             builder.UseSetting(k, v);
@@ -67,6 +69,11 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
             s.AddSingleton<TimeProvider>(Clock);
             s.RemoveAll<IEmailSender>();
             s.AddSingleton<IEmailSender>(Emails);
+            if (fakeAi is not null)
+            {
+                s.RemoveAll<Microsoft.Extensions.AI.IChatClient>();
+                s.AddSingleton<Microsoft.Extensions.AI.IChatClient>(fakeAi);
+            }
         });
     }
 
@@ -115,6 +122,13 @@ public static class ClientExtensions
         {
             req.Headers.Add("X-XSRF-TOKEN", csrf);
         }
+        return await client.SendAsync(req);
+    }
+
+    public static async Task<HttpResponseMessage> DeleteAsync(this HttpClient client, string url, string csrf)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Delete, url);
+        req.Headers.Add("X-XSRF-TOKEN", csrf);
         return await client.SendAsync(req);
     }
 

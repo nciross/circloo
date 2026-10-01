@@ -216,6 +216,41 @@ resource secretAcs 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   properties: { value: communication.listKeys().primaryConnectionString }
 }
 
+// ---------- Microsoft Foundry: AI for icebreakers (pay per token, no fixed cost; keys disabled) ----------
+var aiModel = 'gpt-4o-mini'
+resource foundry 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+  name: 'aif-circloo-${token}'
+  location: location
+  tags: tags
+  kind: 'AIServices'
+  sku: { name: 'S0' }
+  properties: {
+    customSubDomainName: 'aif-circloo-${token}'
+    disableLocalAuth: true // Entra ID only: the app's managed identity
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource chatModel 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  parent: foundry
+  name: aiModel
+  sku: { name: 'GlobalStandard', capacity: 10 }
+  properties: {
+    model: { format: 'OpenAI', name: aiModel, version: '2024-07-18' }
+  }
+}
+
+var openAiUserRoleId = '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd' // Cognitive Services OpenAI User
+resource foundryUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(foundry.id, identity.id, openAiUserRoleId)
+  scope: foundry
+  properties: {
+    principalId: identity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', openAiUserRoleId)
+  }
+}
+
 // ---------- circloo app (ASP.NET Core API serving the React SPA) on Container Apps ----------
 resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'cae-circloo-${token}'
@@ -242,7 +277,7 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
     type: 'UserAssigned'
     userAssignedIdentities: { '${identity.id}': {} }
   }
-  dependsOn: [ acrPull, kvSecretsUser ]
+  dependsOn: [ acrPull, kvSecretsUser, foundryUser ]
   properties: {
     managedEnvironmentId: containerEnv.id
     configuration: {
@@ -276,6 +311,10 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'Email__Provider', value: 'Acs' }
             { name: 'Email__AcsConnectionString', secretRef: 'acs-connection-string' }
             { name: 'Email__From', value: emailSender }
+            { name: 'Ai__Provider', value: 'OpenAICompatible' }
+            { name: 'Ai__Endpoint', value: 'https://${foundry.properties.customSubDomainName}.openai.azure.com/openai/v1/' }
+            { name: 'Ai__Model', value: chatModel.name }
+            { name: 'Ai__Auth', value: 'ManagedIdentity' }
             { name: 'AZURE_STORAGE_ACCOUNT', value: storage.name }
             { name: 'AZURE_STORAGE_CONTAINER', value: uploads.name }
             { name: 'AZURE_CLIENT_ID', value: identity.properties.clientId }
@@ -299,3 +338,4 @@ output registryName string = registry.name
 output keyVaultName string = vault.name
 output webUri string = 'https://${web.properties.configuration.ingress.fqdn}'
 output emailSender string = emailSender
+output aiEndpoint string = 'https://${foundry.properties.customSubDomainName}.openai.azure.com/openai/v1/'

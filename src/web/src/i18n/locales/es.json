@@ -188,8 +188,8 @@
     "modules": {
       "icebreakers": {
         "title": "Rompehielos",
-        "body": "Preguntas y chistes nuevos para tu círculo, sugeridos por la IA y revisados para que sean amables.",
-        "tag": "Lo primero"
+        "body": "Ya disponible: saca una tarjeta, haz una ronda con todos y pide tarjetas nuevas a la nevera.",
+        "tag": "Disponible"
       },
       "checkins": {
         "title": "Ánimo del día",
@@ -203,7 +203,8 @@
         "title": "Integraciones",
         "body": "Teams, Salesforce, Jira, Confluence y Notion."
       }
-    }
+    },
+    "start": "Empezar un rompehielos"
   },
   "settings": {
     "title": "Ajustes",
@@ -219,5 +220,106 @@
     "title": "Esta nota se cayó detrás de la nevera.",
     "body": "La página que buscas no existe o se ha mudado.",
     "home": "Volver a la puerta"
+  },
+  "ice": {
+    "title": "Rompehielos",
+    "filters": {
+      "label": "Qué tipo de tarjeta",
+      "audience": "Para",
+      "tone": "Ánimo",
+      "kind": "Tipo",
+      "kidsSafe": "Con niños",
+      "audiences": {
+        "family": "Familia",
+        "friends": "Amigos",
+        "work": "Trabajo"
+      },
+      "tones": {
+        "silly": "Gracioso",
+        "cozy": "Acogedor",
+        "deep": "Profundo"
+      },
+      "kinds": {
+        "icebreaker": "Pregunta",
+        "would-you-rather": "¿Qué prefieres?",
+        "joke": "Chiste",
+        "riddle": "Adivinanza"
+      }
+    },
+    "card": {
+      "label": "Tarjeta actual",
+      "shake": "Sacudir",
+      "favourite": "Favorita",
+      "showAnswer": "Ver la respuesta",
+      "empty": "Ninguna tarjeta encaja con estos imanes. Mueve uno o pregunta a la nevera.",
+      "exhausted": "Ya viste todas las tarjetas. Volvemos a barajar.",
+      "error": "No pudimos cargar una tarjeta. Inténtalo de nuevo.",
+      "fresh": "Sugerido por IA",
+      "favouriteFailed": "No pudimos guardar esta favorita. Inténtalo de nuevo.",
+      "pinned": "Ahora en el tablero: {{text}}"
+    },
+    "ask": {
+      "title": "Pregunta a la nevera",
+      "lead": "Cinco tarjetas nuevas que encajan con tus imanes. Las sugiere la IA y revisamos que sean amables.",
+      "themeLabel": "Tema (opcional)",
+      "themePlaceholder": "vacaciones de verano",
+      "ask": "Preguntar",
+      "asking": "La nevera está pensando…",
+      "remaining_one": "Te queda {{count}} consulta hoy",
+      "remaining_other": "Te quedan {{count}} consultas hoy",
+      "results": "Tarjetas nuevas",
+      "keep": "Guardar",
+      "kept": "Guardada",
+      "dismiss": "Descartar esta tarjeta",
+      "errors": {
+        "unsafe": "La nevera solo escribe cosas amables. Prueba otro tema.",
+        "limited": "Se acabó la magia de la nevera por hoy. Vuelve a las {{time}}.",
+        "inFlight": "La nevera ya está pensando. Un momento.",
+        "unavailable": "La nevera no tiene ideas ahora mismo. Inténtalo pronto; la baraja sigue funcionando.",
+        "expired": "Estas sugerencias caducaron. Pide otras nuevas.",
+        "limitedNoTime": "Ya usaste todas tus consultas de hoy. Vuelve a intentarlo mañana."
+      },
+      "freshCount_one": "{{count}} tarjeta nueva lista.",
+      "freshCount_other": "{{count}} tarjetas nuevas listas.",
+      "aiLabel": "Sugerido por IA"
+    },
+    "line": {
+      "title": "¿Quién está aquí?",
+      "timer": "Temporizador por turno",
+      "timerOff": "Sin temporizador",
+      "addLabel": "Añadir un nombre",
+      "addPlaceholder": "Añadir un nombre",
+      "add": "Añadir",
+      "remove": "Quitar a {{name}}",
+      "empty": "Añade al menos dos nombres para empezar una ronda.",
+      "start": "Empezar la ronda",
+      "turnOf": "¡Te toca, <name>{{name}}</name>!",
+      "next": "Siguiente persona",
+      "shuffle": "Mezclar el orden",
+      "done": "Ya pasaron todos. ¡Bien jugado!",
+      "again": "Otra ronda",
+      "fullscreen": "Pantalla grande",
+      "exitFullscreen": "Salir de la pantalla grande",
+      "seconds": "{{count}} s",
+      "hadTurn": "(ya participó)",
+      "addErrors": {
+        "empty": "Escribe un nombre primero.",
+        "duplicate": "Este nombre ya está en la fila.",
+        "full": "La fila está llena: 30 personas como máximo."
+      },
+      "timesUp": "Se acabó el tiempo de {{name}}.",
+      "timesUpShort": "Tiempo",
+      "turnOfPlain": "Turno de {{name}}.",
+      "keysHint": "Con el foco en esta lista: <k>Espacio</k> siguiente persona · <k>S</k> mezclar"
+    },
+    "keepers": {
+      "title": "Mis tesoros",
+      "favourites": "Favoritas",
+      "mine": "Mis tarjetas",
+      "emptyFavourites": "Toca el corazón de una tarjeta para guardarla aquí.",
+      "emptyMine": "Las tarjetas que guardas de la nevera aparecen aquí.",
+      "delete": "Borrar esta tarjeta",
+      "putOnBoard": "Poner en el tablero"
+    }
   }
 }

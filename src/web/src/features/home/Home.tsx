@@ -4,6 +4,8 @@ import { useDocumentTitle } from '../../app/locale'
 import { Freezer } from '../../components/Freezer'
 import { IcebreakerCard } from '../landing/IcebreakerCard'
 import { AccountMenu } from './AccountMenu'
+import { MagnetLink } from '../../components/Magnet'
+import { ArrowRight } from 'lucide-react'
 import '../../styles/app.css'
 
 const NEXT = ['icebreakers', 'checkins', 'boards', 'integrations'] as const
@@ -29,6 +31,9 @@ export default function Home() {
               </h1>
             </div>
             <p className="hero__sub">{t('home.lead')}</p>
+            <MagnetLink to="/app/icebreakers" size="lg" icon={<ArrowRight className="flip-rtl" size={22} strokeWidth={2.5} />}>
+              {t('home.start')}
+            </MagnetLink>
             <div className="home-play">
               <IcebreakerCard />
             </div>

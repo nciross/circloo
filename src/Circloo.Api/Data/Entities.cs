@@ -61,3 +61,43 @@ public sealed class EmailOutboxMessage
     public int Attempts { get; set; }
     public DateTimeOffset? FailedAt { get; set; }
 }
+
+public sealed class Spark
+{
+    public required string Id { get; set; }
+    public required string Lang { get; set; }
+    public required string Kind { get; set; }
+    public required string Tone { get; set; }
+    public string[] Audiences { get; set; } = [];
+    public bool KidsSafe { get; set; }
+    public required string Text { get; set; }
+    public string? Answer { get; set; }
+    public required string Source { get; set; }
+    public Guid? OwnerId { get; set; }
+    public User? Owner { get; set; }
+    public bool Retired { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public sealed class SparkFavorite
+{
+    public Guid UserId { get; set; }
+    public required string SparkId { get; set; }
+    public Spark? Spark { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public sealed class AiGeneration
+{
+    public long Id { get; set; }
+    public Guid UserId { get; set; }
+    public DateTimeOffset At { get; set; }
+    public required string Provider { get; set; }
+    public required string Model { get; set; }
+    public int? InputTokens { get; set; }
+    public int? OutputTokens { get; set; }
+    public int Requested { get; set; }
+    public int Accepted { get; set; }
+    public required string Outcome { get; set; }
+    public int LatencyMs { get; set; }
+}

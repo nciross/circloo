@@ -188,8 +188,8 @@
     "modules": {
       "icebreakers": {
         "title": "Icebreakers",
-        "body": "Fresh questions and jokes for your circle, suggested by AI and checked for kindness.",
-        "tag": "First up"
+        "body": "Live now: draw a card, run a round with everyone, and ask the fridge for fresh ones.",
+        "tag": "Live"
       },
       "checkins": {
         "title": "Daily check-in",
@@ -203,7 +203,8 @@
         "title": "Integrations",
         "body": "Teams, Salesforce, Jira, Confluence and Notion."
       }
-    }
+    },
+    "start": "Start an icebreaker"
   },
   "settings": {
     "title": "Settings",
@@ -219,5 +220,106 @@
     "title": "This note fell behind the fridge.",
     "body": "The page you are looking for does not exist or moved.",
     "home": "Back to the door"
+  },
+  "ice": {
+    "title": "Icebreakers",
+    "filters": {
+      "label": "What kind of card",
+      "audience": "For",
+      "tone": "Mood",
+      "kind": "Kind",
+      "kidsSafe": "Kids around",
+      "audiences": {
+        "family": "Family",
+        "friends": "Friends",
+        "work": "Work"
+      },
+      "tones": {
+        "silly": "Silly",
+        "cozy": "Cozy",
+        "deep": "Deep"
+      },
+      "kinds": {
+        "icebreaker": "Question",
+        "would-you-rather": "Would you rather",
+        "joke": "Joke",
+        "riddle": "Riddle"
+      }
+    },
+    "card": {
+      "label": "Current card",
+      "shake": "Shake",
+      "favourite": "Favourite",
+      "showAnswer": "Show the answer",
+      "empty": "No card matches these magnets. Move one, or ask the fridge.",
+      "exhausted": "You have seen every card here. The deck starts again.",
+      "error": "We could not load a card. Try again.",
+      "fresh": "Suggested by AI",
+      "favouriteFailed": "We could not save this favourite. Try again.",
+      "pinned": "Now on the board: {{text}}"
+    },
+    "ask": {
+      "title": "Ask the fridge",
+      "lead": "Five fresh cards that match your magnets. Suggested by AI, checked for kindness.",
+      "themeLabel": "Theme (optional)",
+      "themePlaceholder": "summer holidays",
+      "ask": "Ask",
+      "asking": "The fridge is thinking…",
+      "remaining_one": "{{count}} ask left today",
+      "remaining_other": "{{count}} asks left today",
+      "results": "Fresh cards",
+      "keep": "Keep",
+      "kept": "Kept",
+      "dismiss": "Dismiss this card",
+      "errors": {
+        "unsafe": "The fridge only writes kind things. Try another theme.",
+        "limited": "That is all the fridge magic for today. Back at {{time}}.",
+        "inFlight": "The fridge is already thinking. One moment.",
+        "unavailable": "The fridge has no ideas right now. Try again soon, the deck still works.",
+        "expired": "These suggestions have expired. Ask again for new ones.",
+        "limitedNoTime": "You have used all your asks for today. Try again tomorrow."
+      },
+      "freshCount_one": "{{count}} new card is ready.",
+      "freshCount_other": "{{count}} new cards are ready.",
+      "aiLabel": "Suggested by AI"
+    },
+    "line": {
+      "title": "Who is in the room?",
+      "timer": "Turn timer",
+      "timerOff": "No timer",
+      "addLabel": "Add a name",
+      "addPlaceholder": "Add a name",
+      "add": "Add",
+      "remove": "Remove {{name}}",
+      "empty": "Add two names or more to start a round.",
+      "start": "Start the round",
+      "turnOf": "<name>{{name}}</name>, your turn!",
+      "next": "Next person",
+      "shuffle": "Shuffle the order",
+      "done": "Everyone had a turn. Well played!",
+      "again": "Another round",
+      "fullscreen": "Big screen",
+      "exitFullscreen": "Leave big screen",
+      "seconds": "{{count}} s",
+      "hadTurn": "(had a turn)",
+      "addErrors": {
+        "empty": "Type a name first.",
+        "duplicate": "This name is already on the line.",
+        "full": "The line is full: 30 people at most."
+      },
+      "timesUp": "Time's up for {{name}}.",
+      "timesUpShort": "Time's up",
+      "turnOfPlain": "{{name}}'s turn.",
+      "keysHint": "With focus on this list: <k>Space</k> next person · <k>S</k> shuffle"
+    },
+    "keepers": {
+      "title": "Keepers",
+      "favourites": "Favourites",
+      "mine": "My sparks",
+      "emptyFavourites": "Tap the heart on a card to keep it here.",
+      "emptyMine": "Cards you keep from the fridge land here.",
+      "delete": "Delete this card",
+      "putOnBoard": "Put on the board"
+    }
   }
 }

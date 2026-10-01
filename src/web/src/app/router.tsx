@@ -18,6 +18,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/app', lazy: page(() => import('../features/home/Home')) },
           { path: '/app/settings', lazy: page(() => import('../features/home/Settings')) },
+          { path: '/app/icebreakers', lazy: page(() => import('../features/icebreakers/Icebreakers')) },
         ],
       },
       { path: '*', lazy: page(() => import('../features/NotFound')) },

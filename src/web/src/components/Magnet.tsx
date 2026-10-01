@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react'
 import { Link, type LinkProps } from 'react-router'
 
 export type MagnetColor = 'tomato' | 'cobalt' | 'sunflower' | 'ink' | 'paper'
@@ -11,6 +11,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'md' | 'lg' | 'sm'
   icon?: ReactNode
   busy?: boolean
+  ref?: Ref<HTMLButtonElement>
 }
 
 /** A button that is a fridge magnet: it sits proud of the door and snaps flat when pressed. */
