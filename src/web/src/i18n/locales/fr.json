@@ -1,0 +1,220 @@
+{
+  "common": {
+    "brand": "circloo",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "signOutEverywhere": "Se déconnecter partout",
+    "settings": "Réglages",
+    "language": "Langue",
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ar": "العربية",
+      "es": "Español"
+    },
+    "languageShort": {
+      "en": "EN",
+      "fr": "FR",
+      "ar": "ع",
+      "es": "ES"
+    },
+    "soon": "Bientôt",
+    "example": "Exemple",
+    "loading": "Chargement…",
+    "errorGeneric": "Un souci de notre côté. Réessaie dans un instant.",
+    "retry": "Réessayer",
+    "skipToContent": "Aller au contenu",
+    "home": "Accueil",
+    "account": "Compte"
+  },
+  "landing": {
+    "title": "circloo · la porte du frigo de ton cercle",
+    "wordmarkHint": "Les lettres sont des aimants. Déplace-les.",
+    "headline": "La porte du frigo de tes proches.",
+    "sub": "Prendre des nouvelles du moral de chacun, commencer les réunions par un fou rire, décider ensemble. Un petit espace privé pour ta famille, tes amis ou ton équipe.",
+    "languagesLine": "Parle English, français, العربية et español.",
+    "cta": "Créer mon cercle",
+    "ctaSecondary": "Voir ce qu'on colle sur la porte",
+    "teaser": {
+      "title": "Le brise-glace du jour",
+      "shake": "Secouer le frigo",
+      "shaking": "Ça secoue…",
+      "answerLabel": "Ta réponse",
+      "answerPlaceholder": "Écris-la sur la carte…",
+      "answerHint": "Reste sur ton écran. Rien n'est envoyé.",
+      "error": "La carte a glissé derrière le frigo. Secoue encore."
+    },
+    "checkins": {
+      "title": "Ce matin sur la porte",
+      "items": [
+        {
+          "name": "Amina",
+          "mood": "Grand soleil",
+          "need": "Prête à tout"
+        },
+        {
+          "name": "Théo",
+          "mood": "Nuageux",
+          "need": "Besoin d'un café"
+        },
+        {
+          "name": "Lucía",
+          "mood": "Éclaircies",
+          "need": "Fière d'hier"
+        },
+        {
+          "name": "Youssef",
+          "mood": "Brouillard",
+          "need": "Besoin d'un câlin"
+        }
+      ]
+    },
+    "feel": {
+      "title": "Se sentir ensemble",
+      "body": "Un geste le matin et ton cercle sait comment tu vas. Des mots et des visages, jamais seulement des couleurs. Une note ou un petit besoin si tu veux, c'est tout.",
+      "moods": {
+        "1": "Orageux",
+        "2": "Brouillard",
+        "3": "Nuageux",
+        "4": "Éclaircies",
+        "5": "Grand soleil"
+      },
+      "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café."
+    },
+    "work": {
+      "title": "Travailler ensemble",
+      "body": "Des tableaux en direct pour les brainstorms, les rétros et les décisions. On colle des notes, on les déplace, on vote avec des gommettes, on voit le curseur de chacun. Sur un téléphone ou sur grand écran.",
+      "columns": {
+        "well": "Ce qui a marché",
+        "improve": "À améliorer",
+        "actions": "Actions"
+      },
+      "notes": [
+        "Déjeuner du dimanche chez mamie",
+        "Trop de réunions le lundi",
+        "Réserver les billets de train",
+        "Nouvelle machine à café",
+        "Des points plus courts"
+      ],
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes"
+    },
+    "fun": {
+      "title": "S'amuser ensemble",
+      "body": "Des brise-glaces, des devinettes et des blagues écrits par des humains dans chaque langue, pas traduits par une machine. De l'humour gentil uniquement. L'IA en propose de nouveaux, adaptés à ton cercle."
+    },
+    "integrations": {
+      "title": "Branché sur ta semaine",
+      "body": "circloo viendra là où tu travailles déjà. Ces intégrations arrivent, elles ne sont pas encore prêtes.",
+      "items": {
+        "teams": "Lancer les réunions Teams avec un brise-glace",
+        "salesforce": "Fêter les contrats gagnés par l'équipe",
+        "jira": "Transformer les actions de rétro en tickets",
+        "confluence": "Publier un tableau en page",
+        "notion": "Envoyer tableaux et notes dans ton espace"
+      },
+      "stamp": "Bientôt"
+    },
+    "how": {
+      "title": "Trois étapes, zéro mot de passe",
+      "steps": [
+        {
+          "title": "Tape ton e-mail",
+          "body": "On t'envoie un code à six chiffres. Aucun mot de passe à retenir."
+        },
+        {
+          "title": "Crée ton cercle",
+          "body": "Famille, amis ou équipe. Invite par e-mail ou avec un simple code."
+        },
+        {
+          "title": "Colle tout sur la porte",
+          "body": "Humeurs, brise-glaces et tableaux, au même endroit."
+        }
+      ]
+    },
+    "final": {
+      "title": "Ton cercle t'attend près du frigo.",
+      "body": "Privé par défaut. Seules les personnes que tu invites voient ce qu'il y a sur ta porte.",
+      "cta": "Créer mon cercle"
+    },
+    "footer": {
+      "private": "Privé par défaut. Sans pub.",
+      "made": "Pensé pour les familles, les amis et les équipes, en quatre langues."
+    }
+  },
+  "auth": {
+    "title": "Se connecter ou rejoindre",
+    "lead": "Juste ton e-mail. On t'envoie un code, pas de mot de passe.",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "toi@exemple.fr",
+    "send": "M'envoyer un code",
+    "sending": "Envoi…",
+    "neutral": "Si cette adresse peut recevoir des e-mails, un code est en route.",
+    "codeTitle": "Regarde tes e-mails",
+    "codeLead": "Tape le code à six chiffres envoyé à <email>{{email}}</email>.",
+    "codeLabel": "Code à six chiffres",
+    "verify": "Ouvrir ma porte",
+    "verifying": "Vérification…",
+    "resend": "Recevoir un nouveau code",
+    "resendIn": "Nouveau code possible dans {{seconds}} s",
+    "changeEmail": "Utiliser un autre e-mail",
+    "errors": {
+      "invalidEmail": "Cette adresse e-mail semble incorrecte. Vérifie-la.",
+      "invalidCode": "Ce code ne marche pas. Il est peut-être faux, déjà utilisé ou expiré.",
+      "incompleteCode": "Le code a six chiffres.",
+      "rateLimited": "Doucement ! Réessaie dans {{minutes}} min.",
+      "generic": "Impossible de joindre circloo. Vérifie ta connexion et réessaie."
+    }
+  },
+  "welcome": {
+    "title": "Bonjour, je m'appelle",
+    "lead": "C'est ainsi que ton cercle te verra.",
+    "nameLabel": "Ton prénom",
+    "namePlaceholder": "Écris ton prénom sur la ligne",
+    "nameHelp": "De 1 à 40 caractères. Modifiable plus tard.",
+    "languageLabel": "Ta langue",
+    "submit": "Le coller sur la porte",
+    "saving": "Enregistrement…",
+    "errors": {
+      "name": "Écris un prénom de 1 à 40 caractères."
+    }
+  },
+  "home": {
+    "greeting": "Salut {{name}} !",
+    "lead": "Ta porte est prête. Voici ce qu'on y colle bientôt.",
+    "nextTitle": "Bientôt sur ta porte",
+    "modules": {
+      "icebreakers": {
+        "title": "Brise-glaces",
+        "body": "Des questions et des blagues toutes fraîches pour ton cercle, proposées par l'IA et vérifiées pour rester gentilles.",
+        "tag": "En premier"
+      },
+      "checkins": {
+        "title": "Humeur du jour",
+        "body": "Un geste pour partager ton moral. La météo de ton cercle."
+      },
+      "boards": {
+        "title": "Tableaux en direct",
+        "body": "Brainstorms, rétros et votes, tous ensemble."
+      },
+      "integrations": {
+        "title": "Intégrations",
+        "body": "Teams, Salesforce, Jira, Confluence et Notion."
+      }
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "profileTitle": "Ton badge",
+    "save": "Enregistrer",
+    "saved": "Enregistré.",
+    "sessionsTitle": "Tes appareils",
+    "sessionsBody": "Connecté sur un ordinateur que tu n'utilises plus ? Déconnecte-toi partout, ici compris.",
+    "confirmEverywhere": "Oui, me déconnecter partout"
+  },
+  "notFound": {
+    "title": "Cette note est tombée derrière le frigo.",
+    "body": "La page que tu cherches n'existe pas ou a déménagé.",
+    "home": "Retour à la porte"
+  }
+}

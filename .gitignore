@@ -36,3 +36,8 @@ obj/
 .vs/
 TestResults/
 src/Circloo.Api/wwwroot/
+
+# Impeccable review captures (regenerated per review)
+.impeccable/review/
+.impeccable/build/
+NUL

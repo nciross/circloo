@@ -1,0 +1,220 @@
+{
+  "common": {
+    "brand": "circloo",
+    "signIn": "Entrar",
+    "signOut": "Cerrar sesión",
+    "signOutEverywhere": "Cerrar sesión en todas partes",
+    "settings": "Ajustes",
+    "language": "Idioma",
+    "languages": {
+      "en": "English",
+      "fr": "Français",
+      "ar": "العربية",
+      "es": "Español"
+    },
+    "languageShort": {
+      "en": "EN",
+      "fr": "FR",
+      "ar": "ع",
+      "es": "ES"
+    },
+    "soon": "Pronto",
+    "example": "Ejemplo",
+    "loading": "Cargando…",
+    "errorGeneric": "Algo falló por nuestra parte. Inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "skipToContent": "Ir al contenido",
+    "home": "Inicio",
+    "account": "Cuenta"
+  },
+  "landing": {
+    "title": "circloo · la puerta de la nevera de tu círculo",
+    "wordmarkHint": "Las letras son imanes. Muévelas.",
+    "headline": "La puerta de la nevera de los tuyos.",
+    "sub": "Saber cómo está cada uno, empezar las reuniones con una risa y decidir juntos. Un pequeño espacio privado para tu familia, tus amigos o tu equipo.",
+    "languagesLine": "Habla English, français, العربية y español.",
+    "cta": "Crear mi círculo",
+    "ctaSecondary": "Ver qué se pega en la puerta",
+    "teaser": {
+      "title": "El rompehielos de hoy",
+      "shake": "Sacudir la nevera",
+      "shaking": "Sacudiendo…",
+      "answerLabel": "Tu respuesta",
+      "answerPlaceholder": "Escríbela en la tarjeta…",
+      "answerHint": "Se queda en tu pantalla. No se envía nada.",
+      "error": "La tarjeta se cayó detrás de la nevera. Sacude otra vez."
+    },
+    "checkins": {
+      "title": "Esta mañana en la puerta",
+      "items": [
+        {
+          "name": "Amina",
+          "mood": "Soleado",
+          "need": "Lista para todo"
+        },
+        {
+          "name": "Théo",
+          "mood": "Nublado",
+          "need": "Necesita café"
+        },
+        {
+          "name": "Lucía",
+          "mood": "Despejado",
+          "need": "Orgullosa de ayer"
+        },
+        {
+          "name": "Youssef",
+          "mood": "Niebla",
+          "need": "Necesita un abrazo"
+        }
+      ]
+    },
+    "feel": {
+      "title": "Sentir juntos",
+      "body": "Un toque por la mañana y tu círculo sabe cómo estás. Palabras y caras, nunca solo colores. Una nota o una pequeña necesidad si quieres, y listo.",
+      "moods": {
+        "1": "Tormenta",
+        "2": "Niebla",
+        "3": "Nublado",
+        "4": "Despejado",
+        "5": "Soleado"
+      },
+      "weather": "Tiempo del círculo: casi despejado, alguien necesita café."
+    },
+    "work": {
+      "title": "Trabajar juntos",
+      "body": "Tableros en directo para lluvias de ideas, retros y decisiones. Pega notas, muévelas, vota con puntos y mira el cursor de cada uno. En el móvil o en la pantalla grande.",
+      "columns": {
+        "well": "Lo que fue bien",
+        "improve": "A mejorar",
+        "actions": "Acciones"
+      },
+      "notes": [
+        "Comida del domingo en casa de la abuela",
+        "Demasiadas reuniones el lunes",
+        "Reservar los billetes de tren",
+        "Cafetera nueva",
+        "Reuniones diarias más cortas"
+      ],
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos"
+    },
+    "fun": {
+      "title": "Divertirse juntos",
+      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, no traducidos por una máquina. Solo humor amable. La IA propone nuevos que encajan con tu círculo."
+    },
+    "integrations": {
+      "title": "Conectado a tu semana",
+      "body": "circloo irá adonde ya trabajas. Estas integraciones están en camino, aún no están listas.",
+      "items": {
+        "teams": "Empezar las reuniones de Teams con un rompehielos",
+        "salesforce": "Celebrar los acuerdos que gana tu equipo",
+        "jira": "Convertir las acciones de la retro en tareas",
+        "confluence": "Publicar un tablero como página",
+        "notion": "Enviar tableros y notas a tu espacio"
+      },
+      "stamp": "Próximamente"
+    },
+    "how": {
+      "title": "Tres pasos, sin contraseña",
+      "steps": [
+        {
+          "title": "Escribe tu correo",
+          "body": "Te enviamos un código de seis cifras. Ninguna contraseña que recordar."
+        },
+        {
+          "title": "Crea tu círculo",
+          "body": "Familia, amigos o equipo. Invita por correo o con un código sencillo."
+        },
+        {
+          "title": "Pega cosas en la puerta",
+          "body": "Ánimos, rompehielos y tableros, todo en un sitio."
+        }
+      ]
+    },
+    "final": {
+      "title": "Tu círculo te espera junto a la nevera.",
+      "body": "Privado por defecto. Solo las personas que invitas ven lo que hay en tu puerta.",
+      "cta": "Crear mi círculo"
+    },
+    "footer": {
+      "private": "Privado por defecto. Sin anuncios.",
+      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas."
+    }
+  },
+  "auth": {
+    "title": "Entra o únete",
+    "lead": "Solo tu correo. Te enviamos un código, sin contraseña.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.es",
+    "send": "Envíame un código",
+    "sending": "Enviando…",
+    "neutral": "Si esta dirección puede recibir correos, tu código va en camino.",
+    "codeTitle": "Mira tu correo",
+    "codeLead": "Escribe el código de seis cifras que enviamos a <email>{{email}}</email>.",
+    "codeLabel": "Código de seis cifras",
+    "verify": "Abrir mi puerta",
+    "verifying": "Comprobando…",
+    "resend": "Enviar un código nuevo",
+    "resendIn": "Nuevo código disponible en {{seconds}} s",
+    "changeEmail": "Usar otro correo",
+    "errors": {
+      "invalidEmail": "Este correo no parece correcto. Revísalo.",
+      "invalidCode": "Ese código no funciona. Puede que esté mal, ya usado o caducado.",
+      "incompleteCode": "El código tiene seis cifras.",
+      "rateLimited": "Despacio. Inténtalo de nuevo en {{minutes}} min.",
+      "generic": "No pudimos conectar con circloo. Revisa tu conexión e inténtalo de nuevo."
+    }
+  },
+  "welcome": {
+    "title": "Hola, me llamo",
+    "lead": "Así te verá tu círculo.",
+    "nameLabel": "Tu nombre",
+    "namePlaceholder": "Escribe tu nombre en la línea",
+    "nameHelp": "De 1 a 40 caracteres. Puedes cambiarlo después.",
+    "languageLabel": "Tu idioma",
+    "submit": "Pegarlo en la puerta",
+    "saving": "Guardando…",
+    "errors": {
+      "name": "Escribe un nombre de 1 a 40 caracteres."
+    }
+  },
+  "home": {
+    "greeting": "¡Hola, {{name}}!",
+    "lead": "Tu puerta está lista. Esto es lo próximo que vamos a pegar en ella.",
+    "nextTitle": "Pronto en tu puerta",
+    "modules": {
+      "icebreakers": {
+        "title": "Rompehielos",
+        "body": "Preguntas y chistes nuevos para tu círculo, sugeridos por la IA y revisados para que sean amables.",
+        "tag": "Lo primero"
+      },
+      "checkins": {
+        "title": "Ánimo del día",
+        "body": "Un toque para compartir cómo estás. El tiempo de tu círculo."
+      },
+      "boards": {
+        "title": "Tableros en directo",
+        "body": "Lluvias de ideas, retros y votaciones con todos a la vez."
+      },
+      "integrations": {
+        "title": "Integraciones",
+        "body": "Teams, Salesforce, Jira, Confluence y Notion."
+      }
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "profileTitle": "Tu etiqueta",
+    "save": "Guardar",
+    "saved": "Guardado.",
+    "sessionsTitle": "Tus dispositivos",
+    "sessionsBody": "¿Sesión abierta en un ordenador que ya no usas? Cierra sesión en todas partes, también aquí.",
+    "confirmEverywhere": "Sí, cerrar sesión en todas partes"
+  },
+  "notFound": {
+    "title": "Esta nota se cayó detrás de la nevera.",
+    "body": "La página que buscas no existe o se ha mudado.",
+    "home": "Volver a la puerta"
+  }
+}
