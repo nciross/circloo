@@ -3,6 +3,8 @@
 . "$(git rev-parse --show-toplevel)/scripts/git-hooks/_conventions.sh"
 
 msg_file="$1"
+# Merge commits from git merge/pull are not ours to name; they never reach main (squash only).
+[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ] && exit 0
 # Ignore comment lines git adds to the editor buffer.
 subject="$(grep -v '^#' "$msg_file" | sed '/^[[:space:]]*$/d' | head -n1)"
 body="$(grep -v '^#' "$msg_file")"
