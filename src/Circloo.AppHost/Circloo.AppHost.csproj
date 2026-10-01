@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <AspireUseCliBundle>false</AspireUseCliBundle>
+    <NoWarn>$(NoWarn);ASPIRE010</NoWarn>
     <UserSecretsId>9a935200-acb1-4b7a-8b7d-a13950d749c4</UserSecretsId>
   </PropertyGroup>
 
