@@ -18,7 +18,7 @@ Before you start, read `.specify/memory/constitution.md`, `docs/workflow/nicolas
 2. **Traceability**: the PR body has `Closes|Fixes|Resolves #N` for an existing issue, and every commit message references `#N`.
 3. **Conventions** (`docs/workflow/git-conventions.md`; the CI job `Conventions` checks the same rules): the branch is `<type>/<number>-<slug>`, the PR title is a Conventional Commit subject with `(#issue)` (it becomes the only commit on `main`), and every non-merge commit is conventional with `#N`.
 4. **Scope**: the diff does what the linked issue asks and nothing unrelated.
-5. **CI**: every check in `statusCheckRollup` has completed and passed. If checks are pending, wait with `gh pr checks <PR> --watch`. Never merge on pending or failing checks.
+5. **CI**: every check in `statusCheckRollup` has completed and passed, and the required checks `No issue, no development`, `Conventions` and `Bicep compiles` are all present with `SUCCESS` (an empty or partial rollup is a fail, not a pass). If checks are pending, wait with `gh pr checks <PR> --watch`. Never merge on pending or failing checks.
 6. **Mergeable**: `mergeable` is `MERGEABLE` and the base is up to date (or GitHub can merge cleanly). If the base is another open PR's branch, that PR merges first. Then restack this one (see §4).
 7. **Constitution**: spec acceptance scenarios are met and tested (Principle VI); strings exist in en/fr/ar/es with RTL-safe CSS (III); UI changes have `/impeccable audit` results with no unresolved anti-patterns (IV); no secrets, and SSO/policies stay configuration (V); `infra/` compiles (`az bicep build --file infra/main.bicep --stdout`) and keeps the single resource group (VII).
 8. **Correctness and security**: circle-scoped data checks membership; invites honour expiry, max uses and revocation; no obvious bugs in the changed lines.
@@ -40,7 +40,8 @@ When every gate passes:
    - Post a review. If `NICOLAS_GITHUB_TOKEN` is set (a bot account or GitHub App token, so not the PR author), run `GH_TOKEN=$NICOLAS_GITHUB_TOKEN gh pr review <PR> --approve --body "<2–4 lines on what was verified>"`. Otherwise, run `gh pr review <PR> --comment --body "✅ Approved by Nicolas: <what was verified>"` (GitHub forbids self-approval).
 2. `gh pr edit <PR> --remove-label status:changes-requested --add-label status:ready-to-merge`
 3. **Squash-merge and delete the branch**:
-   `gh pr merge <PR> --squash --delete-branch --subject "<PR title> (#<PR>)" --body "Closes #<issue>[, #<issue>]"`
+   `gh pr merge <PR> --squash --delete-branch --match-head-commit <headSha> --subject "<PR title> (#<PR>)" --body "Closes #<issue>[, #<issue>]"`
+   `<headSha>` is the SHA you reviewed and set `nicolas/review` on. If someone pushed since, the merge fails: review the new head again.
    Leave out co-author trailers and the checklist. The commit body only links the issues.
 4. Confirm with `gh pr view <PR> --json state,mergeCommit` and check that the remote branch is gone. If it isn't, run `git push origin --delete <branch>`.
 5. **Restack dependents**: for every open PR whose base was the merged branch, GitHub retargets it to `main`. Its branch still carries the pre-squash commits, so rebase only its own commits: `git fetch origin && git rebase --onto origin/main <old base branch tip sha> <dependent branch>`, then `git push --force-with-lease`. This is the **only** force-push allowed, on short-lived branches only, and never on `main`.
