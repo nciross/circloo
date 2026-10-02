@@ -27,6 +27,11 @@ test('Pirikoo answers from the corner, then runs a checked plan from the centre 
   const locale = localeOf(info)
   await signedIn(page, locale)
 
+  // #91: before the first circle, Home shows the 20-second tour in the UI language, waiting for play.
+  const tour = page.locator('.home-tour video')
+  await expect(tour).toHaveAttribute('src', `/video/circloo-tour-${locale}.mp4`)
+  expect(await tour.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+
   // The bird in the corner opens a compact conversation, ready to type.
   await page.locator('.pkl__button').click()
   const panel = page.locator('.pkc--panel')

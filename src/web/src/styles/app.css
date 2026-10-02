@@ -592,3 +592,9 @@ a.navitem:hover {
 .plan-steps__label {
   flex: 1;
 }
+
+/* Home before the first circle: the tour, waiting for play. */
+.home-tour__body {
+  display: grid;
+  gap: var(--s-3);
+}

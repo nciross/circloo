@@ -8,6 +8,7 @@ import { Panda } from '../../components/Panda'
 import { useDocumentTitle } from '../../app/locale'
 import { ButtonLink } from '../../components/Button'
 import { FaceMark } from '../../components/Brand'
+import { TourVideo } from '../../components/TourVideo'
 import { useDeckStore } from '../../stores/deck'
 import { IcebreakerCard } from '../landing/IcebreakerCard'
 import '../../styles/app.css'
@@ -53,6 +54,22 @@ function MyCircles() {
   )
 }
 
+/** Before the first circle: what a circle looks like, in 20 seconds. It plays only when asked. */
+function FirstTour() {
+  const { t } = useTranslation()
+  return (
+    <section className="panel home-tour" aria-labelledby="home-tour-title">
+      <div className="panel__head">
+        <h2 id="home-tour-title" className="panel__title">{t('landing.tour.title')}</h2>
+      </div>
+      <div className="panel__body home-tour__body">
+        <p className="field__help">{t('landing.tour.lead')}</p>
+        <TourVideo hideCaption />
+      </div>
+    </section>
+  )
+}
+
 /** The three latest favourites; opening one puts it on the icebreaker board. */
 function KeepersSummary() {
   const { t } = useTranslation()
@@ -89,6 +106,7 @@ export default function Home() {
   const { t } = useTranslation()
   useDocumentTitle('common.home')
   const { data: me } = useMe()
+  const circles = useMyCircles()
 
   return (
     <div className="page">
@@ -115,6 +133,7 @@ export default function Home() {
           </section>
         </div>
         <div className="dash__side">
+          {circles.data?.length === 0 ? <FirstTour /> : null}
           <KeepersSummary />
         </div>
       </div>
