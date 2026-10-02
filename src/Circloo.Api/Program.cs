@@ -65,6 +65,12 @@ builder.Services.AddSingleton<IntegrationSender>();
 // The deck converter is internal only; conversions of large decks take up to two minutes (spec 006, R1).
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
+builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();
+builder.Services.AddSingleton<ConversionBacklog>();
+builder.Services.AddSingleton<PresentationConverterService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<PresentationConverterService>());
+builder.Services.AddSingleton<PresentationJanitor>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<PresentationJanitor>());
 builder.Services.AddHttpClient(PresentationOptions.ConverterClient, (sp, c) =>
     {
         var url = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<PresentationOptions>>().Value.ConverterUrl;
@@ -135,6 +141,7 @@ api.MapAiEndpoints();
 api.MapCircleEndpoints();
 api.MapIntegrationEndpoints();
 api.MapPirikooEndpoints();
+api.MapPresentationEndpoints();
 api.MapFallback(() => Results.NotFound());
 
 app.MapHub<CircleHub>("/hubs/circle");

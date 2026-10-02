@@ -23,7 +23,8 @@ public static class SecurityHeaders
                 {
                     h.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
                 }
-                if (ctx.Request.Path.StartsWithSegments("/api"))
+                // API answers are never cached unless an endpoint chose otherwise (slide pictures: private, spec 006).
+                if (ctx.Request.Path.StartsWithSegments("/api") && string.IsNullOrEmpty(h.CacheControl))
                 {
                     h.CacheControl = "no-store";
                 }
