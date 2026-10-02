@@ -7,8 +7,8 @@ import { useMe, useRequestCode, useVerifyCode } from '../../api/hooks'
 import { safeReturnTo } from '../../lib/returnTo'
 import { normalizeCode } from '../../lib/forms'
 import { useDocumentTitle } from '../../app/locale'
-import { Freezer } from '../../components/Freezer'
-import { MagnetButton } from '../../components/Magnet'
+import { Button } from '../../components/Button'
+import { AuthLayout } from '../../components/AuthLayout'
 import { useSignInStore } from '../../stores/signIn'
 import { useUiStore } from '../../stores/ui'
 import '../../styles/app.css'
@@ -54,10 +54,9 @@ function EmailStep() {
   }
 
   return (
-    <form className="sheet" onSubmit={submit} noValidate>
-      <span className="pin-magnet pin-magnet--tomato" aria-hidden="true" />
-      <h1 className="sheet__title">{t('auth.title')}</h1>
-      <p className="sheet__lead">{t('auth.lead')}</p>
+    <form className="authform" onSubmit={submit} noValidate>
+      <h1 className="authform__title">{t('auth.title')}</h1>
+      <p className="authform__lead">{t('auth.lead')}</p>
       <label className="field">
         <span className="field__label">{t('auth.emailLabel')}</span>
         <input
@@ -75,9 +74,9 @@ function EmailStep() {
         />
       </label>
       {error ? <p id={errorId} className="field__error" role="alert">{error}</p> : null}
-      <MagnetButton type="submit" size="lg" busy={request.isPending} icon={<Mail size={20} strokeWidth={2.5} />}>
+      <Button type="submit" size="lg" busy={request.isPending} icon={<Mail size={20} strokeWidth={2.5} />}>
         {request.isPending ? t('auth.sending') : t('auth.send')}
-      </MagnetButton>
+      </Button>
     </form>
   )
 }
@@ -140,13 +139,12 @@ function CodeStep() {
   const digits = Array.from({ length: 6 }, (_, i) => code[i] ?? '')
 
   return (
-    <form className="sheet" onSubmit={submit} noValidate>
-      <span className="pin-magnet pin-magnet--cobalt" aria-hidden="true" />
-      <h1 className="sheet__title">{t('auth.codeTitle')}</h1>
-      <p className="sheet__lead">
-        <Trans i18nKey="auth.codeLead" values={{ email }} components={{ email: <bdi dir="ltr" className="sheet__email" /> }} />
+    <form className="authform" onSubmit={submit} noValidate>
+      <h1 className="authform__title">{t('auth.codeTitle')}</h1>
+      <p className="authform__lead">
+        <Trans i18nKey="auth.codeLead" values={{ email }} components={{ email: <bdi dir="ltr" className="authform__email" /> }} />
       </p>
-      {notice && !error ? <p className="sheet__notice" role="status">{notice}</p> : null}
+      {notice && !error ? <p className="authform__notice" role="status">{notice}</p> : null}
       <label className="code-field">
         <span className="field__label">{t('auth.codeLabel')}</span>
         <span className="code-field__tiles" dir="ltr">
@@ -175,14 +173,14 @@ function CodeStep() {
         </span>
       </label>
       {error ? <p id={errorId} className="field__error" role="alert">{error}</p> : null}
-      <MagnetButton type="submit" size="lg" color="cobalt" busy={verify.isPending} icon={<ArrowRight className="flip-rtl" size={20} strokeWidth={2.5} />}>
+      <Button type="submit" size="lg" busy={verify.isPending} icon={<ArrowRight className="flip-rtl" size={20} strokeWidth={2.5} />}>
         {verify.isPending ? t('auth.verifying') : t('auth.verify')}
-      </MagnetButton>
-      <div className="sheet__links">
-        <button type="button" className="text-link" onClick={resend} disabled={seconds > 0 || request.isPending}>
+      </Button>
+      <div className="authform__links">
+        <button type="button" className="link-btn" onClick={resend} disabled={seconds > 0 || request.isPending}>
           {seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
         </button>
-        <button type="button" className="text-link" onClick={editEmail}>{t('auth.changeEmail')}</button>
+        <button type="button" className="link-btn" onClick={editEmail}>{t('auth.changeEmail')}</button>
       </div>
     </form>
   )
@@ -202,12 +200,6 @@ export default function SignIn() {
   }, [me, navigate, params])
 
   return (
-    <div className="fridge">
-      <Freezer />
-      <main id="main" className="door door--center">
-        <span className="door__handle" aria-hidden="true" />
-        {step === 'code' ? <CodeStep /> : <EmailStep />}
-      </main>
-    </div>
+    <AuthLayout>{step === 'code' ? <CodeStep /> : <EmailStep />}</AuthLayout>
   )
 }

@@ -1,20 +1,20 @@
-import { useId, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, PenLine, X } from 'lucide-react'
+import { Check, Sparkles, X } from 'lucide-react'
 import { ApiError } from '../../api/client'
 import { useAllowance, useAsk, useKeep, type AskResult, type Spark } from '../../api/sparks'
 import { useDeckStore } from '../../stores/deck'
 import { useUiStore } from '../../stores/ui'
-import { MagnetButton } from '../../components/Magnet'
+import { Button } from '../../components/Button'
 import { RiddleAnswer } from './RitualCard'
 
 const THEME_MAX = 60
 
-/** The yellow notepad: ask the AI (Microsoft Foundry in prod, free seed remix in dev) for fresh cards. */
-export function AskFridge() {
+/** Fresh cards on request: Microsoft Foundry in prod, a free seed remix in dev. Every card is labelled and kept or dismissed. */
+export function AskPanel() {
   const { t, i18n } = useTranslation()
   const locale = useUiStore((s) => s.locale)
-  const { audience, tone, kind, kidsSafe, pin } = useDeckStore()
+  const pin = useDeckStore((s) => s.pin)
   const allowance = useAllowance()
   const ask = useAsk()
   const keep = useKeep()
@@ -31,14 +31,15 @@ export function AskFridge() {
 
   const remaining = result?.remainingToday ?? allowance.data?.remainingToday
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault()
+  const runAsk = async (themeText: string) => {
     if (remaining === 0 || ask.isPending) return
     setError(null)
     setThemeInvalid(false)
     try {
       setAskedLang(locale)
-      const r = await ask.mutateAsync({ lang: locale, audience, tone, kind, kidsSafe, theme: theme.trim() || undefined })
+      // Read the filters at call time: an Ask circloo plan may have just changed them.
+      const f = useDeckStore.getState()
+      const r = await ask.mutateAsync({ lang: locale, audience: f.audience, tone: f.tone, kind: f.kind, kidsSafe: f.kidsSafe, theme: themeText.trim() || undefined })
       setResult(r)
       setKept([])
       setDismissed([])
@@ -56,6 +57,21 @@ export function AskFridge() {
       else setError(t('ice.ask.errors.unavailable'))
     }
   }
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    void runAsk(theme)
+  }
+
+  // A checked Ask circloo plan can request fresh cards about a theme: fill it in and ask, once.
+  const pendingAsk = useDeckStore((s) => s.pendingAsk)
+  useEffect(() => {
+    if (pendingAsk === null || allowance.isPending) return
+    useDeckStore.getState().requestAsk(null)
+    setTheme(pendingAsk)
+    void runAsk(pendingAsk)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAsk, allowance.isPending])
 
   const keepOne = async (index: number) => {
     if (!result) return
@@ -75,18 +91,22 @@ export function AskFridge() {
     const at = visible.findIndex((i) => i.index === index)
     setDismissed((d) => [...d, index])
     requestAnimationFrame(() => {
-      const actions = listRef.current?.querySelectorAll<HTMLButtonElement>('.fresh-card .mini-magnet--cobalt')
+      const actions = listRef.current?.querySelectorAll<HTMLButtonElement>('.fresh-card__keep')
       ;(actions?.[Math.min(at, (actions?.length ?? 1) - 1)] ?? themeRef.current)?.focus()
     })
   }
 
   return (
-    <section className="notepad" aria-labelledby="ask-title">
-      <span className="pin-magnet pin-magnet--tomato" aria-hidden="true" />
-      <h2 id="ask-title" className="notepad__title">{t('ice.ask.title')}</h2>
-      <p className="notepad__lead">{t('ice.ask.lead')}</p>
-      <form onSubmit={submit} className="notepad__form" noValidate>
-        <label className="notepad__field">
+    <section className="panel panel--ai ask-panel" aria-labelledby="ask-title">
+      <div className="panel__head">
+        <h2 id="ask-title" className="panel__title">
+          <span className="ai-mark" aria-hidden="true"><Sparkles size={14} /></span>
+          {t('ice.ask.title')}
+        </h2>
+      </div>
+      <p className="ask-panel__lead">{t('ice.ask.lead')}</p>
+      <form onSubmit={submit} className="ask-panel__form" noValidate>
+        <label className="ask-panel__field">
           <span>{t('ice.ask.themeLabel')}</span>
           <input
             ref={themeRef}
@@ -99,11 +119,11 @@ export function AskFridge() {
             autoComplete="off"
           />
         </label>
-        <div className="notepad__row">
-          <MagnetButton type="submit" color="cobalt" icon={<PenLine size={18} strokeWidth={2.5} />} busy={ask.isPending} aria-disabled={remaining === 0 || undefined}>
+        <div className="ask-panel__row">
+          <Button type="submit" variant="ai" icon={<Sparkles size={16} strokeWidth={2.25} />} busy={ask.isPending} aria-disabled={remaining === 0 || undefined}>
             {ask.isPending ? t('ice.ask.asking') : t('ice.ask.ask')}
-          </MagnetButton>
-          {remaining !== undefined ? <span className="notepad__allowance">{t('ice.ask.remaining', { count: remaining })}</span> : null}
+          </Button>
+          {remaining !== undefined ? <span className="ask-panel__allowance">{t('ice.ask.remaining', { count: remaining })}</span> : null}
         </div>
       </form>
       {error ? <p id={errorId} className="field__error" role="alert">{error}</p> : null}
@@ -114,17 +134,17 @@ export function AskFridge() {
             const isKept = kept.includes(item.index)
             return (
               <li key={item.index} className={`fresh-card${isKept ? ' is-kept' : ''}`} lang={askedLang}>
-                <span className="fresh-card__ai">{t('ice.ask.aiLabel')}</span>
+                <span className="lozenge lozenge--ai">{t('ice.ask.aiLabel')}</span>
                 <p dir="auto">{item.text}</p>
                 {item.answer ? <RiddleAnswer answer={item.answer} lang={askedLang} /> : null}
                 <div className="fresh-card__actions">
-                  <button type="button" className="mini-magnet mini-magnet--cobalt" aria-disabled={isKept || undefined} onClick={() => { if (!isKept) void keepOne(item.index) }}>
+                  <button type="button" className="mini-btn mini-btn--keep fresh-card__keep" aria-disabled={isKept || undefined} onClick={() => { if (!isKept) void keepOne(item.index) }}>
                     <Check size={16} strokeWidth={3} aria-hidden="true" /> {isKept ? t('ice.ask.kept') : t('ice.ask.keep')}
                   </button>
                   {!isKept ? (
                     <button
                       type="button"
-                      className="mini-magnet mini-magnet--paper"
+                      className="mini-btn"
                       aria-label={t('ice.ask.dismiss')}
                       onClick={() => dismiss(item.index)}
                     >

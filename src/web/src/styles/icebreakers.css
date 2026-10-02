@@ -1,641 +1,427 @@
-/* ───────── Icebreakers: the ritual line (surface brief: src-web-src-features-icebreakers) ───────── */
-
-/* Filter magnets: three small single-choice groups and a kids switch along the top of the door */
-.filter-bar {
+/* ---------- Filter toolbar ---------- */
+.toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: var(--s-4) var(--s-6);
-  margin-block-end: var(--s-6);
+  align-items: flex-end;
+  gap: var(--s-3) var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
 }
-.choice-magnets {
-  --on-face: var(--cobalt);
-  --on-rim: var(--cobalt-rim);
-  --on-label: #ffffff;
-  display: grid;
-  gap: var(--s-2);
-}
-.choice-magnets--tomato { --on-face: var(--tomato); --on-rim: var(--tomato-rim); }
-.choice-magnets--sunflower { --on-face: var(--sunflower); --on-rim: var(--sunflower-rim); --on-label: var(--ink); }
-.choice-magnets--ink { --on-face: var(--ink-magnet); --on-rim: #000000; --on-label: var(--sunflower); }
-.choice-magnets__label {
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--ink-soft);
-}
-.choice-magnets__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-.choice-magnet {
-  --rim: #8f9f6c;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-block-size: 2.6rem;
-  padding: 0.35rem 0.85rem;
-  border: 0;
-  border-radius: 11px;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--step--1);
-  cursor: pointer;
-  box-shadow: 0 3px 0 var(--rim), 0 6px 9px -3px rgb(36 48 10 / 0.45);
-  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background 140ms;
-}
-.choice-magnet:hover {
-  transform: translateY(-1px) rotate(-1.5deg);
-}
-.choice-magnet[aria-pressed='true'] {
-  --rim: var(--on-rim);
-  background: var(--on-face);
-  color: var(--on-label);
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45);
-}
-.choice-magnet__icon {
-  display: inline-flex;
+.toolbar .switch {
+  margin-inline-start: auto;
 }
 
-/* Kids switch: a slide magnet on a groove */
-.kids-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  min-block-size: 2.6rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-weight: 600;
-  color: var(--ink);
-  cursor: pointer;
-}
-.kids-switch__track {
-  position: relative;
-  inline-size: 3rem;
-  block-size: 1.6rem;
-  border-radius: 999px;
-  background: var(--enamel-deep);
-  box-shadow: inset 0 2px 0 var(--groove);
-}
-.kids-switch__knob {
-  position: absolute;
-  inset-block-start: 0.15rem;
-  inset-inline-start: 0.2rem;
-  inline-size: 1.3rem;
-  block-size: 1.3rem;
-  border-radius: 50%;
-  background: var(--paper);
-  box-shadow: 0 2px 0 #8f9f6c;
-  transition: inset-inline-start 180ms var(--ease-out), background 180ms;
-}
-.kids-switch[aria-pressed='true'] .kids-switch__knob {
-  inset-inline-start: 1.5rem;
-  background: var(--sunflower);
-  box-shadow: 0 2px 0 var(--sunflower-rim);
-}
-
-/* Door layout: the board (card + line) and the notepad pinned at the inline end */
-.ritual-door {
+/* ---------- Layout: board (card + round) with fresh AI cards at the side ---------- */
+.ice {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(0, 0.85fr);
-  gap: var(--s-7) var(--s-7);
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
   align-items: start;
+  gap: var(--s-5);
 }
-.ritual-board {
-  display: grid;
-  gap: var(--s-6);
-}
-.ritual-board__full {
-  justify-self: end;
-}
-
-/* The big card */
-.ritual-card {
-  position: relative;
-  background-color: var(--paper);
-  background-image: repeating-linear-gradient(to bottom, transparent 0 calc(2.4rem - 1px), var(--paper-line) calc(2.4rem - 1px) 2.4rem);
-  background-position: 0 4rem;
-  border-radius: var(--radius-paper);
-  box-shadow: var(--shadow-paper);
-  padding: var(--s-7) var(--s-7) var(--s-6);
-  padding-inline-start: calc(var(--s-7) + 1.2rem);
+.ice__board {
   display: grid;
   gap: var(--s-5);
-  min-block-size: 22rem;
-  rotate: -0.8deg;
+  min-inline-size: 0;
 }
-.ritual-card::before {
-  content: '';
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 2.6rem;
-  inline-size: 2px;
-  background: var(--paper-margin);
-  opacity: 0.7;
-}
-.ritual-card__body {
-  display: grid;
-  gap: var(--s-4);
+.ice__board.is-full {
   align-content: center;
-  min-block-size: 11rem;
+  padding: var(--s-8);
+  background: var(--bg);
+  overflow: auto;
 }
-.ritual-card__question {
-  font-size: var(--step-4);
-  line-height: 1.08;
+.ice__side {
+  position: sticky;
+  inset-block-start: calc(var(--topbar-h) + var(--s-5));
+  min-inline-size: 0;
 }
-.ritual-card__question.is-dealt {
-  animation: card-deal 520ms var(--ease-out);
-  transform-origin: 50% -2rem;
+
+/* ---------- The current card ---------- */
+.deal__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
 }
-.ritual-card__message {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--step-2);
-  color: var(--ink-on-paper-soft);
+.deal__error {
+  padding: var(--s-3) var(--s-5) 0;
 }
-.ritual-card__answer {
+.deal__body {
+  display: grid;
+  gap: var(--s-3);
+  align-content: center;
+  min-block-size: 9rem;
+  padding: var(--s-6) var(--s-5);
+}
+.deal__question {
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.deal__question:lang(ar) {
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+.deal__question.is-dealt {
+  animation: rise-in 300ms var(--ease-out);
+}
+.deal--big .deal__question {
+  font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
+}
+.deal__message {
+  color: var(--text-subtle);
+}
+.deal__note {
+  font-size: var(--fs-sm);
+  color: var(--text-subtlest);
+}
+.deal__answer {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-weight: 500;
+}
+.deal__reveal {
   justify-self: start;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--step-2);
-  color: var(--cobalt);
-  background: var(--sticky-yellow);
-  padding: var(--s-1) var(--s-3);
-  rotate: -2deg;
 }
-.ritual-card__reveal {
-  justify-self: start;
-  font-size: var(--step-1);
-}
-.ritual-card__note {
-  font-size: var(--step--1);
-  color: var(--ink-on-paper-soft);
-}
-.ritual-card__actions {
+.deal__actions {
   display: flex;
   align-items: center;
-  gap: var(--s-4);
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-5);
+  border-block-start: 1px solid var(--border);
+  background: var(--surface-sunken);
+  border-end-start-radius: var(--r-md);
+  border-end-end-radius: var(--r-md);
 }
-
-.fresh-stamp {
-  position: absolute;
-  inset-block-start: var(--s-5);
-  inset-inline-end: var(--s-5);
-  padding: 0.2rem 0.7rem;
-  border: 3px double var(--tomato);
-  border-radius: 6px;
-  color: var(--tomato-rim);
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--step--1);
-  rotate: 7deg;
-}
-
-.heart-magnet {
-  --rim: #8f9f6c;
+.heart {
   display: grid;
   place-items: center;
-  inline-size: 3.2rem;
-  block-size: 3.2rem;
-  border: 0;
-  border-radius: 50%;
-  background: var(--paper);
-  color: var(--tomato);
-  cursor: pointer;
-  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5);
-  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background 140ms;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-subtle);
 }
-.heart-magnet:hover {
-  transform: translateY(-1px) scale(1.05);
+.heart:hover {
+  background: var(--surface-hover);
+  color: var(--danger-text);
 }
-.heart-magnet[aria-pressed='true'] {
-  --rim: var(--tomato-rim);
-  background: var(--tomato);
-  color: #ffffff;
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--rim), 0 3px 5px -2px rgb(36 48 10 / 0.45);
+.heart[aria-pressed='true'] {
+  border-color: var(--danger-subtle);
+  background: var(--danger-subtle);
+  color: var(--danger-text);
 }
-.heart-magnet[aria-pressed='true'] svg {
-  fill: currentcolor;
-  animation: heart-pop 320ms var(--ease-out);
+.heart[aria-pressed='true'] svg {
+  fill: currentColor;
 }
-@keyframes heart-pop {
-  0% { scale: 0.6; }
-  60% { scale: 1.25; }
-  100% { scale: 1; }
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
 }
 
-/* The ritual line: a chrome magnetic strip with everyone in the room */
-.ritual-line {
-  display: grid;
-  gap: var(--s-4);
-}
-.ritual-line__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--s-3) var(--s-5);
-}
-.ritual-line__title {
-  font-size: var(--step-2);
-}
-.ritual-line__strip {
-  position: relative;
-  padding: var(--s-4) var(--s-4) var(--s-3);
-  border-radius: 12px;
-  background: var(--chrome);
-  box-shadow: inset 0 3px 0 var(--chrome-hi), inset 0 -3px 0 var(--chrome-lo), 0 8px 14px -8px rgb(36 48 10 / 0.5);
-}
-.ritual-line__strip {
+/* ---------- The round ---------- */
+.line__strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-3);
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5) 0;
 }
-.name-magnets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-3);
-  min-block-size: 3.4rem;
+.swimmers {
+  display: contents;
 }
-.name-magnet {
-  --face: var(--paper);
-  --rim: #8f9f6c;
-  position: relative;
+.swimmer {
   display: inline-flex;
   align-items: center;
   gap: var(--s-1);
-  padding: 0.45rem 0.4rem 0.45rem 0.9rem;
-  border-radius: 12px;
-  background: var(--face);
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--step-1);
-  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5);
-  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out), opacity 260ms, background 260ms;
+  min-block-size: 2.25rem;
+  padding-block: 0.15rem;
+  padding-inline: 0.75rem 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
 }
-[dir='rtl'] .name-magnet {
-  padding: 0.45rem 0.9rem 0.45rem 0.4rem;
+.swimmer.is-now {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
 }
-.name-magnet:nth-child(3n + 1) { rotate: -2deg; }
-.name-magnet:nth-child(3n + 2) { rotate: 1.5deg; }
-.name-magnet:nth-child(3n) { rotate: -0.5deg; }
-.name-magnet.is-now {
-  --face: var(--tomato);
-  --rim: var(--tomato-rim);
-  color: #ffffff;
-  rotate: -3deg;
-  transform: translateY(-0.7rem) scale(1.14);
-  box-shadow: 0 5px 0 var(--rim), 0 22px 22px -8px rgb(36 48 10 / 0.55);
-  z-index: 1;
+.swimmer.is-done {
+  background: var(--surface-sunken);
+  color: var(--text-subtlest);
+  text-decoration: line-through;
 }
-.name-magnet.is-done {
-  opacity: 0.55;
-  transform: translateY(0.15rem);
-}
-.name-magnet__remove,
-.name-magnet__add {
+.swimmer__remove,
+.swimmer__add {
   display: grid;
   place-items: center;
-  inline-size: 1.8rem;
-  block-size: 1.8rem;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: inherit;
-  cursor: pointer;
 }
-.name-magnet__remove:hover,
-.name-magnet__add:hover {
-  background: rgb(27 31 28 / 0.08);
+.swimmer__remove:hover,
+.swimmer__add:hover {
+  background: var(--surface-hover);
 }
-.name-magnet--add {
-  --face: transparent;
-  box-shadow: none;
-  outline: 2.5px dashed var(--chrome-lo);
-  outline-offset: -2px;
-  padding-block: 0.25rem;
+.swimmer.is-now .swimmer__remove:hover {
+  background: rgb(255 255 255 / 0.18);
 }
-.name-magnet--add {
-  display: flex;
-  align-items: center;
+.swimmer--add {
+  padding-inline: 0.2rem;
+  border-style: dashed;
+  border-color: var(--border-strong);
 }
-.name-magnet--add input {
+.swimmer--add:focus-within {
+  border-style: solid;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 1px var(--focus);
+}
+.swimmer--add input {
   inline-size: 9rem;
+  min-block-size: 1.75rem;
+  padding-inline: 0.6rem;
   border: 0;
   background: transparent;
-  font: inherit;
-  font-size: var(--step-0);
-  color: var(--ink);
-}
-.name-magnet--add input::placeholder {
-  color: #4f5a5e;
-}
-.name-magnet--add input:focus-visible {
   outline: none;
 }
-.name-magnet--add:focus-within {
-  outline-color: var(--cobalt);
-  outline-style: solid;
+.line > .field__error {
+  padding: var(--s-2) var(--s-5) 0;
 }
-
-.ritual-line__controls {
+.line__controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-3) var(--s-5);
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5);
 }
-.ritual-line__hint {
-  color: var(--ink-soft);
+.line__hint {
+  color: var(--text-subtle);
+}
+.line__turn {
+  margin-inline-end: auto;
+  font-size: var(--fs-xl);
   font-weight: 600;
 }
-.ritual-line__turn {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--step-2);
+.line__who {
+  color: var(--primary-text);
 }
-.ritual-line__who {
-  color: var(--tomato-rim);
+.turn-timer {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 4.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--border);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-.ritual-line__keys kbd {
-  display: inline-block;
-  padding: 0 0.4em;
-  border: 1.5px solid currentcolor;
-  border-radius: 5px;
-  font: inherit;
-  font-weight: 700;
+.turn-timer.is-ringing {
+  background: var(--danger-subtle);
+  color: var(--danger-text);
+  box-shadow: inset 0 0 0 1px var(--danger);
 }
-/* Shortcuts only mean something with a keyboard. */
+.line__keys {
+  padding: 0 var(--s-5) var(--s-4);
+  font-size: var(--fs-sm);
+  color: var(--text-subtlest);
+}
 @media (hover: none) and (pointer: coarse) {
-  .ritual-line__keys {
+  .line__keys {
     display: none;
   }
 }
-.ritual-line__keys {
-  flex-basis: 100%;
-  font-size: var(--step--1);
-  color: var(--ink-soft);
-}
-.kitchen-timer {
-  --rim: var(--sunflower-rim);
-  display: grid;
-  place-items: center;
-  inline-size: 4.2rem;
-  block-size: 4.2rem;
-  border-radius: 50%;
-  background: var(--sunflower);
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--step-1);
-  font-variant-numeric: tabular-nums;
-  direction: ltr;
-  box-shadow: 0 4px 0 var(--rim), 0 9px 14px -4px rgb(36 48 10 / 0.5), inset 0 0 0 4px rgb(255 255 255 / 0.55);
-}
-.kitchen-timer.is-ringing {
-  animation: timer-ring 600ms var(--ease-out) 3;
-}
-@keyframes timer-ring {
-  0%, 100% { rotate: 0deg; }
-  25% { rotate: -9deg; }
-  75% { rotate: 9deg; }
-}
 
-/* Big screen: readable from 3 m (SC-104) */
-.ritual-board.is-full {
-  background: var(--enamel);
-  padding: clamp(1.5rem, 4vw, 4rem);
-  align-content: center;
-  overflow: auto;
+/* ---------- Fresh cards (AI) ---------- */
+.ask-panel__lead {
+  padding: var(--s-4) var(--s-5) 0;
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
 }
-.ritual-board.is-full .ritual-card__question {
-  font-size: clamp(3rem, 5.5vw, 6rem);
-}
-.ritual-board.is-full .name-magnet {
-  font-size: var(--step-2);
-}
-
-/* Ask the fridge: a yellow notepad pinned at the inline end */
-.notepad {
-  position: relative;
+.ask-panel__form {
   display: grid;
   gap: var(--s-3);
-  background: var(--sticky-yellow);
-  border-radius: 2px 2px 22px 2px;
-  box-shadow: var(--shadow-paper);
-  padding: var(--s-7) var(--s-5) var(--s-5);
-  border-block-start: 14px solid var(--tomato);
-  rotate: 1.2deg;
+  padding: var(--s-4) var(--s-5);
 }
-[dir='rtl'] .notepad {
-  border-radius: 2px 2px 2px 22px;
-}
-.notepad__title {
-  font-size: var(--step-2);
-}
-.notepad__lead {
-  font-size: var(--step--1);
-}
-.notepad__form {
-  display: grid;
-  gap: var(--s-3);
-}
-.notepad__field {
+.ask-panel__field {
   display: grid;
   gap: var(--s-1);
+  font-size: var(--fs-sm);
   font-weight: 600;
-  font-size: var(--step--1);
+  color: var(--text-subtle);
 }
-.notepad__field input {
-  border: 0;
-  border-block-end: 2px solid var(--ink);
-  background: transparent;
-  padding: var(--s-1) 0;
-  font-family: var(--font-display);
-  font-size: var(--step-1);
-}
-.notepad__field input::placeholder {
-  color: #6f6440;
-}
-.notepad__field input:focus-visible {
-  outline: 3px solid var(--cobalt);
-  outline-offset: 4px;
-}
-.notepad__row {
+.ask-panel__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: var(--s-3);
 }
-.notepad__allowance {
-  font-size: var(--step--1);
-  font-weight: 600;
+.ask-panel__allowance {
+  font-size: var(--fs-sm);
+  color: var(--text-subtlest);
+  font-variant-numeric: tabular-nums;
+}
+.ask-panel > .field__error {
+  padding: 0 var(--s-5) var(--s-3);
 }
 .fresh-list {
   display: grid;
-  gap: var(--s-3);
-  margin-block-start: var(--s-2);
+  border-block-start: 1px solid var(--border);
 }
 .fresh-card {
   display: grid;
   gap: var(--s-2);
-  background: var(--paper);
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--radius-paper);
-  box-shadow: var(--shadow-paper);
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.3;
-  animation: card-deal 420ms var(--ease-out) both;
+  padding: var(--s-4) var(--s-5);
+  border-block-end: 1px solid var(--border);
+  animation: rise-in 240ms var(--ease-out) backwards;
 }
-.fresh-card:nth-child(2) { animation-delay: 70ms; rotate: 0.8deg; }
-.fresh-card:nth-child(3) { animation-delay: 140ms; rotate: -0.6deg; }
-.fresh-card:nth-child(4) { animation-delay: 210ms; rotate: 0.5deg; }
-.fresh-card:nth-child(5) { animation-delay: 280ms; rotate: -0.9deg; }
-.fresh-card.is-kept {
-  background: #f1f9e4;
+.fresh-card:last-child {
+  border-block-end: 0;
 }
-.fresh-card__answer {
-  color: var(--cobalt);
-  font-size: var(--step--1);
+.fresh-card:nth-child(2) {
+  animation-delay: 40ms;
+}
+.fresh-card:nth-child(3) {
+  animation-delay: 80ms;
+}
+.fresh-card:nth-child(n + 4) {
+  animation-delay: 120ms;
+}
+.fresh-card .lozenge {
+  justify-self: start;
 }
 .fresh-card__actions {
   display: flex;
   gap: var(--s-2);
 }
-.mini-magnet {
-  --face: var(--paper);
-  --rim: #8f9f6c;
+.mini-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  min-block-size: 2.2rem;
-  min-inline-size: 2.2rem;
-  justify-content: center;
+  gap: var(--s-1);
+  min-block-size: 2rem;
   padding: 0.25rem 0.7rem;
-  border: 0;
-  border-radius: 10px;
-  background: var(--face);
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--step--1);
-  cursor: pointer;
-  box-shadow: 0 3px 0 var(--rim), 0 6px 9px -3px rgb(36 48 10 / 0.45);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
 }
-.mini-magnet--cobalt {
-  --face: var(--cobalt);
-  --rim: var(--cobalt-rim);
-  color: #ffffff;
+.mini-btn:hover {
+  background: var(--surface-hover);
 }
-.mini-magnet:disabled {
+.mini-btn--keep {
+  border-color: transparent;
+  background: var(--ai);
+  color: var(--on-ai);
+}
+.mini-btn--keep:hover {
+  background: var(--ai-hover);
+}
+.fresh-card.is-kept .mini-btn--keep {
+  background: var(--success-subtle);
+  color: var(--success-text);
   cursor: default;
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--rim);
 }
 
-/* Keepers shelf */
-.keepers {
-  margin-block-start: var(--s-9);
-  display: grid;
-  gap: var(--s-5);
+/* ---------- Keepers ---------- */
+.keepers .seg__track {
+  flex-wrap: nowrap;
 }
-.keepers__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--s-3) var(--s-6);
-}
-.keepers__title {
-  font-size: var(--step-3);
+.keepers > .field__error {
+  padding: var(--s-3) var(--s-5) 0;
 }
 .keepers__empty {
-  justify-self: start;
-  background: var(--paper);
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--radius-paper);
-  box-shadow: var(--shadow-paper);
-  rotate: -0.6deg;
+  padding: var(--s-6) var(--s-5);
+  color: var(--text-subtlest);
+  text-align: center;
 }
-.keeper-notes {
+.keepers__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-  gap: var(--s-5);
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5) var(--s-5);
 }
-.keeper-note {
-  position: relative;
+.keeper {
   display: flex;
-  align-items: start;
-  gap: var(--s-2);
-  background: var(--sticky-blue);
-  padding: var(--s-4);
-  border-radius: 2px 2px 14px 2px;
-  box-shadow: var(--shadow-paper);
+  align-items: flex-start;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
 }
-[dir='rtl'] .keeper-note {
-  border-radius: 2px 2px 2px 14px;
+.keeper:hover {
+  border-color: var(--border-strong);
 }
-.keeper-note--joke { background: var(--sticky-pink); }
-.keeper-note--riddle { background: var(--sticky-yellow); }
-.keeper-note--would-you-rather { background: var(--paper); }
-.keeper-note:nth-child(odd) { rotate: -1.2deg; }
-.keeper-note:nth-child(even) { rotate: 1deg; }
-.keeper-note__open {
+.keeper__open {
   flex: 1;
+  padding: var(--s-2) var(--s-3);
   border: 0;
+  border-radius: var(--r-sm);
   background: none;
-  padding: 0;
+  color: var(--text);
   text-align: start;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--step-0);
-  line-height: 1.3;
-  color: var(--ink);
-  cursor: pointer;
+  line-height: 1.45;
 }
-.keeper-note__icon {
+.keeper__open:hover {
+  background: var(--surface-hover);
+}
+.keeper__icon {
   display: grid;
   place-items: center;
-  inline-size: 2.2rem;
-  block-size: 2.2rem;
+  inline-size: 2rem;
+  block-size: 2rem;
+  flex: none;
   border: 0;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.7);
-  color: var(--tomato-rim);
-  cursor: pointer;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--danger-text);
+}
+.keeper__icon:hover {
+  background: var(--danger-subtle);
+}
+.keeper__icon[aria-pressed='true'] svg {
+  fill: currentColor;
 }
 
-@media (max-width: 63.99rem) {
-  .ritual-door {
+/* ---------- Adaptive ---------- */
+@media (max-width: 70rem) {
+  .ice {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-@media (max-width: 39.99rem) {
-  .ritual-card {
-    padding: var(--s-6) var(--s-4) var(--s-5);
-    padding-inline-start: calc(var(--s-4) + 1.4rem);
-    min-block-size: 18rem;
-  }
-  .ritual-card::before {
-    inset-inline-start: 1.6rem;
-  }
-  .ritual-card__question {
-    font-size: var(--step-3);
+  .ice__side {
+    position: static;
   }
 }
-
-/* Every AI card says so itself (spec 2.2), not only the notepad's intro. */
-.fresh-card__ai {
-  display: inline-block;
-  margin-block-end: var(--s-1);
-  padding: 0 0.5rem;
-  border: 1.5px solid currentcolor;
-  border-radius: 999px;
-  font-size: var(--step--1);
-  font-weight: 600;
+@media (max-width: 36rem) {
+  .toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .toolbar .select {
+    min-inline-size: 0;
+  }
+  .toolbar .switch {
+    margin-inline-start: 0;
+  }
+  .deal__actions .btn {
+    flex: 1;
+  }
 }

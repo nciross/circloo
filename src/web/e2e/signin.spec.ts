@@ -10,7 +10,7 @@ test('a visitor signs up with a one-time code, sets a name and reaches home (US2
   await pickLanguage(page, locale)
 
   await page.locator('input[type=email]').fill(email)
-  await page.locator('form .magnet').click()
+  await page.locator('form button[type=submit]').click()
   await expect(page.locator('input[autocomplete=one-time-code]')).toBeFocused()
 
   const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze()
@@ -35,7 +35,8 @@ test('a visitor signs up with a one-time code, sets a name and reaches home (US2
   await expect(page.getByRole('heading', { level: 1 })).toContainText(name)
 
   // Sign out ends the session; app URLs need sign-in again.
-  await page.locator('.account .magnet--ink').click()
+  await page.locator('.account__trigger').click()
+  await page.locator('.account__signout').click()
   await expect(page).toHaveURL(/\/$/)
   await page.goto('/app')
   await expect(page).toHaveURL(/\/signin/)

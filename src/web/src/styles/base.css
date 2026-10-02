@@ -5,44 +5,44 @@
 }
 
 html {
-  color-scheme: light;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scrollbar-color: var(--enamel-shade) var(--enamel-deep);
-  background: var(--enamel);
+  scroll-padding-block-start: calc(var(--topbar-h) + var(--s-4));
+  scrollbar-color: var(--border-strong) transparent;
+  background: var(--bg);
 }
 
 body {
   margin: 0;
   min-height: 100dvh;
-  font-family: var(--font-text);
-  font-size: var(--step-0);
+  font-family: var(--font);
+  font-size: var(--fs-md);
   line-height: 1.55;
-  color: var(--ink);
-  background: var(--enamel);
-  caret-color: var(--tomato);
+  color: var(--text);
+  background: var(--bg);
+  caret-color: var(--primary);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
 
 h1,
 h2,
-h3 {
-  font-family: var(--font-display);
-  line-height: 1.05;
-  font-weight: 800;
+h3,
+h4 {
   margin: 0;
-  text-wrap: balance;
+  font-weight: 600;
+  line-height: 1.2;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
-/* Arabic display: no negative tracking, a touch more line height for the dots and marks */
 :lang(ar) h1,
 :lang(ar) h2,
-:lang(ar) h3 {
+:lang(ar) h3,
+:lang(ar) h4 {
   letter-spacing: 0;
-  line-height: 1.25;
+  line-height: 1.4;
 }
 
 p {
@@ -58,9 +58,17 @@ ol {
 }
 
 a {
-  color: inherit;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.22em;
+  color: var(--primary-text);
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+a:hover {
+  text-decoration: underline;
+}
+/* Links inside running text are underlined, never colour alone (WCAG 1.4.1) */
+p a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
 }
 
 img,
@@ -77,27 +85,51 @@ select {
   color: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+kbd {
+  display: inline-block;
+  padding: 0 0.4em;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-subtle);
+  font-family: var(--font);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
 ::selection {
-  background: var(--sunflower);
-  color: var(--ink);
+  background: var(--primary-subtle-hover);
+  color: var(--text);
 }
 
 :focus-visible {
-  outline: 3px solid var(--cobalt);
-  outline-offset: 3px;
-  border-radius: 6px;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+::placeholder {
+  color: var(--text-subtlest);
+  opacity: 1;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  inline-size: 10px;
+  block-size: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--enamel-deep);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--enamel-shade);
-  border-radius: 12px;
-  border: 3px solid var(--enamel-deep);
+  background: var(--border-strong);
+  border-radius: 10px;
+  border: 2px solid var(--bg);
 }
 
 .visually-hidden {
@@ -116,21 +148,28 @@ select {
   position: absolute;
   inset-inline-start: var(--s-4);
   inset-block-start: -100px;
-  z-index: 10;
-  background: var(--paper);
-  color: var(--ink);
+  z-index: 100;
   padding: var(--s-2) var(--s-4);
-  border-radius: var(--radius-paper);
-  box-shadow: var(--shadow-paper);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-overlay);
   font-weight: 600;
 }
 .skip-link:focus {
-  inset-block-start: var(--s-3);
+  inset-block-start: var(--s-2);
 }
 
 /* Directional icons mirror in RTL */
 [dir='rtl'] .flip-rtl {
   transform: scaleX(-1);
+}
+
+/* Page changes cross-fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -143,6 +182,11 @@ select {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

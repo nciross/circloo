@@ -7,23 +7,28 @@ related_targets: []
 
 # Surface brief: circloo web (landing + app shell)
 
-**Scope**: public landing `/` (Persuade), sign-in `/signin`, welcome `/app/welcome`, home `/app` (Operate, inheriting the same world).
-**Audience**: families spread across languages, friend groups, small teams. Job: understand circloo in seconds, play one icebreaker, start a circle.
-**Proof/content**: real seed sparks (content/fun), example check-ins labelled as examples, integrations honestly "coming soon". No testimonials, logos or metrics.
-**Constraints**: en/fr/ar(RTL)/es, strict CSP (no inline style/script, self-hosted fonts), WCAG 2.2 AA, reduced motion.
-**Memorable moment**: the visitor drags a magnet letter of "circloo" across the door and shakes the fridge to deal a new icebreaker.
-**Unresolved**: a real product photo or illustration set to come later. All demo content is authored and labelled.
+**Scope**: public landing `/` (Persuade); sign-in, welcome, home, settings, icebreakers and not-found (Operate, inheriting the same world). Replaces the fridge-door world (issue #60).
+**Audience**: families spread across languages, friend groups, small teams. Job: understand circloo in seconds, play one icebreaker, start a circle. In the app: check in, run an icebreaker round, and ask circloo for things in plain words.
+**Proof/content**: real seed sparks (content/fun); example check-ins and boards labelled as examples; integrations honestly "coming soon". No testimonials, logos or metrics.
+**Constraints**: en/fr/ar(RTL)/es, strict CSP (no inline style/script, self-hosted fonts), WCAG 2.2 AA, reduced motion, light and night themes.
+**Memorable moment**: the visitor taps the water and a ring of ripples spreads: the circloo mark coming alive. Dealing a new icebreaker drops it into the pool with the same ring.
+**Software 3.0**: the Ask bar (Ctrl/⌘ K) on every app screen turns plain words into a plan the person checks before it runs. AI output always lands as cards to keep or dismiss, labelled "Suggested by AI", and an autonomy setting (Off / Suggest) governs inline suggestions.
+**Unresolved**: no photography yet; every illustration is drawn in code or SVG.
 
-## Direction contract
+## Direction contract (revised, issue #60)
 
-THESIS: circloo is the door of your circle's fridge: the one shared surface where a family or a team leaves moods, notes, jokes and plans. It refuses the SaaS hero with three feature cards. Every section is something stuck to the door.
+THESIS: circloo is a serious collaboration tool with a warm face. The chrome follows the enterprise
+platforms teams already trust (Jira, Linear, Notion): left sidebar, top bar with Ask circloo, panels,
+tables, lozenges, in calm neutrals with one action blue. The lido and fridge worlds are retired; the
+owner asked for "Jira or enterprise platform with nice design".
 
-OWN-WORLD: drenched pistachio enamel door (ground), with chunky plastic alphabet magnets in tomato, cobalt, sunflower and ink. Papers are crisp white index cards, sticky yellow and pink. Three depth planes (door, paper, magnet) each have their own hard offset shadow. A chrome handle and a rubber seal on the inline-end edge. Baloo Bhaijaan 2 is the magnet-letter display face (Latin and Arabic), Rubik the text face.
+OWN-WORLD: the face. The last "oo" of the wordmark are eyes, with a coral mouth that follows the five
+check-in moods; it blinks and watches the pointer. People (avatars, characters) and content (cards,
+jokes) carry colour; violet is reserved for AI.
 
-STORY: the visitor sees a fridge door that is clearly theirs-to-be, understands the three jobs (feel, work, have fun), plays a live icebreaker, sees honest "coming soon" integrations postcards, then taps the tomato magnet "Start your circle".
+FIRST VIEWPORT: a big confident headline and lead at inline-start, a real product preview in its app
+frame at inline-end (live icebreaker + example check-ins). Then features with an interactive mood demo,
+integrations (coming soon), how it works, one pricing plan, and a navy final call.
 
-FIRST VIEWPORT: inline-start ~55%: "circloo" spelled in big multicolour draggable magnet letters, under it a white paper strip held by a magnet with the headline, the 4-language line, then the tomato CTA magnet. Inline-end ~45%: a tilted index card held by a cobalt magnet carrying a live icebreaker with a "Shake the fridge" button, and below it an example check-in strip with four names. A top strip of four language magnets (EN FR ع ES) and a "Sign in" magnet. The handle runs vertically at the inline-end edge.
-
-FORM: grounded candidate 3 of 7 (fridge door). Seed key dbf88a9b. Raises: Neubrutalist (competitive): buttons are magnets on hard offset shadows that snap into them on press, and one grid locks the door. HyperCard (declined): browse is author, so the visitor can write their own answer on the icebreaker card. Multiplane (declined): door, paper and magnet are distinct depth planes with subtle pointer parallax. Deep dive (declined): one ruling axis, with every section aligned to the door's panel grid and the handle line. Collider, Saville: declined.
-
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: DESIGN.md and .impeccable/design.json describe the shipped system; axe passes on every journey
+in English (desktop) and Arabic (phone).

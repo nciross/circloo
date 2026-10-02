@@ -4,17 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { Shuffle } from 'lucide-react'
 import { fetchRandomSpark, type PublicSpark } from '../../api/hooks'
 import { useUiStore } from '../../stores/ui'
-import { MagnetButton } from '../../components/Magnet'
+import { Button } from '../../components/Button'
 
 /**
- * A real seed icebreaker on an index card. "Shake the fridge" shakes the whole door and deals the
- * next card. Browse is author: the visitor can write an answer on the card (never sent anywhere).
+ * A real seed icebreaker. "Deal another" brings the next one in the current language. The visitor
+ * can type an answer on the card (never sent anywhere). `bare` drops the card's own title and frame
+ * when it sits inside a panel that already names it.
  */
-export function IcebreakerCard() {
+export function IcebreakerCard({ bare = false }: { bare?: boolean }) {
   const { t } = useTranslation()
   const locale = useUiStore((s) => s.locale)
   const qc = useQueryClient()
-  const [shaking, setShaking] = useState(false)
+  const [dealing, setDealing] = useState(false)
   const [answer, setAnswer] = useState('')
   const [announce, setAnnounce] = useState('')
 
@@ -25,9 +26,8 @@ export function IcebreakerCard() {
     staleTime: Infinity,
   })
 
-  const shake = async () => {
-    setShaking(true)
-    document.documentElement.classList.add('is-shaking')
+  const deal = async () => {
+    setDealing(true)
     try {
       const next = await fetchRandomSpark(locale, spark.data?.id)
       qc.setQueryData<PublicSpark>(key, next)
@@ -36,31 +36,33 @@ export function IcebreakerCard() {
     } catch {
       await qc.invalidateQueries({ queryKey: key })
     } finally {
-      window.setTimeout(() => {
-        document.documentElement.classList.remove('is-shaking')
-        setShaking(false)
-      }, 520)
+      setDealing(false)
     }
   }
 
+  const Question = bare ? 'p' : 'h2'
   return (
-    <article className="index-card" aria-label={t('landing.teaser.title')}>
-      <span className="pin-magnet pin-magnet--cobalt" aria-hidden="true" />
-      <p className="index-card__margin" aria-hidden="true">{t('landing.teaser.title')}</p>
+    <article className={`teaser${bare ? ' teaser--bare' : ''}`} aria-label={t('landing.teaser.title')}>
+      {bare ? null : (
+        <div className="teaser__head" aria-hidden="true">
+          <span className="teaser__label">{t('landing.teaser.title')}</span>
+          {spark.data ? <span className="lozenge lozenge--info">{t(`ice.filters.kinds.${spark.data.kind}`)}</span> : null}
+        </div>
+      )}
       <p className="visually-hidden" aria-live="polite">{announce}</p>
-      <div className="index-card__body">
+      <div className="teaser__body">
         {spark.isPending ? (
-          <p className="index-card__question index-card__question--placeholder">{t('common.loading')}</p>
+          <p className="teaser__question teaser__question--wait">{t('common.loading')}</p>
         ) : spark.isError || !spark.data ? (
-          <h2 className="index-card__question">{t('landing.teaser.error')}</h2>
+          <Question className="teaser__question">{t('landing.teaser.error')}</Question>
         ) : (
-          <h2 key={spark.data.id} className="index-card__question is-dealt" lang={spark.data.lang}>
+          <Question key={spark.data.id} className="teaser__question is-dealt" lang={spark.data.lang}>
             {spark.data.text}
-          </h2>
+          </Question>
         )}
       </div>
-      <label className="index-card__answer">
-        <span className="index-card__answer-label">{t('landing.teaser.answerLabel')}</span>
+      <label className="teaser__answer">
+        <span className="visually-hidden">{t('landing.teaser.answerLabel')}</span>
         <input
           type="text"
           value={answer}
@@ -68,12 +70,15 @@ export function IcebreakerCard() {
           onChange={(e) => setAnswer(e.target.value)}
           placeholder={t('landing.teaser.answerPlaceholder')}
           autoComplete="off"
+          dir="auto"
         />
-        <span className="index-card__hint">{t('landing.teaser.answerHint')}</span>
       </label>
-      <MagnetButton color="sunflower" icon={<Shuffle size={18} strokeWidth={2.5} />} onClick={shake} busy={shaking}>
-        {shaking ? t('landing.teaser.shaking') : t('landing.teaser.shake')}
-      </MagnetButton>
+      <div className="teaser__foot">
+        <span className="teaser__hint">{t('landing.teaser.answerHint')}</span>
+        <Button variant="default" size="sm" icon={<Shuffle size={16} strokeWidth={2.25} />} onClick={deal} busy={dealing}>
+          {dealing ? t('landing.teaser.shaking') : t('landing.teaser.shake')}
+        </Button>
+      </div>
     </article>
   )
 }

@@ -16,6 +16,7 @@ export async function codeFor(email: string): Promise<string> {
 }
 
 export async function pickLanguage(page: Page, locale: 'en' | 'ar') {
-  // The language magnets are toggle buttons named in their own language.
-  await page.getByRole('button', { name: locale === 'ar' ? 'العربية' : 'English' }).first().click()
+  // The language dropdown names each language in its own language; it applies only when chosen.
+  await page.locator('.lang-menu__trigger').first().click()
+  await page.locator(`.lang-menu .dropdown__item[lang=${locale}]`).first().click()
 }

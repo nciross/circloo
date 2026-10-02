@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Heart, Trash2 } from 'lucide-react'
 import { useDeleteMine, useFavourites, useMine, useToggleFavourite, type Spark } from '../../api/sparks'
 import { useDeckStore } from '../../stores/deck'
-import { ChoiceMagnets } from '../../components/ChoiceMagnets'
+import { Segmented } from '../../components/Segmented'
 
 /** The keepers shelf: favourites and the AI cards a member decided to keep. */
 export function Keepers() {
@@ -22,21 +22,20 @@ export function Keepers() {
   // The removed card's button disappears: focus the next card, or the tabs when the list is empty.
   const afterRemove = (index: number) =>
     requestAnimationFrame(() => {
-      const opens = listRef.current?.querySelectorAll<HTMLButtonElement>('.keeper-note__open')
+      const opens = listRef.current?.querySelectorAll<HTMLButtonElement>('.keeper__open')
       const next = opens?.[Math.min(index, (opens?.length ?? 1) - 1)]
-      ;(next ?? document.querySelector<HTMLButtonElement>('.keepers .choice-magnet[aria-pressed="true"]'))?.focus()
+      ;(next ?? document.querySelector<HTMLButtonElement>('.keepers .seg__opt[aria-pressed="true"]'))?.focus()
     })
   const onFail = () => setFailed(true)
 
   return (
-    <section className="keepers" aria-labelledby="keepers-title">
-      <div className="keepers__head">
-        <h2 id="keepers-title" className="keepers__title">{t('ice.keepers.title')}</h2>
-        <ChoiceMagnets
+    <section className="panel keepers" aria-labelledby="keepers-title">
+      <div className="panel__head">
+        <h2 id="keepers-title" className="panel__title">{t('ice.keepers.title')}</h2>
+        <Segmented
           label={t('ice.keepers.title')}
           value={tab}
           onChange={setTab}
-          tone="ink"
           hideLabel
           choices={[
             { value: 'favourites', label: t('ice.keepers.favourites') },
@@ -52,17 +51,17 @@ export function Keepers() {
       ) : list && list.length === 0 ? (
         <p className="keepers__empty">{tab === 'favourites' ? t('ice.keepers.emptyFavourites') : t('ice.keepers.emptyMine')}</p>
       ) : (
-        <ul ref={listRef} className="keeper-notes">
+        <ul ref={listRef} className="keepers__list">
           {(list ?? []).map((s, i) => (
-            <li key={s.id} className={`keeper-note keeper-note--${s.kind}`} lang={s.lang}>
-              <button type="button" className="keeper-note__open" dir="auto" aria-describedby="keepers-put" onClick={() => pin(s)}>{s.text}</button>
+            <li key={s.id} className={`keeper keeper--${s.kind}`} lang={s.lang}>
+              <button type="button" className="keeper__open" dir="auto" aria-describedby="keepers-put" onClick={() => pin(s)}>{s.text}</button>
               {tab === 'favourites' ? (
-                <button type="button" className="keeper-note__icon" aria-label={`${t('ice.card.favourite')}: ${s.text.slice(0, 40)}`} aria-pressed="true"
+                <button type="button" className="keeper__icon" aria-label={`${t('ice.card.favourite')}: ${s.text.slice(0, 40)}`} aria-pressed="true"
                   onClick={() => { setFailed(false); toggle.mutate({ id: s.id, on: false }, { onSuccess: () => afterRemove(i), onError: onFail }) }}>
                   <Heart size={16} strokeWidth={2.5} aria-hidden="true" />
                 </button>
               ) : (
-                <button type="button" className="keeper-note__icon" aria-label={`${t('ice.keepers.delete')}: ${s.text.slice(0, 40)}`} aria-busy={remove.isPending || undefined}
+                <button type="button" className="keeper__icon" aria-label={`${t('ice.keepers.delete')}: ${s.text.slice(0, 40)}`} aria-busy={remove.isPending || undefined}
                   onClick={() => { if (remove.isPending) return; setFailed(false); remove.mutate(s.id, { onSuccess: () => afterRemove(i), onError: onFail }) }}>
                   <Trash2 size={16} strokeWidth={2.5} aria-hidden="true" />
                 </button>

@@ -27,27 +27,40 @@
     "home": "Accueil",
     "account": "Compte",
     "cancel": "Annuler",
-    "signOutFailed": "La déconnexion a échoué. Vérifie ta connexion et réessaie."
+    "signOutFailed": "La déconnexion a échoué. Vérifie ta connexion et réessaie.",
+    "nav": {
+      "label": "Principal",
+      "home": "Accueil",
+      "icebreakers": "Brise-glace",
+      "soonGroup": "Bientôt",
+      "open": "Ouvrir la navigation",
+      "close": "Fermer la navigation"
+    },
+    "close": "Fermer",
+    "profileMenu": "Profil et paramètres",
+    "signedInAs": "Connecté en tant que",
+    "startRound": "Lancer un tour",
+    "breadcrumb": "Fil d'Ariane",
+    "languageCurrent": "Langue : {{name}}"
   },
   "landing": {
-    "title": "circloo · la porte du frigo de ton cercle",
-    "wordmarkHint": "Les lettres sont des aimants. Déplace-les.",
-    "headline": "La porte du frigo de tes proches.",
+    "title": "circloo · ton cercle, dans un espace privé",
+    "headline": "Ton cercle, dans un espace privé.",
     "sub": "Prendre des nouvelles du moral de chacun, commencer les réunions par un fou rire, décider ensemble. Un petit espace privé pour ta famille, tes amis ou ton équipe.",
     "languagesLine": "Parle English, français, العربية et español.",
-    "cta": "Ouvrir ma porte",
-    "ctaSecondary": "Voir ce qu'on colle sur la porte",
+    "cta": "Créer mon cercle",
+    "ctaSecondary": "Voir comment ça marche",
     "teaser": {
       "title": "Le brise-glace du jour",
-      "shake": "Secouer le frigo",
-      "shaking": "Ça secoue…",
+      "shake": "Une autre",
+      "shaking": "Je distribue…",
       "answerLabel": "Ta réponse",
       "answerPlaceholder": "Écris-la sur la carte…",
       "answerHint": "Reste sur ton écran. Rien n'est envoyé.",
-      "error": "La carte a glissé derrière le frigo. Secoue encore."
+      "error": "Impossible de charger cette carte. Tires-en une autre."
     },
     "checkins": {
-      "title": "Ce matin sur la porte",
+      "title": "Humeurs du jour",
       "items": [
         {
           "name": "Amina",
@@ -81,7 +94,9 @@
         "4": "Éclaircies",
         "5": "Grand soleil"
       },
-      "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café."
+      "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café.",
+      "tryIt": "Essaie : comment te sens-tu ?",
+      "faceSays": "circloo se sent {{mood}} aussi."
     },
     "work": {
       "title": "Travailler ensemble",
@@ -103,7 +118,7 @@
     },
     "fun": {
       "title": "S'amuser ensemble",
-      "body": "Des brise-glaces, des devinettes et des blagues écrits par des humains dans chaque langue, pas traduits par une machine. De l'humour gentil uniquement. Bientôt, l'IA en proposera de nouveaux, adaptés à ton cercle."
+      "body": "Brise-glace, devinettes et blagues écrits par des gens dans chaque langue, jamais traduits par une machine. Envie de plus ? Demande à circloo des cartes fraîches pour ton cercle, vérifiées pour rester gentilles."
     },
     "integrations": {
       "title": "Branché sur ta semaine",
@@ -129,19 +144,46 @@
           "body": "Famille, amis ou équipe. Invite par e-mail ou avec un simple code."
         },
         {
-          "title": "Colle tout sur la porte",
-          "body": "Humeurs, brise-glaces et tableaux, au même endroit."
+          "title": "Avancez ensemble",
+          "body": "Humeurs du jour, brise-glace et tableaux, tout au même endroit."
         }
       ]
     },
     "final": {
-      "title": "Ton cercle t'attend près du frigo.",
-      "body": "Privé par défaut. Seules les personnes que tu invites voient ce qu'il y a sur ta porte.",
-      "cta": "Ouvrir ma porte"
+      "title": "Prêt quand ton cercle l’est.",
+      "body": "Privé par défaut. Seules les personnes que tu invites voient ce qui se passe dans ton cercle.",
+      "cta": "Créer mon cercle"
     },
     "footer": {
       "private": "Privé par défaut. Sans pub.",
-      "made": "Pensé pour les familles, les amis et les équipes, en quatre langues."
+      "made": "Pensé pour les familles, les amis et les équipes, en quatre langues.",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence et Notion sont des marques de leurs propriétaires. circloo n'y est pas affilié."
+    },
+    "preview": "Un aperçu de circloo",
+    "features": "Ressentir, travailler et jouer ensemble",
+    "pricing": {
+      "title": "Une seule offre. Tout est dedans.",
+      "body": "Pas de formules à comparer, aucune fonction cachée derrière un paiement. Commence aujourd'hui, gratuit pendant l'accès anticipé.",
+      "plan": "Cercle",
+      "price": "Gratuit",
+      "period": "pendant l'accès anticipé",
+      "features": [
+        "Cercles et membres illimités",
+        "Catalogue de brise-glace en quatre langues",
+        "Cartes IA fraîches avec circloo, vérifiées pour rester gentilles",
+        "Tours en direct avec animateur et participants",
+        "Privé par défaut, jamais de pub"
+      ],
+      "cta": "Créer mon cercle",
+      "note": "Si une offre payante arrive un jour, on te prévient bien avant tout paiement. Ton cercle continue de fonctionner."
+    },
+    "stage": {
+      "joined_one": "{{count}} personne dans le cercle",
+      "joined_other": "{{count}} personnes dans le cercle"
+    },
+    "inside": {
+      "title": "Dans circloo",
+      "body": "Un espace calme pour ton cercle : brise-glace en direct, humeurs du jour et tableaux, avec circloo prêt à t'aider."
     }
   },
   "auth": {
@@ -155,7 +197,7 @@
     "codeTitle": "Regarde tes e-mails",
     "codeLead": "Tape le code à six chiffres envoyé à <email>{{email}}</email>.",
     "codeLabel": "Code à six chiffres",
-    "verify": "Ouvrir ma porte",
+    "verify": "Continuer",
     "verifying": "Vérification…",
     "resend": "Recevoir un nouveau code",
     "resendIn": "Nouveau code possible dans {{seconds}} s",
@@ -166,16 +208,17 @@
       "incompleteCode": "Le code a six chiffres.",
       "rateLimited": "Doucement ! Réessaie dans {{minutes}} min.",
       "generic": "Impossible de joindre circloo. Vérifie ta connexion et réessaie."
-    }
+    },
+    "aside": "Privé par défaut. Aucun mot de passe à retenir."
   },
   "welcome": {
-    "title": "Bonjour, je m'appelle",
+    "title": "Configure ton profil",
     "lead": "C'est ainsi que ton cercle te verra.",
     "nameLabel": "Ton prénom",
-    "namePlaceholder": "Écris ton prénom sur la ligne",
+    "namePlaceholder": "Prénom ou surnom",
     "nameHelp": "De 1 à 40 caractères. Modifiable plus tard.",
     "languageLabel": "Ta langue",
-    "submit": "Le coller sur la porte",
+    "submit": "Continuer",
     "saving": "Enregistrement…",
     "errors": {
       "name": "Écris un prénom de 1 à 40 caractères."
@@ -183,12 +226,12 @@
   },
   "home": {
     "greeting": "Salut <name>{{name}}</name> !",
-    "lead": "Ta porte est prête. Voici ce qu'on y colle bientôt.",
-    "nextTitle": "Bientôt sur ta porte",
+    "lead": "Voici ce qui est disponible et ce qui arrive.",
+    "nextTitle": "Ton espace",
     "modules": {
       "icebreakers": {
         "title": "Brise-glaces",
-        "body": "C'est en ligne : tire une carte, lance un tour avec tout le monde et demande au frigo des cartes fraîches.",
+        "body": "C'est en ligne : tire une carte, lance un tour avec tout le monde et demande à circloo des cartes fraîches.",
         "tag": "En ligne"
       },
       "checkins": {
@@ -204,22 +247,52 @@
         "body": "Teams, Salesforce, Jira, Confluence et Notion."
       }
     },
-    "start": "Lancer un brise-glace"
+    "start": "Lancer un brise-glace",
+    "suggest": {
+      "title": "Suggestions pour toi",
+      "label": "Suggestion",
+      "why": "Tu as activé les suggestions dans les paramètres.",
+      "items": [
+        "Un brise-glace douillet pour la famille",
+        "Un tour rigolo avec des cartes IA sur les vacances"
+      ],
+      "open": "Vérifier le plan"
+    },
+    "openIcebreakers": "Ouvrir les brise-glace",
+    "table": {
+      "module": "Module",
+      "status": "Statut",
+      "about": "À quoi ça sert"
+    }
   },
   "settings": {
     "title": "Réglages",
-    "profileTitle": "Ton badge",
+    "profileTitle": "Profil",
     "save": "Enregistrer",
     "saved": "Enregistré.",
     "sessionsTitle": "Tes appareils",
     "sessionsBody": "Connecté sur un ordinateur que tu n'utilises plus ? Déconnecte-toi partout, ici compris.",
     "confirmEverywhere": "Oui, me déconnecter partout",
-    "everywhereFailed": "Impossible de te déconnecter partout. Tes sessions sont toujours actives. Réessaie."
+    "everywhereFailed": "Impossible de te déconnecter partout. Tes sessions sont toujours actives. Réessaie.",
+    "appearanceTitle": "Apparence",
+    "themeLabel": "Thème",
+    "themes": {
+      "system": "Comme mon appareil",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "assistantTitle": "Assistant",
+    "autonomyLabel": "Suggestions",
+    "autonomy": {
+      "off": "Désactivées",
+      "suggest": "Proposer"
+    },
+    "autonomyHelp": "Avec Proposer, circloo suggère des prochaines étapes sur ton accueil. Rien ne s'exécute avant que tu vérifies et confirmes le plan."
   },
   "notFound": {
-    "title": "Cette note est tombée derrière le frigo.",
+    "title": "Page introuvable.",
     "body": "La page que tu cherches n'existe pas ou a déménagé.",
-    "home": "Retour à la porte"
+    "home": "Retour à l'accueil"
   },
   "ice": {
     "title": "Brise-glaces",
@@ -248,10 +321,10 @@
     },
     "card": {
       "label": "Carte du moment",
-      "shake": "Secouer",
+      "shake": "Tirer",
       "favourite": "Favori",
       "showAnswer": "Voir la réponse",
-      "empty": "Aucune carte ne correspond à ces aimants. Déplaces-en un, ou demande au frigo.",
+      "empty": "Aucune carte ne correspond à ces filtres. Changes-en un, ou demande des cartes fraîches.",
       "exhausted": "Tu as vu toutes les cartes ici. On remélange le paquet.",
       "error": "Impossible de charger une carte. Réessayez.",
       "fresh": "Suggéré par l'IA",
@@ -259,12 +332,12 @@
       "pinned": "Maintenant sur le tableau : {{text}}"
     },
     "ask": {
-      "title": "Demander au frigo",
-      "lead": "Cinq cartes toutes fraîches qui collent à tes aimants. Proposées par l'IA, vérifiées pour rester gentilles.",
+      "title": "Demander des cartes fraîches",
+      "lead": "Cinq nouvelles cartes qui collent à tes filtres. Proposées par l'IA, vérifiées pour rester gentilles.",
       "themeLabel": "Thème (facultatif)",
       "themePlaceholder": "vacances d'été",
       "ask": "Demander",
-      "asking": "Le frigo réfléchit…",
+      "asking": "Écriture des cartes…",
       "remaining_one": "{{count}} demande restante aujourd'hui",
       "remaining_other": "{{count}} demandes restantes aujourd'hui",
       "results": "Cartes fraîches",
@@ -272,10 +345,10 @@
       "kept": "Gardée",
       "dismiss": "Écarter cette carte",
       "errors": {
-        "unsafe": "Le frigo n'écrit que des choses gentilles. Essaie un autre thème.",
-        "limited": "Plus de magie du frigo pour aujourd'hui. Retour à {{time}}.",
-        "inFlight": "Le frigo réfléchit déjà. Un instant.",
-        "unavailable": "Le frigo est à court d'idées. Réessaie bientôt, le paquet marche toujours.",
+        "unsafe": "circloo n'écrit que des choses gentilles. Essaie un autre thème.",
+        "limited": "C'est tout pour les cartes fraîches aujourd'hui. Retour à {{time}}.",
+        "inFlight": "Tes cartes sont déjà en cours d'écriture. Un instant.",
+        "unavailable": "Pas de cartes fraîches pour le moment. Réessaie bientôt ; le paquet marche toujours.",
         "expired": "Ces suggestions ont expiré. Redemandez-en de nouvelles.",
         "limitedNoTime": "Vous avez utilisé toutes vos demandes du jour. Réessayez demain."
       },
@@ -317,9 +390,43 @@
       "favourites": "Favoris",
       "mine": "Mes cartes",
       "emptyFavourites": "Touche le cœur d’une carte pour la garder ici.",
-      "emptyMine": "Les cartes que tu gardes du frigo arrivent ici.",
+      "emptyMine": "Les cartes que tu gardes parmi les suggestions de l'IA arrivent ici.",
       "delete": "Supprimer cette carte",
       "putOnBoard": "Mettre sur le tableau"
+    },
+    "lead": "Tire une carte, mets tout le monde dans la file et chacun son tour.",
+    "present": "Présenter",
+    "stopPresenting": "Arrêter la présentation"
+  },
+  "askbar": {
+    "open": "Demander à circloo",
+    "title": "Demander à circloo",
+    "label": "Que veux-tu faire ?",
+    "placeholder": "Essaie : un brise-glace rigolo pour la famille",
+    "planTitle": "Le plan. Vérifie-le avant qu'il s'exécute.",
+    "run": "Lancer le plan",
+    "nothing": "circloo ne sait pas encore faire ça. Essaie plutôt :",
+    "examples": [
+      "Un brise-glace rigolo pour la famille",
+      "Un tour avec Amina, Théo et Lucía",
+      "Des cartes IA sur l'été",
+      "Passer en mode sombre"
+    ],
+    "done": "C'est fait. Le plan s'est exécuté.",
+    "steps": {
+      "home": "Aller à l'accueil",
+      "icebreakers": "Ouvrir les brise-glace",
+      "settings": "Ouvrir les paramètres",
+      "audience": "Public : {{value}}",
+      "tone": "Ton : {{value}}",
+      "kind": "Type : {{value}}",
+      "kidsSafe": "Cartes adaptées aux enfants uniquement",
+      "deal": "Tirer une nouvelle carte",
+      "people": "Mettre {{names}} dans la file",
+      "start": "Lancer le tour",
+      "ask": "Demander à l'IA des cartes sur « {{theme}} »",
+      "locale": "Passer la langue en {{value}}",
+      "theme": "Passer en {{value}}"
     }
   }
 }
