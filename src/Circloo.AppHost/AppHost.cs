@@ -20,6 +20,8 @@ var api = builder.AddProject<Projects.Circloo_Api>("api")
     // Local only: the e2e suite signs in many times from one IP. Production keeps the strict defaults.
     .WithEnvironment("RateLimits__OtpRequestsPerIpPerHour", "500")
     .WithEnvironment("RateLimits__OtpVerifiesPerIpPer10Min", "500")
+    // The seed provider costs nothing: a roomy shared budget so repeated local test runs never hit it.
+    .WithEnvironment("Ai__DailyGlobal", "100000")
     .WithHttpHealthCheck("/health");
 
 builder.AddViteApp("web", "../web")

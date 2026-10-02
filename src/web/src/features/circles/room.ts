@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { create } from 'zustand'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
 import { api } from '../../api/client'
-import type { BoardNote, CircleView, Member, Message, NoteColor } from '../../api/circles'
+import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
@@ -15,6 +15,9 @@ interface RoomState {
   online: string[]
   messages: Message[]
   notes: BoardNote[]
+  canvas: CanvasNote[]
+  /** Where the others point on the canvas, with when it last moved (ms). Never stored anywhere. */
+  cursors: Record<string, { x: number; y: number; at: number }>
   /** Members who just arrived: their seat hops for a moment. */
   arrivals: string[]
   /** A short sentence for screen readers about the latest arrival. */
@@ -38,6 +41,13 @@ interface RoomState {
   moveNote: (id: number, column: string) => Promise<void>
   deleteNote: (id: number) => Promise<void>
   vote: (id: number) => Promise<void>
+  addCanvasNote: (x: number, y: number, text: string, color: CanvasColor, size: CanvasSize, shape: CanvasShape) => Promise<void>
+  moveCanvasNote: (id: number, x: number, y: number) => Promise<void>
+  editCanvasNote: (id: number, text: string) => Promise<void>
+  styleCanvasNote: (id: number, color: CanvasColor, size: CanvasSize, shape: CanvasShape, sticker: CanvasSticker | null) => Promise<void>
+  deleteCanvasNote: (id: number) => Promise<void>
+  /** Shares your pointer on the canvas, a dozen times a second at most; never an error. */
+  sendCursor: (x: number, y: number) => void
   /** Tells the others you are writing; sent at most every few seconds, never an error. */
   notifyTyping: () => void
   clearError: () => void
@@ -48,6 +58,8 @@ const TYPING_EVERY = 2500
 /** A typing line fades this long after the last sign of life. */
 const TYPING_TTL = 4000
 let lastTyping = 0
+const CURSOR_EVERY = 80
+let lastCursor = 0
 const typingTimers = new Map<string, number>()
 
 function stopTyping(memberId: string) {
@@ -86,6 +98,8 @@ export const useRoom = create<RoomState>()((set) => ({
   online: [],
   messages: [],
   notes: [],
+  canvas: [],
+  cursors: {},
   arrivals: [],
   announcement: '',
   activity: null,
@@ -105,6 +119,8 @@ export const useRoom = create<RoomState>()((set) => ({
       members: view.members,
       messages: view.messages,
       notes: view.notes,
+      canvas: view.canvas,
+      cursors: {},
       activity: view.currentActivity,
       closed: view.status === 'closed',
       online: [],
@@ -128,6 +144,18 @@ export const useRoom = create<RoomState>()((set) => ({
   moveNote: (id, column) => invoke('MoveNote', id, column),
   deleteNote: (id) => invoke('DeleteNote', id),
   vote: (id) => invoke('Vote', id),
+  addCanvasNote: (x, y, text, color, size, shape) => invoke('AddCanvasNote', x, y, text, color, size, shape),
+  moveCanvasNote: (id, x, y) => invoke('MoveCanvasNote', id, x, y),
+  editCanvasNote: (id, text) => invoke('EditCanvasNote', id, text),
+  styleCanvasNote: (id, color, size, shape, sticker) => invoke('StyleCanvasNote', id, color, size, shape, sticker),
+  deleteCanvasNote: (id) => invoke('DeleteCanvasNote', id),
+  sendCursor: (x, y) => {
+    const { connection } = useRoom.getState()
+    const now = Date.now()
+    if (!connection || connection.state !== HubConnectionState.Connected || now - lastCursor < CURSOR_EVERY) return
+    lastCursor = now
+    connection.invoke('Cursor', Math.round(x * 10) / 10, Math.round(y * 10) / 10).catch(() => undefined)
+  },
   notifyTyping: () => {
     const { connection } = useRoom.getState()
     const now = Date.now()
@@ -145,6 +173,7 @@ async function resync(id: string) {
     members: view.members,
     messages: view.messages,
     notes: view.notes,
+    canvas: view.canvas,
     activity: view.currentActivity,
     closed: view.status === 'closed',
   })
@@ -167,7 +196,9 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState((s) => (s.messages.some((x) => x.id === m.id) ? s : { messages: [...s.messages, m], draft: m.kind === 'ai' ? '' : s.draft }))
     }
 
-    connection.on('Presence', (online: string[]) => useRoom.setState({ online }))
+    connection.on('Presence', (online: string[]) =>
+      // Someone who left takes their cursor with them.
+      useRoom.setState((s) => ({ online, cursors: Object.fromEntries(Object.entries(s.cursors).filter(([id]) => online.includes(id))) })))
     connection.on('MemberJoined', (m: Member) => {
       useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m], arrivals: [...s.arrivals, m.id], announcement: m.name }))
       window.setTimeout(() => useRoom.setState((s) => ({ arrivals: s.arrivals.filter((x) => x !== m.id) })), 1600)
@@ -180,6 +211,11 @@ export function useCircleConnection(view: CircleView | undefined) {
     connection.on('NoteChanged', (n: BoardNote) =>
       useRoom.setState((s) => ({ notes: s.notes.some((x) => x.id === n.id) ? s.notes.map((x) => (x.id === n.id ? n : x)) : [...s.notes, n] })))
     connection.on('NoteDeleted', (id: number) => useRoom.setState((s) => ({ notes: s.notes.filter((x) => x.id !== id) })))
+    connection.on('CanvasChanged', (n: CanvasNote) =>
+      useRoom.setState((s) => ({ canvas: s.canvas.some((x) => x.id === n.id) ? s.canvas.map((x) => (x.id === n.id ? n : x)) : [...s.canvas, n] })))
+    connection.on('CanvasDeleted', (id: number) => useRoom.setState((s) => ({ canvas: s.canvas.filter((x) => x.id !== id) })))
+    connection.on('Cursor', (memberId: string, x: number, y: number) =>
+      useRoom.setState((s) => ({ cursors: { ...s.cursors, [memberId]: { x, y, at: Date.now() } } })))
     connection.on('Typing', (memberId: string) => {
       useRoom.setState((s) => (s.typing.includes(memberId) ? s : { typing: [...s.typing, memberId] }))
       window.clearTimeout(typingTimers.get(memberId))

@@ -482,6 +482,10 @@
     "brainstorm": {
       "title": "Remue-méninges",
       "body": "Des idées sur un tableau en direct, puis des votes à points pour choisir les meilleures."
+    },
+    "canvas": {
+      "title": "Toile en direct",
+      "body": "Des notes partout sur une grande surface, avec le curseur de chacun, des couleurs et des stickers."
     }
   },
   "circles": {
@@ -756,7 +760,9 @@
       "backTo": "« {{name}} » est encore ouvert. Tu y retournes ?",
       "mix": "Un bon mélange : un brise-glace pour s’échauffer, puis un tableau pour décider.",
       "connect": "Connecte Teams, Jira, Confluence ou Notion pour y envoyer les résultats de ton cercle.",
-      "keys": "Ajoute le prénom de chaque personne présente, puis appuie sur Espace pour passer à la suivante."
+      "keys": "Ajoute le prénom de chaque personne présente, puis appuie sur Espace pour passer à la suivante.",
+      "canvasFirst": "Double-clique n’importe où sur la toile pour poser ta première note.",
+      "sumCanvas": "La toile se remplit ! Demande à circloo de la résumer."
     },
     "plan": {
       "title": "Voici le plan. Vérifie-le avant qu’il ne se lance.",
@@ -831,6 +837,56 @@
         "busy": "Beaucoup de questions d’un coup ! Laisse-moi quelques secondes.",
         "signedOut": "Ta session est terminée. Reconnecte-toi pour continuer."
       }
+    }
+  },
+  "canvas": {
+    "add": "Ajouter une note",
+    "bringIn": "Importer",
+    "bringInTitle": "Épingler un élément de ce cercle",
+    "bringInEmpty": "Rien à importer pour l’instant. Les notes des tableaux et les réponses de la discussion apparaissent ici.",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "recenter": "Revenir au centre",
+    "list": "Vue en liste",
+    "listTitle_one": "{{count}} note sur la toile",
+    "listTitle_other": "{{count}} notes sur la toile",
+    "find": "Montrer",
+    "label": "Toile",
+    "hint": "Double-clique pour poser une note, fais glisser les notes pour les déplacer, fais glisser le fond ou défile pour te déplacer, Ctrl + molette pour zoomer. Clavier : flèches pour déplacer, N ajoute une note, E modifie.",
+    "empty": "Une toile vide ! Double-clique n’importe où pour poser la première note.",
+    "newNote": "Nouvelle note",
+    "editNote": "Modifier la note",
+    "placeholder": "Écris ton idée…",
+    "stick": "Coller",
+    "note": "Note de {{name}} : {{text}}",
+    "style": "Style de la note",
+    "size": "Taille",
+    "sizes": {
+      "s": "Petite",
+      "m": "Moyenne",
+      "l": "Grande"
+    },
+    "shape": "Forme",
+    "shapes": {
+      "square": "Carrée",
+      "round": "Ronde"
+    },
+    "sticker": "Sticker",
+    "stickers": {
+      "heart": "Cœur",
+      "star": "Étoile",
+      "thumbs": "Pouce levé",
+      "laugh": "Rire",
+      "idea": "Idée"
+    },
+    "delete": "Supprimer la note",
+    "colors": {
+      "yellow": "Jaune",
+      "pink": "Rose",
+      "blue": "Bleu",
+      "green": "Vert",
+      "violet": "Violet",
+      "white": "Blanc"
     }
   }
 }

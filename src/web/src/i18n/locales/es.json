@@ -482,6 +482,10 @@
     "brainstorm": {
       "title": "Lluvia de ideas",
       "body": "Ideas en un tablero en vivo y votos con puntos para elegir las mejores."
+    },
+    "canvas": {
+      "title": "Lienzo en vivo",
+      "body": "Notas en cualquier sitio de una gran superficie, con el cursor de cada uno, colores y pegatinas."
     }
   },
   "circles": {
@@ -756,7 +760,9 @@
       "backTo": "«{{name}}» sigue abierto. ¿Vuelves?",
       "mix": "Una buena mezcla: un rompehielos para calentar y luego un tablero para decidir.",
       "connect": "Conecta Teams, Jira, Confluence o Notion y envía allí los resultados de tu círculo.",
-      "keys": "Añade el nombre de cada persona presente y pulsa Espacio para pasar a la siguiente."
+      "keys": "Añade el nombre de cada persona presente y pulsa Espacio para pasar a la siguiente.",
+      "canvasFirst": "Haz doble clic en cualquier sitio del lienzo para poner tu primera nota.",
+      "sumCanvas": "¡El lienzo se está llenando! Pide a circloo que lo resuma."
     },
     "plan": {
       "title": "Este es el plan. Revísalo antes de que se ejecute.",
@@ -831,6 +837,56 @@
         "busy": "¡Muchas preguntas a la vez! Dame unos segundos.",
         "signedOut": "Tu sesión terminó. Vuelve a iniciar sesión para seguir."
       }
+    }
+  },
+  "canvas": {
+    "add": "Añadir una nota",
+    "bringIn": "Traer",
+    "bringInTitle": "Fija algo de este círculo",
+    "bringInEmpty": "Todavía no hay nada que traer. Las notas de los tableros y las respuestas del chat aparecen aquí.",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "recenter": "Volver al centro",
+    "list": "Vista de lista",
+    "listTitle_one": "{{count}} nota en el lienzo",
+    "listTitle_other": "{{count}} notas en el lienzo",
+    "find": "Mostrar",
+    "label": "Lienzo",
+    "hint": "Doble clic para poner una nota, arrastra las notas para moverlas, arrastra el fondo o desplázate para mirar alrededor, Ctrl + rueda para hacer zoom. Teclado: flechas para mover, N añade una nota, E edita.",
+    "empty": "¡Un lienzo vacío! Haz doble clic en cualquier sitio para poner la primera nota.",
+    "newNote": "Nota nueva",
+    "editNote": "Editar la nota",
+    "placeholder": "Escribe tu idea…",
+    "stick": "Pegar",
+    "note": "Nota de {{name}}: {{text}}",
+    "style": "Estilo de la nota",
+    "size": "Tamaño",
+    "sizes": {
+      "s": "Pequeña",
+      "m": "Mediana",
+      "l": "Grande"
+    },
+    "shape": "Forma",
+    "shapes": {
+      "square": "Cuadrada",
+      "round": "Redonda"
+    },
+    "sticker": "Pegatina",
+    "stickers": {
+      "heart": "Corazón",
+      "star": "Estrella",
+      "thumbs": "Pulgar arriba",
+      "laugh": "Risa",
+      "idea": "Idea"
+    },
+    "delete": "Borrar la nota",
+    "colors": {
+      "yellow": "Amarillo",
+      "pink": "Rosa",
+      "blue": "Azul",
+      "green": "Verde",
+      "violet": "Violeta",
+      "white": "Blanco"
     }
   }
 }

@@ -154,7 +154,7 @@ export function ActivityGrid({
         {shown.map(({ id, icon: Icon, category: cat }) => {
           const on = selected.includes(id)
           return (
-            <li key={id} className={`activity activity--${cat}${on ? ' is-on' : ''}`}>
+            <li key={id} className={`activity activity--${cat}${on ? ' is-on' : ''}`} data-activity={id}>
               <span className="activity__icon" aria-hidden="true"><Icon size={20} /></span>
               <div className="activity__copy">
                 <h3 className="activity__title">{t(`activities.${id}.title`)}</h3>

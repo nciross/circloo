@@ -70,10 +70,10 @@ public sealed partial class CirclooCoach(
     /// <summary>Board column names as people read them, per language (ids: ActivityCatalog.ColumnsOf).</summary>
     private static readonly Dictionary<string, Dictionary<string, string>> ColumnNames = new()
     {
-        ["en"] = new() { ["start"] = "Start", ["stop"] = "Stop", ["continue"] = "Continue", ["well"] = "Went well", ["improve"] = "To improve", ["kudos"] = "Kudos", ["ideas"] = "Ideas", ["maybe"] = "Maybe", ["next"] = "Next steps" },
-        ["fr"] = new() { ["start"] = "Commencer", ["stop"] = "Arrêter", ["continue"] = "Continuer", ["well"] = "Réussites", ["improve"] = "À améliorer", ["kudos"] = "Bravos", ["ideas"] = "Idées", ["maybe"] = "Peut-être", ["next"] = "Prochaines étapes" },
-        ["ar"] = new() { ["start"] = "نبدأ", ["stop"] = "نتوقف", ["continue"] = "نستمر", ["well"] = "ما نجح", ["improve"] = "ما نحسّنه", ["kudos"] = "شكر", ["ideas"] = "أفكار", ["maybe"] = "ربما", ["next"] = "الخطوات التالية" },
-        ["es"] = new() { ["start"] = "Empezar", ["stop"] = "Dejar", ["continue"] = "Continuar", ["well"] = "Lo bueno", ["improve"] = "A mejorar", ["kudos"] = "Agradecimientos", ["ideas"] = "Ideas", ["maybe"] = "Quizás", ["next"] = "Próximos pasos" },
+        ["en"] = new() { ["start"] = "Start", ["stop"] = "Stop", ["continue"] = "Continue", ["well"] = "Went well", ["improve"] = "To improve", ["kudos"] = "Kudos", ["ideas"] = "Ideas", ["maybe"] = "Maybe", ["next"] = "Next steps", ["canvas"] = "Canvas" },
+        ["fr"] = new() { ["start"] = "Commencer", ["stop"] = "Arrêter", ["continue"] = "Continuer", ["well"] = "Réussites", ["improve"] = "À améliorer", ["kudos"] = "Bravos", ["ideas"] = "Idées", ["maybe"] = "Peut-être", ["next"] = "Prochaines étapes", ["canvas"] = "Toile" },
+        ["ar"] = new() { ["start"] = "نبدأ", ["stop"] = "نتوقف", ["continue"] = "نستمر", ["well"] = "ما نجح", ["improve"] = "ما نحسّنه", ["kudos"] = "شكر", ["ideas"] = "أفكار", ["maybe"] = "ربما", ["next"] = "الخطوات التالية", ["canvas"] = "اللوحة الحرّة" },
+        ["es"] = new() { ["start"] = "Empezar", ["stop"] = "Dejar", ["continue"] = "Continuar", ["well"] = "Lo bueno", ["improve"] = "A mejorar", ["kudos"] = "Agradecimientos", ["ideas"] = "Ideas", ["maybe"] = "Quizás", ["next"] = "Próximos pasos", ["canvas"] = "Lienzo" },
     };
 
     public static string ColumnName(string lang, string column) =>
@@ -147,6 +147,12 @@ public sealed partial class CirclooCoach(
     /// <summary>The board of this activity as "column: note (votes)" lines, most-voted first within each column.</summary>
     private async Task<List<(string Column, string Text, int Votes)>> BoardAsync(Guid circleId, string activityId, CancellationToken ct)
     {
+        if (activityId == ActivityCatalog.Canvas)
+        {
+            var items = await db.CanvasNotes.AsNoTracking().Where(n => n.CircleId == circleId && n.ActivityId == activityId)
+                .OrderBy(n => n.Id).Select(n => n.Text).Take(60).ToListAsync(ct);
+            return [.. items.Select(t => ("canvas", t, 0))];
+        }
         var columns = ActivityCatalog.ColumnsOf(activityId);
         if (columns.Length == 0)
         {
@@ -223,7 +229,7 @@ public sealed partial class CirclooCoach(
         string text;
         if (SummaryWords.Any(lower.Contains) && board.Count > 0)
         {
-            var lines = board.GroupBy(n => n.Column).Select(g => $"{ColumnName(lang, g.Key)}: " + string.Join(" · ", g.Take(3).Select(n => n.Votes > 0 ? $"{n.Text} ({n.Votes})" : n.Text)));
+            var lines = board.GroupBy(n => n.Column).Select(g => $"{ColumnName(lang, g.Key)}: " + string.Join(" · ", g.Take(g.Key == "canvas" ? 8 : 3).Select(n => n.Votes > 0 ? $"{n.Text} ({n.Votes})" : n.Text)));
             text = $"{Line(lang, "heard")}\n{string.Join('\n', lines)}";
         }
         else if (SummaryWords.Any(lower.Contains))

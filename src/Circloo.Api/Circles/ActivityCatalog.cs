@@ -85,6 +85,12 @@ public static class ActivityCatalog
               ["Place au remue-méninges ! Mettez toutes vos idées sur le tableau, même les plus folles. Votez avec vos points quand les idées ralentissent."],
               ["وقت العصف الذهني! ضعوا كل فكرة على اللوحة، حتى الجامحة منها. صوّتوا بنقاطكم عندما تهدأ الأفكار."],
               ["¡Lluvia de ideas! Poned todas las ideas en el tablero, incluso las más locas. Votad con vuestros puntos cuando las ideas se calmen."])),
+        new(Canvas, "decide", null,
+            "Facilitate a live canvas where everyone drops sticky notes anywhere: encourage ideas, then group what belongs together and sum up the canvas when asked.",
+            L(["Live canvas! Double-click anywhere to drop a note, drag notes around and give them colours. Ask me to sum it up when you're ready."],
+              ["Toile en direct ! Double-clique n'importe où pour poser une note, déplace-les et donne-leur des couleurs. Demande-moi un résumé quand vous êtes prêts."],
+              ["لوحة حرّة مباشرة! انقر مرتين في أي مكان لتضع ملاحظة، واسحب الملاحظات ولوّنها. اطلبوا مني التلخيص عندما تكونون جاهزين."],
+              ["¡Lienzo en vivo! Haz doble clic en cualquier sitio para poner una nota, arrastra las notas y dales color. Pedidme un resumen cuando estéis listos."])),
     ];
 
     private static readonly Dictionary<string, ActivityDef> ById = All.ToDictionary(a => a.Id);
@@ -108,4 +114,17 @@ public static class ActivityCatalog
     public static readonly string[] NoteColors = ["yellow", "pink", "blue", "green", "violet"];
 
     public const int MaxPerCircle = 8;
+
+    /// <summary>The live canvas (issue #93): notes anywhere, styled by their author, cursors for everyone.</summary>
+    public const string Canvas = "canvas";
+    public const int MaxCanvasNotes = 300;
+    /// <summary>Notes and cursors stay within this many pixels of the canvas centre.</summary>
+    public const double CanvasExtent = 4000;
+    public static readonly string[] CanvasColors = ["yellow", "pink", "blue", "green", "violet", "white"];
+    public static readonly string[] CanvasSizes = ["s", "m", "l"];
+    public static readonly string[] CanvasShapes = ["square", "round"];
+    public static readonly string[] CanvasStickers = ["heart", "star", "thumbs", "laugh", "idea"];
+
+    public static bool IsCanvasPoint(double x, double y) =>
+        double.IsFinite(x) && double.IsFinite(y) && Math.Abs(x) <= CanvasExtent && Math.Abs(y) <= CanvasExtent;
 }

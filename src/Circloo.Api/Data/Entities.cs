@@ -159,6 +159,23 @@ public sealed class BoardNote
     public List<BoardVote> Votes { get; set; } = [];
 }
 
+/// <summary>A sticky note on a live canvas (issue #93), placed anywhere and styled by its author.</summary>
+public sealed class CanvasNote
+{
+    public long Id { get; set; }
+    public Guid CircleId { get; set; }
+    public required string ActivityId { get; set; }
+    public required string Text { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public required string Color { get; set; }
+    public required string Size { get; set; }
+    public required string Shape { get; set; }
+    public string? Sticker { get; set; }
+    public Guid AuthorMemberId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
 public sealed class BoardVote
 {
     public long NoteId { get; set; }

@@ -25,6 +25,11 @@ public interface ICircleClient
     Task NoteDeleted(long id);
     /// <summary>Someone else is writing in the chat (issue #89); the event carries no text.</summary>
     Task Typing(Guid memberId);
+    /// <summary>A canvas note was added, moved, edited or restyled (issue #93).</summary>
+    Task CanvasChanged(CanvasNoteDto note);
+    Task CanvasDeleted(long id);
+    /// <summary>Someone else's pointer on the canvas, in canvas coordinates. Never stored.</summary>
+    Task Cursor(Guid memberId, double x, double y);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -54,6 +59,17 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
 
     /// <summary>Pings from one connection closer together than this are dropped, so a chatty client costs nothing.</summary>
     public static readonly TimeSpan TypingEvery = TimeSpan.FromSeconds(1.5);
+
+    private const string CursorKey = "cursor";
+    private const string VerifiedKey = "verified";
+
+    /// <summary>Cursor updates closer together than this are dropped (about 20 a second at most).</summary>
+    public static readonly TimeSpan CursorEvery = TimeSpan.FromMilliseconds(50);
+
+    /// <summary>Cursors re-check membership at most this often: they are frequent and carry nothing but a position.</summary>
+    public static readonly TimeSpan CursorRecheck = TimeSpan.FromSeconds(10);
+
+    private sealed record Verified(Guid MemberId, DateTimeOffset At);
 
     public override Task OnConnectedAsync()
     {
@@ -230,6 +246,117 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         await db.SaveChangesAsync();
         await Clients.Group(Group(circleId)).NoteChanged(BoardNoteDto.From(note));
     }
+
+    // ---------- Live canvas (issue #93) ----------
+
+    public async Task AddCanvasNote(double x, double y, string text, string color, string size, string shape)
+    {
+        var (circleId, me) = await CurrentAsync();
+        if (me.Circle!.CurrentActivity != ActivityCatalog.Canvas || !ActivityCatalog.IsCanvasPoint(x, y) || !IsCanvasStyle(color, size, shape, null))
+        {
+            throw new HubException("note-invalid");
+        }
+        var clean = CleanNote(text);
+        if (await db.CanvasNotes.CountAsync(n => n.CircleId == circleId && n.ActivityId == ActivityCatalog.Canvas) >= ActivityCatalog.MaxCanvasNotes)
+        {
+            throw new HubException("board-full");
+        }
+        var note = new CanvasNote
+        {
+            CircleId = circleId, ActivityId = ActivityCatalog.Canvas, Text = clean, X = Math.Round(x, 1), Y = Math.Round(y, 1),
+            Color = color, Size = size, Shape = shape, AuthorMemberId = me.Id, CreatedAt = clock.GetUtcNow(),
+        };
+        db.CanvasNotes.Add(note);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).CanvasChanged(CanvasNoteDto.From(note));
+    }
+
+    /// <summary>Anyone in the circle moves notes, like on a real wall.</summary>
+    public async Task MoveCanvasNote(long id, double x, double y)
+    {
+        var (circleId, _) = await CurrentAsync();
+        if (!ActivityCatalog.IsCanvasPoint(x, y))
+        {
+            throw new HubException("note-invalid");
+        }
+        var note = await CanvasNoteAsync(circleId, id);
+        note.X = Math.Round(x, 1);
+        note.Y = Math.Round(y, 1);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).CanvasChanged(CanvasNoteDto.From(note));
+    }
+
+    public async Task EditCanvasNote(long id, string text)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var note = await CanvasNoteAsync(circleId, id);
+        if (note.AuthorMemberId != me.Id)
+        {
+            throw new HubException("author-only");
+        }
+        note.Text = CleanNote(text);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).CanvasChanged(CanvasNoteDto.From(note));
+    }
+
+    /// <summary>Colour, size, shape and sticker: the author's choice, or the animator's.</summary>
+    public async Task StyleCanvasNote(long id, string color, string size, string shape, string? sticker)
+    {
+        var (circleId, me) = await CurrentAsync();
+        if (!IsCanvasStyle(color, size, shape, sticker))
+        {
+            throw new HubException("note-invalid");
+        }
+        var note = await CanvasNoteAsync(circleId, id);
+        if (note.AuthorMemberId != me.Id && me.Role != Roles.Animator)
+        {
+            throw new HubException("author-only");
+        }
+        (note.Color, note.Size, note.Shape, note.Sticker) = (color, size, shape, sticker);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).CanvasChanged(CanvasNoteDto.From(note));
+    }
+
+    public async Task DeleteCanvasNote(long id)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var note = await CanvasNoteAsync(circleId, id);
+        if (note.AuthorMemberId != me.Id && me.Role != Roles.Animator)
+        {
+            throw new HubException("author-only");
+        }
+        db.CanvasNotes.Remove(note);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).CanvasDeleted(id);
+    }
+
+    /// <summary>Shares the caller's pointer with the others. Throttled, never stored, and membership is re-checked every few seconds.</summary>
+    public async Task Cursor(double x, double y)
+    {
+        var now = clock.GetUtcNow();
+        if (!ActivityCatalog.IsCanvasPoint(x, y) || (Context.Items[CursorKey] is DateTimeOffset last && now - last < CursorEvery))
+        {
+            return;
+        }
+        if (Context.Items[CircleKey] is not Guid circleId)
+        {
+            throw new HubException("not-entered");
+        }
+        if (Context.Items[VerifiedKey] is not Verified verified || now - verified.At > CursorRecheck)
+        {
+            verified = new Verified((await MemberAsync(circleId)).Id, now);
+            Context.Items[VerifiedKey] = verified;
+        }
+        Context.Items[CursorKey] = now;
+        await Clients.OthersInGroup(Group(circleId)).Cursor(verified.MemberId, Math.Round(x, 1), Math.Round(y, 1));
+    }
+
+    private static bool IsCanvasStyle(string color, string size, string shape, string? sticker) =>
+        ActivityCatalog.CanvasColors.Contains(color) && ActivityCatalog.CanvasSizes.Contains(size) && ActivityCatalog.CanvasShapes.Contains(shape)
+        && (sticker is null || ActivityCatalog.CanvasStickers.Contains(sticker));
+
+    private async Task<CanvasNote> CanvasNoteAsync(Guid circleId, long id) =>
+        await db.CanvasNotes.FirstOrDefaultAsync(n => n.Id == id && n.CircleId == circleId) ?? throw new HubException("note-invalid");
 
     private string CleanNote(string text)
     {
