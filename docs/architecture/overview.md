@@ -14,7 +14,8 @@
 | AI | **Microsoft Foundry** (Azure AI Foundry model deployment) behind `IAiProvider`. Free local provider in dev | Fresh icebreakers tailored to a circle, with content safety |
 | Email | **ACS Email** (prod) · **Mailpit** container (dev) | OTP codes, invitations |
 | Real-time boards | **SignalR** (Azure SignalR in prod) + **Yjs** CRDT per board | Live cursors and conflict-free edits |
-| Files | Blob Storage (managed identity) · Azurite in dev | Avatars, board exports |
+| Files | Blob Storage (managed identity) · Azurite in dev | Slide pictures of presentations (container `presentations`, private, streamed by the API after an access check), avatars, board exports |
+| Deck conversion | **Gotenberg 8** (LibreOffice) in its own container: .pptx → PDF; the API renders PDF pages to WebP with PDFium | Faithful PowerPoint rendering for free, with the untrusted-file parser isolated from the API (spec 006) |
 | i18n | i18next, locales `en`, `fr`, `ar` (RTL), `es`. Messages in `src/web/src/i18n/locales/*.json`. Server emails in `src/Circloo.Api/Resources/emails/*.json` | |
 | Hosting | **Azure Container Apps** (scale to zero) + ACR. One container: the API serves the SPA | Simple, cheap, WebSocket-capable |
 | Secrets | user-secrets (dev) · **Key Vault** via managed identity (prod) | |
@@ -25,7 +26,9 @@
 Circloo.AppHost
 ├── postgres (container, data volume) ── circloodb
 ├── mailpit  (container: SMTP + web UI)
-├── api      (Circloo.Api)  → circloodb, mailpit
+├── storage  (Azurite container, data volume) ── blobs
+├── converter (gotenberg/gotenberg:8.37.0 container: .pptx → PDF, ~1.7 GB pulled once)
+├── api      (Circloo.Api)  → circloodb, mailpit, blobs, converter
 └── web      (Vite dev server) → proxies /api to api
 ```
 Run it with `dotnet run --project src/Circloo.AppHost`. It works with Docker or Podman (`ASPIRE_CONTAINER_RUNTIME=podman`).
@@ -42,7 +45,9 @@ Run it with `dotnet run --project src/Circloo.AppHost`. It works with Docker or 
 ## Infrastructure (`infra/`)
 - `infra/main.bicep` (subscription scope) creates **one resource group `rg-circloo-<env>`**. `infra/modules/app.bicep` puts every resource inside it.
 - It is driven by the Azure Developer CLI (`azure.yaml`, service `web` → `src/Circloo.Api/Dockerfile`, built from the repo root). `scripts/deploy.*` and `scripts/destroy.*` wrap it.
-- The app listens on `PORT` (3000). Key Vault secrets reach the app as env vars: `ConnectionStrings__circloodb`, `Security__Pepper`, `Email__AcsConnectionString`, `Ai__*` (later).
+- The app listens on `PORT` (3000). Key Vault secrets reach the app as env vars: `ConnectionStrings__circloodb`, `Security__Pepper`, `Email__AcsConnectionString`, `Ai__*` (later). Plain settings: `ConnectionStrings__blobs` (blob endpoint, managed identity), `Presentations__Container`, `Presentations__ConverterUrl`.
+- **The app runs one replica** (`maxReplicas: 1`): SignalR groups, presence and the quiz clock are in memory until the Web PubSub backplane lands. Data-side rules (one answer per person, conversion leases) already hold across replicas. During a rollout the new revision briefly runs beside the old one, so deploy outside live sessions.
+- **Deck converter** (spec 006): a second Container App `ca-conv-<token>` running `gotenberg/gotenberg:8.37.0` (pinned), the one justified exception to "one production container" (plan Complexity Tracking). It has internal ingress only, no managed identity, no secrets, scales to zero, and has webhooks, download-from and Chromium routes disabled. Outbound traffic is not blocked yet (no VNet), so the API strips externally linked pictures, media and OLE objects from decks before converting them; a VNet with egress rules is later hardening.
 
 ## Configurable enterprise SSO (E6)
 SSO is **data, not code**. The table `IdentityProvider { organizationId, kind: 'oidc'|'saml', issuer, clientId, clientSecretRef, domains[], enabled }` keeps secrets in Key Vault, with only a reference in the DB. At sign-in, the email domain is looked up **before** a code is issued: a verified domain mapped to an enabled IdP redirects there, and otherwise the OTP flow is used (if org policy allows). ASP.NET Core OIDC handlers are built per request from the DB row. SAML goes through a SAML→OIDC bridge.
