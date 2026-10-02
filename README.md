@@ -40,7 +40,7 @@ Needs the .NET 10 SDK, Node 24, and Docker Desktop **or** Podman (`podman machin
 
 ```powershell
 cd src/web; npm ci; cd ../..
-dotnet run --project src/Circloo.AppHost      # Postgres + Mailpit + API + Vite, all local
+dotnet run --project src/Circloo.AppHost      # Postgres, Mailpit, Azurite, deck converter (~1.7 GB first pull), API, Vite: all local
 ```
 Open the Aspire dashboard link it prints. Use the `web` endpoint for the app and the `mailpit` endpoint to read your sign-in codes. No email ever leaves your machine.
 
