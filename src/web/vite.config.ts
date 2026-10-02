@@ -17,6 +17,7 @@ export default defineConfig({
     strictPort: !!process.env.PORT,
     proxy: {
       '/api': { target: apiTarget, changeOrigin: false, secure: false },
+      '/hubs': { target: apiTarget, changeOrigin: false, secure: false, ws: true },
     },
   },
   build: {

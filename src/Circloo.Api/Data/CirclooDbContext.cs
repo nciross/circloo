@@ -15,6 +15,9 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<Spark> Sparks => Set<Spark>();
     public DbSet<SparkFavorite> SparkFavorites => Set<SparkFavorite>();
     public DbSet<AiGeneration> AiGenerations => Set<AiGeneration>();
+    public DbSet<Circle> Circles => Set<Circle>();
+    public DbSet<CircleMember> CircleMembers => Set<CircleMember>();
+    public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -87,6 +90,39 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(x => x.Outcome).HasMaxLength(12);
             e.HasIndex(x => new { x.UserId, x.At });
             e.HasIndex(x => x.At);
+            e.Property(x => x.Purpose).HasMaxLength(12).HasDefaultValue("sparks");
+        });
+
+        modelBuilder.Entity<Circle>(e =>
+        {
+            e.Property(c => c.Name).HasMaxLength(60);
+            e.Property(c => c.JoinCode).HasMaxLength(10).IsFixedLength();
+            e.HasIndex(c => c.JoinCode).IsUnique();
+            e.Property(c => c.CurrentActivity).HasMaxLength(40);
+            e.Property(c => c.Locale).HasMaxLength(5);
+            e.HasIndex(c => new { c.OwnerUserId, c.CreatedAt });
+            e.HasOne<User>().WithMany().HasForeignKey(c => c.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CircleMember>(e =>
+        {
+            e.Property(m => m.Role).HasMaxLength(12);
+            e.Property(m => m.Name).HasMaxLength(24);
+            e.Property(m => m.Character).HasMaxLength(16);
+            e.HasOne(m => m.Circle).WithMany().HasForeignKey(m => m.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<User>().WithMany().HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
+            // One person per character and one membership per account in a circle, while present.
+            e.HasIndex(m => new { m.CircleId, m.Character }).IsUnique().HasFilter("\"LeftAt\" IS NULL");
+            e.HasIndex(m => new { m.CircleId, m.UserId }).IsUnique().HasFilter("\"UserId\" IS NOT NULL AND \"LeftAt\" IS NULL");
+        });
+
+        modelBuilder.Entity<CircleMessage>(e =>
+        {
+            e.Property(m => m.ActivityId).HasMaxLength(40);
+            e.Property(m => m.Kind).HasMaxLength(8);
+            e.Property(m => m.Text).HasMaxLength(2000);
+            e.HasIndex(m => new { m.CircleId, m.Id });
+            e.HasOne<Circle>().WithMany().HasForeignKey(m => m.CircleId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

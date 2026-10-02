@@ -12,6 +12,8 @@ public sealed class RateLimitOptions
     public int OtpRequestsPerEmailPer15Min { get; set; } = 3;
     public int OtpFailedGuessesPerEmailPerDay { get; set; } = 25;
     public int AiRequestsPerUserPerMinute { get; set; } = 6;
+    public int CircleJoinsPerIpPer10Min { get; set; } = 60;
+    public int CirclesCreatedPerUserPerHour { get; set; } = 30;
 }
 
 public static class RateLimits
@@ -19,6 +21,8 @@ public static class RateLimits
     public const string OtpRequest = "otp-request";
     public const string OtpVerify = "otp-verify";
     public const string Ai = "ai";
+    public const string Join = "circle-join";
+    public const string CircleCreate = "circle-create";
 
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
@@ -36,6 +40,13 @@ public static class RateLimits
             o.AddPolicy(Ai, ctx => RateLimitPartition.GetFixedWindowLimiter(
                 ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.AiRequestsPerUserPerMinute, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+            // Join codes are 50 bits; this keeps guessing hopeless and the join page cheap.
+            o.AddPolicy(Join, ctx => RateLimitPartition.GetFixedWindowLimiter(
+                ClientIp(ctx) ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.CircleJoinsPerIpPer10Min, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+            o.AddPolicy(CircleCreate, ctx => RateLimitPartition.GetFixedWindowLimiter(
+                ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.CirclesCreatedPerUserPerHour, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
             o.OnRejected = async (rejected, ct) =>
             {
                 var http = rejected.HttpContext;

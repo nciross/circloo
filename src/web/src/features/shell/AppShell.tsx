@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarHeart, Home, LayoutGrid, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
+import { CalendarHeart, CircleDashed, Home, LayoutGrid, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
@@ -31,6 +31,12 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink to="/app" end className={cls} onClick={onNavigate} viewTransition>
             <Home size={18} aria-hidden="true" />
             <span>{t('common.nav.home')}</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/app/circles/new" className={cls} onClick={onNavigate} viewTransition>
+            <CircleDashed size={18} aria-hidden="true" />
+            <span>{t('circles.new')}</span>
           </NavLink>
         </li>
         <li>
@@ -187,8 +193,8 @@ export function AppShell() {
           <kbd className="topbar__kbd" dir="ltr">{shortcut}</kbd>
         </button>
         <div className="topbar__end">
-          <ButtonLink to="/app/icebreakers" size="sm" className="topbar__create" icon={<Plus size={16} strokeWidth={2.5} />}>
-            {t('common.startRound')}
+          <ButtonLink to="/app/circles/new" size="sm" className="topbar__create" icon={<Plus size={16} strokeWidth={2.5} />}>
+            {t('circles.new')}
           </ButtonLink>
           <AccountMenu />
         </div>

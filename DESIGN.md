@@ -192,6 +192,35 @@ Reduced motion stops blinking and gaze. The mouth is always coral; eyes take the
 Static assets (`favicon.svg`, `logo-mark.svg`, `icon-maskable.svg`, PNG icons rendered from them) use
 the same geometry on navy.
 
+## The cast (characters)
+
+Twelve characters (panda, fox, frog, cat, owl, octopus, bear, bunny, robot, ghost, chick, dino) drawn on a
+64 × 64 grid in `src/web/src/components/Character.tsx`. Every one wears the logo's eyes (white rings with a
+pupil) and a navy outline, so the cast reads as one family with the face. Their colours are fixed in both
+themes: a character is a person's identity in a circle, not chrome. Participants must pick one to join;
+taken characters are disabled and labelled. The picker is a native radio group, and the picked character
+hops once.
+
+## circloo, the panda
+
+circloo's avatar in conversations is a single-weight line panda (`Panda.tsx`). While circloo thinks or
+streams, the panda draws itself stroke by stroke (head, ears, patches, eyes, mouth) and its pupils glance
+around; the streamed text ends in a violet caret. Under reduced motion the panda is simply drawn.
+
+## Circles (live rooms)
+
+- **Room:** the conversation panel at the start, the people ring and the invite card at the end (stacked
+  above the conversation on narrow screens). The status dot is green when live, amber when reconnecting.
+- **People ring:** members seated on a dashed circle at equal angles (set through CSS custom properties
+  from script), online people bright, away people faded and grey; the animator wears a small crown.
+- **Conversation:** like a chat with an assistant. circloo's messages are full-width text with the panda,
+  name and the AI lozenge; people's messages are bubbles with their character, yours on the end side in
+  primary-subtle. System lines ("Nadia started Quick questions") are centred pills.
+- **Composer:** one rounded box with the send button inside. The animator chooses "circloo" (violet send)
+  or "Everyone" (blue send) and has quick requests as chips.
+- **Activities:** cards with an icon tinted by category (icebreakers blue, energizers amber, retro green,
+  decide red), filterable by category.
+
 ## Motion
 
 Short and functional: 120–200ms state changes, 300ms entrances on `ease-out`, page cross-fades through

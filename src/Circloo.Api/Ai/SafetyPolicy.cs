@@ -118,6 +118,20 @@ public sealed partial class SafetyPolicy
         return !ContainsAny(n, HarmfulTerms) && !ContainsAny(n, InjectionTerms) && !(IsHumour(kind) && ContainsAny(n, JokeTabooTerms));
     }
 
+    /// <summary>A participant's chat message, shown to everyone in the circle: no harmful terms.</summary>
+    public bool IsMessageSafe(string text) => !Markup().IsMatch(text) && !ContainsAny(Normalize(text), HarmfulTerms);
+
+    /// <summary>The animator's request to circloo, before any model call: no harmful terms, no prompt injection.</summary>
+    public bool IsPromptSafe(string text)
+    {
+        var n = Normalize(text);
+        return !Markup().IsMatch(text) && !ContainsAny(n, HarmfulTerms) && !ContainsAny(n, InjectionTerms);
+    }
+
+    /// <summary>circloo's reply in a circle: bounded, no harmful terms, no personal data.</summary>
+    public bool IsReplySafe(string text) =>
+        !string.IsNullOrWhiteSpace(text) && text.Length <= 1500 && !PersonalData().IsMatch(text) && !ContainsAny(Normalize(text), HarmfulTerms);
+
     /// <summary>Checks one generated item: script matches the language, lengths, no harmful content, no personal data.</summary>
     public bool IsOutputSafe(GeneratedItem item, string lang, string requestedKind)
     {

@@ -49,7 +49,7 @@ public sealed partial class IcebreakerGenerator(
         var since = now.AddDays(-1);
         // Outcomes that reached the model, so cost tokens.
         string[] spent = ["ok", "failed"];
-        var mine = await db.AiGenerations.Where(g => g.UserId == userId && g.At > since && spent.Contains(g.Outcome))
+        var mine = await db.AiGenerations.Where(g => g.UserId == userId && g.Purpose == "sparks" && g.At > since && spent.Contains(g.Outcome))
             .OrderBy(g => g.At).Select(g => new { g.At, g.Outcome }).ToListAsync(ct);
         var global = await db.AiGenerations.Where(g => g.At > since && spent.Contains(g.Outcome))
             .OrderBy(g => g.At).Select(g => g.At).Take(_o.DailyGlobal).ToListAsync(ct);

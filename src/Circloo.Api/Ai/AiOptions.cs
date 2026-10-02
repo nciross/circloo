@@ -26,6 +26,8 @@ public sealed class AiOptions
     public string? ApiKey { get; set; }
     public int DailyPerUser { get; set; } = 20;
     public int DailyGlobal { get; set; } = 200;
+    /// <summary>circloo replies inside circles per animator per 24 h (spec 003).</summary>
+    public int CoachDailyPerUser { get; set; } = 60;
     public int TimeoutSeconds { get; set; } = 15;
 
     public bool IsSeed => Provider != "OpenAICompatible";
@@ -45,7 +47,7 @@ public static class AiServiceCollectionExtensions
         services.AddOptions<AiOptions>().BindConfiguration(AiOptions.Section)
             .Validate(o => o.Provider is "Seed" or "OpenAICompatible", "Ai:Provider must be Seed or OpenAICompatible.")
             .Validate(o => o.Auth is "ManagedIdentity" or "ApiKey" or "None", "Ai:Auth must be ManagedIdentity, ApiKey or None.")
-            .Validate(o => o.DailyPerUser > 0 && o.DailyGlobal > 0 && o.TimeoutSeconds > 0, "Ai limits must be positive.")
+            .Validate(o => o.DailyPerUser > 0 && o.DailyGlobal > 0 && o.CoachDailyPerUser > 0 && o.TimeoutSeconds > 0, "Ai limits must be positive.")
             .ValidateOnStart();
         services.AddSingleton<SeedRemixChatClient>();
         services.AddSingleton<IChatClient>(sp =>
@@ -57,6 +59,8 @@ public static class AiServiceCollectionExtensions
         services.AddSingleton<SafetyPolicy>();
         services.AddSingleton<InFlightGate>();
         services.AddScoped<IcebreakerGenerator>();
+        services.AddScoped<Circles.CirclooCoach>();
+        services.AddSingleton<Circles.CoachRunner>();
         return services;
     }
 

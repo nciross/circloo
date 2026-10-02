@@ -20,7 +20,7 @@ async function signedIn(page: Page, locale: 'en' | 'ar') {
 test('deck: filters, deal without repeats, favourites (US1)', async ({ page }, info) => {
   const locale = localeOf(info)
   await signedIn(page, locale)
-  await page.locator('a[href="/app/icebreakers"]').first().click()
+  await page.locator('main a[href="/app/icebreakers"]').first().click()
   await expect(page).toHaveURL(/\/app\/icebreakers$/)
 
   const question = page.locator('.deal__question')
