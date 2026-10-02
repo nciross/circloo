@@ -41,7 +41,7 @@ export function CharacterPicker({
 }
 
 /** The people in the circle, seated on a ring. Online people are bright; away people are faded and say so. */
-export function PeopleRing({ members, online, meId }: { members: Member[]; online: string[]; meId?: string }) {
+export function PeopleRing({ members, online, meId, arrivals = [] }: { members: Member[]; online: string[]; meId?: string; arrivals?: string[] }) {
   const { t } = useTranslation()
   const count = members.length
   return (
@@ -52,11 +52,20 @@ export function PeopleRing({ members, online, meId }: { members: Member[]; onlin
           return (
             <li
               key={m.id}
-              className={`ring__seat${isOnline ? ' is-online' : ''}`}
+              className={`ring__seat${isOnline ? ' is-online' : ''}${arrivals.includes(m.id) ? ' is-new' : ''}`}
               // Seat angle through CSSOM (the CSP forbids style attributes, not custom properties set from script).
               ref={(el) => el?.style.setProperty('--a', `${(i * 360) / Math.max(count, 1)}deg`)}
             >
               <span className="ring__body">
+                {arrivals.includes(m.id) ? (
+                  <span className="ring__hearts" aria-hidden="true">
+                    {[0, 1, 2].map((h) => (
+                      <svg key={h} className={`ring__heart ring__heart--${h}`} viewBox="0 0 24 24">
+                        <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" />
+                      </svg>
+                    ))}
+                  </span>
+                ) : null}
                 <Character id={m.character} className="ring__char" />
                 <span className="ring__name">
                   {m.role === 'animator' ? <Crown size={12} aria-hidden="true" /> : null}
@@ -79,7 +88,7 @@ export function PeopleRing({ members, online, meId }: { members: Member[]; onlin
 }
 
 /** The link and code to share, with a copy button that confirms. */
-export function InviteCard({ code }: { code: string }) {
+export function InviteCard({ code, fresh = false }: { code: string; fresh?: boolean }) {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const link = joinLink(code)
@@ -93,12 +102,12 @@ export function InviteCard({ code }: { code: string }) {
     }
   }
   return (
-    <section className="panel invite" aria-labelledby="invite-title">
+    <section className={`panel invite${fresh ? ' is-fresh' : ''}`} aria-labelledby="invite-title" data-perch="invite">
       <div className="panel__head">
         <h2 id="invite-title" className="panel__title">{t('circles.invite.title')}</h2>
       </div>
       <div className="panel__body">
-        <p className="field__help">{t('circles.invite.body')}</p>
+        <p className="field__help">{fresh ? t('circles.invite.ready') : t('circles.invite.body')}</p>
         <div className="invite__row">
           <input className="input invite__link" readOnly value={link} aria-label={t('circles.invite.link')} dir="ltr" onFocus={(e) => e.currentTarget.select()} />
           <Button variant="default" onClick={copy} icon={copied ? <Check size={16} /> : <Copy size={16} />}>

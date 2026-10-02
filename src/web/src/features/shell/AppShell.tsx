@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarHeart, CircleDashed, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
+import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
 import { ButtonLink } from '../../components/Button'
 import { usePopover } from '../../components/usePopover'
 import { AskBar } from '../ask/AskBar'
+import { Pirikoo } from '../pirikoo/Pirikoo'
 import { useAskBar } from './askBarStore'
 import '../../styles/app.css'
 
@@ -27,12 +28,6 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink to="/app" end className={cls} onClick={onNavigate} viewTransition>
             <Home size={18} aria-hidden="true" />
             <span>{t('common.nav.home')}</span>
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/app/circles/new" className={cls} onClick={onNavigate} viewTransition>
-            <CircleDashed size={18} aria-hidden="true" />
-            <span>{t('circles.new')}</span>
           </NavLink>
         </li>
         <li>
@@ -228,6 +223,7 @@ export function AppShell() {
       </dialog>
 
       <AskBar open={open} initial={initial} onClose={hide} onDone={onDone} />
+      <Pirikoo />
       <p className="toast" role="status" aria-live="polite" hidden={!toast}>{toast}</p>
     </div>
   )

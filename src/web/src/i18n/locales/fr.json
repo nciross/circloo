@@ -185,6 +185,11 @@
     "inside": {
       "title": "Dans circloo",
       "body": "Un espace calme pour ton cercle : brise-glace en direct, humeurs du jour et tableaux, avec circloo prêt à t'aider."
+    },
+    "tour": {
+      "title": "circloo en 20 secondes",
+      "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
+      "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
     }
   },
   "auth": {
@@ -227,7 +232,7 @@
   },
   "home": {
     "greeting": "Salut <name>{{name}}</name> !",
-    "lead": "Voici ce qui est disponible et ce qui arrive.",
+    "lead": "Crée un cercle, ou retourne dans un des tiens.",
     "nextTitle": "Ton espace",
     "modules": {
       "icebreakers": {
@@ -288,7 +293,7 @@
       "off": "Désactivées",
       "suggest": "Proposer"
     },
-    "autonomyHelp": "Avec Proposer, circloo suggère des prochaines étapes sur ton accueil. Rien ne s'exécute avant que tu vérifies et confirmes le plan."
+    "autonomyHelp": "Avec Proposer, Pirikoo la perruche te suggère les prochaines étapes. Rien ne se lance sans ton choix."
   },
   "notFound": {
     "title": "Page introuvable.",
@@ -560,7 +565,8 @@
       "link": "Lien pour rejoindre",
       "copy": "Copier le lien",
       "copied": "Lien copié",
-      "code": "Ou utilise le code"
+      "code": "Ou utilise le code",
+      "ready": "Ton cercle est prêt. Partage ce lien : chacun rejoint avec un prénom et un personnage."
     },
     "join": {
       "title": "Rejoindre un cercle",
@@ -612,7 +618,8 @@
       "closeConfirm": "Oui, le fermer pour tout le monde",
       "closed": "Fermé",
       "closedTitle": "Ce cercle est terminé",
-      "closedBody": "Merci d'avoir participé. L'animateur a fermé le cercle."
+      "closedBody": "Merci d'avoir participé. L'animateur a fermé le cercle.",
+      "joined": "{{name}} a rejoint le cercle."
     },
     "missing": {
       "title": "Cercle introuvable",
@@ -746,6 +753,35 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
+    }
+  },
+  "pirikoo": {
+    "name": "Pirikoo",
+    "label": "Pirikoo, ton guide",
+    "notNow": "Pas maintenant",
+    "hide": "Désactiver les suggestions",
+    "actions": {
+      "copy": "Copier le lien",
+      "start": "Lancer",
+      "sumUp": "Demander un résumé à circloo",
+      "next": "Question suivante",
+      "open": "Ouvrir"
+    },
+    "tips": {
+      "share": "Tu es seul pour l’instant ! Partage le lien : chacun rejoint avec un prénom et un personnage.",
+      "warmUp": "Tout le monde est là ? Échauffez-vous avec {{activity}}.",
+      "sumBoard": "Les idées sont là. Laissez chacun voter avec ses points, puis demande un résumé à circloo.",
+      "next": "Plein de réponses ! Prêt pour la question suivante ?",
+      "wait": "Tu es dedans ! L’animateur va lancer une activité.",
+      "firstNote": "Ajoute ta première note au tableau. Court et simple, c’est parfait.",
+      "dots_one": "Il te reste {{count}} point. Donne-le à l’idée que tu préfères.",
+      "dots_other": "Il te reste {{count}} points. Donne-les aux idées que tu préfères.",
+      "answer": "À toi ! Une phrase dans la discussion suffit.",
+      "firstCircle": "Crée ton premier cercle : choisis des activités, partage un lien, jouez ensemble.",
+      "backTo": "« {{name}} » est encore ouvert. Tu y retournes ?",
+      "mix": "Un bon mélange : un brise-glace pour s’échauffer, puis un tableau pour décider.",
+      "connect": "Connecte Teams, Jira, Confluence ou Notion pour y envoyer les résultats de ton cercle.",
+      "keys": "Ajoute le prénom de chaque personne présente, puis appuie sur Espace pour passer à la suivante."
     }
   }
 }

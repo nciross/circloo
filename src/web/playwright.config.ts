@@ -4,7 +4,8 @@ import { defineConfig, devices } from '@playwright/test'
 // E2E_BASE_URL to the web endpoint and MAILPIT_URL to the Mailpit UI endpoint.
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30_000,
+  // Each journey signs in through a real email round-trip; under a parallel run that needs headroom.
+  timeout: 60_000,
   fullyParallel: true,
   reporter: [['list']],
   use: {

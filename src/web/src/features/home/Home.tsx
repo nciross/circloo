@@ -1,56 +1,18 @@
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { CalendarHeart, Plus, Heart, LayoutGrid, MessagesSquare, Plug, Sparkles } from 'lucide-react'
+import { Heart, Plus } from 'lucide-react'
 import { useMe } from '../../api/hooks'
 import { useFavourites } from '../../api/sparks'
 import { useMyCircles } from '../../api/circles'
 import { Panda } from '../../components/Panda'
 import { useDocumentTitle } from '../../app/locale'
 import { ButtonLink } from '../../components/Button'
-import { PageHeader } from '../../components/PageHeader'
-import { useUiStore } from '../../stores/ui'
+import { FaceMark } from '../../components/Brand'
 import { useDeckStore } from '../../stores/deck'
-import { useAskBar } from '../shell/askBarStore'
 import { IcebreakerCard } from '../landing/IcebreakerCard'
 import '../../styles/app.css'
 import '../../styles/circles.css'
 
-const MODULES = [
-  { id: 'icebreakers', icon: MessagesSquare, live: true, to: '/app/icebreakers' },
-  { id: 'boards', icon: LayoutGrid, live: true, to: '/app/circles/new' },
-  { id: 'integrations', icon: Plug, live: true, to: '/app/integrations' },
-  { id: 'checkins', icon: CalendarHeart, live: false, to: null },
-] as const
-
-/** Proposals only, never actions: each opens Ask circloo with its plan ready to check. */
-function Suggestions() {
-  const { t } = useTranslation()
-  const show = useAskBar((s) => s.show)
-  const items = t('home.suggest.items', { returnObjects: true }) as string[]
-  return (
-    <section className="panel panel--ai" aria-labelledby="suggest-title">
-      <div className="panel__head">
-        <h2 id="suggest-title" className="panel__title">
-          <span className="ai-mark" aria-hidden="true"><Sparkles size={14} /></span>
-          {t('home.suggest.title')}
-        </h2>
-      </div>
-      <ul className="suggest">
-        {items.map((text) => (
-          <li key={text} className="suggest__item">
-            <p className="suggest__text"><span className="visually-hidden">{t('home.suggest.label')}: </span>{text}</p>
-            <button type="button" className="btn btn--default btn--sm" onClick={() => show(text)}>
-              <span className="btn__label">{t('home.suggest.open')}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      <p className="panel__foot">
-        {t('home.suggest.why')} <Link to="/app/settings" viewTransition>{t('common.settings')}</Link>
-      </p>
-    </section>
-  )
-}
 
 /** The circles you run or joined, newest first: open one to go back into the room. */
 function MyCircles() {
@@ -58,10 +20,10 @@ function MyCircles() {
   const circles = useMyCircles()
   const list = circles.data ?? []
   return (
-    <section className="panel dash__wide" aria-labelledby="circles-title">
+    <section className="panel" aria-labelledby="circles-title" data-perch="circles">
       <div className="panel__head">
         <h2 id="circles-title" className="panel__title">{t('circles.mine.title')}</h2>
-        <ButtonLink to="/app/circles/new" size="sm" variant="default" icon={<Plus size={14} />}>{t('circles.new')}</ButtonLink>
+        {list.length > 0 ? <ButtonLink to="/app/circles/new" size="sm" variant="default" icon={<Plus size={14} />}>{t('circles.new')}</ButtonLink> : null}
       </div>
       {circles.isPending ? (
         <p className="panel__empty" role="status">{t('common.loading')}</p>
@@ -127,68 +89,34 @@ export default function Home() {
   const { t } = useTranslation()
   useDocumentTitle('common.home')
   const { data: me } = useMe()
-  const autonomy = useUiStore((s) => s.autonomy)
 
   return (
     <div className="page">
-      <PageHeader
-        title={<Trans i18nKey="home.greeting" values={{ name: me?.displayName ?? '' }} components={{ name: <bdi /> }} />}
-        lead={t('home.lead')}
-        actions={
-          <ButtonLink to="/app/circles/new" icon={<Plus size={16} strokeWidth={2.5} />}>
-            {t('circles.new')}
-          </ButtonLink>
-        }
-      />
+      <header className="hello">
+        <FaceMark mood={5} interactive className="hello__face" />
+        <div className="hello__text">
+          <h1 className="page-header__title">
+            <Trans i18nKey="home.greeting" values={{ name: me?.displayName ?? '' }} components={{ name: <bdi /> }} />
+          </h1>
+          <p className="page-header__lead">{t('home.lead')}</p>
+        </div>
+      </header>
 
       <div className="dash">
-        <MyCircles />
-        <section className="panel dash__today" aria-labelledby="today-title">
-          <div className="panel__head">
-            <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
-          </div>
-          <div className="panel__body">
-            <IcebreakerCard bare />
-          </div>
-        </section>
-
+        <div className="dash__main">
+          <MyCircles />
+          <section className="panel" aria-labelledby="today-title">
+            <div className="panel__head">
+              <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
+            </div>
+            <div className="panel__body">
+              <IcebreakerCard bare />
+            </div>
+          </section>
+        </div>
         <div className="dash__side">
-          {autonomy === 'suggest' ? <Suggestions /> : null}
           <KeepersSummary />
         </div>
-
-        <section className="panel dash__wide" aria-labelledby="workspace-title">
-          <div className="panel__head">
-            <h2 id="workspace-title" className="panel__title">{t('home.nextTitle')}</h2>
-          </div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">{t('home.table.module')}</th>
-                <th scope="col">{t('home.table.status')}</th>
-                <th scope="col" className="table__about">{t('home.table.about')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MODULES.map(({ id, icon: Icon, live, to }) => (
-                <tr key={id}>
-                  <th scope="row">
-                    <span className="table__module">
-                      <span className={`module-icon${live ? ' module-icon--live' : ''}`} aria-hidden="true"><Icon size={16} /></span>
-                      {live && to ? <Link to={to} viewTransition>{t(`home.modules.${id}.title`)}</Link> : t(`home.modules.${id}.title`)}
-                    </span>
-                  </th>
-                  <td>
-                    <span className={`lozenge ${live ? 'lozenge--success' : 'lozenge--neutral'}`}>
-                      {live ? t('home.modules.icebreakers.tag') : t('common.soon')}
-                    </span>
-                  </td>
-                  <td className="table__about">{t(`home.modules.${id}.body`)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
       </div>
     </div>
   )

@@ -10,7 +10,7 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
   await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(7)
+  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(8)
 
   // Integrations are honest: every one carries a "coming soon" lozenge (US1-4).
   await expect(page.locator('.integration')).toHaveCount(5)

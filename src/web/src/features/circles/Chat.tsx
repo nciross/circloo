@@ -131,7 +131,7 @@ export function Chat({ activityId }: { activityId: string }) {
       </ol>
       </div>
 
-      <form className="composer" onSubmit={submit}>
+      <form className="composer" onSubmit={submit} data-perch="composer">
         {isAnimator ? (
           <div className="composer__top">
             <Segmented<'circloo' | 'everyone'>

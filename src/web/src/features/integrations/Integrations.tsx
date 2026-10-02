@@ -137,7 +137,7 @@ export default function Integrations() {
     <div className="page">
       <PageHeader crumbs={[{ to: '/app', label: t('common.nav.home') }]} title={t('integrations.title')} lead={t('integrations.lead')} />
       {list.isError ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
-      <ul className="svc-grid">
+      <ul className="svc-grid" data-perch="services">
         {PROVIDERS.map((p) => <Service key={p} view={list.data?.find((v) => v.provider === p) ?? { provider: p, connected: false, hint: null, lastUsedAt: null }} />)}
         <li className="panel svc svc--soon" aria-labelledby="svc-salesforce">
           <div className="svc__top">

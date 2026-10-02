@@ -123,7 +123,7 @@
   scale: 0;
   opacity: 0;
   transition:
-    scale 520ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    scale 520ms var(--ease-out),
     opacity 200ms ease;
 }
 .seat.is-in .seat__body {
@@ -210,7 +210,7 @@
 .stage__face {
   inline-size: 78%;
   color: var(--text);
-  transition: scale 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: scale 300ms var(--ease-out);
 }
 .stage.is-cheering .stage__face {
   scale: 1.12;
@@ -950,4 +950,40 @@
   .band {
     padding-block: var(--s-8);
   }
+}
+
+/* ---------- The tour video (rendered with Remotion) ---------- */
+.tour {
+  padding-block: var(--s-9);
+}
+.tour__inner {
+  justify-items: center;
+  gap: var(--s-6);
+}
+.tour__head {
+  justify-items: center;
+  text-align: center;
+}
+.tour__frame {
+  display: grid;
+  gap: var(--s-3);
+  inline-size: min(64rem, 100%);
+  margin: 0;
+}
+.tour__video {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg);
+  box-shadow: var(--shadow-float);
+}
+.tour__description {
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+  text-align: center;
+  max-inline-size: 60ch;
+  justify-self: center;
 }

@@ -8,11 +8,17 @@ type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
 interface RoomState {
   circleId: string | null
+  joinCode: string | null
+  activities: string[]
   me: Member | null
   members: Member[]
   online: string[]
   messages: Message[]
   notes: BoardNote[]
+  /** Members who just arrived: their seat hops for a moment. */
+  arrivals: string[]
+  /** A short sentence for screen readers about the latest arrival. */
+  announcement: string
   activity: string | null
   thinking: boolean
   draft: string
@@ -49,11 +55,15 @@ const invoke = async (method: string, ...args: unknown[]) => {
 /** Live state of the circle you are in (one at a time). */
 export const useRoom = create<RoomState>()((set) => ({
   circleId: null,
+  joinCode: null,
+  activities: [],
   me: null,
   members: [],
   online: [],
   messages: [],
   notes: [],
+  arrivals: [],
+  announcement: '',
   activity: null,
   thinking: false,
   draft: '',
@@ -64,6 +74,8 @@ export const useRoom = create<RoomState>()((set) => ({
   load: (view) =>
     set({
       circleId: view.id,
+      joinCode: view.joinCode,
+      activities: view.activities,
       me: view.me,
       members: view.members,
       messages: view.messages,
@@ -114,7 +126,10 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState((s) => (s.messages.some((x) => x.id === m.id) ? s : { messages: [...s.messages, m], draft: m.kind === 'ai' ? '' : s.draft }))
 
     connection.on('Presence', (online: string[]) => useRoom.setState({ online }))
-    connection.on('MemberJoined', (m: Member) => useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m] })))
+    connection.on('MemberJoined', (m: Member) => {
+      useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m], arrivals: [...s.arrivals, m.id], announcement: m.name }))
+      window.setTimeout(() => useRoom.setState((s) => ({ arrivals: s.arrivals.filter((x) => x !== m.id) })), 1600)
+    })
     connection.on('Activity', (a: { activityId: string | null }) => useRoom.setState({ activity: a.activityId }))
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))

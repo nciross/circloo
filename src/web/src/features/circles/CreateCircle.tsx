@@ -43,7 +43,7 @@ export default function CreateCircle() {
     if (Object.keys(next).length > 0) return
     try {
       const circle = await create.mutateAsync({ name: name.trim(), activities, character: character!, locale })
-      navigate(`/app/circles/${circle.id}`, { viewTransition: true })
+      navigate(`/app/circles/${circle.id}`, { viewTransition: true, state: { created: true } })
     } catch (err) {
       setErrors({ form: err instanceof ApiError && err.status === 429 ? t('circles.errors.slowDown') : t('common.errorGeneric') })
     }
@@ -78,7 +78,7 @@ export default function CreateCircle() {
         </div>
       </section>
 
-      <section className="panel" aria-labelledby="acts-title" aria-describedby={errors.activities ? actErr : undefined}>
+      <section className="panel" data-perch="activities" aria-labelledby="acts-title" aria-describedby={errors.activities ? actErr : undefined}>
         <div className="panel__head">
           <h2 id="acts-title" className="panel__title">{t('circles.create.activities')}</h2>
           <span className="lozenge lozenge--info">{t('circles.create.picked', { count: activities.length, max: MAX_ACTIVITIES })}</span>
