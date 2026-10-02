@@ -201,8 +201,8 @@
       "title": "Un cercle prend vie",
       "lead": "Six petits moments d’un même cercle, du premier bonjour jusqu’au suivi.",
       "nav": "Étapes de l’histoire",
-      "play": "Lire la vidéo",
-      "pause": "Mettre la vidéo en pause",
+      "play": "Lire la vidéo : {{step}}",
+      "pause": "Mettre la vidéo en pause : {{step}}",
       "steps": {
         "circle": {
           "label": "Rassembler",

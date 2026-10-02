@@ -18,24 +18,27 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
  * it is visible and pauses once it leaves. Under reduced motion it stays on its poster until someone presses play.
  * The button pauses it for good: scrolling back never restarts a clip someone stopped.
  */
-function StoryClip({ step, description }: { step: StepId; description: string }) {
+function StoryClip({ step, label, description }: { step: StepId; label: string; description: string }) {
   const { t } = useTranslation()
   const locale = useUiStore((s) => s.locale)
   const ref = useRef<HTMLVideoElement>(null)
   const descId = useId()
   const file = `/video/story/${WORDLESS.has(step) ? step : `${step}-${locale}`}`
   const [near, setNear] = useState(() => !('IntersectionObserver' in window))
-  const [playing, setPlaying] = useState(false)
+  // Which language's <video> is playing: a language switch remounts it, and the new element starts paused.
+  const [playingIn, setPlayingIn] = useState<string | null>(null)
+  const playing = playingIn === locale
   const [stopped, setStopped] = useState(() => reducedMotion())
 
-  // Load the poster and the video once the clip is about a screen away.
+  // Load the poster and the video once the clip is about a screen away. A language switch remounts the <video>,
+  // so the watch moves to the new element.
   useEffect(() => {
     const video = ref.current
     if (near || !video) return
     const io = new IntersectionObserver(([entry]) => entry?.isIntersecting && setNear(true), { rootMargin: '100% 0px' })
     io.observe(video)
     return () => io.disconnect()
-  }, [near])
+  }, [near, locale])
 
   // Play while on screen, unless someone stopped it.
   useEffect(() => {
@@ -82,10 +85,15 @@ function StoryClip({ step, description }: { step: StepId; description: string })
         width={960}
         height={540}
         aria-describedby={descId}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
+        onPlay={() => setPlayingIn(locale)}
+        onPause={() => setPlayingIn(null)}
       />
-      <button type="button" className="chapter__toggle" onClick={toggle} aria-label={playing ? t('landing.story.pause') : t('landing.story.play')}>
+      <button
+        type="button"
+        className="chapter__toggle"
+        onClick={toggle}
+        aria-label={t(playing ? 'landing.story.pause' : 'landing.story.play', { step: label })}
+      >
         {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
       </button>
       <figcaption id={descId} className="visually-hidden">{description}</figcaption>
@@ -150,7 +158,7 @@ export function Story() {
               <h3 className="chapter__title">{steps[id].title}</h3>
               <p className="chapter__body">{steps[id].body}</p>
             </div>
-            <StoryClip step={id} description={steps[id].video} />
+            <StoryClip step={id} label={steps[id].label} description={steps[id].video} />
           </li>
         ))}
       </ol>

@@ -201,8 +201,8 @@
       "title": "Watch a circle come to life",
       "lead": "Six short moments from one circle, from the first hello to the follow-up.",
       "nav": "Story steps",
-      "play": "Play video",
-      "pause": "Pause video",
+      "play": "Play video: {{step}}",
+      "pause": "Pause video: {{step}}",
       "steps": {
         "circle": {
           "label": "Gather",

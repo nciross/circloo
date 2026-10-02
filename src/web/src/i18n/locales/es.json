@@ -201,8 +201,8 @@
       "title": "Mira cómo cobra vida un círculo",
       "lead": "Seis momentos cortos de un mismo círculo, del primer hola al seguimiento.",
       "nav": "Pasos de la historia",
-      "play": "Reproducir el vídeo",
-      "pause": "Pausar el vídeo",
+      "play": "Reproducir el vídeo: {{step}}",
+      "pause": "Pausar el vídeo: {{step}}",
       "steps": {
         "circle": {
           "label": "Reunirse",
