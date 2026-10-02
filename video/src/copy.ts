@@ -13,6 +13,8 @@ export const COPY: Record<Lang, {
   send: string
   cta: string
   free: string
+  canvas: { notes: [string, string, string, string]; names: [string, string, string] }
+  pirikoo: { question: string; writing: string; answer: string }
 }> = {
   en: {
     tagline: 'Your circle, in one private space.',
@@ -26,6 +28,8 @@ export const COPY: Record<Lang, {
     send: 'Results go where your team works.',
     cta: 'Start your circle',
     free: 'Free during early access',
+    canvas: { notes: ['Beach day', 'Kayak tour!', 'Night market', 'Budget: 50 each'], names: ['Mia', 'Kenji', 'Lucía'] },
+    pirikoo: { question: 'How do I invite people?', writing: 'Pirikoo is writing', answer: 'Open your circle and use “Invite people”: copy the link or share the code. Everyone joins with a name and a character.' },
   },
   fr: {
     tagline: 'Ton cercle, dans un espace privé.',
@@ -39,6 +43,8 @@ export const COPY: Record<Lang, {
     send: 'Les résultats vont là où ton équipe travaille.',
     cta: 'Créer mon cercle',
     free: 'Gratuit pendant l’accès anticipé',
+    canvas: { notes: ['Journée plage', 'Balade en kayak !', 'Marché de nuit', 'Budget : 50 chacun'], names: ['Mia', 'Kenji', 'Lucía'] },
+    pirikoo: { question: 'Comment inviter des gens ?', writing: 'Pirikoo écrit', answer: 'Ouvre ton cercle et utilise « Inviter » : copie le lien ou partage le code. Chacun rejoint avec un prénom et un personnage.' },
   },
   ar: {
     tagline: 'دائرتك في مساحة خاصة واحدة.',
@@ -52,6 +58,8 @@ export const COPY: Record<Lang, {
     send: 'تصل النتائج إلى حيث يعمل فريقك.',
     cta: 'ابدأ دائرتك',
     free: 'مجانًا خلال الوصول المبكر',
+    canvas: { notes: ['يوم على الشاطئ', 'جولة بالكاياك!', 'سوق ليلي', 'الميزانية: 50 لكل واحد'], names: ['مايا', 'كينجي', 'لوسيا'] },
+    pirikoo: { question: 'كيف أدعو الناس؟', writing: 'بيريكو يكتب', answer: 'افتح دائرتك واستخدم «ادعُ الناس»: انسخ الرابط أو شارك الرمز. ينضم كل واحد باسم وشخصية.' },
   },
   es: {
     tagline: 'Tu círculo, en un espacio privado.',
@@ -65,5 +73,7 @@ export const COPY: Record<Lang, {
     send: 'Los resultados van adonde trabaja tu equipo.',
     cta: 'Crea tu círculo',
     free: 'Gratis durante el acceso anticipado',
+    canvas: { notes: ['Día de playa', '¡Ruta en kayak!', 'Mercado nocturno', 'Presupuesto: 50 cada uno'], names: ['Mia', 'Kenji', 'Lucía'] },
+    pirikoo: { question: '¿Cómo invito a la gente?', writing: 'Pirikoo está escribiendo', answer: 'Abre tu círculo y usa «Invitar»: copia el enlace o comparte el código. Cada uno entra con un nombre y un personaje.' },
   },
 }

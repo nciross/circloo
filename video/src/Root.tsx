@@ -6,6 +6,12 @@ import { ChatScene } from './scenes/ChatScene'
 import { BoardScene } from './scenes/BoardScene'
 import { SendScene } from './scenes/SendScene'
 import { Outro } from './scenes/Outro'
+import { CanvasScene } from './scenes/CanvasScene'
+import { PirikooScene } from './scenes/PirikooScene'
+import { Clip, CLIPS, type ClipId } from './Clip'
+import type { Lang } from './copy'
+
+const LANGS: Lang[] = ['en', 'fr', 'ar', 'es']
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -20,7 +26,17 @@ export const RemotionRoot: React.FC = () => {
         <Composition id="Chat" component={ChatScene} durationInFrames={115} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
         <Composition id="Board" component={BoardScene} durationInFrames={110} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
         <Composition id="Send" component={SendScene} durationInFrames={85} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
+        <Composition id="Canvas" component={CanvasScene} durationInFrames={120} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
+        <Composition id="Pirikoo" component={PirikooScene} durationInFrames={125} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
         <Composition id="Outro" component={Outro} durationInFrames={90} fps={30} width={1280} height={720} defaultProps={{ lang: 'en' as const }} />
+      </Folder>
+      {/* Story clips for the landing page: one per step and language, captions off. */}
+      <Folder name="Clips">
+        {LANGS.flatMap((lang) =>
+          (Object.keys(CLIPS) as ClipId[]).map((clip) => (
+            <Composition key={`${clip}-${lang}`} id={`Clip-${clip}-${lang}`} component={Clip} durationInFrames={CLIPS[clip].frames} fps={30} width={1280} height={720} defaultProps={{ clip, lang }} />
+          )),
+        )}
       </Folder>
     </>
   )
