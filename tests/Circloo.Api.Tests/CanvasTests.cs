@@ -50,7 +50,7 @@ public sealed class CanvasTests(PostgresFixture pg) : IAsyncLifetime
         var id = body.GetProperty("id").GetGuid();
 
         var (guest, guestCookies) = Browser();
-        (await guest.PostJsonAsync($"/api/join/{body.GetProperty("joinCode").GetString()}", new { name = "Kenji", character = "owl" }, await guest.CsrfAsync())).EnsureSuccessStatusCode();
+        (await guest.PostJsonAsync($"/api/join/{body.GetProperty("joinCode").GetString()}", new { name = "Kenji", character = "axolotl" }, await guest.CsrfAsync())).EnsureSuccessStatusCode();
         var guestId = (await guest.GetFromJsonAsync<JsonElement>($"/api/circles/{id}")).GetProperty("me").GetProperty("id").GetGuid();
 
         var animatorHub = Hub(cookies);

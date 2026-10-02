@@ -432,7 +432,19 @@
     "robot": "روبوت",
     "ghost": "شبح",
     "chick": "كتكوت",
-    "dino": "ديناصور"
+    "dino": "ديناصور",
+    "penguin": "بطريق",
+    "lion": "أسد",
+    "koala": "كوالا",
+    "hamster": "هامستر",
+    "whale": "حوت",
+    "hedgehog": "قنفذ",
+    "monkey": "قرد",
+    "bee": "نحلة",
+    "cactus": "صبّار",
+    "axolotl": "أكسولوتل",
+    "raccoon": "راكون",
+    "llama": "لاما"
   },
   "activities": {
     "category": "الفئة",
