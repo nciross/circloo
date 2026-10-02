@@ -242,3 +242,12 @@ in English, French, Arabic (RTL) and Spanish.
 - Don't add a second typeface, gradients, glass or decorative illustrations to the app.
 - Don't use emoji as icons; Lucide at 16–20px, stroke 2.
 - Don't hide a label with `display: none` when it names a control; clip it instead.
+
+## Integrations
+
+A grid of service panels, each with the real brand marks on a white tile (self-hosted, trademarks of their
+owners, with a notice on the public site), the service name, a one-line purpose and a status lozenge
+(Connected / Not connected / Soon) on the title line. Connecting opens the form inline with an info box that
+says where to find each token or webhook. Secret fields are password inputs and are never shown again; only
+a hint (host, project, space) is displayed. In a circle room, the animator's "Send results" dropdown lists the
+connected services and reports back with a link to what was created.

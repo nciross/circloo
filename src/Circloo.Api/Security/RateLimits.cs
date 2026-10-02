@@ -14,6 +14,7 @@ public sealed class RateLimitOptions
     public int AiRequestsPerUserPerMinute { get; set; } = 6;
     public int CircleJoinsPerIpPer10Min { get; set; } = 60;
     public int CirclesCreatedPerUserPerHour { get; set; } = 30;
+    public int IntegrationCallsPerUserPer10Min { get; set; } = 20;
 }
 
 public static class RateLimits
@@ -23,6 +24,7 @@ public static class RateLimits
     public const string Ai = "ai";
     public const string Join = "circle-join";
     public const string CircleCreate = "circle-create";
+    public const string Integration = "integration";
 
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
@@ -47,6 +49,10 @@ public static class RateLimits
             o.AddPolicy(CircleCreate, ctx => RateLimitPartition.GetFixedWindowLimiter(
                 ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.CirclesCreatedPerUserPerHour, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
+            // Every call here reaches someone else's service: keep it gentle.
+            o.AddPolicy(Integration, ctx => RateLimitPartition.GetFixedWindowLimiter(
+                ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.IntegrationCallsPerUserPer10Min, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
             o.OnRejected = async (rejected, ct) =>
             {
                 var http = rejected.HttpContext;

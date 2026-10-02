@@ -1,0 +1,116 @@
+/* ---------- Integrations ---------- */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+.svc {
+  padding: var(--s-5);
+  gap: var(--s-4);
+}
+.svc__top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+.svc__logos {
+  display: flex;
+  gap: var(--s-1);
+  flex: none;
+}
+.svc__logos img {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0.45rem;
+  border-radius: var(--r-md);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px var(--border);
+  object-fit: contain;
+}
+.svc__copy {
+  flex: 1;
+  display: grid;
+  gap: var(--s-1);
+  min-inline-size: 0;
+}
+.svc__status,
+.svc__form {
+  display: grid;
+  gap: var(--s-3);
+}
+.svc__hint {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.svc__how {
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--info-subtle);
+  color: var(--info-text);
+}
+.svc__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+.svc__actions--start {
+  justify-content: flex-start;
+}
+.svc__result {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+.svc__result:empty {
+  display: none;
+}
+.svc--soon {
+  background: var(--surface-sunken);
+}
+@media (max-width: 30rem) {
+  .svc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Send results (circle room) ---------- */
+.send {
+  display: grid;
+  justify-items: end;
+}
+.send__panel {
+  min-inline-size: 15rem;
+}
+.send__logos img {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+.send__empty {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+}
+.send__status {
+  max-inline-size: 22rem;
+  font-size: var(--fs-sm);
+  text-align: end;
+}
+.send__status:empty {
+  display: none;
+}
+.send__status a {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.svc__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-3);
+}

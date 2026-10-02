@@ -360,6 +360,43 @@ namespace Circloo.Api.Data.Migrations
                     b.ToTable("EmailOutbox", (string)null);
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.IntegrationConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConfigProtected")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Hint")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Provider")
+                        .IsUnique();
+
+                    b.ToTable("IntegrationConnections");
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.OtpChallenge", b =>
                 {
                     b.Property<Guid>("Id")
@@ -632,6 +669,15 @@ namespace Circloo.Api.Data.Migrations
                     b.HasOne("Circloo.Api.Data.Circle", null)
                         .WithMany()
                         .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.IntegrationConnection", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

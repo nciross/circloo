@@ -26,6 +26,7 @@ export const router = createBrowserRouter([
           { path: '/app/icebreakers', lazy: page(() => import('../features/icebreakers/Icebreakers')) },
           { path: '/app/circles/new', lazy: page(() => import('../features/circles/CreateCircle')) },
           { path: '/app/circles/:id', lazy: page(() => import('../features/circles/CircleRoom')) },
+          { path: '/app/integrations', lazy: page(() => import('../features/integrations/Integrations')) },
         ],
       },
       { path: '*', lazy: page(() => import('../features/NotFound')) },

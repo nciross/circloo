@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarHeart, CircleDashed, Home, LayoutGrid, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
+import { CalendarHeart, CircleDashed, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
@@ -13,11 +13,7 @@ import '../../styles/app.css'
 
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
 
-const SOON = [
-  { id: 'checkins', icon: CalendarHeart },
-  { id: 'boards', icon: LayoutGrid },
-  { id: 'integrations', icon: Plug },
-] as const
+const SOON = [{ id: 'checkins', icon: CalendarHeart }] as const
 
 /** The left navigation: what is live, what is coming (never a dead link), and settings at the foot. */
 function SideNav({ onNavigate }: { onNavigate?: () => void }) {
@@ -43,6 +39,12 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink to="/app/icebreakers" className={cls} onClick={onNavigate} viewTransition>
             <MessagesSquare size={18} aria-hidden="true" />
             <span>{t('common.nav.icebreakers')}</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/app/integrations" className={cls} onClick={onNavigate} viewTransition>
+            <Plug size={18} aria-hidden="true" />
+            <span>{t('integrations.title')}</span>
           </NavLink>
         </li>
       </ul>

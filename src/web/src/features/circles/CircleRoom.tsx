@@ -9,12 +9,14 @@ import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
 import { Panda } from '../../components/Panda'
 import { ActivityGrid, InviteCard, PeopleRing } from './parts'
+import { SendResults } from './SendResults'
 import { Chat } from './Chat'
 import { Board } from './Board'
 import { BOARD_COLUMNS } from './catalog'
 import { Segmented } from '../../components/Segmented'
 import { useCircleConnection, useRoom } from './room'
 import '../../styles/circles.css'
+import '../../styles/integrations.css'
 
 const STATUS_KEY = { connecting: 'connecting', live: 'live', reconnecting: 'reconnecting', offline: 'offline' } as const
 
@@ -83,8 +85,13 @@ export default function CircleRoom() {
                 </Button>
               </>
             ) : (
-              <Button variant="default" icon={<DoorClosed size={16} />} onClick={() => setConfirming(true)}>{t('circles.room.close')}</Button>
+              <>
+                <SendResults circleId={view.id} />
+                <Button variant="default" className="room__close" icon={<DoorClosed size={16} />} onClick={() => setConfirming(true)}>{t('circles.room.close')}</Button>
+              </>
             )
+          ) : isAnimator ? (
+            <SendResults circleId={view.id} />
           ) : null
         }
       />

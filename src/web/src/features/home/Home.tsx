@@ -16,10 +16,10 @@ import '../../styles/app.css'
 import '../../styles/circles.css'
 
 const MODULES = [
-  { id: 'icebreakers', icon: MessagesSquare, live: true },
-  { id: 'checkins', icon: CalendarHeart, live: false },
-  { id: 'boards', icon: LayoutGrid, live: false },
-  { id: 'integrations', icon: Plug, live: false },
+  { id: 'icebreakers', icon: MessagesSquare, live: true, to: '/app/icebreakers' },
+  { id: 'boards', icon: LayoutGrid, live: true, to: '/app/circles/new' },
+  { id: 'integrations', icon: Plug, live: true, to: '/app/integrations' },
+  { id: 'checkins', icon: CalendarHeart, live: false, to: null },
 ] as const
 
 /** Proposals only, never actions: each opens Ask circloo with its plan ready to check. */
@@ -170,12 +170,12 @@ export default function Home() {
               </tr>
             </thead>
             <tbody>
-              {MODULES.map(({ id, icon: Icon, live }) => (
+              {MODULES.map(({ id, icon: Icon, live, to }) => (
                 <tr key={id}>
                   <th scope="row">
                     <span className="table__module">
                       <span className={`module-icon${live ? ' module-icon--live' : ''}`} aria-hidden="true"><Icon size={16} /></span>
-                      {live ? <Link to="/app/icebreakers" viewTransition>{t(`home.modules.${id}.title`)}</Link> : t(`home.modules.${id}.title`)}
+                      {live && to ? <Link to={to} viewTransition>{t(`home.modules.${id}.title`)}</Link> : t(`home.modules.${id}.title`)}
                     </span>
                   </th>
                   <td>

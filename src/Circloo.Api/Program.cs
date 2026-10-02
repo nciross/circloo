@@ -2,6 +2,7 @@ using Circloo.Api;
 using Circloo.Api.Ai;
 using Circloo.Api.Auth;
 using Circloo.Api.Circles;
+using Circloo.Api.Integrations;
 using Circloo.Api.Data;
 using Circloo.Api.Email;
 using Circloo.Api.Security;
@@ -52,6 +53,10 @@ builder.Services.AddHostedService<EmailOutboxWorker>();
 builder.Services.AddCirclooAi(builder.Configuration);
 builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 8 * 1024);
 builder.Services.AddSingleton<CirclePresence>();
+// Outbound calls to Teams, Atlassian and Notion: no redirects (a redirect could aim at an internal host), short timeout.
+builder.Services.AddHttpClient(IntegrationSender.ClientName, c => c.Timeout = TimeSpan.FromSeconds(15))
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
+builder.Services.AddSingleton<IntegrationSender>();
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
     builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
@@ -110,6 +115,7 @@ api.MapPublicSparkEndpoints();
 api.MapSparkEndpoints();
 api.MapAiEndpoints();
 api.MapCircleEndpoints();
+api.MapIntegrationEndpoints();
 api.MapFallback(() => Results.NotFound());
 
 app.MapHub<CircleHub>("/hubs/circle");

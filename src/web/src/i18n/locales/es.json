@@ -122,7 +122,7 @@
     },
     "integrations": {
       "title": "Conectado a tu semana",
-      "body": "circloo irá adonde ya trabajas. Estas integraciones están en camino, aún no están listas.",
+      "body": "circloo envía lo que decide tu círculo adonde tu equipo ya trabaja. Salesforce llegará pronto.",
       "items": {
         "teams": "Empezar las reuniones de Teams con un rompehielos",
         "salesforce": "Celebrar los acuerdos que gana tu equipo",
@@ -130,7 +130,8 @@
         "confluence": "Publicar un tablero como página",
         "notion": "Enviar tableros y notas a tu espacio"
       },
-      "stamp": "Próximamente"
+      "stamp": "Próximamente",
+      "available": "Disponible"
     },
     "how": {
       "title": "Tres pasos, sin contraseña",
@@ -666,6 +667,85 @@
       "ideas": "Ideas",
       "maybe": "Quizás",
       "next": "Próximos pasos"
+    }
+  },
+  "integrations": {
+    "title": "Integraciones",
+    "lead": "Conecta las herramientas de tu equipo. Los círculos podrán enviar allí sus resultados.",
+    "connected": "Conectado",
+    "notConnected": "Sin conectar",
+    "connect": "Conectar",
+    "edit": "Cambiar",
+    "disconnect": "Desconectar",
+    "save": "Guardar y conectar",
+    "secretNote": "Los secretos se cifran y nunca se vuelven a mostrar. Solo circloo los usa, solo para enviar lo que pidas.",
+    "lastUsed": "Usado el {{date}}",
+    "testOk": "Funciona.",
+    "testFailed": "El servicio respondió {{status}}. Revisa los datos.",
+    "send": "Enviar resultados",
+    "sending": "Enviando…",
+    "open": "Abrir",
+    "noneConnected": "Aún no hay servicios conectados.",
+    "sent_one": "Enviado a {{name}}.",
+    "sent_other": "Enviado a {{name}}: {{count}} elementos.",
+    "sendFailed": "{{name}} rechazó la solicitud. Revisa la conexión.",
+    "fields": {
+      "webhookUrl": "URL del webhook de Workflows",
+      "site": "Sitio de Atlassian",
+      "email": "Correo de la cuenta",
+      "apiToken": "Token de API",
+      "projectKey": "Clave del proyecto",
+      "spaceId": "Id del espacio",
+      "token": "Secreto de la integración",
+      "parentPageId": "Página padre (enlace o id)"
+    },
+    "errors": {
+      "webhookUrl": "Usa la URL https de un webhook de Workflows de Teams.",
+      "site": "Usa tu sitio de Atlassian, como tu-equipo.atlassian.net.",
+      "email": "Usa el correo de tu cuenta de Atlassian.",
+      "apiToken": "Pega un token de API de Atlassian.",
+      "projectKey": "Usa una clave de proyecto de Jira, como TEAM.",
+      "spaceId": "Usa el id numérico del espacio de Confluence.",
+      "token": "Pega el secreto de una integración interna de Notion.",
+      "parentPageId": "Usa el enlace o el id de una página de Notion."
+    },
+    "teams": {
+      "name": "Microsoft Teams",
+      "what": "Publica una tarjeta con el resumen del círculo en un canal.",
+      "how": "En Teams, abre el canal, elige Workflows, luego «Publicar en un canal cuando se reciba una solicitud de webhook», y pega aquí su URL.",
+      "test": "Enviar un mensaje de prueba",
+      "sendTo": "Publicar en Teams"
+    },
+    "jira": {
+      "name": "Jira",
+      "what": "Convierte las notas de acción más votadas en tareas.",
+      "how": "Crea un token de API en tu cuenta de Atlassian (Seguridad, Tokens de API) y elige el proyecto de las tareas.",
+      "test": "Probar la conexión",
+      "sendTo": "Crear tareas en Jira"
+    },
+    "confluence": {
+      "name": "Confluence",
+      "what": "Publica el círculo como una página en un espacio.",
+      "how": "Usa un token de API de Atlassian y el id numérico del espacio (ajustes del espacio o API REST).",
+      "test": "Probar la conexión",
+      "sendTo": "Publicar en Confluence"
+    },
+    "notion": {
+      "name": "Notion",
+      "what": "Escribe el círculo como una página de tu espacio de trabajo.",
+      "how": "Crea una integración interna en Notion (Ajustes, Conexiones), comparte con ella la página padre y pega su secreto y el enlace de la página.",
+      "test": "Probar la conexión",
+      "sendTo": "Escribir en Notion"
+    },
+    "placeholders": {
+      "webhookUrl": "https://prod-00.westeurope.logic.azure.com/workflows/…",
+      "site": "your-team.atlassian.net",
+      "email": "you@company.com",
+      "apiToken": "••••••••••••",
+      "projectKey": "TEAM",
+      "spaceId": "98304",
+      "token": "ntn_…",
+      "parentPageId": "https://www.notion.so/…"
     }
   }
 }
