@@ -15,6 +15,7 @@ public sealed class RateLimitOptions
     public int CircleJoinsPerIpPer10Min { get; set; } = 60;
     public int CirclesCreatedPerUserPerHour { get; set; } = 30;
     public int IntegrationCallsPerUserPer10Min { get; set; } = 20;
+    public int PresentationUploadsPerUserPerHour { get; set; } = 10;
 }
 
 public static class RateLimits
@@ -25,6 +26,7 @@ public static class RateLimits
     public const string Join = "circle-join";
     public const string CircleCreate = "circle-create";
     public const string Integration = "integration";
+    public const string PresentationUpload = "presentation-upload";
 
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
@@ -54,6 +56,10 @@ public static class RateLimits
             o.AddPolicy(Integration, ctx => RateLimitPartition.GetFixedWindowLimiter(
                 ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.IntegrationCallsPerUserPer10Min, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+            // Each upload starts a conversion and stores pictures (spec 006, FR-619).
+            o.AddPolicy(PresentationUpload, ctx => RateLimitPartition.GetFixedWindowLimiter(
+                ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.PresentationUploadsPerUserPerHour, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
             o.OnRejected = async (rejected, ct) =>
             {
                 var http = rejected.HttpContext;

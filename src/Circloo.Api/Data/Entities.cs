@@ -193,3 +193,99 @@ public sealed class IntegrationConnection
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? LastUsedAt { get; set; }
 }
+
+/// <summary>A deck in its owner's library (spec 006): a converted .pptx plus the question slides added to it.</summary>
+public sealed class Presentation
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid OwnerUserId { get; set; }
+    public required string Name { get; set; }
+    public required string SourceFileName { get; set; }
+    /// <summary>"processing", "ready" or "failed" (<see cref="Presentations.PresentationStatus"/>).</summary>
+    public required string Status { get; set; }
+    /// <summary>Why it failed, as a stable code the web translates (e.g. "encrypted", "timeout").</summary>
+    public string? Error { get; set; }
+    public int SlideCount { get; set; }
+    public int ProcessedSlides { get; set; }
+    public bool ShowPodium { get; set; } = true;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    /// <summary>Opened in the editor or presented; drives the 12-month idle clean-up (FR-604a).</summary>
+    public DateTimeOffset LastUsedAt { get; set; }
+    /// <summary>Bumped on every edit; clients send it back and get 409 when it moved (optimistic concurrency).</summary>
+    public int Version { get; set; }
+    /// <summary>The replica converting it, so only one does (research R4).</summary>
+    public string? ConvertingBy { get; set; }
+    public DateTimeOffset? LeaseUntil { get; set; }
+    public List<Slide> Slides { get; set; } = [];
+}
+
+/// <summary>One item of a presentation, in order: a deck slide (a picture) or a poll/quiz question.</summary>
+public sealed class Slide
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid PresentationId { get; set; }
+    public int Position { get; set; }
+    /// <summary>"deck", "poll" or "quiz" (<see cref="Presentations.SlideKinds"/>).</summary>
+    public required string Kind { get; set; }
+    public bool Hidden { get; set; }
+    /// <summary>Deck slides: the slide's index in the .pptx.</summary>
+    public int? SourceIndex { get; set; }
+    /// <summary>Deck slides: speaker notes, shown to the animator only.</summary>
+    public string? Notes { get; set; }
+    public string? Question { get; set; }
+    public List<SlideOption> Options { get; set; } = [];
+    public string? CorrectOption { get; set; }
+    public bool MultipleChoice { get; set; }
+    public int? TimerSeconds { get; set; }
+    public bool ShowFirst { get; set; } = true;
+    public bool ShowLive { get; set; }
+}
+
+/// <summary>One answer choice of a question, stored as JSON with its slide. Ids are "a" to "f".</summary>
+public sealed class SlideOption
+{
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+}
+
+/// <summary>One run of a presentation in a circle (spec 006 US3): the shared state everyone follows.</summary>
+public sealed class PresentationSession
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CircleId { get; set; }
+    public Guid? PresentationId { get; set; }
+    public Guid StartedByMemberId { get; set; }
+    /// <summary>The visible slides and questions frozen at start (JSON), so edits never change a running session.</summary>
+    public required string Snapshot { get; set; }
+    public bool ShowPodium { get; set; }
+    public int Position { get; set; }
+    /// <summary>The furthest slide shown so far: members may load pictures up to here.</summary>
+    public int MaxPosition { get; set; }
+    public bool Blank { get; set; }
+    /// <summary>"idle", "answering", "locked", "revealed" or "podium" (<see cref="Presentations.SessionPhases"/>).</summary>
+    public required string Phase { get; set; }
+    public DateTimeOffset? OpenedAt { get; set; }
+    public DateTimeOffset? Deadline { get; set; }
+    public DateTimeOffset? LockedAt { get; set; }
+    /// <summary>Per question slide id, its stored phase and times (JSON), so coming back to a question restores it.</summary>
+    public string QuestionPhases { get; set; } = "{}";
+    public DateTimeOffset StartedAt { get; set; }
+    public DateTimeOffset? EndedAt { get; set; }
+    public int Version { get; set; }
+}
+
+/// <summary>A participant's answer to one question of a session. <see cref="Seq"/> is the order received: lowest is first.</summary>
+public sealed class SessionAnswer
+{
+    public long Seq { get; set; }
+    public Guid SessionId { get; set; }
+    public Guid SlideId { get; set; }
+    public Guid MemberId { get; set; }
+    public string[] Options { get; set; } = [];
+    /// <summary>When this person first answered; kept when a poll answer is replaced.</summary>
+    public DateTimeOffset FirstReceivedAt { get; set; }
+    public DateTimeOffset ReceivedAt { get; set; }
+    public bool? Correct { get; set; }
+    public int Points { get; set; }
+}

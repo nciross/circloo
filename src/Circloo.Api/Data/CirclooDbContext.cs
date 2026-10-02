@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PresentationRules = Circloo.Api.Presentations.PresentationRules;
 
 namespace Circloo.Api.Data;
 
@@ -22,6 +23,10 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<CanvasNote> CanvasNotes => Set<CanvasNote>();
     public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
     public DbSet<IntegrationConnection> IntegrationConnections => Set<IntegrationConnection>();
+    public DbSet<Presentation> Presentations => Set<Presentation>();
+    public DbSet<Slide> Slides => Set<Slide>();
+    public DbSet<PresentationSession> PresentationSessions => Set<PresentationSession>();
+    public DbSet<SessionAnswer> SessionAnswers => Set<SessionAnswer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -166,6 +171,62 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(c => c.Hint).HasMaxLength(120);
             e.HasIndex(c => new { c.UserId, c.Provider }).IsUnique();
             e.HasOne<User>().WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ---------- Live presentations (spec 006, data-model.md) ----------
+        modelBuilder.Entity<Presentation>(e =>
+        {
+            e.Property(p => p.Name).HasMaxLength(PresentationRules.NameMax);
+            e.Property(p => p.SourceFileName).HasMaxLength(200);
+            e.Property(p => p.Status).HasMaxLength(12);
+            e.Property(p => p.Error).HasMaxLength(24);
+            e.Property(p => p.ConvertingBy).HasMaxLength(64);
+            e.Property(p => p.Version).IsConcurrencyToken();
+            e.HasIndex(p => new { p.OwnerUserId, p.UpdatedAt });
+            e.HasIndex(p => p.LastUsedAt);
+            e.HasIndex(p => p.Status);
+            e.HasOne<User>().WithMany().HasForeignKey(p => p.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(p => p.Slides).WithOne().HasForeignKey(s => s.PresentationId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Slide>(e =>
+        {
+            e.Property(s => s.Kind).HasMaxLength(4);
+            e.Property(s => s.Notes).HasMaxLength(PresentationRules.NotesMax);
+            e.Property(s => s.Question).HasMaxLength(PresentationRules.QuestionMax);
+            e.Property(s => s.CorrectOption).HasMaxLength(1);
+            e.OwnsMany(s => s.Options, o =>
+            {
+                o.ToJson();
+                o.Property(x => x.Id).HasMaxLength(1);
+                o.Property(x => x.Text).HasMaxLength(PresentationRules.OptionMax);
+            });
+            // Positions are kept dense by the endpoints (not a unique index: a reorder would collide mid-update).
+            e.HasIndex(s => new { s.PresentationId, s.Position });
+        });
+
+        modelBuilder.Entity<PresentationSession>(e =>
+        {
+            e.Property(s => s.Snapshot).HasColumnType("jsonb");
+            e.Property(s => s.QuestionPhases).HasColumnType("jsonb");
+            e.Property(s => s.Phase).HasMaxLength(10);
+            e.Property(s => s.Version).IsConcurrencyToken();
+            // At most one running presentation per circle.
+            e.HasIndex(s => s.CircleId).IsUnique().HasFilter("\"EndedAt\" IS NULL");
+            e.HasIndex(s => s.PresentationId);
+            e.HasOne<Circle>().WithMany().HasForeignKey(s => s.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Presentation>().WithMany().HasForeignKey(s => s.PresentationId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(s => s.StartedByMemberId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<SessionAnswer>(e =>
+        {
+            e.HasKey(a => a.Seq);
+            e.Property(a => a.Seq).UseIdentityAlwaysColumn();
+            // One answer per participant per question, whatever the tabs or devices (FR-610, SC-606).
+            e.HasIndex(a => new { a.SessionId, a.SlideId, a.MemberId }).IsUnique();
+            e.HasOne<PresentationSession>().WithMany().HasForeignKey(a => a.SessionId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(a => a.MemberId).OnDelete(DeleteBehavior.NoAction);
         });
     }
 }

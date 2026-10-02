@@ -14,7 +14,8 @@ var mailpit = builder.AddMailPit("mailpit");
 
 // Blob Storage emulator (Azurite) for slide pictures; the real storage account in Azure (spec 006).
 var storage = builder.AddAzureStorage("storage")
-    .RunAsEmulator(azurite => azurite.WithDataVolume("circloo-azurite").WithLifetime(ContainerLifetime.Persistent));
+    // The Azure SDK can be ahead of Azurite on storage API versions, so the emulator skips that check.
+    .RunAsEmulator(azurite => azurite.WithDataVolume("circloo-azurite").WithApiVersionCheck(enable: false).WithLifetime(ContainerLifetime.Persistent));
 var blobs = storage.AddBlobs("blobs");
 
 // Turns .pptx decks into PDF (LibreOffice inside Gotenberg), isolated from the API and its secrets (spec 006, R1).

@@ -437,7 +437,8 @@
       "icebreakers": "Rompehielos",
       "energizers": "Energizantes",
       "retro": "Retro",
-      "decide": "Decidir"
+      "decide": "Decidir",
+      "present": "Presentar"
     },
     "quick-question": {
       "title": "Preguntas rápidas",
@@ -498,6 +499,10 @@
     "canvas": {
       "title": "Lienzo en vivo",
       "body": "Notas en cualquier sitio de una gran superficie, con el cursor de cada uno, colores y pegatinas."
+    },
+    "presentation": {
+      "title": "Presentación",
+      "body": "Muestra tus diapositivas de PowerPoint con encuestas y quizzes en vivo; cada uno lo sigue en su pantalla."
     }
   },
   "circles": {

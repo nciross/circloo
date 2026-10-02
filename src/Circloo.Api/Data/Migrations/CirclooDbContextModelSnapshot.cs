@@ -506,6 +506,243 @@ namespace Circloo.Api.Data.Migrations
                     b.ToTable("OtpChallenges");
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.Presentation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConvertingBy")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("LeaseUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ProcessedSlides")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ShowPodium")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SlideCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceFileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LastUsedAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("OwnerUserId", "UpdatedAt");
+
+                    b.ToTable("Presentations");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.PresentationSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Blank")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("LockedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxPosition")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Phase")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("PresentationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("QuestionPhases")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<bool>("ShowPodium")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("StartedByMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CircleId")
+                        .IsUnique()
+                        .HasFilter("\"EndedAt\" IS NULL");
+
+                    b.HasIndex("PresentationId");
+
+                    b.HasIndex("StartedByMemberId");
+
+                    b.ToTable("PresentationSessions");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.SessionAnswer", b =>
+                {
+                    b.Property<long>("Seq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Seq"));
+
+                    b.Property<bool?>("Correct")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("FirstReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.PrimitiveCollection<string[]>("Options")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SlideId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Seq");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("SessionId", "SlideId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("SessionAnswers");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Slide", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CorrectOption")
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)");
+
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<bool>("MultipleChoice")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PresentationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Question")
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)");
+
+                    b.Property<bool>("ShowFirst")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowLive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("SourceIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TimerSeconds")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PresentationId", "Position");
+
+                    b.ToTable("Slides");
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.Spark", b =>
                 {
                     b.Property<string>("Id")
@@ -758,6 +995,87 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.Presentation", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.PresentationSession", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.Presentation", null)
+                        .WithMany()
+                        .HasForeignKey("PresentationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("StartedByMemberId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.SessionAnswer", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.PresentationSession", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Slide", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Presentation", null)
+                        .WithMany("Slides")
+                        .HasForeignKey("PresentationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("Circloo.Api.Data.SlideOption", "Options", b1 =>
+                        {
+                            b1.Property<Guid>("SlideId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("Id")
+                                .HasMaxLength(1);
+
+                            b1.Property<string>("Text")
+                                .IsRequired()
+                                .HasMaxLength(80);
+
+                            b1.HasKey("SlideId", "__synthesizedOrdinal");
+
+                            b1.ToTable("Slides");
+
+                            b1
+                                .ToJson("Options")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SlideId");
+                        });
+
+                    b.Navigation("Options");
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.Spark", b =>
                 {
                     b.HasOne("Circloo.Api.Data.User", "Owner")
@@ -799,6 +1117,11 @@ namespace Circloo.Api.Data.Migrations
             modelBuilder.Entity("Circloo.Api.Data.BoardNote", b =>
                 {
                     b.Navigation("Votes");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Presentation", b =>
+                {
+                    b.Navigation("Slides");
                 });
 #pragma warning restore 612, 618
         }

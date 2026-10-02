@@ -8,7 +8,7 @@ public sealed record ActivityDef(string Id, string Category, string? SparkKind, 
 
 public static class ActivityCatalog
 {
-    public static readonly string[] Categories = ["icebreakers", "energizers", "retro", "decide"];
+    public static readonly string[] Categories = ["icebreakers", "energizers", "retro", "decide", "present"];
 
     private static Dictionary<string, string[]> L(string[] en, string[] fr, string[] ar, string[] es) =>
         new() { ["en"] = en, ["fr"] = fr, ["ar"] = ar, ["es"] = es };
@@ -91,6 +91,8 @@ public static class ActivityCatalog
               ["Toile en direct ! Double-clique n'importe où pour poser une note, déplace-les et donne-leur des couleurs. Demande-moi un résumé quand vous êtes prêts."],
               ["لوحة حرّة مباشرة! انقر مرتين في أي مكان لتضع ملاحظة، واسحب الملاحظات ولوّنها. اطلبوا مني التلخيص عندما تكونون جاهزين."],
               ["¡Lienzo en vivo! Haz doble clic en cualquier sitio para poner una nota, arrastra las notas y dales color. Pedidme un resumen cuando estéis listos."])),
+        new(Presentation, "present", null,
+            "The animator presents slides with polls and quizzes; stay quiet unless asked, then help explain results briefly.", None),
     ];
 
     private static readonly Dictionary<string, ActivityDef> ById = All.ToDictionary(a => a.Id);
@@ -114,6 +116,9 @@ public static class ActivityCatalog
     public static readonly string[] NoteColors = ["yellow", "pink", "blue", "green", "violet"];
 
     public const int MaxPerCircle = 8;
+
+    /// <summary>Live presentations (spec 006): the animator's deck with polls and quizzes, everyone in sync.</summary>
+    public const string Presentation = "presentation";
 
     /// <summary>The live canvas (issue #93): notes anywhere, styled by their author, cursors for everyone.</summary>
     public const string Canvas = "canvas";
