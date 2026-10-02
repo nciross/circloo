@@ -1,5 +1,5 @@
 import {
-  Award, BookOpen, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
+  Award, BookOpen, Lightbulb, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -26,7 +26,18 @@ export const ACTIVITIES: Activity[] = [
   { id: 'kudos', category: 'retro', icon: Award },
   { id: 'quick-poll', category: 'decide', icon: Vote },
   { id: 'agree-or-not', category: 'decide', icon: Split },
+  { id: 'brainstorm', category: 'decide', icon: Lightbulb },
 ]
+
+/** Board activities and their columns; mirrors ActivityCatalog.ColumnsOf on the server. */
+export const BOARD_COLUMNS: Record<string, string[]> = {
+  'start-stop-continue': ['start', 'stop', 'continue'],
+  'went-well': ['well', 'improve'],
+  kudos: ['kudos'],
+  brainstorm: ['ideas', 'maybe', 'next'],
+}
+export const VOTES_PER_MEMBER = 3
+export const NOTE_MAX = 140
 
 export const CATEGORIES: Category[] = ['icebreakers', 'energizers', 'retro', 'decide']
 export const MAX_ACTIVITIES = 8

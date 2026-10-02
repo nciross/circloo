@@ -10,6 +10,9 @@ import { Loading } from '../../components/Loading'
 import { Panda } from '../../components/Panda'
 import { ActivityGrid, InviteCard, PeopleRing } from './parts'
 import { Chat } from './Chat'
+import { Board } from './Board'
+import { BOARD_COLUMNS } from './catalog'
+import { Segmented } from '../../components/Segmented'
 import { useCircleConnection, useRoom } from './room'
 import '../../styles/circles.css'
 
@@ -25,6 +28,7 @@ export default function CircleRoom() {
   const room = useRoom()
   const [confirming, setConfirming] = useState(false)
   const [starting, setStarting] = useState(false)
+  const [pane, setPane] = useState<'board' | 'chat'>('board')
   useDocumentTitle('circles.room.title')
 
   useEffect(() => {
@@ -97,7 +101,19 @@ export default function CircleRoom() {
       ) : (
         <div className="room__grid">
           <div className="room__main">
-            {activity ? (
+            {activity && BOARD_COLUMNS[activity] ? (
+              <>
+                <Segmented<'board' | 'chat'>
+                  label={t('boards.view')}
+                  hideLabel
+                  className="room__pane"
+                  value={pane}
+                  onChange={setPane}
+                  choices={[{ value: 'board', label: t('boards.board') }, { value: 'chat', label: t('circles.room.conversation') }]}
+                />
+                {pane === 'board' ? <Board activityId={activity} /> : <Chat activityId={activity} />}
+              </>
+            ) : activity ? (
               <Chat activityId={activity} />
             ) : isAnimator ? (
               <section className="panel" aria-labelledby="pick-title">

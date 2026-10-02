@@ -148,15 +148,15 @@ export function Landing() {
                 <p>{t('landing.work.body')}</p>
               </div>
               <div className="feature__show">
-                <div className="board" role="group" aria-label={t('landing.work.title')}>
+                <div className="demo-board" role="group" aria-label={t('landing.work.title')}>
                   {BOARD.map((c) => (
-                    <div key={c.col} className={`board__col board__col--${c.col}`}>
-                      <h4 className="board__head">{t(`landing.work.columns.${c.col}`)} <span className="board__count">{c.notes.length}</span></h4>
+                    <div key={c.col} className={`demo-board__col demo-board__col--${c.col}`}>
+                      <h4 className="demo-board__head">{t(`landing.work.columns.${c.col}`)} <span className="demo-board__count">{c.notes.length}</span></h4>
                       {c.notes.map((n, i) => (
-                        <div key={n} className="note">
+                        <div key={n} className="demo-note">
                           <p>{notes[n]}</p>
-                          <span className="note__votes" role="img" aria-label={t('landing.work.votes', { count: c.votes[i] })}>
-                            {Array.from({ length: c.votes[i] ?? 0 }, (_, k) => <span key={k} className="vote" aria-hidden="true" />)}
+                          <span className="demo-note__votes" role="img" aria-label={t('landing.work.votes', { count: c.votes[i] })}>
+                            {Array.from({ length: c.votes[i] ?? 0 }, (_, k) => <span key={k} className="demo-vote" aria-hidden="true" />)}
                           </span>
                         </div>
                       ))}

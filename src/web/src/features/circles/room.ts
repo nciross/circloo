@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
-import type { CircleView, Member, Message } from '../../api/circles'
+import { api } from '../../api/client'
+import type { BoardNote, CircleView, Member, Message, NoteColor } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
@@ -11,6 +12,7 @@ interface RoomState {
   members: Member[]
   online: string[]
   messages: Message[]
+  notes: BoardNote[]
   activity: string | null
   thinking: boolean
   draft: string
@@ -23,6 +25,11 @@ interface RoomState {
   ask: (text: string) => Promise<void>
   start: (activityId: string) => Promise<void>
   end: () => Promise<void>
+  addNote: (column: string, text: string, color: NoteColor) => Promise<void>
+  editNote: (id: number, text: string) => Promise<void>
+  moveNote: (id: number, column: string) => Promise<void>
+  deleteNote: (id: number) => Promise<void>
+  vote: (id: number) => Promise<void>
   clearError: () => void
 }
 
@@ -46,6 +53,7 @@ export const useRoom = create<RoomState>()((set) => ({
   members: [],
   online: [],
   messages: [],
+  notes: [],
   activity: null,
   thinking: false,
   draft: '',
@@ -59,6 +67,7 @@ export const useRoom = create<RoomState>()((set) => ({
       me: view.me,
       members: view.members,
       messages: view.messages,
+      notes: view.notes,
       activity: view.currentActivity,
       closed: view.status === 'closed',
       online: [],
@@ -70,8 +79,25 @@ export const useRoom = create<RoomState>()((set) => ({
   ask: (text) => invoke('AskCircloo', text),
   start: (activityId) => invoke('StartActivity', activityId),
   end: () => invoke('EndActivity'),
+  addNote: (column, text, color) => invoke('AddNote', column, text, color),
+  editNote: (id, text) => invoke('EditNote', id, text),
+  moveNote: (id, column) => invoke('MoveNote', id, column),
+  deleteNote: (id) => invoke('DeleteNote', id),
+  vote: (id) => invoke('Vote', id),
   clearError: () => set({ error: null }),
 }))
+
+/** Anything that happened between loading the page and joining the live group is fetched once more. */
+async function resync(id: string) {
+  const view = await api<CircleView>(`/api/circles/${id}`)
+  useRoom.setState({
+    members: view.members,
+    messages: view.messages,
+    notes: view.notes,
+    activity: view.currentActivity,
+    closed: view.status === 'closed',
+  })
+}
 
 /** Opens the room's real-time connection for as long as the component lives. */
 export function useCircleConnection(view: CircleView | undefined) {
@@ -94,10 +120,14 @@ export function useCircleConnection(view: CircleView | undefined) {
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))
     connection.on('AiDelta', (d: { text: string }) => useRoom.setState((s) => ({ draft: s.draft + d.text })))
     connection.on('Closed', () => useRoom.setState({ closed: true, status: 'offline' }))
+    connection.on('NoteChanged', (n: BoardNote) =>
+      useRoom.setState((s) => ({ notes: s.notes.some((x) => x.id === n.id) ? s.notes.map((x) => (x.id === n.id ? n : x)) : [...s.notes, n] })))
+    connection.on('NoteDeleted', (id: number) => useRoom.setState((s) => ({ notes: s.notes.filter((x) => x.id !== id) })))
     connection.onreconnecting(() => useRoom.setState({ status: 'reconnecting' }))
     connection.onreconnected(async () => {
       useRoom.setState({ status: 'live' })
       await connection.invoke('Enter', id).catch(() => undefined)
+      await resync(id).catch(() => undefined)
     })
     connection.onclose(() => useRoom.setState({ status: 'offline' }))
 
@@ -108,6 +138,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       .then(() => (cancelled ? undefined : connection.invoke<string[]>('Enter', id)))
       .then((online) => {
         if (!cancelled && online) useRoom.setState({ online, status: 'live' })
+        return cancelled ? undefined : resync(id)
       })
       .catch(() => {
         if (!cancelled) useRoom.setState({ status: 'offline' })

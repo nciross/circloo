@@ -80,3 +80,43 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   await expect(guest.locator('.room__ended')).toBeVisible({ timeout: 10_000 })
   await guestCtx.close()
 })
+
+test('a live board: guests post notes, the animator votes and moves them, everyone sees it (spec 004)', async ({ page, browser }, info) => {
+  test.setTimeout(90_000)
+  const locale = localeOf(info)
+  await signedIn(page, locale)
+  await page.goto('/app/circles/new')
+  await page.locator('.create__name').fill(locale === 'ar' ? 'أفكار الصيف' : 'Summer ideas')
+  await page.locator('.activity__toggle').first().click() // drop the default quick questions
+  await page.locator('.activity:has(.activity__icon) .activity__toggle').last().click() // brainstorm
+  await page.locator('form .panel__actions button[type=submit]').click()
+  await expect(page).toHaveURL(/\/app\/circles\/[0-9a-f-]+$/)
+  const link = await page.locator('.invite__link').inputValue()
+
+  const guestCtx = await browser.newContext({ locale: locale === 'ar' ? 'ar-MA' : 'en-GB' })
+  const guest = await guestCtx.newPage()
+  await guest.goto(link.replace(/^https?:\/\/[^/]+/, ''))
+  await guest.locator('input[name=name]').fill(locale === 'ar' ? 'مايا' : 'Mia')
+  await guest.locator('.pick__item:has(input[value=frog])').click()
+  await guest.locator('form button[type=submit]').click()
+  await expect(guest).toHaveURL(/\/c\/[0-9a-f-]+$/)
+
+  await page.locator('.activity .btn').first().click()
+  await expect(guest.locator('.board')).toBeVisible({ timeout: 15_000 })
+
+  const idea = locale === 'ar' ? 'نزهة للفريق' : 'Team picnic'
+  await guest.locator('.board__col--ideas .add-note__input').fill(idea)
+  await guest.locator('.board__col--ideas .swatch--green').click()
+  await guest.locator('.board__col--ideas .add-note button[type=submit]').click()
+  await expect(page.locator('.board__col--ideas .note-card')).toContainText(idea)
+  await expect(page.locator('.board__col--ideas .note-card')).toHaveClass(/note-card--green/)
+
+  await page.locator('.note-card__vote').first().click()
+  await expect(guest.locator('.note-card__count').first()).toHaveText('1')
+  await page.locator('.note-card__move').first().selectOption('next')
+  await expect(guest.locator('.board__col--next .note-card')).toContainText(idea)
+
+  expect(await axe(page)).toEqual([])
+  expect(await axe(guest)).toEqual([])
+  await guestCtx.close()
+})
