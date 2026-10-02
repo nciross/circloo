@@ -4,7 +4,7 @@ import { Pause, Play } from 'lucide-react'
 import { useUiStore } from '../../stores/ui'
 
 /** The story, in order. Each step has a silent clip per language, rendered with Remotion (video/render-clips.mjs). */
-export const STORY = ['circle', 'chat', 'canvas', 'board', 'send', 'pirikoo'] as const
+const STORY = ['circle', 'chat', 'canvas', 'board', 'send', 'pirikoo'] as const
 type StepId = (typeof STORY)[number]
 /** Clips with no words in them: one file serves every language. */
 const WORDLESS: ReadonlySet<StepId> = new Set(['circle', 'send'])
