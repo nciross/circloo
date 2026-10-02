@@ -2,13 +2,13 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { Trans, useTranslation } from 'react-i18next'
 import { Plus, Shuffle, StepForward, Timer, X } from 'lucide-react'
 import { NAME_MAX, TIMER_CHOICES, useMeetingStore, type AddResult, type TimerChoice } from '../../stores/meeting'
-import { MagnetButton } from '../../components/Magnet'
-import { ChoiceMagnets } from '../../components/ChoiceMagnets'
+import { Button } from '../../components/Button'
+import { Segmented } from '../../components/Segmented'
 
 const TYPING = 'input, textarea, select, [contenteditable]'
 const TIMES_UP_GRACE_MS = 2500
 
-/** The chrome magnetic strip: everyone in the room as a name magnet; whoever's turn it is pops off the line. */
+/** The line: everyone in the room as a swimmer chip; whoever's turn it is dives off the block. */
 export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
   const { t } = useTranslation()
   const { names, order, turn, phase, timer, turnStartedAt, addName, removeName, setTimer, start, next, reshuffle, reset } = useMeetingStore()
@@ -23,7 +23,7 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
 
   const current = phase === 'round' ? order[turn] : undefined
 
-  // Kitchen timer per person, derived from when the turn started (no state reset needed).
+  // Turn timer per person, derived from when the turn started (no state reset needed).
   useEffect(() => {
     if (phase !== 'round' || timer === 0) return
     const id = window.setInterval(() => setNow(Date.now()), 250)
@@ -90,7 +90,7 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
     removeName(name)
     // Focus the next name's remove button, or the add field once the list is empty.
     requestAnimationFrame(() => {
-      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('.name-magnet__remove')
+      const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>('.swimmer__remove')
       const target = buttons?.[Math.min(index, (buttons?.length ?? 1) - 1)]
       ;(target ?? inputRef.current)?.focus()
     })
@@ -99,35 +99,35 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
   const shown = phase === 'gathering' ? names : order
 
   return (
-    <section ref={sectionRef} className="ritual-line" aria-labelledby="line-title" onKeyDown={onKeyDown}>
-      <div className="ritual-line__head">
-        <h2 id="line-title" className="ritual-line__title">{t('ice.line.title')}</h2>
-        <ChoiceMagnets<`${TimerChoice}`>
+    <section ref={sectionRef} className="panel line" aria-labelledby="line-title" onKeyDown={onKeyDown}>
+      <div className="panel__head">
+        <h2 id="line-title" className="panel__title">{t('ice.line.title')}</h2>
+        <Segmented<`${TimerChoice}`>
+          className="seg--timer"
           label={t('ice.line.timer')}
-          tone="ink"
           value={`${timer}`}
           onChange={(v) => setTimer(Number(v) as TimerChoice)}
           choices={TIMER_CHOICES.map((c) => ({ value: `${c}` as `${TimerChoice}`, label: c === 0 ? t('ice.line.timerOff') : t('ice.line.seconds', { count: c }), icon: c === 0 ? undefined : <Timer size={14} /> }))}
         />
       </div>
 
-      <div className="ritual-line__strip">
-        <ol ref={listRef} className="name-magnets" aria-labelledby="line-title">
+      <div className="line__strip">
+        <ol ref={listRef} className="swimmers" aria-labelledby="line-title">
           {shown.map((name, i) => {
             const isNow = phase === 'round' && i === turn
             const isDone = phase === 'done' || (phase === 'round' && i < turn)
             return (
-              <li key={name} className={`name-magnet${isNow ? ' is-now' : ''}${isDone ? ' is-done' : ''}`} aria-current={isNow ? 'step' : undefined}>
+              <li key={name} className={`swimmer${isNow ? ' is-now' : ''}${isDone ? ' is-done' : ''}`} aria-current={isNow ? 'step' : undefined}>
                 <bdi>{name}</bdi>
                 {isDone ? <span className="visually-hidden">{t('ice.line.hadTurn')}</span> : null}
-                <button type="button" className="name-magnet__remove" aria-label={t('ice.line.remove', { name })} onClick={() => remove(name, i)}>
+                <button type="button" className="swimmer__remove" aria-label={t('ice.line.remove', { name })} onClick={() => remove(name, i)}>
                   <X size={14} strokeWidth={3} aria-hidden="true" />
                 </button>
               </li>
             )
           })}
         </ol>
-        <form className="name-magnet name-magnet--add" onSubmit={submit}>
+        <form className="swimmer swimmer--add" onSubmit={submit}>
           <label className="visually-hidden" htmlFor="add-name">{t('ice.line.addLabel')}</label>
           <input
             id="add-name"
@@ -143,7 +143,7 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
             aria-invalid={addError ? true : undefined}
             aria-describedby={addError ? 'add-name-error' : undefined}
           />
-          <button type="submit" className="name-magnet__add" aria-label={t('ice.line.add')}>
+          <button type="submit" className="swimmer__add" aria-label={t('ice.line.add')}>
             <Plus size={16} strokeWidth={3} aria-hidden="true" />
           </button>
         </form>
@@ -154,39 +154,39 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
         {current ? (timesUp ? t('ice.line.timesUp', { name: current }) : t('ice.line.turnOfPlain', { name: current })) : phase === 'done' ? t('ice.line.done') : ''}
       </p>
 
-      <div className="ritual-line__controls">
+      <div className="line__controls">
         {phase === 'gathering' ? (
           names.length < 2 ? (
-            <p className="ritual-line__hint">{t('ice.line.empty')}</p>
+            <p className="line__hint">{t('ice.line.empty')}</p>
           ) : (
-            <MagnetButton ref={primaryRef} color="tomato" size="lg" onClick={() => { start(); onNextCard() }}>{t('ice.line.start')}</MagnetButton>
+            <Button ref={primaryRef} variant="primary" size="lg" onClick={() => { start(); onNextCard() }}>{t('ice.line.start')}</Button>
           )
         ) : phase === 'round' && current ? (
           <>
-            <p className="ritual-line__turn" aria-hidden="true">
-              <Trans i18nKey="ice.line.turnOf" values={{ name: current }} components={{ name: <bdi className="ritual-line__who" /> }} />
+            <p className="line__turn" aria-hidden="true">
+              <Trans i18nKey="ice.line.turnOf" values={{ name: current }} components={{ name: <bdi className="line__who" /> }} />
             </p>
             {timer > 0 ? (
-              <span className={`kitchen-timer${timesUp ? ' is-ringing' : ''}`} role="timer" aria-label={t('ice.line.timer')}>
+              <span className={`turn-timer${timesUp ? ' is-ringing' : ''}`} role="timer" aria-label={t('ice.line.timer')}>
                 {timesUp ? t('ice.line.timesUpShort') : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`}
               </span>
             ) : null}
-            <MagnetButton ref={primaryRef} color="tomato" size="lg" icon={<StepForward className="flip-rtl" size={20} strokeWidth={2.5} />} onClick={goNext}>
+            <Button ref={primaryRef} variant="primary" size="lg" icon={<StepForward className="flip-rtl" size={18} strokeWidth={2.25} />} onClick={goNext}>
               {t('ice.line.next')}
-            </MagnetButton>
-            <MagnetButton color="paper" icon={<Shuffle size={18} strokeWidth={2.5} />} onClick={reshuffle}>
+            </Button>
+            <Button variant="default" icon={<Shuffle size={16} strokeWidth={2.25} />} onClick={reshuffle}>
               {t('ice.line.shuffle')}
-            </MagnetButton>
+            </Button>
           </>
         ) : (
           <>
-            <p className="ritual-line__turn" aria-hidden="true">{t('ice.line.done')}</p>
-            <MagnetButton ref={primaryRef} color="tomato" size="lg" onClick={() => { reset(); start(); onNextCard() }}>{t('ice.line.again')}</MagnetButton>
+            <p className="line__turn" aria-hidden="true">{t('ice.line.done')}</p>
+            <Button ref={primaryRef} variant="primary" size="lg" onClick={() => { reset(); start(); onNextCard() }}>{t('ice.line.again')}</Button>
           </>
         )}
       </div>
       {phase === 'round' ? (
-        <p className="ritual-line__keys">
+        <p className="line__keys">
           <Trans i18nKey="ice.line.keysHint" components={{ k: <kbd dir="ltr" /> }} />
         </p>
       ) : null}

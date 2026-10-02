@@ -27,27 +27,40 @@
     "home": "Inicio",
     "account": "Cuenta",
     "cancel": "Cancelar",
-    "signOutFailed": "No se pudo cerrar sesión. Revisa tu conexión e inténtalo de nuevo."
+    "signOutFailed": "No se pudo cerrar sesión. Revisa tu conexión e inténtalo de nuevo.",
+    "nav": {
+      "label": "Principal",
+      "home": "Inicio",
+      "icebreakers": "Rompehielos",
+      "soonGroup": "Próximamente",
+      "open": "Abrir la navegación",
+      "close": "Cerrar la navegación"
+    },
+    "close": "Cerrar",
+    "profileMenu": "Perfil y ajustes",
+    "signedInAs": "Sesión iniciada como",
+    "startRound": "Empezar una ronda",
+    "breadcrumb": "Ruta de navegación",
+    "languageCurrent": "Idioma: {{name}}"
   },
   "landing": {
-    "title": "circloo · la puerta de la nevera de tu círculo",
-    "wordmarkHint": "Las letras son imanes. Muévelas.",
-    "headline": "La puerta de la nevera de los tuyos.",
+    "title": "circloo · tu círculo, en un espacio privado",
+    "headline": "Tu círculo, en un espacio privado.",
     "sub": "Saber cómo está cada uno, empezar las reuniones con una risa y decidir juntos. Un pequeño espacio privado para tu familia, tus amigos o tu equipo.",
     "languagesLine": "Habla English, français, العربية y español.",
-    "cta": "Abrir mi puerta",
-    "ctaSecondary": "Ver qué se pega en la puerta",
+    "cta": "Crea tu círculo",
+    "ctaSecondary": "Mira cómo funciona",
     "teaser": {
       "title": "El rompehielos de hoy",
-      "shake": "Sacudir la nevera",
-      "shaking": "Sacudiendo…",
+      "shake": "Otra carta",
+      "shaking": "Repartiendo…",
       "answerLabel": "Tu respuesta",
       "answerPlaceholder": "Escríbela en la tarjeta…",
       "answerHint": "Se queda en tu pantalla. No se envía nada.",
-      "error": "La tarjeta se cayó detrás de la nevera. Sacude otra vez."
+      "error": "No pudimos cargar esta tarjeta. Saca otra."
     },
     "checkins": {
-      "title": "Esta mañana en la puerta",
+      "title": "Estados de hoy",
       "items": [
         {
           "name": "Amina",
@@ -81,7 +94,9 @@
         "4": "Despejado",
         "5": "Soleado"
       },
-      "weather": "Tiempo del círculo: casi despejado, alguien necesita café."
+      "weather": "Tiempo del círculo: casi despejado, alguien necesita café.",
+      "tryIt": "Pruébalo: ¿cómo te sientes?",
+      "faceSays": "circloo también se siente {{mood}}."
     },
     "work": {
       "title": "Trabajar juntos",
@@ -103,7 +118,7 @@
     },
     "fun": {
       "title": "Divertirse juntos",
-      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, no traducidos por una máquina. Solo humor amable. Pronto, la IA propondrá nuevos que encajen con tu círculo."
+      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, nunca traducidos por una máquina. ¿Quieres más? Pide a circloo tarjetas nuevas para tu círculo, revisadas para que sean amables."
     },
     "integrations": {
       "title": "Conectado a tu semana",
@@ -129,19 +144,46 @@
           "body": "Familia, amigos o equipo. Invita por correo o con un código sencillo."
         },
         {
-          "title": "Pega cosas en la puerta",
-          "body": "Ánimos, rompehielos y tableros, todo en un sitio."
+          "title": "Avancen juntos",
+          "body": "Estados de ánimo, rompehielos y tableros, todo en un solo lugar."
         }
       ]
     },
     "final": {
-      "title": "Tu círculo te espera junto a la nevera.",
-      "body": "Privado por defecto. Solo las personas que invitas ven lo que hay en tu puerta.",
-      "cta": "Abrir mi puerta"
+      "title": "Listo cuando tu círculo lo esté.",
+      "body": "Privado por defecto. Solo las personas que invitas ven lo que pasa en tu círculo.",
+      "cta": "Crea tu círculo"
     },
     "footer": {
       "private": "Privado por defecto. Sin anuncios.",
-      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas."
+      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas.",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence y Notion son marcas de sus propietarios. circloo no está afiliado a ellas."
+    },
+    "preview": "Una vista previa de circloo",
+    "features": "Sentir, trabajar y jugar juntos",
+    "pricing": {
+      "title": "Un solo plan. Todo incluido.",
+      "body": "Sin planes que comparar y sin funciones tras un muro de pago. Empieza hoy, gratis durante el acceso anticipado.",
+      "plan": "Círculo",
+      "price": "Gratis",
+      "period": "durante el acceso anticipado",
+      "features": [
+        "Círculos y miembros ilimitados",
+        "Catálogo de rompehielos en cuatro idiomas",
+        "Tarjetas nuevas de IA con circloo, revisadas para que sean amables",
+        "Rondas en vivo con animador y participantes",
+        "Privado por defecto, sin anuncios, nunca"
+      ],
+      "cta": "Crea tu círculo",
+      "note": "Si algún día añadimos un plan de pago, te avisaremos mucho antes de cobrar nada. Tu círculo sigue funcionando."
+    },
+    "stage": {
+      "joined_one": "{{count}} persona en el círculo",
+      "joined_other": "{{count}} personas en el círculo"
+    },
+    "inside": {
+      "title": "Dentro de circloo",
+      "body": "Un espacio tranquilo para tu círculo: rompehielos en vivo, estados de ánimo y tableros, con circloo listo para ayudar."
     }
   },
   "auth": {
@@ -155,7 +197,7 @@
     "codeTitle": "Mira tu correo",
     "codeLead": "Escribe el código de seis cifras que enviamos a <email>{{email}}</email>.",
     "codeLabel": "Código de seis cifras",
-    "verify": "Abrir mi puerta",
+    "verify": "Continuar",
     "verifying": "Comprobando…",
     "resend": "Enviar un código nuevo",
     "resendIn": "Nuevo código disponible en {{seconds}} s",
@@ -166,16 +208,17 @@
       "incompleteCode": "El código tiene seis cifras.",
       "rateLimited": "Despacio. Inténtalo de nuevo en {{minutes}} min.",
       "generic": "No pudimos conectar con circloo. Revisa tu conexión e inténtalo de nuevo."
-    }
+    },
+    "aside": "Privado por defecto. Sin contraseñas que recordar."
   },
   "welcome": {
-    "title": "Hola, me llamo",
+    "title": "Configura tu perfil",
     "lead": "Así te verá tu círculo.",
     "nameLabel": "Tu nombre",
-    "namePlaceholder": "Escribe tu nombre en la línea",
+    "namePlaceholder": "Nombre o apodo",
     "nameHelp": "De 1 a 40 caracteres. Puedes cambiarlo después.",
     "languageLabel": "Tu idioma",
-    "submit": "Pegarlo en la puerta",
+    "submit": "Continuar",
     "saving": "Guardando…",
     "errors": {
       "name": "Escribe un nombre de 1 a 40 caracteres."
@@ -183,12 +226,12 @@
   },
   "home": {
     "greeting": "¡Hola, <name>{{name}}</name>!",
-    "lead": "Tu puerta está lista. Esto es lo próximo que vamos a pegar en ella.",
-    "nextTitle": "Pronto en tu puerta",
+    "lead": "Esto es lo que ya está disponible y lo que viene.",
+    "nextTitle": "Tu espacio",
     "modules": {
       "icebreakers": {
         "title": "Rompehielos",
-        "body": "Ya disponible: saca una tarjeta, haz una ronda con todos y pide tarjetas nuevas a la nevera.",
+        "body": "Ya disponible: saca una tarjeta, haz una ronda con todos y pide a circloo tarjetas nuevas.",
         "tag": "Disponible"
       },
       "checkins": {
@@ -204,22 +247,52 @@
         "body": "Teams, Salesforce, Jira, Confluence y Notion."
       }
     },
-    "start": "Empezar un rompehielos"
+    "start": "Empezar un rompehielos",
+    "suggest": {
+      "title": "Sugerencias para ti",
+      "label": "Sugerencia",
+      "why": "Activaste las sugerencias en Ajustes.",
+      "items": [
+        "Un rompehielos acogedor para la familia",
+        "Una ronda graciosa con tarjetas de IA sobre las vacaciones"
+      ],
+      "open": "Revisar el plan"
+    },
+    "openIcebreakers": "Abrir rompehielos",
+    "table": {
+      "module": "Módulo",
+      "status": "Estado",
+      "about": "Para qué sirve"
+    }
   },
   "settings": {
     "title": "Ajustes",
-    "profileTitle": "Tu etiqueta",
+    "profileTitle": "Perfil",
     "save": "Guardar",
     "saved": "Guardado.",
     "sessionsTitle": "Tus dispositivos",
     "sessionsBody": "¿Sesión abierta en un ordenador que ya no usas? Cierra sesión en todas partes, también aquí.",
     "confirmEverywhere": "Sí, cerrar sesión en todas partes",
-    "everywhereFailed": "No pudimos cerrar tu sesión en todas partes. Tus sesiones siguen activas. Inténtalo de nuevo."
+    "everywhereFailed": "No pudimos cerrar tu sesión en todas partes. Tus sesiones siguen activas. Inténtalo de nuevo.",
+    "appearanceTitle": "Apariencia",
+    "themeLabel": "Tema",
+    "themes": {
+      "system": "Como mi dispositivo",
+      "light": "Claro",
+      "dark": "Oscuro"
+    },
+    "assistantTitle": "Asistente",
+    "autonomyLabel": "Sugerencias",
+    "autonomy": {
+      "off": "Desactivadas",
+      "suggest": "Sugerir"
+    },
+    "autonomyHelp": "Con Sugerir, circloo propone próximos pasos en tu inicio. Nada se ejecuta hasta que revisas y confirmas el plan."
   },
   "notFound": {
-    "title": "Esta nota se cayó detrás de la nevera.",
+    "title": "No encontramos esta página.",
     "body": "La página que buscas no existe o se ha mudado.",
-    "home": "Volver a la puerta"
+    "home": "Volver al inicio"
   },
   "ice": {
     "title": "Rompehielos",
@@ -248,10 +321,10 @@
     },
     "card": {
       "label": "Tarjeta actual",
-      "shake": "Sacudir",
+      "shake": "Sacar",
       "favourite": "Favorita",
       "showAnswer": "Ver la respuesta",
-      "empty": "Ninguna tarjeta encaja con estos imanes. Mueve uno o pregunta a la nevera.",
+      "empty": "Ninguna tarjeta encaja con estos filtros. Cambia uno o pide tarjetas nuevas.",
       "exhausted": "Ya viste todas las tarjetas. Volvemos a barajar.",
       "error": "No pudimos cargar una tarjeta. Inténtalo de nuevo.",
       "fresh": "Sugerido por IA",
@@ -259,12 +332,12 @@
       "pinned": "Ahora en el tablero: {{text}}"
     },
     "ask": {
-      "title": "Pregunta a la nevera",
-      "lead": "Cinco tarjetas nuevas que encajan con tus imanes. Las sugiere la IA y revisamos que sean amables.",
+      "title": "Pide tarjetas nuevas",
+      "lead": "Cinco tarjetas nuevas que encajan con tus filtros. Las sugiere la IA y revisamos que sean amables.",
       "themeLabel": "Tema (opcional)",
       "themePlaceholder": "vacaciones de verano",
       "ask": "Preguntar",
-      "asking": "La nevera está pensando…",
+      "asking": "Escribiendo tarjetas…",
       "remaining_one": "Te queda {{count}} consulta hoy",
       "remaining_other": "Te quedan {{count}} consultas hoy",
       "results": "Tarjetas nuevas",
@@ -272,10 +345,10 @@
       "kept": "Guardada",
       "dismiss": "Descartar esta tarjeta",
       "errors": {
-        "unsafe": "La nevera solo escribe cosas amables. Prueba otro tema.",
-        "limited": "Se acabó la magia de la nevera por hoy. Vuelve a las {{time}}.",
-        "inFlight": "La nevera ya está pensando. Un momento.",
-        "unavailable": "La nevera no tiene ideas ahora mismo. Inténtalo pronto; la baraja sigue funcionando.",
+        "unsafe": "circloo solo escribe cosas amables. Prueba otro tema.",
+        "limited": "Se acabaron las tarjetas nuevas por hoy. Vuelve a las {{time}}.",
+        "inFlight": "Ya estamos escribiendo tus tarjetas. Un momento.",
+        "unavailable": "Ahora no hay tarjetas nuevas. Inténtalo pronto; la baraja sigue funcionando.",
         "expired": "Estas sugerencias caducaron. Pide otras nuevas.",
         "limitedNoTime": "Ya usaste todas tus consultas de hoy. Vuelve a intentarlo mañana."
       },
@@ -317,9 +390,43 @@
       "favourites": "Favoritas",
       "mine": "Mis tarjetas",
       "emptyFavourites": "Toca el corazón de una tarjeta para guardarla aquí.",
-      "emptyMine": "Las tarjetas que guardas de la nevera aparecen aquí.",
+      "emptyMine": "Las tarjetas que guardas de las sugerencias de IA aparecen aquí.",
       "delete": "Borrar esta tarjeta",
       "putOnBoard": "Poner en el tablero"
+    },
+    "lead": "Saca una tarjeta, pon a todos en la fila y por turnos.",
+    "present": "Presentar",
+    "stopPresenting": "Dejar de presentar"
+  },
+  "askbar": {
+    "open": "Pregunta a circloo",
+    "title": "Pregunta a circloo",
+    "label": "¿Qué quieres hacer?",
+    "placeholder": "Prueba: un rompehielos gracioso para la familia",
+    "planTitle": "El plan. Revísalo antes de que se ejecute.",
+    "run": "Ejecutar el plan",
+    "nothing": "circloo todavía no sabe hacer eso. Prueba una de estas:",
+    "examples": [
+      "Un rompehielos gracioso para la familia",
+      "Ronda con Amina, Théo y Lucía",
+      "Tarjetas de IA sobre el verano",
+      "Cambiar a modo oscuro"
+    ],
+    "done": "Hecho. El plan se ejecutó.",
+    "steps": {
+      "home": "Ir al inicio",
+      "icebreakers": "Abrir Rompehielos",
+      "settings": "Abrir Ajustes",
+      "audience": "Público: {{value}}",
+      "tone": "Tono: {{value}}",
+      "kind": "Tipo: {{value}}",
+      "kidsSafe": "Solo tarjetas para niños",
+      "deal": "Sacar una tarjeta nueva",
+      "people": "Poner a {{names}} en la fila",
+      "start": "Empezar la ronda",
+      "ask": "Pedir a la IA tarjetas sobre «{{theme}}»",
+      "locale": "Cambiar el idioma a {{value}}",
+      "theme": "Cambiar a {{value}}"
     }
   }
 }

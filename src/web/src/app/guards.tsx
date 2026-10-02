@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { useMe } from '../api/hooks'
-import { DoorLoading } from '../components/DoorLoading'
+import { Loading } from '../components/Loading'
 
 export function RequireAuth({ children, allowIncompleteProfile = false }: { children: ReactNode; allowIncompleteProfile?: boolean }) {
   const { data: me, isPending } = useMe()
   const location = useLocation()
-  if (isPending) return <DoorLoading />
+  if (isPending) return <Loading />
   if (!me) {
     const returnTo = `${location.pathname}${location.search}`
     return <Navigate to={`/signin?returnTo=${encodeURIComponent(returnTo)}`} replace />

@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Maximize2, Minimize2 } from 'lucide-react'
 import { useDocumentTitle } from '../../app/locale'
-import { Freezer } from '../../components/Freezer'
-import { ChoiceMagnets } from '../../components/ChoiceMagnets'
+import { PageHeader } from '../../components/PageHeader'
+import { Select } from '../../components/Select'
+import { Button } from '../../components/Button'
 import { useDeckStore } from '../../stores/deck'
 import type { Audience, Kind, Tone } from '../../api/sparks'
-import { AccountMenu } from '../home/AccountMenu'
 import { RitualCard } from './RitualCard'
 import { RitualLine } from './RitualLine'
-import { AskFridge } from './AskFridge'
+import { AskPanel } from './AskPanel'
 import { Keepers } from './Keepers'
 import '../../styles/app.css'
 import '../../styles/icebreakers.css'
@@ -18,7 +18,7 @@ const AUDIENCES: Audience[] = ['family', 'friends', 'work']
 const TONES: Tone[] = ['silly', 'cozy', 'deep']
 const KINDS: Kind[] = ['icebreaker', 'would-you-rather', 'joke', 'riddle']
 
-/** The icebreaker ritual: one big card, the people in the room on a magnetic line, and the fridge to ask for more. */
+/** The icebreaker ritual: filters, the current card and the round, fresh AI cards at the side, keepers below. */
 export default function Icebreakers() {
   const { t } = useTranslation()
   useDocumentTitle('ice.title')
@@ -43,41 +43,44 @@ export default function Icebreakers() {
   }
 
   return (
-    <div className="fridge">
-      <Freezer homeTo="/app">
-        <AccountMenu />
-      </Freezer>
-      <main id="main" className="door">
-        <span className="door__handle" aria-hidden="true" />
-        <h1 className="visually-hidden">{t('ice.title')}</h1>
+    <div className="page">
+      <PageHeader
+        crumbs={[{ to: '/app', label: t('common.nav.home') }]}
+        title={t('ice.title')}
+        lead={t('ice.lead')}
+        actions={
+          document.fullscreenEnabled ? (
+            <Button variant="default" onClick={toggleFull} icon={full ? <Minimize2 size={16} /> : <Maximize2 size={16} />}>
+              {full ? t('ice.stopPresenting') : t('ice.present')}
+            </Button>
+          ) : null
+        }
+      />
 
-        <div className="filter-bar" role="group" aria-label={t('ice.filters.label')}>
-          <ChoiceMagnets label={t('ice.filters.audience')} value={audience} onChange={(v) => setFilter({ audience: v })}
-            choices={AUDIENCES.map((v) => ({ value: v, label: t(`ice.filters.audiences.${v}`) }))} />
-          <ChoiceMagnets label={t('ice.filters.tone')} tone="tomato" value={tone} onChange={(v) => setFilter({ tone: v })}
-            choices={TONES.map((v) => ({ value: v, label: t(`ice.filters.tones.${v}`) }))} />
-          <ChoiceMagnets label={t('ice.filters.kind')} tone="sunflower" value={kind} onChange={(v) => setFilter({ kind: v })}
-            choices={KINDS.map((v) => ({ value: v, label: t(`ice.filters.kinds.${v}`) }))} />
-          <button type="button" className="kids-switch" aria-pressed={kidsSafe} onClick={() => setFilter({ kidsSafe: !kidsSafe })}>
-            <span className="kids-switch__track" aria-hidden="true"><span className="kids-switch__knob" /></span>
-            {t('ice.filters.kidsSafe')}
-          </button>
+      <div className="toolbar" role="group" aria-label={t('ice.filters.label')}>
+        <Select name="audience" label={t('ice.filters.audience')} value={audience} onChange={(v) => setFilter({ audience: v })}
+          options={AUDIENCES.map((v) => ({ value: v, label: t(`ice.filters.audiences.${v}`) }))} />
+        <Select name="tone" label={t('ice.filters.tone')} value={tone} onChange={(v) => setFilter({ tone: v })}
+          options={TONES.map((v) => ({ value: v, label: t(`ice.filters.tones.${v}`) }))} />
+        <Select name="kind" label={t('ice.filters.kind')} value={kind} onChange={(v) => setFilter({ kind: v })}
+          options={KINDS.map((v) => ({ value: v, label: t(`ice.filters.kinds.${v}`) }))} />
+        <button type="button" className="switch" aria-pressed={kidsSafe} onClick={() => setFilter({ kidsSafe: !kidsSafe })}>
+          <span className="switch__track" aria-hidden="true"><span className="switch__knob" /></span>
+          {t('ice.filters.kidsSafe')}
+        </button>
+      </div>
+
+      <div className="ice">
+        <div ref={boardRef} className={`ice__board${full ? ' is-full' : ''}`}>
+          <RitualCard big={full} />
+          <RitualLine onNextCard={nextCard} />
         </div>
+        <aside className="ice__side">
+          <AskPanel />
+        </aside>
+      </div>
 
-        <div className="ritual-door">
-          <div ref={boardRef} className={`ritual-board${full ? ' is-full' : ''}`}>
-            <RitualCard big={full} />
-            <RitualLine onNextCard={nextCard} />
-            {document.fullscreenEnabled ? <button type="button" className="text-link ritual-board__full" onClick={toggleFull}>
-              {full ? <Minimize2 size={16} aria-hidden="true" /> : <Maximize2 size={16} aria-hidden="true" />}
-              {full ? t('ice.line.exitFullscreen') : t('ice.line.fullscreen')}
-            </button> : null}
-          </div>
-          <AskFridge />
-        </div>
-
-        <Keepers />
-      </main>
+      <Keepers />
     </div>
   )
 }

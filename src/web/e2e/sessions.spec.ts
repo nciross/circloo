@@ -5,7 +5,7 @@ import { codeFor, localeOf, pickLanguage } from './helpers'
 async function signIn(page: Page, email: string) {
   await page.goto('/signin')
   await page.locator('input[type=email]').fill(email)
-  await page.locator('form .magnet').click()
+  await page.locator('form button[type=submit]').click()
   await expect(page.locator('input[autocomplete=one-time-code]')).toBeFocused()
   // Read the code only once the new one is sent; codes for this email are sequential.
   await page.waitForTimeout(400)
@@ -41,8 +41,8 @@ test('sign out everywhere ends the other device, which can sign in again (US4)',
   await expect(laptop).toHaveURL(/\/app$/)
 
   await phone.goto('/app/settings')
-  await phone.locator('.sheet--quiet .magnet').click()
-  await phone.locator('.sheet--quiet .magnet').click()
+  await phone.locator('.settings-devices .btn').click()
+  await phone.locator('.settings-devices .btn--danger').click()
   await expect(phone).toHaveURL(/\/$/)
 
   // The laptop's session is gone; it lands on sign-in and can sign in again (fresh CSRF token).

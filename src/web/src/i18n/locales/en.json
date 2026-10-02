@@ -27,27 +27,40 @@
     "home": "Home",
     "account": "Account",
     "cancel": "Cancel",
-    "signOutFailed": "Sign out did not work. Check your connection and try again."
+    "signOutFailed": "Sign out did not work. Check your connection and try again.",
+    "nav": {
+      "label": "Main",
+      "home": "Home",
+      "icebreakers": "Icebreakers",
+      "soonGroup": "Coming soon",
+      "open": "Open navigation",
+      "close": "Close navigation"
+    },
+    "close": "Close",
+    "profileMenu": "Profile and settings",
+    "signedInAs": "Signed in as",
+    "startRound": "Start a round",
+    "breadcrumb": "Breadcrumb",
+    "languageCurrent": "Language: {{name}}"
   },
   "landing": {
-    "title": "circloo · your circle's fridge door",
-    "wordmarkHint": "The letters are magnets. Move them around.",
-    "headline": "The fridge door for your people.",
+    "title": "circloo · your circle, in one private space",
+    "headline": "Your circle, in one private space.",
     "sub": "Check in on how everyone feels, start meetings with a laugh and decide things together. One small private space for your family, your friends or your team.",
     "languagesLine": "Speaks English, français, العربية and español.",
-    "cta": "Get your door",
-    "ctaSecondary": "See what goes on the door",
+    "cta": "Start your circle",
+    "ctaSecondary": "See how it works",
     "teaser": {
       "title": "Today's icebreaker",
-      "shake": "Shake the fridge",
-      "shaking": "Shaking…",
+      "shake": "Deal another",
+      "shaking": "Dealing…",
       "answerLabel": "Your answer",
       "answerPlaceholder": "Write it on the card…",
       "answerHint": "Stays on your screen. Nothing is sent.",
-      "error": "The card slipped behind the fridge. Shake again."
+      "error": "We could not load this card. Deal another one."
     },
     "checkins": {
-      "title": "This morning on the door",
+      "title": "Today's check-ins",
       "items": [
         {
           "name": "Amina",
@@ -81,7 +94,9 @@
         "4": "Bright",
         "5": "Sunny"
       },
-      "weather": "Circle weather: mostly bright, one person needs coffee."
+      "weather": "Circle weather: mostly bright, one person needs coffee.",
+      "tryIt": "Try it: how do you feel?",
+      "faceSays": "circloo feels {{mood}} too."
     },
     "work": {
       "title": "Work together",
@@ -103,7 +118,7 @@
     },
     "fun": {
       "title": "Have fun together",
-      "body": "Icebreakers, riddles and jokes written by people in each language, not translated by a machine. Kind humour only. Soon, AI will suggest fresh ones that fit your circle."
+      "body": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine. Want more? Ask circloo for fresh ones that fit your circle, checked for kindness."
     },
     "integrations": {
       "title": "Plugs into your week",
@@ -129,19 +144,46 @@
           "body": "Family, friends or team. Invite people by email or with a simple code."
         },
         {
-          "title": "Stick things on the door",
+          "title": "Get going together",
           "body": "Check-ins, icebreakers and boards, all in one place."
         }
       ]
     },
     "final": {
-      "title": "Your circle is waiting by the fridge.",
-      "body": "Private by default. Only the people you invite can see what is on your door.",
-      "cta": "Get your door"
+      "title": "Ready when your circle is.",
+      "body": "Private by default. Only the people you invite can see what happens in your circle.",
+      "cta": "Start your circle"
     },
     "footer": {
       "private": "Private by default. No ads.",
-      "made": "Made for families, friends and teams in four languages."
+      "made": "Made for families, friends and teams in four languages.",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence and Notion are trademarks of their owners. circloo is not affiliated with them."
+    },
+    "preview": "A preview of circloo",
+    "features": "Feel, work and play together",
+    "pricing": {
+      "title": "One plan. Everything in it.",
+      "body": "No tiers to compare and no feature behind a paywall. Start today, free while circloo is in early access.",
+      "plan": "Circle",
+      "price": "Free",
+      "period": "during early access",
+      "features": [
+        "Unlimited circles and members",
+        "Icebreaker catalog in four languages",
+        "Fresh AI cards with circloo, checked for kindness",
+        "Live rounds with animator and participants",
+        "Private by default, no ads, ever"
+      ],
+      "cta": "Start your circle",
+      "note": "If we ever add a paid plan, we will tell you well before anything is charged. Your circle keeps working."
+    },
+    "stage": {
+      "joined_one": "{{count}} person in the circle",
+      "joined_other": "{{count}} people in the circle"
+    },
+    "inside": {
+      "title": "Inside circloo",
+      "body": "A calm workspace for your circle: live icebreakers, check-ins and boards, with circloo ready to help."
     }
   },
   "auth": {
@@ -155,7 +197,7 @@
     "codeTitle": "Check your email",
     "codeLead": "Type the six-digit code we sent to <email>{{email}}</email>.",
     "codeLabel": "Six-digit code",
-    "verify": "Open my door",
+    "verify": "Continue",
     "verifying": "Checking…",
     "resend": "Send a new code",
     "resendIn": "New code available in {{seconds}} s",
@@ -166,16 +208,17 @@
       "incompleteCode": "The code has six digits.",
       "rateLimited": "Slow down a little. Try again in {{minutes}} min.",
       "generic": "We could not reach circloo. Check your connection and try again."
-    }
+    },
+    "aside": "Private by default. No password to remember."
   },
   "welcome": {
-    "title": "Hello, my name is",
+    "title": "Set up your profile",
     "lead": "This is how your circle will see you.",
     "nameLabel": "Your name",
-    "namePlaceholder": "Write your name on the line",
+    "namePlaceholder": "First name or nickname",
     "nameHelp": "1 to 40 characters. You can change it later.",
     "languageLabel": "Your language",
-    "submit": "Stick it on the door",
+    "submit": "Continue",
     "saving": "Saving…",
     "errors": {
       "name": "Please write a name between 1 and 40 characters."
@@ -183,12 +226,12 @@
   },
   "home": {
     "greeting": "Hi <name>{{name}}</name>!",
-    "lead": "Your door is ready. Here is what we are sticking on it next.",
-    "nextTitle": "Coming to your door",
+    "lead": "Here is what is live and what is coming next.",
+    "nextTitle": "Your workspace",
     "modules": {
       "icebreakers": {
         "title": "Icebreakers",
-        "body": "Live now: draw a card, run a round with everyone, and ask the fridge for fresh ones.",
+        "body": "Live now: deal a card, run a round with everyone, and ask circloo for fresh ones.",
         "tag": "Live"
       },
       "checkins": {
@@ -204,22 +247,52 @@
         "body": "Teams, Salesforce, Jira, Confluence and Notion."
       }
     },
-    "start": "Start an icebreaker"
+    "start": "Start an icebreaker",
+    "suggest": {
+      "title": "Suggestions for you",
+      "label": "Suggestion",
+      "why": "You turned suggestions on in Settings.",
+      "items": [
+        "A cozy icebreaker for the family",
+        "A silly round with fresh AI cards about holidays"
+      ],
+      "open": "Check the plan"
+    },
+    "openIcebreakers": "Open icebreakers",
+    "table": {
+      "module": "Module",
+      "status": "Status",
+      "about": "What it does"
+    }
   },
   "settings": {
     "title": "Settings",
-    "profileTitle": "Your name tag",
+    "profileTitle": "Profile",
     "save": "Save",
     "saved": "Saved.",
     "sessionsTitle": "Your devices",
     "sessionsBody": "Signed in on a computer you no longer use? Sign out everywhere, including here.",
     "confirmEverywhere": "Yes, sign out on every device",
-    "everywhereFailed": "We could not sign you out everywhere. Your sessions are still active. Please try again."
+    "everywhereFailed": "We could not sign you out everywhere. Your sessions are still active. Please try again.",
+    "appearanceTitle": "Appearance",
+    "themeLabel": "Theme",
+    "themes": {
+      "system": "Match my device",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "assistantTitle": "Assistant",
+    "autonomyLabel": "Suggestions",
+    "autonomy": {
+      "off": "Off",
+      "suggest": "Suggest"
+    },
+    "autonomyHelp": "With Suggest, circloo proposes next steps on your home page. Nothing runs until you check the plan and confirm it."
   },
   "notFound": {
-    "title": "This note fell behind the fridge.",
+    "title": "We can't find this page.",
     "body": "The page you are looking for does not exist or moved.",
-    "home": "Back to the door"
+    "home": "Back to home"
   },
   "ice": {
     "title": "Icebreakers",
@@ -248,10 +321,10 @@
     },
     "card": {
       "label": "Current card",
-      "shake": "Shake",
+      "shake": "Deal",
       "favourite": "Favourite",
       "showAnswer": "Show the answer",
-      "empty": "No card matches these magnets. Move one, or ask the fridge.",
+      "empty": "No card matches these filters. Change one, or ask for fresh cards.",
       "exhausted": "You have seen every card here. The deck starts again.",
       "error": "We could not load a card. Try again.",
       "fresh": "Suggested by AI",
@@ -259,12 +332,12 @@
       "pinned": "Now on the board: {{text}}"
     },
     "ask": {
-      "title": "Ask the fridge",
-      "lead": "Five fresh cards that match your magnets. Suggested by AI, checked for kindness.",
+      "title": "Ask for fresh cards",
+      "lead": "Five new cards that match your filters. Suggested by AI, checked for kindness.",
       "themeLabel": "Theme (optional)",
       "themePlaceholder": "summer holidays",
       "ask": "Ask",
-      "asking": "The fridge is thinking…",
+      "asking": "Writing cards…",
       "remaining_one": "{{count}} ask left today",
       "remaining_other": "{{count}} asks left today",
       "results": "Fresh cards",
@@ -272,10 +345,10 @@
       "kept": "Kept",
       "dismiss": "Dismiss this card",
       "errors": {
-        "unsafe": "The fridge only writes kind things. Try another theme.",
-        "limited": "That is all the fridge magic for today. Back at {{time}}.",
-        "inFlight": "The fridge is already thinking. One moment.",
-        "unavailable": "The fridge has no ideas right now. Try again soon, the deck still works.",
+        "unsafe": "circloo only writes kind things. Try another theme.",
+        "limited": "That is all the fresh cards for today. Back at {{time}}.",
+        "inFlight": "Already writing your cards. One moment.",
+        "unavailable": "No fresh cards right now. Try again soon; the deck still works.",
         "expired": "These suggestions have expired. Ask again for new ones.",
         "limitedNoTime": "You have used all your asks for today. Try again tomorrow."
       },
@@ -317,9 +390,43 @@
       "favourites": "Favourites",
       "mine": "My sparks",
       "emptyFavourites": "Tap the heart on a card to keep it here.",
-      "emptyMine": "Cards you keep from the fridge land here.",
+      "emptyMine": "Cards you keep from AI suggestions land here.",
       "delete": "Delete this card",
       "putOnBoard": "Put on the board"
+    },
+    "lead": "Deal a card, put everyone in the line, and take turns.",
+    "present": "Present",
+    "stopPresenting": "Stop presenting"
+  },
+  "askbar": {
+    "open": "Ask circloo",
+    "title": "Ask circloo",
+    "label": "What do you want to do?",
+    "placeholder": "Try: a silly icebreaker for the family",
+    "planTitle": "The plan. Check it before it runs.",
+    "run": "Run the plan",
+    "nothing": "circloo cannot do that yet. Try one of these:",
+    "examples": [
+      "A silly icebreaker for the family",
+      "Round with Amina, Théo and Lucía",
+      "Fresh AI cards about summer",
+      "Switch to dark mode"
+    ],
+    "done": "Done. The plan ran.",
+    "steps": {
+      "home": "Go to Home",
+      "icebreakers": "Open Icebreakers",
+      "settings": "Open Settings",
+      "audience": "Audience: {{value}}",
+      "tone": "Tone: {{value}}",
+      "kind": "Type: {{value}}",
+      "kidsSafe": "Kids-safe cards only",
+      "deal": "Deal a new card",
+      "people": "Put {{names}} in the line",
+      "start": "Start the round",
+      "ask": "Ask AI for fresh cards about “{{theme}}”",
+      "locale": "Switch the language to {{value}}",
+      "theme": "Switch to {{value}}"
     }
   }
 }

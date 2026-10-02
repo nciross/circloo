@@ -41,3 +41,13 @@ export function useDocumentTitle(key: string) {
     document.title = t(key)
   }, [t, key, instance.language])
 }
+
+/** Light, dark or the device's choice: one attribute on <html> drives every token. */
+export function useThemeSync() {
+  const theme = useUiStore((s) => s.theme)
+  useEffect(() => {
+    const html = document.documentElement
+    if (theme === 'system') html.removeAttribute('data-theme')
+    else html.dataset.theme = theme
+  }, [theme])
+}
