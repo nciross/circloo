@@ -324,10 +324,14 @@
 .preview {
   margin: 0;
   overflow: hidden;
-  border: 1px solid var(--border);
   border-radius: var(--r-lg);
   background: var(--bg);
   box-shadow: var(--shadow-float);
+}
+/* Inside the app frame the icebreaker is part of the page, not a card on top of it */
+.preview .teaser {
+  border: 0;
+  box-shadow: none;
 }
 .preview__bar {
   display: flex;
@@ -758,11 +762,9 @@
   display: grid;
   gap: var(--s-5);
   padding: var(--s-7);
-  border: 1px solid var(--border);
   border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--shadow-float);
-  border-block-start: 4px solid var(--primary);
 }
 .plan__top {
   display: grid;
@@ -813,7 +815,7 @@
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal {
-      animation: reveal linear both;
+      animation: reveal var(--ease-out) both;
       animation-timeline: view();
       animation-range: entry 0% entry 40%;
     }
@@ -952,27 +954,301 @@
   }
 }
 
-/* ---------- The tour video (rendered with Remotion) ---------- */
-.tour {
-  padding-block: var(--s-9);
+/* ---------- Anchors in the top bar ---------- */
+.sitebar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  margin-inline-start: var(--s-6);
+  font-size: var(--fs-sm);
+  font-weight: 500;
 }
-.tour__inner {
-  justify-items: center;
-  gap: var(--s-6);
+.sitebar__links a {
+  color: var(--text-subtle);
+  text-decoration: none;
 }
-.tour__head {
+.sitebar__links a:hover {
+  color: var(--text);
+}
+@media (max-width: 56rem) {
+  .sitebar__links {
+    display: none;
+  }
+}
+
+/* ---------- The story: one pinned clip per chapter (rendered with Remotion) ---------- */
+.story {
+  --story-bar-h: 3.25rem;
+  /* Clips and words pin in the middle of what is left of the screen below both bars (a 16:9 clip is ~26rem tall) */
+  --story-pin: max(calc(var(--topbar-h) + var(--story-bar-h) + var(--s-6)), calc((100svh + var(--topbar-h) + var(--story-bar-h)) / 2 - 13rem));
+  padding-block-start: var(--s-9);
+  background: var(--surface);
+}
+.story__head {
+  display: grid;
   justify-items: center;
+  gap: var(--s-3);
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block-end: var(--s-7);
   text-align: center;
 }
-.tour__frame {
-  inline-size: min(64rem, 100%);
+.story__head p {
+  font-size: var(--fs-lg);
+  color: var(--text-subtle);
 }
-.tour__frame .tour-video__player {
+
+/* The step bar follows the reader through the chapters, then leaves with the section */
+.story__bar {
+  position: sticky;
+  inset-block-start: var(--topbar-h);
+  z-index: 20;
+  border-block: 1px solid var(--border);
+  background: var(--surface);
+}
+.story__steps {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-2);
+  max-inline-size: var(--site-max);
+  min-block-size: var(--story-bar-h);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.story__steps li {
+  display: flex;
+}
+.story__step {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding-inline: var(--s-1);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-subtlest);
+  text-decoration: none;
+  transition: color 200ms var(--ease-out);
+}
+.story__step:hover {
+  color: var(--text);
+}
+.story__step[aria-current='step'] {
+  color: var(--text);
+}
+.story__num {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+.story__step[aria-current='step'] .story__num {
+  color: var(--primary-text);
+}
+.story__now {
+  display: none;
+}
+/* The progress line runs under the steps themselves, inside the page width */
+.story__steps::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -1px;
+  inset-inline-start: var(--gutter);
+  block-size: 2px;
+  inline-size: calc(var(--story-progress, 0) * (100% - 2 * var(--gutter)));
+  background: var(--primary);
+  transition: inline-size 400ms var(--ease-out);
+}
+
+.story__list {
+  max-inline-size: var(--site-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.chapter {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.5fr);
+  align-items: start;
+  gap: var(--s-8);
+  /* Taller than the screen, so each clip stays pinned while its words are read */
+  min-block-size: 150svh;
+  padding-block: var(--s-8);
+}
+.chapter + .chapter {
+  border-block-start: 1px solid var(--border);
+}
+.chapter__copy,
+.chapter__media {
+  position: sticky;
+  inset-block-start: var(--story-pin);
+}
+.chapter__copy {
+  display: grid;
+  gap: var(--s-4);
+  padding-block-start: var(--s-6);
+}
+.chapter__kicker {
+  display: flex;
+  gap: var(--s-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--primary-text);
+}
+.chapter__kicker span {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-subtlest);
+}
+.chapter__title {
+  font-size: var(--fs-3xl);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+:lang(ar) .chapter__title {
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.chapter__body {
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--text-subtle);
+  max-inline-size: 36ch;
+}
+/* A plain frame: the clip itself carries the colour and the motion */
+.chapter__media {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-float);
+  background: var(--bg);
 }
-.tour__frame .tour-video__caption {
-  justify-self: center;
-  max-inline-size: 60ch;
-  text-align: center;
+.chapter__video {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+}
+.chapter__toggle {
+  position: absolute;
+  inset-block-end: var(--s-3);
+  inset-inline-end: var(--s-3);
+  display: grid;
+  place-items: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgb(15 37 55 / 0.78);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease-out);
+}
+.chapter__toggle:hover {
+  background: rgb(15 37 55 / 0.92);
+}
+.chapter__toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Scroll-driven entrances where the browser has view timelines; elsewhere everything is simply there */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .chapter__media {
+      animation: chapter-media-in var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+    .chapter__copy {
+      animation: reveal var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 60%;
+    }
+  }
+}
+@keyframes chapter-media-in {
+  from {
+    opacity: 0.35;
+    transform: scale(0.94);
+  }
+}
+
+/* The hero circle drifts down a little slower than the page as you leave it */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero .stage {
+      animation: stage-drift var(--ease-out) both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 90svh;
+    }
+  }
+}
+@keyframes stage-drift {
+  to {
+    transform: translateY(3.5rem) scale(0.97);
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 64rem) {
+  .chapter {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    min-block-size: 0;
+    padding-block: var(--s-7);
+  }
+  .chapter__copy,
+  .chapter__media {
+    position: relative;
+    inset-block-start: auto;
+  }
+  .chapter__copy {
+    padding-block-start: 0;
+  }
+  .chapter__body {
+    max-inline-size: 52ch;
+  }
+  /* Numbers only in the bar; the current step's name sits beside them */
+  .story__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding-inline: var(--gutter);
+  }
+  .story__steps {
+    justify-content: flex-start;
+    gap: var(--s-1);
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+  .story__step {
+    justify-content: center;
+    min-inline-size: 2.25rem;
+  }
+  .story__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* Only the numbers show here: the line spans the whole bar instead */
+  .story__steps {
+    position: static;
+  }
+  .story__steps::after {
+    inset-inline-start: 0;
+    inline-size: calc(var(--story-progress, 0) * 100%);
+  }
+  .story__now {
+    display: block;
+    margin-inline-start: auto;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }

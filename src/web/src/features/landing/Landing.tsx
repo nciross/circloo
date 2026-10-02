@@ -9,7 +9,7 @@ import { useDocumentTitle } from '../../app/locale'
 import { IcebreakerCard } from './IcebreakerCard'
 import { MoodDemo } from './MoodDemo'
 import { CircleStage } from './CircleStage'
-import { Tour } from './Tour'
+import { Story } from './Story'
 import '../../styles/landing.css'
 
 interface CheckinItem { name: string; mood: string; need: string }
@@ -92,7 +92,15 @@ export function Landing() {
 
   return (
     <div className="site">
-      <SiteHeader>
+      <SiteHeader
+        links={
+          <nav className="sitebar__links" aria-label={t('landing.nav.label')}>
+            <a href="#story">{t('landing.nav.story')}</a>
+            <a href="#pricing">{t('landing.nav.pricing')}</a>
+            <a href="#integrations">{t('landing.nav.integrations')}</a>
+          </nav>
+        }
+      >
         <ButtonLink to="/signin" variant="subtle" size="sm" className="sitebar__signin">{t('common.signIn')}</ButtonLink>
         <ButtonLink to="/signin" size="sm">{t('landing.cta')}</ButtonLink>
       </SiteHeader>
@@ -106,7 +114,7 @@ export function Landing() {
               <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>
                 {t('landing.cta')}
               </ButtonLink>
-              <a className="hero__link" href="#how">{t('landing.ctaSecondary')}</a>
+              <a className="hero__link" href="#story">{t('landing.ctaSecondary')}</a>
             </div>
             <ul className="hero__facts">
               <li><Check size={16} aria-hidden="true" /> {t('landing.languagesLine')}</li>
@@ -116,7 +124,7 @@ export function Landing() {
           <CircleStage />
         </section>
 
-        <Tour />
+        <Story />
 
         <section className="band band--sunken inside" aria-labelledby="inside-title">
           <div className="band__inner inside__inner">
