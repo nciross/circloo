@@ -965,25 +965,14 @@
   text-align: center;
 }
 .tour__frame {
-  display: grid;
-  gap: var(--s-3);
   inline-size: min(64rem, 100%);
-  margin: 0;
 }
-.tour__video {
-  display: block;
-  inline-size: 100%;
-  block-size: auto;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--border);
+.tour__frame .tour-video__player {
   border-radius: var(--r-lg);
-  background: var(--bg);
   box-shadow: var(--shadow-float);
 }
-.tour__description {
-  font-size: var(--fs-sm);
-  color: var(--text-subtle);
-  text-align: center;
-  max-inline-size: 60ch;
+.tour__frame .tour-video__caption {
   justify-self: center;
+  max-inline-size: 60ch;
+  text-align: center;
 }

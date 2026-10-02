@@ -81,6 +81,8 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   await page.locator('.room__close').click()
   await page.locator('.page-header__actions .btn--danger').click()
   await expect(page).toHaveURL(/\/app$/)
+  await expect(page.locator('.circle-list__item')).toHaveCount(1)
+  await expect(page.locator('.home-tour')).toHaveCount(0) // #91: the tour is for people without a circle yet
   await expect(guest.locator('.room__ended')).toBeVisible({ timeout: 10_000 })
   await guestCtx.close()
 })
