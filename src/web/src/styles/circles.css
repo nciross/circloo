@@ -991,3 +991,90 @@
     min-block-size: 0;
   }
 }
+
+/* ---------- Alive moments (issue #84) ---------- */
+/* Characters on the ring blink with the logo's eyes, each on its own beat. */
+.ring__char .char__eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 5.2s infinite;
+}
+.ring__seat:nth-child(2n) .ring__char .char__eye { animation-delay: 1.3s; }
+.ring__seat:nth-child(3n) .ring__char .char__eye { animation-delay: 2.6s; }
+.ring__seat:nth-child(5n) .ring__char .char__eye { animation-delay: 3.4s; }
+
+/* Someone arrives: they hop onto their seat with a few hearts. */
+.ring__seat.is-new .ring__char {
+  animation: arrive 900ms var(--ease-out);
+}
+.ring__body {
+  position: relative;
+}
+.ring__hearts {
+  position: absolute;
+  inset-block-start: -0.25rem;
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+}
+.ring__heart {
+  position: absolute;
+  inline-size: 1rem;
+  block-size: 1rem;
+  fill: var(--brand-coral);
+  opacity: 0;
+  animation: heart-rise 1.2s ease-out forwards;
+}
+.ring__heart--1 { fill: var(--ai); animation-delay: 120ms; --hx: -0.9rem; inline-size: 0.8rem; }
+.ring__heart--2 { fill: #ffc21a; animation-delay: 240ms; --hx: 0.9rem; inline-size: 0.75rem; }
+@keyframes arrive {
+  0% { transform: translateY(-18px) scale(0.6); opacity: 0; }
+  55% { transform: translateY(2px) scale(1.06, 0.94); opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes heart-rise {
+  0% { opacity: 0; transform: translate(0, 0.4rem) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--hx, 0), -2.4rem) scale(1.1); }
+}
+
+/* A new circle's invite card glows twice so the next step is obvious. */
+.invite.is-fresh {
+  animation: ready-glow 1.4s var(--ease-out) 2;
+}
+@keyframes ready-glow {
+  0% { box-shadow: var(--shadow-raised), 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+  100% { box-shadow: var(--shadow-raised), 0 0 0 14px color-mix(in srgb, var(--primary) 0%, transparent); }
+}
+
+/* An activity opens like a page turning up into view. */
+.room__reveal {
+  display: grid;
+  gap: var(--s-5);
+  animation: reveal-up 420ms var(--ease-out);
+}
+@keyframes reveal-up {
+  from { clip-path: inset(18% 0 0 0 round var(--r-md)); opacity: 0; transform: translateY(10px); }
+  to { clip-path: inset(0 0 0 0 round var(--r-md)); opacity: 1; transform: none; }
+}
+
+/* A vote lands: the count pops once. */
+.note-card__count {
+  display: inline-block;
+  animation: count-pop 260ms var(--ease-out);
+}
+@keyframes count-pop {
+  from { transform: scale(1.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring__char .char__eye,
+  .ring__seat.is-new .ring__char,
+  .room__reveal,
+  .note-card__count {
+    animation: none;
+  }
+  .ring__heart { display: none; }
+  /* Keep the confirmation, without movement. */
+  .invite.is-fresh { animation: none; box-shadow: 0 0 0 2px var(--primary); }
+}

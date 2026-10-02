@@ -99,7 +99,7 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
   const shown = phase === 'gathering' ? names : order
 
   return (
-    <section ref={sectionRef} className="panel line" aria-labelledby="line-title" onKeyDown={onKeyDown}>
+    <section ref={sectionRef} className="panel line" aria-labelledby="line-title" onKeyDown={onKeyDown} data-perch="line">
       <div className="panel__head">
         <h2 id="line-title" className="panel__title">{t('ice.line.title')}</h2>
         <Segmented<`${TimerChoice}`>

@@ -9,6 +9,7 @@ import { useDocumentTitle } from '../../app/locale'
 import { IcebreakerCard } from './IcebreakerCard'
 import { MoodDemo } from './MoodDemo'
 import { CircleStage } from './CircleStage'
+import { Tour } from './Tour'
 import '../../styles/landing.css'
 
 interface CheckinItem { name: string; mood: string; need: string }
@@ -114,6 +115,8 @@ export function Landing() {
           </div>
           <CircleStage />
         </section>
+
+        <Tour />
 
         <section className="band band--sunken inside" aria-labelledby="inside-title">
           <div className="band__inner inside__inner">

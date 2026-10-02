@@ -70,8 +70,8 @@ export interface JoinInfo {
 export const circlesKey = ['circles'] as const
 export const circleKey = (id: string) => ['circle', id] as const
 
-export const useMyCircles = () =>
-  useQuery({ queryKey: circlesKey, queryFn: ({ signal }) => api<CircleSummary[]>('/api/circles', { signal }) })
+export const useMyCircles = (enabled = true) =>
+  useQuery({ queryKey: circlesKey, queryFn: ({ signal }) => api<CircleSummary[]>('/api/circles', { signal }), enabled })
 
 export const useCircle = (id: string) =>
   useQuery({ queryKey: circleKey(id), queryFn: ({ signal }) => api<CircleView>(`/api/circles/${id}`, { signal }), retry: false, staleTime: Infinity })

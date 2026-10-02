@@ -185,6 +185,11 @@
     "inside": {
       "title": "Inside circloo",
       "body": "A calm workspace for your circle: live icebreakers, check-ins and boards, with circloo ready to help."
+    },
+    "tour": {
+      "title": "circloo in 20 seconds",
+      "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
+      "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
     }
   },
   "auth": {
@@ -227,7 +232,7 @@
   },
   "home": {
     "greeting": "Hi <name>{{name}}</name>!",
-    "lead": "Here is what is live and what is coming next.",
+    "lead": "Start a circle, or jump back into one.",
     "nextTitle": "Your workspace",
     "modules": {
       "icebreakers": {
@@ -288,7 +293,7 @@
       "off": "Off",
       "suggest": "Suggest"
     },
-    "autonomyHelp": "With Suggest, circloo proposes next steps on your home page. Nothing runs until you check the plan and confirm it."
+    "autonomyHelp": "With Suggest, Pirikoo the parakeet proposes next steps as you go. Nothing runs until you choose it."
   },
   "notFound": {
     "title": "We can't find this page.",
@@ -560,7 +565,8 @@
       "link": "Join link",
       "copy": "Copy link",
       "copied": "Link copied",
-      "code": "Or use the code"
+      "code": "Or use the code",
+      "ready": "Your circle is ready. Share this link and people join with a name and a character."
     },
     "join": {
       "title": "Join a circle",
@@ -612,7 +618,8 @@
       "closeConfirm": "Yes, close it for everyone",
       "closed": "Closed",
       "closedTitle": "This circle has ended",
-      "closedBody": "Thanks for joining. The animator closed the circle."
+      "closedBody": "Thanks for joining. The animator closed the circle.",
+      "joined": "{{name}} joined the circle."
     },
     "missing": {
       "title": "Circle not found",
@@ -746,6 +753,35 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
+    }
+  },
+  "pirikoo": {
+    "name": "Pirikoo",
+    "label": "Pirikoo, your guide",
+    "notNow": "Not now",
+    "hide": "Turn off suggestions",
+    "actions": {
+      "copy": "Copy the link",
+      "start": "Start it",
+      "sumUp": "Ask circloo to sum up",
+      "next": "Next question",
+      "open": "Open it"
+    },
+    "tips": {
+      "share": "Just you so far! Share the link: people join with a name and a character.",
+      "warmUp": "Everyone here? Warm up with {{activity}}.",
+      "sumBoard": "The ideas are in. Let everyone vote with their dots, then ask circloo to sum up.",
+      "next": "Lots of answers! Ready for the next question?",
+      "wait": "You are in! The animator will start an activity soon.",
+      "firstNote": "Add your first note to the board. Short and simple is perfect.",
+      "dots_one": "You still have {{count}} dot. Give it to the idea you like most.",
+      "dots_other": "You still have {{count}} dots. Give them to the ideas you like most.",
+      "answer": "Your turn! One sentence in the chat is enough.",
+      "firstCircle": "Make your first circle: pick activities, share a link, play together.",
+      "backTo": "\"{{name}}\" is still open. Jump back in?",
+      "mix": "A good mix: an icebreaker to warm up, then a board to decide.",
+      "connect": "Connect Teams, Jira, Confluence or Notion and send your circle’s results there.",
+      "keys": "Add the names of everyone in the room, then press Space for the next person."
     }
   }
 }

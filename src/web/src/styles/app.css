@@ -272,12 +272,34 @@ a.navitem:hover {
   max-inline-size: 52rem;
 }
 
-/* Home dashboard */
+/* Home: a greeting with the face, then circles first */
+.hello {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4) var(--s-5);
+}
+.hello__face {
+  inline-size: 3.75rem;
+  flex: none;
+  color: var(--text);
+}
+.hello__text {
+  flex: 1;
+  min-inline-size: 14rem;
+  display: grid;
+  gap: var(--s-1);
+}
 .dash {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: var(--s-5);
   align-items: start;
+}
+.dash__main {
+  display: grid;
+  gap: var(--s-5);
+  min-inline-size: 0;
 }
 .dash__side {
   display: grid;

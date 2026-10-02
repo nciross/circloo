@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { DoorClosed } from 'lucide-react'
 import { useCircle, useCloseCircle } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
@@ -25,6 +25,7 @@ export default function CircleRoom() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
+  const fresh = (useLocation().state as { created?: boolean } | null)?.created === true
   const circle = useCircle(id)
   const close = useCloseCircle()
   const room = useRoom()
@@ -118,12 +119,16 @@ export default function CircleRoom() {
                   onChange={setPane}
                   choices={[{ value: 'board', label: t('boards.board') }, { value: 'chat', label: t('circles.room.conversation') }]}
                 />
-                {pane === 'board' ? <Board activityId={activity} /> : <Chat activityId={activity} />}
+                <div key={`${activity}-${pane}`} className="room__reveal">
+                  {pane === 'board' ? <Board activityId={activity} /> : <Chat activityId={activity} />}
+                </div>
               </>
             ) : activity ? (
-              <Chat activityId={activity} />
+              <div key={activity} className="room__reveal">
+                <Chat activityId={activity} />
+              </div>
             ) : isAnimator ? (
-              <section className="panel" aria-labelledby="pick-title">
+              <section className="panel" aria-labelledby="pick-title" data-perch="pick">
                 <div className="panel__head">
                   <h2 id="pick-title" className="panel__title">{t('circles.room.pickTitle')}</h2>
                 </div>
@@ -149,10 +154,11 @@ export default function CircleRoom() {
                 <h2 id="people-title" className="panel__title">{t('circles.room.peopleTitle')}</h2>
               </div>
               <div className="panel__body">
-                <PeopleRing members={ready ? room.members : view.members} online={room.online} meId={view.me.id} />
+                <PeopleRing members={ready ? room.members : view.members} online={room.online} meId={view.me.id} arrivals={room.arrivals} />
+                <p className="visually-hidden" aria-live="polite">{room.announcement ? t('circles.room.joined', { name: room.announcement }) : ''}</p>
               </div>
             </section>
-            {isAnimator && view.joinCode ? <InviteCard code={view.joinCode} /> : null}
+            {isAnimator && view.joinCode ? <InviteCard code={view.joinCode} fresh={fresh} /> : null}
           </aside>
         </div>
       )}

@@ -221,7 +221,34 @@ around; the streamed text ends in a violet caret. Under reduced motion the panda
 - **Activities:** cards with an icon tinted by category (icebreakers blue, energizers amber, retro green,
   decide red), filterable by category.
 
+## Pirikoo, the parakeet guide
+
+Pirikoo is circloo's guide (the panda is circloo's AI voice; Pirikoo only suggests). A green parakeet drawn like
+the cast, with the logo's eyes, in `features/pirikoo/Bird.tsx`. It flies (wings beating, a small arc) to the
+element its tip is about (`data-perch` on the invite card, the activity picker, the board, the composer,
+your circles…), lands with a small squash, then breathes, tilts its head and blinks. The bubble opens toward
+the middle of the screen, and below the bird near the top. One tip at a time, chosen by plain rules from the
+page, the role (animator or participant) and the live room; "Not now" or doing it sends Pirikoo away for the
+session. The Suggestions setting (Off / Suggest) turns it off. It never takes focus; Escape closes it.
+Reduced motion: no flight, no idle movement, the bubble simply appears.
+
 ## Motion
+
+- **Focal moments**: the landing circle (people join, then play: bob, blink, jump, spin, wiggle, hearts, a
+  cheering face); Pirikoo's flight; someone arriving in a room (they hop onto the ring with hearts, and screen
+  readers hear "Mia joined the circle").
+- **Continuity**: an activity opens with a short clip-path reveal; page changes cross-fade.
+- **Feedback**: a new circle's invite card glows twice; a vote count pops once; notes drop in.
+- Easing is exponential ease-out (no bounce or elastic; the Impeccable detector checks it).
+
+## Video
+
+`/video` is a Remotion project that renders the 20-second tour (face, circle, chat, board, send, Pirikoo) per
+language into `src/web/public/video/circloo-tour-{lang}.mp4` with a poster. It reuses the app's character and
+bird SVGs. The landing plays it muted while on screen, pauses it off screen, never autoplays under reduced
+motion, and describes it in text below the player.
+
+## Motion (details)
 
 Short and functional: 120–200ms state changes, 300ms entrances on `ease-out`, page cross-fades through
 view transitions, progressive scroll reveals on the public site where scroll timelines exist. The one

@@ -888,3 +888,10 @@
     transform: translateY(6px);
   }
 }
+/* Breadcrumb links keep a 24px target, whatever floats nearby (WCAG 2.5.8). */
+.crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 24px;
+  min-inline-size: 24px;
+}

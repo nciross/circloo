@@ -68,7 +68,7 @@ function NoteCard({ note, columns }: { note: BoardNote; columns: string[] }) {
           <span className="note-card__dots" aria-hidden="true">
             {note.voters.length > 0 ? note.voters.slice(0, 6).map((v) => <span key={v} className="note-card__dot" />) : <span className="note-card__dot is-empty" />}
           </span>
-          <span className="note-card__count" aria-hidden="true">{note.voters.length}</span>
+          <span key={note.voters.length} className="note-card__count" aria-hidden="true">{note.voters.length}</span>
         </button>
       </div>
       <div className="note-card__tools">
@@ -176,7 +176,7 @@ export function Board({ activityId }: { activityId: string }) {
   }
 
   return (
-    <section className="panel board" aria-labelledby="board-title">
+    <section className="panel board" aria-labelledby="board-title" data-perch="board">
       <div className="panel__head">
         <h2 id="board-title" className="panel__title">{t(`activities.${activityId}.title`)}</h2>
         <div className="board__tools">

@@ -1,0 +1,204 @@
+/* ---------- Pirikoo, the parakeet guide ---------- */
+.pirikoo {
+  position: fixed;
+  inset-block-start: 0;
+  left: 0;
+  z-index: 70;
+  inline-size: 56px;
+  translate: var(--px, 110vw) var(--py, -80px);
+  transition: translate 850ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.pirikoo.is-away {
+  visibility: hidden;
+}
+.pirikoo__bird {
+  inline-size: 56px;
+  block-size: 63px;
+  filter: drop-shadow(0 8px 10px rgb(15 37 55 / 0.22));
+}
+.pk {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+/* Flight: wings beat fast and the body rides a small arc. */
+.pirikoo.is-flying .pk,
+.pirikoo.is-leaving .pk {
+  animation: pk-arc 850ms ease-in-out;
+}
+.pirikoo.is-flying .pk__wing,
+.pirikoo.is-leaving .pk__wing {
+  animation: pk-flap 140ms ease-in-out infinite alternate;
+}
+.pk__wing {
+  transform-box: fill-box;
+}
+.pk__wing--l {
+  transform-origin: 100% 0%;
+}
+.pk__wing--r {
+  transform-origin: 0% 0%;
+}
+.pirikoo.is-flying .pk__feet,
+.pirikoo.is-leaving .pk__feet {
+  opacity: 0;
+}
+
+/* Perched: breathes, tilts its head, blinks, and ruffles once on landing. */
+.pirikoo.is-perched .pk__all {
+  transform-origin: 50% 100%;
+  animation:
+    pk-land 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    pk-breathe 2.8s ease-in-out 420ms infinite alternate;
+}
+.pirikoo.is-perched .pk__head {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: pk-tilt 6s ease-in-out 1s infinite;
+}
+.pk__eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.4s infinite;
+}
+.pirikoo.is-perched .pk__wing--r {
+  animation: pk-wave 1.6s ease-in-out 600ms 1;
+}
+
+/* The bubble opens toward the middle of the screen. */
+.pirikoo__bubble {
+  position: absolute;
+  inset-block-end: calc(100% + 6px);
+  right: 0;
+  inline-size: min(19rem, calc(100vw - 32px));
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  border-end-end-radius: var(--r-xs);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-overlay);
+  pointer-events: auto;
+  transform-origin: 90% 100%;
+  animation: pk-bubble 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pirikoo--start .pirikoo__bubble {
+  right: auto;
+  left: 0;
+  border-end-end-radius: var(--r-lg);
+  border-end-start-radius: var(--r-xs);
+  transform-origin: 10% 100%;
+}
+.pirikoo__bubble[hidden] {
+  display: none;
+}
+.pirikoo__name {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: #1c7c52;
+}
+:root[data-theme='dark'] .pirikoo__name {
+  color: var(--success-text);
+}
+.pirikoo__text {
+  font-size: var(--fs-md);
+  line-height: 1.45;
+}
+.pirikoo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+}
+.pirikoo__off {
+  margin-inline-start: auto;
+}
+
+@keyframes pk-arc {
+  50% {
+    transform: translateY(-26px) rotate(-6deg);
+  }
+}
+@keyframes pk-flap {
+  from {
+    transform: rotate(0deg) scaleY(1);
+  }
+  to {
+    transform: rotate(-38deg) scaleY(0.75);
+  }
+}
+@keyframes pk-land {
+  0% {
+    transform: scale(1.08, 0.86);
+  }
+  60% {
+    transform: scale(0.97, 1.04);
+  }
+}
+@keyframes pk-breathe {
+  to {
+    transform: translateY(-2px) scale(1.015);
+  }
+}
+@keyframes pk-tilt {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  78% {
+    transform: rotate(-12deg);
+  }
+  88% {
+    transform: rotate(8deg);
+  }
+}
+@keyframes pk-wave {
+  30% {
+    transform: rotate(-50deg);
+  }
+  55% {
+    transform: rotate(-25deg);
+  }
+  80% {
+    transform: rotate(-45deg);
+  }
+}
+@keyframes pk-bubble {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pirikoo {
+    transition: none;
+  }
+  .pirikoo .pk,
+  .pirikoo .pk__all,
+  .pirikoo .pk__head,
+  .pirikoo .pk__wing,
+  .pk__eye,
+  .pirikoo__bubble {
+    animation: none;
+  }
+}
+
+.pirikoo--below .pirikoo__bubble {
+  inset-block-end: auto;
+  inset-block-start: calc(100% + 6px);
+  border-end-end-radius: var(--r-lg);
+  border-start-end-radius: var(--r-xs);
+  transform-origin: 90% 0%;
+}
+.pirikoo--below.pirikoo--start .pirikoo__bubble {
+  border-start-end-radius: var(--r-lg);
+  border-start-start-radius: var(--r-xs);
+  transform-origin: 10% 0%;
+}
