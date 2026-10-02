@@ -416,7 +416,19 @@
     "robot": "Robot",
     "ghost": "Ghost",
     "chick": "Chick",
-    "dino": "Dino"
+    "dino": "Dino",
+    "penguin": "Penguin",
+    "lion": "Lion",
+    "koala": "Koala",
+    "hamster": "Hamster",
+    "whale": "Whale",
+    "hedgehog": "Hedgehog",
+    "monkey": "Monkey",
+    "bee": "Bee",
+    "cactus": "Cactus",
+    "axolotl": "Axolotl",
+    "raccoon": "Raccoon",
+    "llama": "Llama"
   },
   "activities": {
     "category": "Category",

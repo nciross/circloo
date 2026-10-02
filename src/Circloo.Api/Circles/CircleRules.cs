@@ -12,7 +12,11 @@ public static class Roles
 /// <summary>The twelve characters participants pick from (spec 003 US2). Ids match the web cast.</summary>
 public static class Characters
 {
-    public static readonly string[] All = ["panda", "fox", "frog", "cat", "owl", "octopus", "bear", "bunny", "robot", "ghost", "chick", "dino"];
+    public static readonly string[] All =
+    [
+        "panda", "fox", "frog", "cat", "owl", "octopus", "bear", "bunny", "robot", "ghost", "chick", "dino",
+        "penguin", "lion", "koala", "hamster", "whale", "hedgehog", "monkey", "bee", "cactus", "axolotl", "raccoon", "llama",
+    ];
     public static bool IsKnown(string? id) => id is not null && All.Contains(id);
 }
 

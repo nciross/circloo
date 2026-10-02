@@ -416,7 +416,19 @@
     "robot": "Robot",
     "ghost": "Fantasma",
     "chick": "Pollito",
-    "dino": "Dino"
+    "dino": "Dino",
+    "penguin": "Pingüino",
+    "lion": "León",
+    "koala": "Koala",
+    "hamster": "Hámster",
+    "whale": "Ballena",
+    "hedgehog": "Erizo",
+    "monkey": "Mono",
+    "bee": "Abeja",
+    "cactus": "Cactus",
+    "axolotl": "Ajolote",
+    "raccoon": "Mapache",
+    "llama": "Llama"
   },
   "activities": {
     "category": "Categoría",
