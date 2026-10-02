@@ -4,7 +4,8 @@
   background: var(--bg);
 }
 .guest__main {
-  padding: var(--s-6) var(--gutter) var(--s-9);
+  /* Room at the end so the last content scrolls clear of Pirikoo's corner button. */
+  padding: var(--s-6) var(--gutter) calc(var(--s-9) + 2.5rem);
 }
 
 /* ---------- Characters ---------- */
@@ -1077,4 +1078,30 @@
   .ring__heart { display: none; }
   /* Keep the confirmation, without movement. */
   .invite.is-fresh { animation: none; box-shadow: 0 0 0 2px var(--primary); }
+}
+
+/* "Kenji is typing…" under the last message. */
+.chat__typing {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-block-start: var(--s-3);
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+  animation: pop-in 160ms var(--ease-out);
+}
+.chat__typing-faces {
+  display: inline-flex;
+}
+.chat__typing-face {
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+}
+.chat__typing-face + .chat__typing-face {
+  margin-inline-start: -0.45rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat__typing {
+    animation: none;
+  }
 }

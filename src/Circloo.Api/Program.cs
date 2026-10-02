@@ -5,6 +5,7 @@ using Circloo.Api.Circles;
 using Circloo.Api.Integrations;
 using Circloo.Api.Data;
 using Circloo.Api.Email;
+using Circloo.Api.Pirikoo;
 using Circloo.Api.Security;
 using Circloo.Api.Sparks;
 using Circloo.Api.Users;
@@ -116,6 +117,7 @@ api.MapSparkEndpoints();
 api.MapAiEndpoints();
 api.MapCircleEndpoints();
 api.MapIntegrationEndpoints();
+api.MapPirikooEndpoints();
 api.MapFallback(() => Results.NotFound());
 
 app.MapHub<CircleHub>("/hubs/circle");

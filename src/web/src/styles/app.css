@@ -39,9 +39,11 @@
   background: var(--surface-sunken);
   border-color: var(--text-subtlest);
 }
-.topbar__ask svg {
-  color: var(--ai);
+.topbar__bird {
   flex: none;
+  inline-size: 1.3rem;
+  block-size: 1.45rem;
+  margin-block-start: -2px;
 }
 .topbar__ask-text {
   flex: 1;
@@ -114,7 +116,8 @@
 }
 .shell__main {
   min-inline-size: 0;
-  padding: var(--s-6) var(--gutter) var(--s-9);
+  /* Room at the end so the last content scrolls clear of Pirikoo's corner button. */
+  padding: var(--s-6) var(--gutter) calc(var(--s-9) + 2.5rem);
 }
 
 .sidenav {
@@ -533,77 +536,13 @@ a.navitem:hover {
   border-color: var(--danger);
 }
 
-/* ---------- Ask circloo (command palette) ---------- */
-.askbar {
-  inline-size: min(40rem, calc(100% - 2 * var(--s-4)));
-  max-block-size: min(34rem, calc(100dvh - 4rem));
-  margin: 10dvh auto auto;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-float);
-}
-.askbar[open] {
-  animation: pop-in 160ms var(--ease-out);
-}
-.askbar::backdrop {
-  background: rgb(9 20 30 / 0.4);
-}
-.askbar__form {
-  display: grid;
-}
-.askbar__field {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-  border-block-end: 1px solid var(--border);
-}
-[dir='rtl'] .askbar__field {
-  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2);
-}
-.askbar__spark {
-  flex: none;
-  color: var(--ai);
-}
-.askbar__field input {
-  flex: 1;
-  min-inline-size: 0;
-  min-block-size: 2.75rem;
-  border: 0;
-  background: transparent;
-  font-size: var(--fs-lg);
-  outline: none;
-}
-.askbar__field:focus-within {
-  box-shadow: inset 0 -2px 0 var(--focus);
-}
-.askbar__body {
-  display: grid;
-  gap: var(--s-3);
-  padding: var(--s-4) var(--s-5);
-  overflow-y: auto;
-}
-.askbar__title,
-.askbar__hint {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-subtlest);
-}
-.askbar__examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-}
-.plan {
+/* ---------- Plans Pirikoo proposes (checked before they run) ---------- */
+.plan-steps {
   display: grid;
   gap: 2px;
   counter-reset: step;
 }
-.plan__step {
+.plan-steps__item {
   counter-increment: step;
   display: flex;
   align-items: center;
@@ -614,19 +553,19 @@ a.navitem:hover {
   background: var(--surface-sunken);
   animation: pop-in 160ms var(--ease-out) backwards;
 }
-[dir='rtl'] .plan__step {
+[dir='rtl'] .plan-steps__item {
   padding: var(--s-1) var(--s-3) var(--s-1) var(--s-1);
 }
-.plan__step:nth-child(2) {
+.plan-steps__item:nth-child(2) {
   animation-delay: 30ms;
 }
-.plan__step:nth-child(3) {
+.plan-steps__item:nth-child(3) {
   animation-delay: 60ms;
 }
-.plan__step:nth-child(n + 4) {
+.plan-steps__item:nth-child(n + 4) {
   animation-delay: 90ms;
 }
-.plan__step::before {
+.plan-steps__item::before {
   content: counter(step);
   flex: none;
   inline-size: 1.25rem;
@@ -635,7 +574,7 @@ a.navitem:hover {
   font-variant-numeric: tabular-nums;
   color: var(--text-subtlest);
 }
-.plan__icon {
+.plan-steps__icon {
   display: grid;
   place-items: center;
   inline-size: 1.75rem;
@@ -646,33 +585,10 @@ a.navitem:hover {
   color: var(--text-subtle);
   box-shadow: var(--shadow-raised);
 }
-.plan__step--ask .plan__icon {
+.plan-steps__item--ask .plan-steps__icon {
   background: var(--ai);
   color: var(--on-ai);
 }
-.plan__label {
+.plan-steps__label {
   flex: 1;
-}
-.askbar__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-5);
-  border-block-start: 1px solid var(--border);
-  background: var(--surface-sunken);
-  border-end-start-radius: var(--r-lg);
-  border-end-end-radius: var(--r-lg);
-}
-.askbar__keys {
-  font-size: var(--fs-sm);
-  color: var(--text-subtle);
-}
-@media (max-width: 36rem) {
-  .askbar {
-    margin-block-start: var(--s-4);
-  }
-  .askbar__keys {
-    visibility: hidden;
-  }
 }

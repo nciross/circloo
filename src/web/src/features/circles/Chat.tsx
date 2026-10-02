@@ -37,10 +37,34 @@ function AiMessage({ text, live = false }: { text: string; live?: boolean }) {
   )
 }
 
+// Names keep their own direction inside a sentence in any language.
+const isolate = (name: string) => `⁨${name}⁩`
+
+/** "Kenji is typing…", like any instant chat. Hidden from screen readers: it changes too often to announce. */
+function TypingLine({ people }: { people: Member[] }) {
+  const { t } = useTranslation()
+  const [first, second] = people
+  if (!first) return null
+  const text = !second
+    ? t('circles.room.typing.one', { name: isolate(first.name) })
+    : people.length === 2
+      ? t('circles.room.typing.two', { a: isolate(first.name), b: isolate(second.name) })
+      : t('circles.room.typing.many')
+  return (
+    <div className="chat__typing" aria-hidden="true">
+      <span className="chat__typing-faces">
+        {people.slice(0, 3).map((m) => <Character key={m.id} id={m.character} className="chat__typing-face" />)}
+      </span>
+      <span>{text}</span>
+      <span className="typing-dots"><i /><i /><i /></span>
+    </div>
+  )
+}
+
 /** The activity's conversation: everyone talks; the animator also talks to circloo, whose reply streams in. */
 export function Chat({ activityId }: { activityId: string }) {
   const { t } = useTranslation()
-  const { me, members, messages, thinking, draft, say, ask, end, error, clearError } = useRoom()
+  const { me, members, messages, thinking, draft, typing, say, ask, end, notifyTyping, error, clearError } = useRoom()
   const isAnimator = me?.role === 'animator'
   const [to, setTo] = useState<'circloo' | 'everyone'>(isAnimator ? 'circloo' : 'everyone')
   const [text, setText] = useState('')
@@ -51,13 +75,14 @@ export function Chat({ activityId }: { activityId: string }) {
   const max = to === 'circloo' ? ASK_MAX : MESSAGE_MAX
   const shown = messages.filter((m) => m.activityId === activityId)
   const suggestions = t('circles.room.quick', { returnObjects: true }) as string[]
+  const typists = typing.map((id) => members.find((m) => m.id === id)).filter((m): m is Member => !!m && m.id !== me?.id)
 
   // Follow the conversation unless the reader scrolled up.
   useEffect(() => {
     const el = listRef.current
     if (!el) return
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 160) el.scrollTop = el.scrollHeight
-  }, [shown.length, draft, thinking])
+  }, [shown.length, draft, thinking, typists.length])
 
   const send = async (value: string) => {
     const clean = value.trim()
@@ -129,6 +154,7 @@ export function Chat({ activityId }: { activityId: string }) {
           )
         ) : null}
       </ol>
+      <TypingLine people={typists} />
       </div>
 
       <form className="composer" onSubmit={submit} data-perch="composer">
@@ -160,7 +186,11 @@ export function Chat({ activityId }: { activityId: string }) {
             value={text}
             maxLength={max}
             dir="auto"
-            onChange={(e) => { setText(e.target.value); if (error) clearError() }}
+            onChange={(e) => {
+              setText(e.target.value)
+              if (error) clearError()
+              if (e.target.value.trim()) notifyTyping()
+            }}
             onKeyDown={onKeyDown}
             placeholder={isAnimator && to === 'circloo' ? t('circles.room.askPlaceholder') : t('circles.room.sayPlaceholder')}
             aria-invalid={error ? true : undefined}

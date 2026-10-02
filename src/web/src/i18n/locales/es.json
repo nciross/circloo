@@ -293,7 +293,7 @@
       "off": "Desactivadas",
       "suggest": "Sugerir"
     },
-    "autonomyHelp": "Con Sugerir, Pirikoo el periquito te propone los siguientes pasos. Nada se ejecuta sin tu elección."
+    "autonomyHelp": "Con Sugerir, Pirikoo te propone el siguiente paso sobre la marcha. Nada se ejecuta hasta que lo elijas. Puedes hablar con Pirikoo en cualquier caso."
   },
   "notFound": {
     "title": "No encontramos esta página.",
@@ -403,37 +403,6 @@
     "lead": "Saca una tarjeta, pon a todos en la fila y por turnos.",
     "present": "Presentar",
     "stopPresenting": "Dejar de presentar"
-  },
-  "askbar": {
-    "open": "Pregunta a circloo",
-    "title": "Pregunta a circloo",
-    "label": "¿Qué quieres hacer?",
-    "placeholder": "Prueba: un rompehielos gracioso para la familia",
-    "planTitle": "El plan. Revísalo antes de que se ejecute.",
-    "run": "Ejecutar el plan",
-    "nothing": "circloo todavía no sabe hacer eso. Prueba una de estas:",
-    "examples": [
-      "Un rompehielos gracioso para la familia",
-      "Ronda con Amina, Théo y Lucía",
-      "Tarjetas de IA sobre el verano",
-      "Cambiar a modo oscuro"
-    ],
-    "done": "Hecho. El plan se ejecutó.",
-    "steps": {
-      "home": "Ir al inicio",
-      "icebreakers": "Abrir Rompehielos",
-      "settings": "Abrir Ajustes",
-      "audience": "Público: {{value}}",
-      "tone": "Tono: {{value}}",
-      "kind": "Tipo: {{value}}",
-      "kidsSafe": "Solo tarjetas para niños",
-      "deal": "Sacar una tarjeta nueva",
-      "people": "Poner a {{names}} en la fila",
-      "start": "Empezar la ronda",
-      "ask": "Pedir a la IA tarjetas sobre «{{theme}}»",
-      "locale": "Cambiar el idioma a {{value}}",
-      "theme": "Cambiar a {{value}}"
-    }
   },
   "characters": {
     "panda": "Panda",
@@ -619,7 +588,12 @@
       "closed": "Cerrado",
       "closedTitle": "Este círculo terminó",
       "closedBody": "Gracias por participar. El animador cerró el círculo.",
-      "joined": "{{name}} se unió al círculo."
+      "joined": "{{name}} se unió al círculo.",
+      "typing": {
+        "one": "{{name}} está escribiendo",
+        "two": "{{a}} y {{b}} están escribiendo",
+        "many": "Varias personas están escribiendo"
+      }
     },
     "missing": {
       "title": "Círculo no encontrado",
@@ -758,6 +732,7 @@
   "pirikoo": {
     "name": "Pirikoo",
     "label": "Pirikoo, tu guía",
+    "ask": "Pregunta a Pirikoo",
     "notNow": "Ahora no",
     "hide": "Desactivar sugerencias",
     "actions": {
@@ -782,6 +757,80 @@
       "mix": "Una buena mezcla: un rompehielos para calentar y luego un tablero para decidir.",
       "connect": "Conecta Teams, Jira, Confluence o Notion y envía allí los resultados de tu círculo.",
       "keys": "Añade el nombre de cada persona presente y pulsa Espacio para pasar a la siguiente."
+    },
+    "plan": {
+      "title": "Este es el plan. Revísalo antes de que se ejecute.",
+      "ran": "Hecho. Este plan se ejecutó.",
+      "run": "Ejecutar el plan",
+      "remove": "Quitar: {{step}}",
+      "intro": "Puedo hacerlo. Revisa los pasos, quita lo que no quieras y ejecútalo.",
+      "offer": "¿Quieres que lo haga? Este es el plan.",
+      "done": "Hecho. El plan se ejecutó.",
+      "examples": [
+        "Un rompehielos gracioso para la familia",
+        "Ronda con Amina, Théo y Lucía",
+        "Tarjetas de IA sobre el verano",
+        "Cambiar a modo oscuro"
+      ],
+      "steps": {
+        "home": "Ir al inicio",
+        "icebreakers": "Abrir Rompehielos",
+        "settings": "Abrir Ajustes",
+        "audience": "Público: {{value}}",
+        "tone": "Tono: {{value}}",
+        "kind": "Tipo: {{value}}",
+        "kidsSafe": "Solo tarjetas para niños",
+        "deal": "Sacar una tarjeta nueva",
+        "people": "Poner a {{names}} en la fila",
+        "start": "Empezar la ronda",
+        "ask": "Pedir a la IA tarjetas sobre «{{theme}}»",
+        "locale": "Cambiar el idioma a {{value}}",
+        "theme": "Cambiar a {{value}}"
+      }
+    },
+    "chat": {
+      "ai": "IA",
+      "open": "Hablar con Pirikoo",
+      "openUnread": "Hablar con Pirikoo, respuesta nueva",
+      "subtitle": "Tu guía en circloo",
+      "writing": "Pirikoo está escribiendo",
+      "writingShort": "escribiendo…",
+      "new": "Nueva conversación",
+      "expand": "Abrir en el centro",
+      "collapse": "Volver a la esquina",
+      "log": "Conversación con Pirikoo",
+      "label": "Escribe a Pirikoo",
+      "placeholder": "Pregunta sobre circloo, o dime qué hacer",
+      "send": "Enviar",
+      "stop": "Detener la respuesta",
+      "stopped": "Detenido.",
+      "retry": "Reintentar",
+      "disclaimer": "Pirikoo es una IA y puede equivocarse. Tu chat se queda en esta pestaña.",
+      "hello": "¡Hola! Soy Pirikoo.",
+      "helloName": "¡Hola, {{name}}! Soy Pirikoo.",
+      "intro": "Pregúntame cómo funciona circloo o dime qué hacer. Te enseño el plan antes de que nada se ejecute.",
+      "introGuest": "Pregúntame lo que quieras sobre este círculo: cómo participar, el tablero, los puntos.",
+      "nextStep": "Siguiente paso sugerido",
+      "try": "Prueba a preguntar",
+      "nextAnimator": "¿Qué hago ahora?",
+      "nextParticipant": "¿Qué tengo que hacer?",
+      "questions": [
+        "¿Cómo invito a la gente?",
+        "¿Cómo funcionan los tableros y los puntos?",
+        "¿Cómo envío los resultados a Teams o Jira?"
+      ],
+      "guestQuestions": [
+        "¿Cómo funcionan los tableros y los puntos?",
+        "¿Este círculo es privado?"
+      ],
+      "errors": {
+        "limited": "Ya no me quedan respuestas por hoy. ¡Vuelve mañana!",
+        "unsafe": "Mejor con amabilidad. ¿Me preguntas otra cosa?",
+        "failed": "No he podido responder ahora mismo.",
+        "offline": "Se cortó la conexión. Comprueba que estás en línea y vuelve a intentarlo.",
+        "busy": "¡Muchas preguntas a la vez! Dame unos segundos.",
+        "signedOut": "Tu sesión terminó. Vuelve a iniciar sesión para seguir."
+      }
     }
   }
 }

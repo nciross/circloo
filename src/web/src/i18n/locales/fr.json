@@ -293,7 +293,7 @@
       "off": "Désactivées",
       "suggest": "Proposer"
     },
-    "autonomyHelp": "Avec Proposer, Pirikoo la perruche te suggère les prochaines étapes. Rien ne se lance sans ton choix."
+    "autonomyHelp": "Avec Proposer, Pirikoo te propose la prochaine étape au fil de l’eau. Rien ne se lance sans ton choix. Tu peux discuter avec Pirikoo dans tous les cas."
   },
   "notFound": {
     "title": "Page introuvable.",
@@ -403,37 +403,6 @@
     "lead": "Tire une carte, mets tout le monde dans la file et chacun son tour.",
     "present": "Présenter",
     "stopPresenting": "Arrêter la présentation"
-  },
-  "askbar": {
-    "open": "Demander à circloo",
-    "title": "Demander à circloo",
-    "label": "Que veux-tu faire ?",
-    "placeholder": "Essaie : un brise-glace rigolo pour la famille",
-    "planTitle": "Le plan. Vérifie-le avant qu'il s'exécute.",
-    "run": "Lancer le plan",
-    "nothing": "circloo ne sait pas encore faire ça. Essaie plutôt :",
-    "examples": [
-      "Un brise-glace rigolo pour la famille",
-      "Un tour avec Amina, Théo et Lucía",
-      "Des cartes IA sur l'été",
-      "Passer en mode sombre"
-    ],
-    "done": "C'est fait. Le plan s'est exécuté.",
-    "steps": {
-      "home": "Aller à l'accueil",
-      "icebreakers": "Ouvrir les brise-glace",
-      "settings": "Ouvrir les paramètres",
-      "audience": "Public : {{value}}",
-      "tone": "Ton : {{value}}",
-      "kind": "Type : {{value}}",
-      "kidsSafe": "Cartes adaptées aux enfants uniquement",
-      "deal": "Tirer une nouvelle carte",
-      "people": "Mettre {{names}} dans la file",
-      "start": "Lancer le tour",
-      "ask": "Demander à l'IA des cartes sur « {{theme}} »",
-      "locale": "Passer la langue en {{value}}",
-      "theme": "Passer en {{value}}"
-    }
   },
   "characters": {
     "panda": "Panda",
@@ -619,7 +588,12 @@
       "closed": "Fermé",
       "closedTitle": "Ce cercle est terminé",
       "closedBody": "Merci d'avoir participé. L'animateur a fermé le cercle.",
-      "joined": "{{name}} a rejoint le cercle."
+      "joined": "{{name}} a rejoint le cercle.",
+      "typing": {
+        "one": "{{name}} écrit",
+        "two": "{{a}} et {{b}} écrivent",
+        "many": "Plusieurs personnes écrivent"
+      }
     },
     "missing": {
       "title": "Cercle introuvable",
@@ -758,6 +732,7 @@
   "pirikoo": {
     "name": "Pirikoo",
     "label": "Pirikoo, ton guide",
+    "ask": "Demander à Pirikoo",
     "notNow": "Pas maintenant",
     "hide": "Désactiver les suggestions",
     "actions": {
@@ -782,6 +757,80 @@
       "mix": "Un bon mélange : un brise-glace pour s’échauffer, puis un tableau pour décider.",
       "connect": "Connecte Teams, Jira, Confluence ou Notion pour y envoyer les résultats de ton cercle.",
       "keys": "Ajoute le prénom de chaque personne présente, puis appuie sur Espace pour passer à la suivante."
+    },
+    "plan": {
+      "title": "Voici le plan. Vérifie-le avant qu’il ne se lance.",
+      "ran": "C’est fait. Ce plan s’est lancé.",
+      "run": "Lancer le plan",
+      "remove": "Retirer : {{step}}",
+      "intro": "Je peux le faire. Vérifie les étapes, retire ce que tu ne veux pas, puis lance.",
+      "offer": "Tu veux que je le fasse ? Voici le plan.",
+      "done": "C’est fait. Le plan s’est lancé.",
+      "examples": [
+        "Un brise-glace rigolo pour la famille",
+        "Un tour avec Amina, Théo et Lucía",
+        "Des cartes IA sur l'été",
+        "Passer en mode sombre"
+      ],
+      "steps": {
+        "home": "Aller à l'accueil",
+        "icebreakers": "Ouvrir les brise-glace",
+        "settings": "Ouvrir les paramètres",
+        "audience": "Public : {{value}}",
+        "tone": "Ton : {{value}}",
+        "kind": "Type : {{value}}",
+        "kidsSafe": "Cartes adaptées aux enfants uniquement",
+        "deal": "Tirer une nouvelle carte",
+        "people": "Mettre {{names}} dans la file",
+        "start": "Lancer le tour",
+        "ask": "Demander à l'IA des cartes sur « {{theme}} »",
+        "locale": "Passer la langue en {{value}}",
+        "theme": "Passer en {{value}}"
+      }
+    },
+    "chat": {
+      "ai": "IA",
+      "open": "Discuter avec Pirikoo",
+      "openUnread": "Discuter avec Pirikoo, nouvelle réponse",
+      "subtitle": "Ton guide dans circloo",
+      "writing": "Pirikoo écrit",
+      "writingShort": "écrit…",
+      "new": "Nouvelle conversation",
+      "expand": "Ouvrir au centre",
+      "collapse": "Revenir dans le coin",
+      "log": "Conversation avec Pirikoo",
+      "label": "Écrire à Pirikoo",
+      "placeholder": "Pose une question sur circloo, ou dis-moi quoi faire",
+      "send": "Envoyer",
+      "stop": "Arrêter la réponse",
+      "stopped": "Arrêté.",
+      "retry": "Réessayer",
+      "disclaimer": "Pirikoo est une IA et peut se tromper. Ta discussion reste dans cet onglet.",
+      "hello": "Salut ! Moi, c’est Pirikoo.",
+      "helloName": "Salut {{name}}, moi c’est Pirikoo !",
+      "intro": "Demande-moi comment marche circloo, ou dis-moi quoi faire. Je te montre le plan avant que rien ne se lance.",
+      "introGuest": "Pose-moi tes questions sur ce cercle : participer, le tableau, les points.",
+      "nextStep": "Prochaine étape suggérée",
+      "try": "Essaie de demander",
+      "nextAnimator": "Quelle est la prochaine étape ?",
+      "nextParticipant": "Qu’est-ce que je dois faire ?",
+      "questions": [
+        "Comment inviter des gens ?",
+        "Comment marchent les tableaux et les points ?",
+        "Comment envoyer les résultats vers Teams ou Jira ?"
+      ],
+      "guestQuestions": [
+        "Comment marchent les tableaux et les points ?",
+        "Ce cercle est-il privé ?"
+      ],
+      "errors": {
+        "limited": "C’est tout pour mes réponses aujourd’hui. Reviens demain !",
+        "unsafe": "Restons bienveillants. Tu me demandes autre chose ?",
+        "failed": "Je n’ai pas pu répondre pour le moment.",
+        "offline": "La connexion a été coupée. Vérifie que tu es en ligne et réessaie.",
+        "busy": "Beaucoup de questions d’un coup ! Laisse-moi quelques secondes.",
+        "signedOut": "Ta session est terminée. Reconnecte-toi pour continuer."
+      }
     }
   }
 }

@@ -1,12 +1,16 @@
 /*
- * Pirikoo, the parakeet guide. Front-facing like the rest of the cast and wearing the logo's eyes.
- * Wings, head and body are separate groups so CSS can flap, tilt and bob them. Decorative.
+ * Pirikoo, the parakeet guide. It faces front like the rest of the cast and has the logo's eyes.
+ * Wings, head, crest and jaw are separate groups, so CSS can flap, tilt, bob and "talk" each one.
+ * The mood shows what the AI is doing, the way a person would: listening while you write, thinking before
+ * it answers, beak moving while the words stream in, a hop when it is done. Decorative.
  */
 const INK = '#0f2537'
 
-export function Bird({ className }: { className?: string }) {
+export type BirdMood = 'idle' | 'listening' | 'thinking' | 'speaking' | 'happy' | 'oops'
+
+export function Bird({ className, mood }: { className?: string; mood?: BirdMood }) {
   return (
-    <svg className={['pk', className].filter(Boolean).join(' ')} viewBox="0 0 64 72" aria-hidden="true" focusable="false">
+    <svg className={['pk', mood ? `pk--${mood}` : null, className].filter(Boolean).join(' ')} viewBox="0 0 64 72" aria-hidden="true" focusable="false">
       <g className="pk__all">
         <path className="pk__tail" d="M27 58 L24 71 L32 64 L40 71 L37 58 Z" fill="#2f9be0" stroke={INK} strokeWidth="2" strokeLinejoin="round" />
         <g className="pk__wing pk__wing--l">
@@ -32,7 +36,11 @@ export function Bird({ className }: { className?: string }) {
               </g>
             ))}
           </g>
-          <path className="pk__beak" d="M29 27 C29 25 35 25 35 27 C35 30 33 32 32 33 C31 32 29 30 29 27 Z" fill="#ff9f1c" stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
+          <g className="pk__beak">
+            <ellipse className="pk__mouth" cx="32" cy="29.9" rx="1.7" ry="1.3" fill="#7a2416" />
+            <path className="pk__jaw" d="M30.2 28.8 C31.2 29.4 32.8 29.4 33.8 28.8 C33.4 30.6 32.6 32 32 33 C31.4 32 30.6 30.6 30.2 28.8 Z" fill="#f08a24" stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+            <path className="pk__bill" d="M29 27 C29 25 35 25 35 27 C35 28.6 33.6 29.5 32 29.5 C30.4 29.5 29 28.6 29 27 Z" fill="#ff9f1c" stroke={INK} strokeWidth="1.8" strokeLinejoin="round" />
+          </g>
           <circle cx="21" cy="28" r="2" fill="#ff9aa2" opacity="0.8" />
           <circle cx="43" cy="28" r="2" fill="#ff9aa2" opacity="0.8" />
         </g>

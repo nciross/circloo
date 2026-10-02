@@ -223,19 +223,48 @@ around; the streamed text ends in a violet caret. Under reduced motion the panda
 
 ## Pirikoo, the parakeet guide
 
-Pirikoo is circloo's guide (the panda is circloo's AI voice; Pirikoo only suggests). A green parakeet drawn like
-the cast, with the logo's eyes, in `features/pirikoo/Bird.tsx`. It flies (wings beating, a small arc) to the
-element its tip is about (`data-perch` on the invite card, the activity picker, the board, the composer,
-your circles…), lands with a small squash, then breathes, tilts its head and blinks. The bubble opens toward
-the middle of the screen, and below the bird near the top. One tip at a time, chosen by plain rules from the
-page, the role (animator or participant) and the live room; "Not now" or doing it sends Pirikoo away for the
-session. The Suggestions setting (Off / Suggest) turns it off. It never takes focus; Escape closes it.
-Reduced motion: no flight, no idle movement, the bubble simply appears.
+Pirikoo is circloo's guide, and you talk to it like any assistant. The panda stays circloo's voice in the
+group chat; Pirikoo is personal and private. It's a green parakeet drawn like the rest of the cast, with the
+logo's eyes (`features/pirikoo/Bird.tsx`).
+
+- **Where it lives**: a round button in the bottom inline-end corner holds the bird. It opens a compact chat
+  above the button (full screen on phones). The chat grows into a centred, modal conversation, which the top
+  bar's "Ask Pirikoo" and Ctrl/⌘ K also open. It's the same thread in both places, kept for the tab only
+  (session storage) and forgotten on sign-out.
+- **The bird shows what the AI is doing**, the way a person would: *idle* (breathes, blinks, glances around),
+  *listening* (leans in, crest up, small nods while you type), *thinking* (looks up, ponders, wings flutter),
+  *speaking* (the beak opens and closes while words stream in), *happy* (a hop with both wings up when an
+  answer lands or a suggestion appears) and *oops* (crest down, a small head shake on an error). The corner
+  button, the chat header and the latest answer share the mood. Older answers keep a still bird. These moods
+  are the only "AI is working" signal: no sparkles, no violet glow.
+- **Conversation**: your messages sit in blue bubbles at the inline end. Pirikoo answers in plain text next
+  to a small bird, Claude-style, with a caret while it streams and "Pirikoo is writing" with three dots
+  before the first word. Enter sends, Shift+Enter adds a line, and a stop button replaces send while it
+  answers. Errors are kind lines with "Try again". The disclaimer under the field is always there: Pirikoo is
+  AI and can make mistakes.
+- **Plans**: an instruction ("Switch to dark mode", "A silly icebreaker for the family") becomes a numbered
+  plan the person trims and runs. Answers to questions that also map to a plan end with the same card.
+  Nothing runs before "Run the plan". Guests only get language and theme steps.
+- **Suggestions**: one tip at a time, chosen by plain rules from the page, the role and the live room, pops up
+  above the button with its action. The element it is about gets a calm green ring. The Suggestions setting
+  (Off / Suggest) turns tips off, not the chat.
+- **Empty state**: a big bird, "Hi Nadia, I'm Pirikoo!", the suggested next step on a soft green block, and
+  chips that mix questions with things it can do.
+- **Accessibility**: the log doesn't read streamed words aloud. A polite status line says "Pirikoo is
+  writing" once, then the whole answer. Escape closes and focus goes back to what opened it. Reduced motion
+  freezes the bird in its pose.
+
+## Typing in circles
+
+Like any instant chat, the circle chat shows "Kenji is typing" with the person's character and three rising
+dots under the last message, "Kenji and Lucía are typing" for two people, and "Several people are typing"
+beyond that. It fades about 4 s after the last keystroke signal, and at once when their message lands. It's
+hidden from screen readers because it changes too often to announce, and the dots stop under reduced motion.
 
 ## Motion
 
 - **Focal moments**: the landing circle (people join, then play: bob, blink, jump, spin, wiggle, hearts, a
-  cheering face); Pirikoo's flight; someone arriving in a room (they hop onto the ring with hearts, and screen
+  cheering face); Pirikoo's moods while it listens, thinks and talks; someone arriving in a room (they hop onto the ring with hearts, and screen
   readers hear "Mia joined the circle").
 - **Continuity**: an activity opens with a short clip-path reveal; page changes cross-fade.
 - **Feedback**: a new circle's invite card glows twice; a vote count pops once; notes drop in.

@@ -20,6 +20,8 @@ interface RoomState {
   /** A short sentence for screen readers about the latest arrival. */
   announcement: string
   activity: string | null
+  /** Others writing in the chat right now ("Kenji is typing…"). */
+  typing: string[]
   thinking: boolean
   draft: string
   closed: boolean
@@ -36,7 +38,29 @@ interface RoomState {
   moveNote: (id: number, column: string) => Promise<void>
   deleteNote: (id: number) => Promise<void>
   vote: (id: number) => Promise<void>
+  /** Tells the others you are writing; sent at most every few seconds, never an error. */
+  notifyTyping: () => void
   clearError: () => void
+}
+
+/** Send "typing" at most this often while someone writes; the server drops anything faster. */
+const TYPING_EVERY = 2500
+/** A typing line fades this long after the last sign of life. */
+const TYPING_TTL = 4000
+let lastTyping = 0
+const typingTimers = new Map<string, number>()
+
+function stopTyping(memberId: string) {
+  window.clearTimeout(typingTimers.get(memberId))
+  typingTimers.delete(memberId)
+  useRoom.setState((s) => (s.typing.includes(memberId) ? { typing: s.typing.filter((x) => x !== memberId) } : s))
+}
+
+function clearTyping() {
+  for (const timer of typingTimers.values()) window.clearTimeout(timer)
+  typingTimers.clear()
+  lastTyping = 0
+  useRoom.setState({ typing: [] })
 }
 
 const invoke = async (method: string, ...args: unknown[]) => {
@@ -65,6 +89,7 @@ export const useRoom = create<RoomState>()((set) => ({
   arrivals: [],
   announcement: '',
   activity: null,
+  typing: [],
   thinking: false,
   draft: '',
   closed: false,
@@ -83,12 +108,19 @@ export const useRoom = create<RoomState>()((set) => ({
       activity: view.currentActivity,
       closed: view.status === 'closed',
       online: [],
+      typing: [],
       thinking: false,
       draft: '',
       error: null,
     }),
-  say: (text) => invoke('Say', text),
-  ask: (text) => invoke('AskCircloo', text),
+  say: async (text) => {
+    await invoke('Say', text)
+    lastTyping = 0
+  },
+  ask: async (text) => {
+    await invoke('AskCircloo', text)
+    lastTyping = 0
+  },
   start: (activityId) => invoke('StartActivity', activityId),
   end: () => invoke('EndActivity'),
   addNote: (column, text, color) => invoke('AddNote', column, text, color),
@@ -96,6 +128,13 @@ export const useRoom = create<RoomState>()((set) => ({
   moveNote: (id, column) => invoke('MoveNote', id, column),
   deleteNote: (id) => invoke('DeleteNote', id),
   vote: (id) => invoke('Vote', id),
+  notifyTyping: () => {
+    const { connection } = useRoom.getState()
+    const now = Date.now()
+    if (!connection || connection.state !== HubConnectionState.Connected || now - lastTyping < TYPING_EVERY) return
+    lastTyping = now
+    connection.invoke('Typing').catch(() => undefined)
+  },
   clearError: () => set({ error: null }),
 }))
 
@@ -122,8 +161,11 @@ export function useCircleConnection(view: CircleView | undefined) {
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Warning)
       .build()
-    const add = (m: Message) =>
+    const add = (m: Message) => {
+      // A message from someone ends their "typing…" at once.
+      if (m.memberId) stopTyping(m.memberId)
       useRoom.setState((s) => (s.messages.some((x) => x.id === m.id) ? s : { messages: [...s.messages, m], draft: m.kind === 'ai' ? '' : s.draft }))
+    }
 
     connection.on('Presence', (online: string[]) => useRoom.setState({ online }))
     connection.on('MemberJoined', (m: Member) => {
@@ -138,6 +180,11 @@ export function useCircleConnection(view: CircleView | undefined) {
     connection.on('NoteChanged', (n: BoardNote) =>
       useRoom.setState((s) => ({ notes: s.notes.some((x) => x.id === n.id) ? s.notes.map((x) => (x.id === n.id ? n : x)) : [...s.notes, n] })))
     connection.on('NoteDeleted', (id: number) => useRoom.setState((s) => ({ notes: s.notes.filter((x) => x.id !== id) })))
+    connection.on('Typing', (memberId: string) => {
+      useRoom.setState((s) => (s.typing.includes(memberId) ? s : { typing: [...s.typing, memberId] }))
+      window.clearTimeout(typingTimers.get(memberId))
+      typingTimers.set(memberId, window.setTimeout(() => stopTyping(memberId), TYPING_TTL))
+    })
     connection.onreconnecting(() => useRoom.setState({ status: 'reconnecting' }))
     connection.onreconnected(async () => {
       useRoom.setState({ status: 'live' })
@@ -160,6 +207,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       })
     return () => {
       cancelled = true
+      clearTyping()
       useRoom.setState({ connection: null })
       void connection.stop()
     }
