@@ -144,3 +144,23 @@ public sealed class CircleMessage
     public required string Text { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
+
+/// <summary>A sticky note on a circle's live board (spec 004).</summary>
+public sealed class BoardNote
+{
+    public long Id { get; set; }
+    public Guid CircleId { get; set; }
+    public required string ActivityId { get; set; }
+    public required string Column { get; set; }
+    public required string Text { get; set; }
+    public required string Color { get; set; }
+    public Guid AuthorMemberId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public List<BoardVote> Votes { get; set; } = [];
+}
+
+public sealed class BoardVote
+{
+    public long NoteId { get; set; }
+    public Guid MemberId { get; set; }
+}

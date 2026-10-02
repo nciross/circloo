@@ -212,4 +212,69 @@ public sealed class CircleTests(PostgresFixture pg) : IAsyncLifetime
         var denied = await Assert.ThrowsAsync<HubException>(() => hub.InvokeAsync<Guid[]>("Enter", id));
         Assert.Contains("not-a-member", denied.Message, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task The_live_board_takes_notes_moves_votes_and_feeds_circloo()
+    {
+        var (id, code) = await CreateAsync("brainstorm", "quick-question");
+        var guest = await JoinAsGuestAsync(code, "Kenji", "owl");
+        await using var animatorHub = Hub(_animator.Cookies);
+        await using var guestHub = Hub(guest.Cookies);
+        var seen = new List<BoardNoteDto>();
+        animatorHub.On<BoardNoteDto>("NoteChanged", n => { lock (seen) { seen.Add(n); } });
+        await animatorHub.StartAsync();
+        await guestHub.StartAsync();
+        await animatorHub.InvokeAsync<Guid[]>("Enter", id);
+        await guestHub.InvokeAsync<Guid[]>("Enter", id);
+
+        // No board outside a board activity.
+        await animatorHub.InvokeAsync("StartActivity", "quick-question");
+        await Assert.ThrowsAsync<HubException>(() => guestHub.InvokeAsync("AddNote", "ideas", "Picnic", "yellow"));
+        await animatorHub.InvokeAsync("StartActivity", "brainstorm");
+
+        await Assert.ThrowsAsync<HubException>(() => guestHub.InvokeAsync("AddNote", "nowhere", "Picnic", "yellow"));
+        await Assert.ThrowsAsync<HubException>(() => guestHub.InvokeAsync("AddNote", "ideas", "Picnic", "neon"));
+        foreach (var idea in new[] { "Team picnic in June", "Shorter stand-ups", "A plant for every desk", "Book club" })
+        {
+            await guestHub.InvokeAsync("AddNote", "ideas", idea, "yellow");
+        }
+        await animatorHub.InvokeAsync("AddNote", "maybe", "Pizza Fridays", "pink");
+        await Task.Delay(200);
+        long[] ids;
+        lock (seen) { ids = [.. seen.Select(n => n.Id).Distinct()]; }
+        Assert.Equal(5, ids.Length);
+
+        // Three dots each; a fourth is refused until one is taken back.
+        for (var k = 0; k < 3; k++) await guestHub.InvokeAsync("Vote", ids[k]);
+        var noDots = await Assert.ThrowsAsync<HubException>(() => guestHub.InvokeAsync("Vote", ids[3]));
+        Assert.Contains("no-votes-left", noDots.Message, StringComparison.Ordinal);
+        await guestHub.InvokeAsync("Vote", ids[2]);
+        await guestHub.InvokeAsync("Vote", ids[3]);
+        await animatorHub.InvokeAsync("Vote", ids[0]);
+
+        // Anyone moves; only the author edits; the author or the animator deletes.
+        await animatorHub.InvokeAsync("MoveNote", ids[1], "next");
+        await Assert.ThrowsAsync<HubException>(() => animatorHub.InvokeAsync("EditNote", ids[0], "Hijacked"));
+        await Assert.ThrowsAsync<HubException>(() => guestHub.InvokeAsync("DeleteNote", ids[4]));
+        await guestHub.InvokeAsync("EditNote", ids[0], "Team picnic in June, by the lake");
+        await animatorHub.InvokeAsync("DeleteNote", ids[3]);
+
+        var view = await _animator.Http.GetFromJsonAsync<JsonElement>($"/api/circles/{id}");
+        var notes = view.GetProperty("notes").EnumerateArray().ToList();
+        Assert.Equal(4, notes.Count);
+        var picnic = notes.Single(n => n.GetProperty("id").GetInt64() == ids[0]);
+        Assert.Equal("Team picnic in June, by the lake", picnic.GetProperty("text").GetString());
+        Assert.Equal(2, picnic.GetProperty("voters").GetArrayLength());
+        Assert.Equal("next", notes.Single(n => n.GetProperty("id").GetInt64() == ids[1]).GetProperty("column").GetString());
+
+        // circloo's summary reads the board, most-voted first.
+        var runner = _factory.Services.GetRequiredService<CoachRunner>();
+        await runner.Running(id).WaitAsync(TimeSpan.FromSeconds(10));
+        await animatorHub.InvokeAsync("AskCircloo", "Summarise the board");
+        await Task.Delay(100);
+        await runner.Running(id).WaitAsync(TimeSpan.FromSeconds(10));
+        var after = await _animator.Http.GetFromJsonAsync<JsonElement>($"/api/circles/{id}");
+        var summary = after.GetProperty("messages").EnumerateArray().Last(m => m.GetProperty("kind").GetString() == "ai").GetProperty("text").GetString()!;
+        Assert.Contains("Ideas: Team picnic in June, by the lake (2)", summary, StringComparison.Ordinal);
+    }
 }

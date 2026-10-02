@@ -79,11 +79,33 @@ public static class ActivityCatalog
               ["D'accord ou pas ? « Les réunions seraient meilleures si elles commençaient toutes par une blague. » Dis d'accord ou pas d'accord, et pourquoi !"],
               ["موافق أم لا؟ «ستكون الاجتماعات أفضل لو بدأت كلها بنكتة.» قل موافق أو غير موافق، ولماذا!"],
               ["¿De acuerdo o no? «Las reuniones serían mejores si todas empezaran con un chiste.» Di de acuerdo o en desacuerdo, ¡y por qué!"])),
+        new("brainstorm", "decide", null,
+            "Facilitate a brainstorm on the board: invite ideas as sticky notes, then group similar ones, highlight the most-voted and propose next steps.",
+            L(["Brainstorm time! Put every idea on the board, even the wild ones. Vote with your dots when the ideas slow down."],
+              ["Place au remue-méninges ! Mettez toutes vos idées sur le tableau, même les plus folles. Votez avec vos points quand les idées ralentissent."],
+              ["وقت العصف الذهني! ضعوا كل فكرة على اللوحة، حتى الجامحة منها. صوّتوا بنقاطكم عندما تهدأ الأفكار."],
+              ["¡Lluvia de ideas! Poned todas las ideas en el tablero, incluso las más locas. Votad con vuestros puntos cuando las ideas se calmen."])),
     ];
 
     private static readonly Dictionary<string, ActivityDef> ById = All.ToDictionary(a => a.Id);
 
     public static ActivityDef? Find(string? id) => id is not null && ById.TryGetValue(id, out var a) ? a : null;
+
+    /// <summary>Activities with a live board (spec 004) and their columns.</summary>
+    private static readonly Dictionary<string, string[]> BoardColumns = new()
+    {
+        ["start-stop-continue"] = ["start", "stop", "continue"],
+        ["went-well"] = ["well", "improve"],
+        ["kudos"] = ["kudos"],
+        ["brainstorm"] = ["ideas", "maybe", "next"],
+    };
+
+    public static string[] ColumnsOf(string? activityId) => activityId is not null && BoardColumns.TryGetValue(activityId, out var c) ? c : [];
+
+    public const int MaxNotes = 200;
+    public const int VotesPerMember = 3;
+    public const int NoteMax = 140;
+    public static readonly string[] NoteColors = ["yellow", "pink", "blue", "green", "violet"];
 
     public const int MaxPerCircle = 8;
 }
