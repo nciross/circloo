@@ -100,4 +100,47 @@ public sealed class AiGeneration
     public int Accepted { get; set; }
     public required string Outcome { get; set; }
     public int LatencyMs { get; set; }
+    /// <summary>What the call was for: "sparks" (fresh cards) or "coach" (circloo in a circle).</summary>
+    public string Purpose { get; set; } = "sparks";
+}
+
+/// <summary>A live session: the animator creates it, people join with a link (spec 003).</summary>
+public sealed class Circle
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid OwnerUserId { get; set; }
+    public required string Name { get; set; }
+    public required string JoinCode { get; set; }
+    public string[] Activities { get; set; } = [];
+    public string? CurrentActivity { get; set; }
+    public required string Locale { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? ClosedAt { get; set; }
+
+    public bool IsOpen(DateTimeOffset now) => ClosedAt is null && ExpiresAt > now;
+}
+
+public sealed class CircleMember
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CircleId { get; set; }
+    public Circle? Circle { get; set; }
+    public required string Role { get; set; }
+    public Guid? UserId { get; set; }
+    public required string Name { get; set; }
+    public required string Character { get; set; }
+    public DateTimeOffset JoinedAt { get; set; }
+    public DateTimeOffset? LeftAt { get; set; }
+}
+
+public sealed class CircleMessage
+{
+    public long Id { get; set; }
+    public Guid CircleId { get; set; }
+    public string? ActivityId { get; set; }
+    public Guid? MemberId { get; set; }
+    public required string Kind { get; set; }
+    public required string Text { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 }

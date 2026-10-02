@@ -27,7 +27,7 @@ Anyone with the link opens it, sees the circle name and the animator's name, typ
 2. A character already taken in the circle is shown as taken; two people can't be the same character
    (twelve characters → at most twelve participants plus the animator per circle in this version).
 3. A wrong, closed or expired code shows a clear "this circle is not open" page.
-4. A participant who reloads stays in (guest cookie, 12 h). Joining another circle replaces it.
+4. A participant who reloads stays in (browser-session guest cookie, at most 12 h). Joining another circle replaces it.
 5. A signed-in person opening a link joins as themselves (their display name is prefilled) but still picks a character.
 
 ### US3 — Everyone is in the circle, live (P1)

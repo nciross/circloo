@@ -14,6 +14,9 @@ public static class AuditTypes
     public const string SignedOut = "auth.signed_out";
     public const string SignedOutEverywhere = "auth.signed_out_everywhere";
     public const string ProfileUpdated = "profile.updated";
+    public const string CircleCreated = "circle.created";
+    public const string CircleJoined = "circle.joined";
+    public const string CircleClosed = "circle.closed";
 }
 
 /// <summary>Writes security events. Emails and IPs are stored as keyed hashes only.</summary>

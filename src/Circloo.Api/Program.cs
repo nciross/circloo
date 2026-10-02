@@ -1,6 +1,7 @@
 using Circloo.Api;
 using Circloo.Api.Ai;
 using Circloo.Api.Auth;
+using Circloo.Api.Circles;
 using Circloo.Api.Data;
 using Circloo.Api.Email;
 using Circloo.Api.Security;
@@ -49,6 +50,8 @@ builder.Services.AddSingleton<EmailOutboxSignal>();
 builder.Services.AddSingleton<EmailTemplates>();
 builder.Services.AddHostedService<EmailOutboxWorker>();
 builder.Services.AddCirclooAi(builder.Configuration);
+builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 8 * 1024);
+builder.Services.AddSingleton<CirclePresence>();
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
     builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
@@ -106,8 +109,10 @@ api.MapMeEndpoints();
 api.MapPublicSparkEndpoints();
 api.MapSparkEndpoints();
 api.MapAiEndpoints();
+api.MapCircleEndpoints();
 api.MapFallback(() => Results.NotFound());
 
+app.MapHub<CircleHub>("/hubs/circle");
 app.MapDefaultEndpoints();
 app.MapFallbackToFile("index.html");
 

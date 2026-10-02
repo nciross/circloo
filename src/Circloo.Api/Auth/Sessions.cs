@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Circloo.Api.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -12,7 +13,17 @@ public static class CirclooClaims
     public const string UserId = "sub";
     public const string SessionId = "sid";
 
+    /// <summary>Guest identity (a circle participant without an account): the member id and its circle.</summary>
+    public const string GuestMemberId = "gid";
+    public const string GuestCircleId = "cid";
+
     public static Guid GetUserId(this ClaimsPrincipal user) => Guid.Parse(user.FindFirstValue(UserId)!);
+
+    public static Guid? TryGetUserId(this ClaimsPrincipal user) =>
+        Guid.TryParse(user.FindFirstValue(UserId), out var id) ? id : null;
+
+    public static (Guid MemberId, Guid CircleId)? GetGuest(this ClaimsPrincipal user) =>
+        Guid.TryParse(user.FindFirstValue(GuestMemberId), out var m) && Guid.TryParse(user.FindFirstValue(GuestCircleId), out var c) ? (m, c) : null;
 
     public static Guid? GetSessionId(this ClaimsPrincipal user) =>
         Guid.TryParse(user.FindFirstValue(SessionId), out var sid) ? sid : null;
@@ -95,10 +106,19 @@ public static class SessionAuthentication
 {
     public const string CookieName = "__Host-circloo";
 
+    public const string Selector = "circloo";
+    public const string CircleMemberPolicy = "circle-member";
+
     public static IServiceCollection AddCirclooAuthentication(this IServiceCollection services)
     {
-        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(o =>
+        // The account cookie wins; without it a circle guest cookie identifies a participant; else anonymous.
+        services.AddAuthentication(Selector)
+            .AddPolicyScheme(Selector, Selector, o => o.ForwardDefaultSelector = ctx =>
+                !ctx.Request.Cookies.ContainsKey(CookieName) && ctx.Request.Cookies.ContainsKey(GuestAuthentication.CookieName)
+                    ? GuestAuthentication.Scheme
+                    : CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddGuestCookie()
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
             {
                 o.Cookie.Name = CookieName;
                 o.Cookie.HttpOnly = true;
@@ -126,7 +146,13 @@ public static class SessionAuthentication
                     },
                 };
             });
-        services.AddAuthorization();
+        services.AddAuthorization(o =>
+        {
+            // Every endpoint that just says RequireAuthorization() is for account holders only, never guests.
+            o.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireClaim(CirclooClaims.UserId).Build();
+            o.AddPolicy(CircleMemberPolicy, b => b.RequireAuthenticatedUser().RequireAssertion(c =>
+                c.User.HasClaim(x => x.Type is CirclooClaims.UserId or CirclooClaims.GuestMemberId)));
+        });
         services.AddScoped<SessionStore>();
         return services;
     }
