@@ -164,3 +164,15 @@ public sealed class BoardVote
     public long NoteId { get; set; }
     public Guid MemberId { get; set; }
 }
+
+/// <summary>A person's connection to an outside service (spec 005). The config, secrets included, is encrypted.</summary>
+public sealed class IntegrationConnection
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid UserId { get; set; }
+    public required string Provider { get; set; }
+    public required string ConfigProtected { get; set; }
+    public required string Hint { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? LastUsedAt { get; set; }
+}

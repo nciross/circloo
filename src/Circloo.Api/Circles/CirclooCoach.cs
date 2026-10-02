@@ -76,7 +76,7 @@ public sealed partial class CirclooCoach(
         ["es"] = new() { ["start"] = "Empezar", ["stop"] = "Dejar", ["continue"] = "Continuar", ["well"] = "Lo bueno", ["improve"] = "A mejorar", ["kudos"] = "Agradecimientos", ["ideas"] = "Ideas", ["maybe"] = "Quizás", ["next"] = "Próximos pasos" },
     };
 
-    private static string ColumnName(string lang, string column) =>
+    public static string ColumnName(string lang, string column) =>
         (ColumnNames.TryGetValue(lang, out var names) ? names : ColumnNames["en"]).GetValueOrDefault(column, column);
 
     private static readonly Dictionary<string, string> LanguageNames = new()

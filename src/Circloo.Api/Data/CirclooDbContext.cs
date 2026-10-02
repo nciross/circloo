@@ -20,6 +20,7 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
     public DbSet<BoardNote> BoardNotes => Set<BoardNote>();
     public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
+    public DbSet<IntegrationConnection> IntegrationConnections => Set<IntegrationConnection>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -143,6 +144,14 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.HasKey(v => new { v.NoteId, v.MemberId });
             e.HasOne<BoardNote>().WithMany(n => n.Votes).HasForeignKey(v => v.NoteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<CircleMember>().WithMany().HasForeignKey(v => v.MemberId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<IntegrationConnection>(e =>
+        {
+            e.Property(c => c.Provider).HasMaxLength(16);
+            e.Property(c => c.Hint).HasMaxLength(120);
+            e.HasIndex(c => new { c.UserId, c.Provider }).IsUnique();
+            e.HasOne<User>().WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
