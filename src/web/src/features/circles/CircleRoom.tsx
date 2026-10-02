@@ -12,7 +12,8 @@ import { ActivityGrid, InviteCard, PeopleRing } from './parts'
 import { SendResults } from './SendResults'
 import { Chat } from './Chat'
 import { Board } from './Board'
-import { BOARD_COLUMNS } from './catalog'
+import { Canvas } from './Canvas'
+import { BOARD_COLUMNS, CANVAS } from './catalog'
 import { Segmented } from '../../components/Segmented'
 import { useCircleConnection, useRoom } from './room'
 import '../../styles/circles.css'
@@ -109,7 +110,7 @@ export default function CircleRoom() {
       ) : (
         <div className="room__grid">
           <div className="room__main">
-            {activity && BOARD_COLUMNS[activity] ? (
+            {activity && (BOARD_COLUMNS[activity] || activity === CANVAS) ? (
               <>
                 <Segmented<'board' | 'chat'>
                   label={t('boards.view')}
@@ -117,10 +118,10 @@ export default function CircleRoom() {
                   className="room__pane"
                   value={pane}
                   onChange={setPane}
-                  choices={[{ value: 'board', label: t('boards.board') }, { value: 'chat', label: t('circles.room.conversation') }]}
+                  choices={[{ value: 'board', label: activity === CANVAS ? t('activities.canvas.title') : t('boards.board') }, { value: 'chat', label: t('circles.room.conversation') }]}
                 />
                 <div key={`${activity}-${pane}`} className="room__reveal">
-                  {pane === 'board' ? <Board activityId={activity} /> : <Chat activityId={activity} />}
+                  {pane === 'chat' ? <Chat activityId={activity} /> : activity === CANVAS ? <Canvas /> : <Board activityId={activity} />}
                 </div>
               </>
             ) : activity ? (

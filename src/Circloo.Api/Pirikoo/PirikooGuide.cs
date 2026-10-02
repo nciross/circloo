@@ -81,7 +81,13 @@ public sealed partial class PirikooGuide(
             var circle = me.Circle;
             var people = await db.CircleMembers.CountAsync(m => m.CircleId == id && m.LeftAt == null, ct);
             var board = new List<(string, string, int)>();
-            if (circle.CurrentActivity is { } activity && ActivityCatalog.ColumnsOf(activity).Length > 0)
+            if (circle.CurrentActivity == ActivityCatalog.Canvas)
+            {
+                var texts = await db.CanvasNotes.AsNoTracking().Where(n => n.CircleId == id && n.ActivityId == ActivityCatalog.Canvas)
+                    .OrderBy(n => n.Id).Select(n => n.Text).Take(12).ToListAsync(ct);
+                board.AddRange(texts.Select(t => ("canvas", t, 0)));
+            }
+            else if (circle.CurrentActivity is { } activity && ActivityCatalog.ColumnsOf(activity).Length > 0)
             {
                 var notes = await db.BoardNotes.AsNoTracking().Where(n => n.CircleId == id && n.ActivityId == activity)
                     .Select(n => new { n.Column, n.Text, Votes = n.Votes.Count }).ToListAsync(ct);

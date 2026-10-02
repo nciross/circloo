@@ -94,7 +94,7 @@ test('a live board: guests post notes, the animator votes and moves them, everyo
   await page.goto('/app/circles/new')
   await page.locator('.create__name').fill(locale === 'ar' ? 'أفكار الصيف' : 'Summer ideas')
   await page.locator('.activity__toggle').first().click() // drop the default quick questions
-  await page.locator('.activity:has(.activity__icon) .activity__toggle').last().click() // brainstorm
+  await page.locator('.activity[data-activity=brainstorm] .activity__toggle').click()
   await page.locator('form .panel__actions button[type=submit]').click()
   await expect(page).toHaveURL(/\/app\/circles\/[0-9a-f-]+$/)
   const link = await page.locator('.invite__link').inputValue()

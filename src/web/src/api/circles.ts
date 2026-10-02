@@ -33,6 +33,25 @@ export interface BoardNote {
   voters: string[]
 }
 
+/** A note on the live canvas (issue #93): x and y are its centre, in canvas pixels. */
+export type CanvasColor = NoteColor | 'white'
+export type CanvasSize = 's' | 'm' | 'l'
+export type CanvasShape = 'square' | 'round'
+export type CanvasSticker = 'heart' | 'star' | 'thumbs' | 'laugh' | 'idea'
+
+export interface CanvasNote {
+  id: number
+  activityId: string
+  text: string
+  x: number
+  y: number
+  color: CanvasColor
+  size: CanvasSize
+  shape: CanvasShape
+  sticker: CanvasSticker | null
+  authorId: string
+}
+
 export interface CircleSummary {
   id: string
   name: string
@@ -55,6 +74,7 @@ export interface CircleView {
   members: Member[]
   messages: Message[]
   notes: BoardNote[]
+  canvas: CanvasNote[]
 }
 
 export interface JoinInfo {

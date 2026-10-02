@@ -254,6 +254,17 @@ logo's eyes (`features/pirikoo/Bird.tsx`).
   writing" once, then the whole answer. Escape closes and focus goes back to what opened it. Reduced motion
   freezes the bird in its pose.
 
+## Live canvas
+
+The canvas activity (#93) puts everyone's notes on one big dotted-paper surface. Notes are paper squares or
+circles in six colours (the board palette plus white) and three sizes. Each sits at a slight hand-placed tilt, has its author's
+character in the corner and an optional sticker (heart, star, thumbs up, laugh, idea) that pops on. Double-click drops a note
+where you are; drag moves it, live for everyone; the selected note gets a floating style bar. The others' cursors glide with
+their colour, character and name. The character bobs while idle, wiggles while it moves, and fades after a few seconds
+without movement. Pan by dragging the background or scrolling, zoom with Ctrl + scroll or the toolbar; "Bring in" pins board
+notes and chat answers. Keyboard: notes are buttons (arrows move, E edits), N adds a note; a list view mirrors the canvas.
+Reduced motion removes the glide, bob and drop.
+
 ## Typing in circles
 
 Like any instant chat, the circle chat shows "Kenji is typing" with the person's character and three rising

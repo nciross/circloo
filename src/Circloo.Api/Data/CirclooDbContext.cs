@@ -19,6 +19,7 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<CircleMember> CircleMembers => Set<CircleMember>();
     public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
     public DbSet<BoardNote> BoardNotes => Set<BoardNote>();
+    public DbSet<CanvasNote> CanvasNotes => Set<CanvasNote>();
     public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
     public DbSet<IntegrationConnection> IntegrationConnections => Set<IntegrationConnection>();
 
@@ -134,6 +135,19 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(n => n.Column).HasMaxLength(20);
             e.Property(n => n.Text).HasMaxLength(140);
             e.Property(n => n.Color).HasMaxLength(10);
+            e.HasIndex(n => new { n.CircleId, n.ActivityId });
+            e.HasOne<Circle>().WithMany().HasForeignKey(n => n.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(n => n.AuthorMemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CanvasNote>(e =>
+        {
+            e.Property(n => n.ActivityId).HasMaxLength(40);
+            e.Property(n => n.Text).HasMaxLength(140);
+            e.Property(n => n.Color).HasMaxLength(10);
+            e.Property(n => n.Size).HasMaxLength(2);
+            e.Property(n => n.Shape).HasMaxLength(10);
+            e.Property(n => n.Sticker).HasMaxLength(10);
             e.HasIndex(n => new { n.CircleId, n.ActivityId });
             e.HasOne<Circle>().WithMany().HasForeignKey(n => n.CircleId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<CircleMember>().WithMany().HasForeignKey(n => n.AuthorMemberId).OnDelete(DeleteBehavior.Cascade);

@@ -1,5 +1,5 @@
 import {
-  Award, BookOpen, Lightbulb, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
+  Award, BookOpen, Lightbulb, StickyNote, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -27,7 +27,16 @@ export const ACTIVITIES: Activity[] = [
   { id: 'quick-poll', category: 'decide', icon: Vote },
   { id: 'agree-or-not', category: 'decide', icon: Split },
   { id: 'brainstorm', category: 'decide', icon: Lightbulb },
+  { id: 'canvas', category: 'decide', icon: StickyNote },
 ]
+
+/** The live canvas activity (issue #93); mirrors ActivityCatalog.Canvas and its limits. */
+export const CANVAS = 'canvas'
+export const CANVAS_EXTENT = 4000
+export const CANVAS_COLORS = ['yellow', 'pink', 'blue', 'green', 'violet', 'white'] as const
+export const CANVAS_SIZES = ['s', 'm', 'l'] as const
+export const CANVAS_SHAPES = ['square', 'round'] as const
+export const CANVAS_STICKERS = ['heart', 'star', 'thumbs', 'laugh', 'idea'] as const
 
 /** Board activities and their columns; mirrors ActivityCatalog.ColumnsOf on the server. */
 export const BOARD_COLUMNS: Record<string, string[]> = {

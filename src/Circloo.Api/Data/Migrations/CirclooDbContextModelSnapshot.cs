@@ -178,6 +178,67 @@ namespace Circloo.Api.Data.Migrations
                     b.ToTable("BoardVotes");
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.CanvasNote", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ActivityId")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("AuthorMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Shape")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Sticker")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)");
+
+                    b.Property<double>("X")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorMemberId");
+
+                    b.HasIndex("CircleId", "ActivityId");
+
+                    b.ToTable("CanvasNotes");
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.Circle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -635,6 +696,21 @@ namespace Circloo.Api.Data.Migrations
                     b.HasOne("Circloo.Api.Data.BoardNote", null)
                         .WithMany("Votes")
                         .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.CanvasNote", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -92,6 +92,11 @@ public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, str
     public static MessageDto From(CircleMessage m) => new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt);
 }
 
+public sealed record CanvasNoteDto(long Id, string ActivityId, string Text, double X, double Y, string Color, string Size, string Shape, string? Sticker, Guid AuthorId)
+{
+    public static CanvasNoteDto From(CanvasNote n) => new(n.Id, n.ActivityId, n.Text, n.X, n.Y, n.Color, n.Size, n.Shape, n.Sticker, n.AuthorMemberId);
+}
+
 public sealed record BoardNoteDto(long Id, string ActivityId, string Column, string Text, string Color, Guid AuthorId, Guid[] Voters)
 {
     public static BoardNoteDto From(BoardNote n) =>

@@ -4,7 +4,7 @@ import { useMe } from '../../api/hooks'
 import { useMyCircles, joinLink } from '../../api/circles'
 import { useIntegrations } from '../../api/integrations'
 import { useRoom } from '../circles/room'
-import { ACTIVITIES, BOARD_COLUMNS, VOTES_PER_MEMBER } from '../circles/catalog'
+import { ACTIVITIES, BOARD_COLUMNS, CANVAS, VOTES_PER_MEMBER } from '../circles/catalog'
 
 export interface Tip {
   /** Stable id: once dismissed or done, the same tip does not come back in this session. */
@@ -35,6 +35,7 @@ export function useTip(): Tip | null {
     const activity = room.activity
     const isBoard = !!activity && !!BOARD_COLUMNS[activity]
     const mine = room.notes.filter((n) => n.activityId === activity)
+    const onCanvas = activity === CANVAS ? room.canvas.filter((n) => n.activityId === CANVAS) : []
 
     if (room.me.role === 'animator') {
       if (room.online.length < 2 && room.joinCode) {
@@ -56,6 +57,15 @@ export function useTip(): Tip | null {
             }
           : null
       }
+      if (activity === CANVAS && onCanvas.length >= 4) {
+        return {
+          id: id(`sum-canvas-${Math.floor(onCanvas.length / 8)}`),
+          text: t('pirikoo.tips.sumCanvas'),
+          perch: 'canvas',
+          action: { label: t('pirikoo.actions.sumUp'), run: () => room.ask(t('circles.room.quick.2')) },
+        }
+      }
+      if (activity === CANVAS) return null
       if (isBoard && mine.length >= 3) {
         return {
           id: id(`sum-board-${activity}`),
@@ -78,6 +88,9 @@ export function useTip(): Tip | null {
 
     // Participant
     if (!activity) return { id: id('wait'), text: t('pirikoo.tips.wait') }
+    if (activity === CANVAS) {
+      return onCanvas.some((n) => n.authorId === room.me!.id) ? null : { id: id('canvas-first'), text: t('pirikoo.tips.canvasFirst'), perch: 'canvas' }
+    }
     if (isBoard) {
       if (!mine.some((n) => n.authorId === room.me!.id)) return { id: id(`first-note-${activity}`), text: t('pirikoo.tips.firstNote'), perch: 'board' }
       const used = mine.filter((n) => n.voters.includes(room.me!.id)).length
