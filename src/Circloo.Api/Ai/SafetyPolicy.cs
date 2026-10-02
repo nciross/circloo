@@ -128,6 +128,13 @@ public sealed partial class SafetyPolicy
         return !Markup().IsMatch(text) && !ContainsAny(n, HarmfulTerms) && !ContainsAny(n, InjectionTerms);
     }
 
+    /// <summary>
+    /// A question to Pirikoo, the person's private guide (issue #88): no harmful terms. Unlike <see cref="IsPromptSafe"/>,
+    /// everyday words such as "previous", "instructions" or "assistant" pass. Only the asker sees the reply, so an
+    /// injection attempt can only fool themselves, and the reply is checked with <see cref="IsReplySafe"/> anyway.
+    /// </summary>
+    public bool IsQuestionSafe(string text) => !ContainsAny(Normalize(text), HarmfulTerms);
+
     /// <summary>circloo's reply in a circle: bounded, no harmful terms, no personal data.</summary>
     public bool IsReplySafe(string text) =>
         !string.IsNullOrWhiteSpace(text) && text.Length <= 1500 && !PersonalData().IsMatch(text) && !ContainsAny(Normalize(text), HarmfulTerms);

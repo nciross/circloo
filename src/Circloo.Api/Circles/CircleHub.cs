@@ -23,6 +23,8 @@ public interface ICircleClient
     Task Closed();
     Task NoteChanged(BoardNoteDto note);
     Task NoteDeleted(long id);
+    /// <summary>Someone else is writing in the chat (issue #89); the event carries no text.</summary>
+    Task Typing(Guid memberId);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -48,6 +50,10 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
     private const string CircleKey = "circle";
+    private const string TypingKey = "typing";
+
+    /// <summary>Pings from one connection closer together than this are dropped, so a chatty client costs nothing.</summary>
+    public static readonly TimeSpan TypingEvery = TimeSpan.FromSeconds(1.5);
 
     public override Task OnConnectedAsync()
     {
@@ -84,6 +90,21 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         }
         var message = await AddMessageAsync(circleId, me.Circle!.CurrentActivity, me.Id, "member", clean);
         await Clients.Group(Group(circleId)).Message(MessageDto.From(message));
+        // The next keystroke after a message announces typing again at once.
+        Context.Items.Remove(TypingKey);
+    }
+
+    /// <summary>"Kenji is typing…" for the others in the circle (issue #89). Same membership check as <see cref="Say"/>.</summary>
+    public async Task Typing()
+    {
+        var now = clock.GetUtcNow();
+        if (Context.Items[TypingKey] is DateTimeOffset last && now - last < TypingEvery)
+        {
+            return;
+        }
+        var (circleId, me) = await CurrentAsync();
+        Context.Items[TypingKey] = now;
+        await Clients.OthersInGroup(Group(circleId)).Typing(me.Id);
     }
 
     public async Task StartActivity(string activityId)
@@ -120,6 +141,7 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         var clean = TextRules.Clean(text, TextRules.AskMax) ?? throw new HubException("message-invalid");
         var message = await AddMessageAsync(circleId, activityId, me.Id, "member", clean);
         await Clients.Group(Group(circleId)).Message(MessageDto.From(message));
+        Context.Items.Remove(TypingKey);
         coach.Start(circleId, me.UserId!.Value, activityId, clean);
     }
 
