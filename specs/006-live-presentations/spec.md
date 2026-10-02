@@ -61,6 +61,8 @@ delete one slide, reload: the presentation is still there with 19 slides.
 5. **Given** I delete a presentation, **Then** its slides and file are gone and it can no longer be started.
 6. **Given** a presentation has not been opened or presented for 11 months, **Then** my library marks it "will be
    deleted in 30 days" until I open or present it; after 12 months idle it is deleted automatically.
+7. **Given** the interface is in Arabic, **Then** the library, upload progress and slide strip are mirrored (first
+   slide at the right, progress filling from the right) and slide numbers stay readable.
 
 ---
 
@@ -89,6 +91,8 @@ their options, correct answer, timer and spotlight setting.
    kept; keyboard-only reordering works.
 5. **Given** a question has fewer than 2 options or a quiz has no correct option, **When** I try to save,
    **Then** the editor says what is missing.
+6. **Given** the interface is in Arabic and a question is written in Arabic, **Then** the form and options are
+   mirrored, "Move up / Move down" keep their meaning, and mixed Arabic/Latin option text is displayed in the right order.
 
 ---
 
@@ -120,6 +124,9 @@ arrow keys; both phones change within a second each time; a participant who join
    question with its countdown and answer count, results, spotlight and podium, plus the circle's join code and QR
    code while no question is open; it has no controls, notes or next slide, follows my actions within 1 second, and
    does not count as a participant.
+8. **Given** the interface is in Arabic, **Then** the presenter controls, participant view and audience screen are
+   mirrored and "next slide" is the arrow pointing to the inline end (left), while the deck pictures themselves are
+   never flipped.
 
 ---
 
@@ -147,6 +154,10 @@ appear one by one; a participant who taps twice still counts once.
 6. **Given** answering is open, **Then** the animator sees the count of answers and the people still to answer (by
    character), but no option counts until the reveal, unless the poll has "Show results live" on, in which case
    everyone sees the bars move as answers arrive and Reveal locks answers and marks the winner.
+7. **Given** the animator moves away from a question while answering is open, **Then** answering locks; coming back
+   shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts.
+8. **Given** the interface is in Arabic, **Then** answer buttons, the countdown and "n of N answered" are mirrored and
+   numbers stay readable.
 
 ---
 
@@ -174,6 +185,8 @@ then the spotlight on the first answerer with their time; with the spotlight tur
 5. **Given** reduced motion is set on a device, **Then** that device shows the final results at once, without
    growing bars, confetti or count-up.
 6. **Given** a screen reader, **Then** results are available as text (option, count, percentage) and announced once.
+7. **Given** the interface is in Arabic, **Then** bars grow from the right, labels and percentages sit on the
+   mirrored side, and the spotlight card is mirrored.
 
 ---
 
@@ -199,6 +212,8 @@ option and the first correct answerer are shown; the podium after the second qui
 4. **Given** the podium is on, **When** I press "Podium" after a quiz reveal, **Then** everyone sees the top three by
    total points with characters, names and points, ties sharing a place, and each participant sees their own rank.
 5. **Given** the podium is off for the presentation, **Then** no ranking is shown or offered.
+6. **Given** the interface is in Arabic, **Then** the podium order reads from the right (1st in the middle, 2nd at
+   the right, 3rd at the left), and points use the locale's number format.
 
 ---
 
@@ -208,6 +223,7 @@ option and the first correct answerer are shown; the podium after the second qui
   animator" note, and resumes where it was when they come back. Open answers stay open; a quiz timer that ran out
   while they were away still locks.
 - Two animator tabs: the most recent action wins and both tabs show the same state.
+- The animator leaves a question while answering is open: answering locks (see US4 #7).
 - A participant answers at the exact moment answers lock: the server's lock time decides; the answer is either fully
   counted or refused with "answering is closed".
 - Two participants answer within the same instant: the order the server received them decides who was first.

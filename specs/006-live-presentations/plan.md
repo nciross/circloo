@@ -40,7 +40,10 @@ pictures ≤ 250 KB at 1920 px, thumbnails ≤ 30 KB; reveal animation 60 fps on
 blobs); WCAG 2.2 AA; four locales with RTL; reduced motion respected
 
 **Scale/Scope**: circles of up to 12 people (spec 003 `MaxPeople`); presentations ≤ 100 deck + 50 question slides;
-2 conversions in parallel per API replica
+2 conversions in parallel. The app is **pinned to one replica** (`maxReplicas: 1`) in this slice: hub groups,
+presence and the quiz clock are per replica, so a second replica would miss broadcasts (SC-603). Scaling out waits for
+the Web PubSub backplane (separate issue). Conversion leases and guarded answer updates already make the data side
+safe for several replicas.
 
 ## Constitution Check
 

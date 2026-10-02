@@ -19,6 +19,8 @@ high-volume rows.
 | ShowPodium | bool | default true (FR-606) |
 | CreatedAt, UpdatedAt, LastUsedAt | DateTimeOffset | LastUsedAt drives the 12-month clean-up (FR-604a) |
 | Version | int | concurrency token, bumped on every edit |
+| ConvertingBy | string? | replica id holding the conversion lease |
+| LeaseUntil | DateTimeOffset? | lease end (2 min, renewed while converting); a conversion is claimed with a guarded update `Status = processing AND (LeaseUntil IS NULL OR LeaseUntil < now)`, so only one replica converts |
 
 State: `processing → ready` or `processing → failed`; `failed` can be retried (re-upload). Deleting removes slides,
 questions and blobs.
@@ -63,7 +65,8 @@ cannot carry question fields; at most 100 deck slides and 50 question slides per
 | Deadline | DateTimeOffset? | quiz only: OpenedAt + timer |
 | LockedAt | DateTimeOffset? | |
 | StartedAt, EndedAt | DateTimeOffset / ? | |
-| Version | int | concurrency token |
+| Version | int | concurrency token; animator actions use last-write-wins and every change broadcasts the full state to all the animator's tabs |
+| QuestionPhases | jsonb | per question slide id: stored phase (`locked`, `revealed`, `podium`) and `OpenedAt`/`LockedAt`, so returning to a question restores it |
 
 Phase transitions (animator only, except the clock):
 
@@ -71,7 +74,9 @@ Phase transitions (animator only, except the clock):
 deck slide:  idle
 question:    idle --open--> answering --lock|deadline--> locked --reveal--> revealed --podium(quiz, ShowPodium)--> podium
              answering --reveal--> revealed   (reveal locks first)
-moving to another slide resets Phase to idle; returning to a revealed question shows its stored results (no re-open)
+moving away from a question in answering locks it first (LockedAt = now); moving to another slide sets Phase to idle
+for deck slides; returning to a question shows its stored phase: locked (can be revealed, never reopened), revealed or
+podium with stored results; quiz timers never restart
 ```
 
 ## SessionAnswer

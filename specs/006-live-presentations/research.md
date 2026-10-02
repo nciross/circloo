@@ -98,9 +98,9 @@ persist the session in Postgres so reloads, late joiners and replicas read the s
 **Rationale**: reuses the hub, auth and group model that boards and canvas already use; one public state object keeps
 every screen consistent and makes late join trivial (send it on `Enter`).
 
-**Scale note**: unchanged from spec 003: groups are per replica. Correctness (one answer, deadlines, first) is in
-the database, so it holds across replicas; live fan-out across replicas waits for the Web PubSub backplane (already in
-Complexity Tracking of 003).
+**Scale note**: groups are per replica (spec 003). Correctness (one answer, deadlines, first) is in the database, so
+it holds across replicas, but live fan-out does not: the app is pinned to **one replica** (`maxReplicas: 1`) until the
+Web PubSub backplane lands as its own issue.
 
 ## R6. Audience screen
 
