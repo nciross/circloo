@@ -503,6 +503,10 @@
     "agree-or-not": {
       "title": "D'accord ou pas",
       "body": "Une affirmation, et vous voyez qui est d'accord ou non."
+    },
+    "brainstorm": {
+      "title": "Remue-méninges",
+      "body": "Des idées sur un tableau en direct, puis des votes à points pour choisir les meilleures."
     }
   },
   "circles": {
@@ -622,7 +626,46 @@
       "no-activity": "Lance d'abord une activité.",
       "activity-invalid": "Cette activité ne fait pas partie du cercle.",
       "offline": "Hors ligne. Reconnexion…",
-      "slowDown": "Doucement, réessaie dans une minute."
+      "slowDown": "Doucement, réessaie dans une minute.",
+      "note-invalid": "Les notes font 1 à 140 caractères.",
+      "board-full": "Ce tableau est plein.",
+      "no-votes-left": "Plus de points. Reprends-en un pour voter à nouveau.",
+      "author-only": "Seul l'auteur (ou l'animateur) peut faire ça."
+    }
+  },
+  "boards": {
+    "view": "Affichage",
+    "board": "Tableau",
+    "add": "Ajouter",
+    "placeholder": "Écris une note…",
+    "color": "Couleur de la note",
+    "colors": {
+      "yellow": "Jaune",
+      "pink": "Rose",
+      "blue": "Bleu",
+      "green": "Vert",
+      "violet": "Violet"
+    },
+    "addTo": "Ajouter une note dans {{column}}",
+    "edit": "Modifier la note",
+    "editNote": "Modifier : {{text}}",
+    "deleteNote": "Supprimer : {{text}}",
+    "moveTo": "Déplacer « {{text}} » vers",
+    "voteFor_one": "{{count}} vote. Voter pour : {{text}}",
+    "voteFor_other": "{{count}} votes. Voter pour : {{text}}",
+    "dotsLeft_one": "{{count}} point restant",
+    "dotsLeft_other": "{{count}} points restants",
+    "sortByVotes": "Les plus votées en premier",
+    "columns": {
+      "start": "Commencer",
+      "stop": "Arrêter",
+      "continue": "Continuer",
+      "well": "Réussites",
+      "improve": "À améliorer",
+      "kudos": "Bravos",
+      "ideas": "Idées",
+      "maybe": "Peut-être",
+      "next": "Prochaines étapes"
     }
   }
 }

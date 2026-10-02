@@ -503,6 +503,10 @@
     "agree-or-not": {
       "title": "¿De acuerdo o no?",
       "body": "Una afirmación, y ves quién está de acuerdo y quién no."
+    },
+    "brainstorm": {
+      "title": "Lluvia de ideas",
+      "body": "Ideas en un tablero en vivo y votos con puntos para elegir las mejores."
     }
   },
   "circles": {
@@ -622,7 +626,46 @@
       "no-activity": "Primero empieza una actividad.",
       "activity-invalid": "Esa actividad no forma parte del círculo.",
       "offline": "Sin conexión. Reconectando…",
-      "slowDown": "Más despacio, inténtalo en un minuto."
+      "slowDown": "Más despacio, inténtalo en un minuto.",
+      "note-invalid": "Las notas tienen de 1 a 140 caracteres.",
+      "board-full": "Este tablero está lleno.",
+      "no-votes-left": "No te quedan puntos. Retira uno para volver a votar.",
+      "author-only": "Solo el autor (o el animador) puede hacerlo."
+    }
+  },
+  "boards": {
+    "view": "Vista",
+    "board": "Tablero",
+    "add": "Añadir",
+    "placeholder": "Escribe una nota…",
+    "color": "Color de la nota",
+    "colors": {
+      "yellow": "Amarillo",
+      "pink": "Rosa",
+      "blue": "Azul",
+      "green": "Verde",
+      "violet": "Violeta"
+    },
+    "addTo": "Añadir una nota en {{column}}",
+    "edit": "Editar la nota",
+    "editNote": "Editar: {{text}}",
+    "deleteNote": "Borrar: {{text}}",
+    "moveTo": "Mover «{{text}}» a",
+    "voteFor_one": "{{count}} voto. Votar por: {{text}}",
+    "voteFor_other": "{{count}} votos. Votar por: {{text}}",
+    "dotsLeft_one": "Te queda {{count}} punto",
+    "dotsLeft_other": "Te quedan {{count}} puntos",
+    "sortByVotes": "Más votadas primero",
+    "columns": {
+      "start": "Empezar",
+      "stop": "Dejar",
+      "continue": "Continuar",
+      "well": "Lo bueno",
+      "improve": "A mejorar",
+      "kudos": "Agradecimientos",
+      "ideas": "Ideas",
+      "maybe": "Quizás",
+      "next": "Próximos pasos"
     }
   }
 }

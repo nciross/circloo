@@ -21,6 +21,8 @@ public interface ICircleClient
     Task AiThinking(bool thinking);
     Task AiDelta(AiDelta delta);
     Task Closed();
+    Task NoteChanged(BoardNoteDto note);
+    Task NoteDeleted(long id);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -120,6 +122,102 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         await Clients.Group(Group(circleId)).Message(MessageDto.From(message));
         coach.Start(circleId, me.UserId!.Value, activityId, clean);
     }
+
+    // ---------- Live board (spec 004) ----------
+
+    public async Task AddNote(string column, string text, string color)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var activityId = me.Circle!.CurrentActivity;
+        var columns = ActivityCatalog.ColumnsOf(activityId);
+        if (columns.Length == 0 || !columns.Contains(column) || !ActivityCatalog.NoteColors.Contains(color))
+        {
+            throw new HubException("note-invalid");
+        }
+        var clean = CleanNote(text);
+        if (await db.BoardNotes.CountAsync(n => n.CircleId == circleId && n.ActivityId == activityId) >= ActivityCatalog.MaxNotes)
+        {
+            throw new HubException("board-full");
+        }
+        var note = new BoardNote { CircleId = circleId, ActivityId = activityId!, Column = column, Text = clean, Color = color, AuthorMemberId = me.Id, CreatedAt = clock.GetUtcNow() };
+        db.BoardNotes.Add(note);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).NoteChanged(BoardNoteDto.From(note));
+    }
+
+    public async Task EditNote(long id, string text)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var note = await NoteAsync(circleId, id);
+        if (note.AuthorMemberId != me.Id)
+        {
+            throw new HubException("author-only");
+        }
+        note.Text = CleanNote(text);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).NoteChanged(BoardNoteDto.From(note));
+    }
+
+    public async Task MoveNote(long id, string column)
+    {
+        var (circleId, _) = await CurrentAsync();
+        var note = await NoteAsync(circleId, id);
+        if (!ActivityCatalog.ColumnsOf(note.ActivityId).Contains(column))
+        {
+            throw new HubException("note-invalid");
+        }
+        note.Column = column;
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).NoteChanged(BoardNoteDto.From(note));
+    }
+
+    public async Task DeleteNote(long id)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var note = await NoteAsync(circleId, id);
+        if (note.AuthorMemberId != me.Id && me.Role != Roles.Animator)
+        {
+            throw new HubException("author-only");
+        }
+        db.BoardNotes.Remove(note);
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).NoteDeleted(id);
+    }
+
+    /// <summary>Toggles the caller's dot on a note; each member has a few dots per board activity.</summary>
+    public async Task Vote(long id)
+    {
+        var (circleId, me) = await CurrentAsync();
+        var note = await NoteAsync(circleId, id);
+        var mine = note.Votes.FirstOrDefault(v => v.MemberId == me.Id);
+        if (mine is not null)
+        {
+            note.Votes.Remove(mine);
+        }
+        else
+        {
+            var activityId = note.ActivityId;
+            var used = await db.BoardVotes.CountAsync(v => v.MemberId == me.Id
+                && db.BoardNotes.Any(n => n.Id == v.NoteId && n.CircleId == circleId && n.ActivityId == activityId));
+            if (used >= ActivityCatalog.VotesPerMember)
+            {
+                throw new HubException("no-votes-left");
+            }
+            note.Votes.Add(new BoardVote { NoteId = note.Id, MemberId = me.Id });
+        }
+        await db.SaveChangesAsync();
+        await Clients.Group(Group(circleId)).NoteChanged(BoardNoteDto.From(note));
+    }
+
+    private string CleanNote(string text)
+    {
+        var clean = TextRules.Clean(text, ActivityCatalog.NoteMax) ?? throw new HubException("note-invalid");
+        return safety.IsMessageSafe(clean) ? clean : throw new HubException("message-unsafe");
+    }
+
+    private async Task<BoardNote> NoteAsync(Guid circleId, long id) =>
+        await db.BoardNotes.Include(n => n.Votes).FirstOrDefaultAsync(n => n.Id == id && n.CircleId == circleId)
+            ?? throw new HubException("note-invalid");
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {

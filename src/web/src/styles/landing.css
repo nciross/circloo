@@ -430,12 +430,12 @@
   box-shadow: 0 0 0 1px var(--primary);
 }
 
-.board {
+.demo-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--s-3);
 }
-.board__col {
+.demo-board__col {
   display: grid;
   align-content: start;
   gap: var(--s-2);
@@ -443,7 +443,7 @@
   border-radius: var(--r-md);
   background: var(--surface-sunken);
 }
-.board__head {
+.demo-board__head {
   display: flex;
   align-items: center;
   gap: var(--s-2);
@@ -453,13 +453,13 @@
   letter-spacing: 0.02em;
   color: var(--text-subtle);
 }
-.board__count {
+.demo-board__count {
   padding: 0 0.4rem;
   border-radius: var(--r-pill);
   background: var(--surface-pressed);
   font-variant-numeric: tabular-nums;
 }
-.note {
+.demo-note {
   display: grid;
   gap: var(--s-2);
   padding: var(--s-3);
@@ -469,11 +469,11 @@
   font-size: var(--fs-sm);
   line-height: 1.4;
 }
-.note__votes {
+.demo-note__votes {
   display: flex;
   gap: 3px;
 }
-.vote {
+.demo-vote {
   inline-size: 8px;
   block-size: 8px;
   border-radius: 50%;
@@ -785,7 +785,7 @@
   .plan {
     padding: var(--s-5);
   }
-  .board,
+  .demo-board,
   .jokes,
   .steps {
     grid-template-columns: minmax(0, 1fr);

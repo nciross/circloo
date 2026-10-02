@@ -18,6 +18,8 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<Circle> Circles => Set<Circle>();
     public DbSet<CircleMember> CircleMembers => Set<CircleMember>();
     public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
+    public DbSet<BoardNote> BoardNotes => Set<BoardNote>();
+    public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,6 +125,24 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(m => m.Text).HasMaxLength(2000);
             e.HasIndex(m => new { m.CircleId, m.Id });
             e.HasOne<Circle>().WithMany().HasForeignKey(m => m.CircleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<BoardNote>(e =>
+        {
+            e.Property(n => n.ActivityId).HasMaxLength(40);
+            e.Property(n => n.Column).HasMaxLength(20);
+            e.Property(n => n.Text).HasMaxLength(140);
+            e.Property(n => n.Color).HasMaxLength(10);
+            e.HasIndex(n => new { n.CircleId, n.ActivityId });
+            e.HasOne<Circle>().WithMany().HasForeignKey(n => n.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(n => n.AuthorMemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<BoardVote>(e =>
+        {
+            e.HasKey(v => new { v.NoteId, v.MemberId });
+            e.HasOne<BoardNote>().WithMany(n => n.Votes).HasForeignKey(v => v.NoteId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(v => v.MemberId).OnDelete(DeleteBehavior.NoAction);
         });
     }
 }

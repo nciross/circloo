@@ -503,6 +503,10 @@
     "agree-or-not": {
       "title": "Agree or not",
       "body": "One statement, and you see who agrees and who does not."
+    },
+    "brainstorm": {
+      "title": "Brainstorm",
+      "body": "Ideas on a live board, then dot votes to pick the best ones."
     }
   },
   "circles": {
@@ -622,7 +626,46 @@
       "no-activity": "Start an activity first.",
       "activity-invalid": "That activity is not part of this circle.",
       "offline": "You are offline. Reconnecting…",
-      "slowDown": "Slow down a little and try again in a minute."
+      "slowDown": "Slow down a little and try again in a minute.",
+      "note-invalid": "Notes are 1 to 140 characters.",
+      "board-full": "This board is full.",
+      "no-votes-left": "No dots left. Take one back to vote again.",
+      "author-only": "Only the author (or the animator) can do that."
+    }
+  },
+  "boards": {
+    "view": "View",
+    "board": "Board",
+    "add": "Add",
+    "placeholder": "Write a note…",
+    "color": "Note colour",
+    "colors": {
+      "yellow": "Yellow",
+      "pink": "Pink",
+      "blue": "Blue",
+      "green": "Green",
+      "violet": "Violet"
+    },
+    "addTo": "Add a note to {{column}}",
+    "edit": "Edit the note",
+    "editNote": "Edit: {{text}}",
+    "deleteNote": "Delete: {{text}}",
+    "moveTo": "Move \"{{text}}\" to",
+    "voteFor_one": "{{count}} vote. Vote for: {{text}}",
+    "voteFor_other": "{{count}} votes. Vote for: {{text}}",
+    "dotsLeft_one": "{{count}} dot left",
+    "dotsLeft_other": "{{count}} dots left",
+    "sortByVotes": "Most voted first",
+    "columns": {
+      "start": "Start",
+      "stop": "Stop",
+      "continue": "Continue",
+      "well": "Went well",
+      "improve": "To improve",
+      "kudos": "Kudos",
+      "ideas": "Ideas",
+      "maybe": "Maybe",
+      "next": "Next steps"
     }
   }
 }

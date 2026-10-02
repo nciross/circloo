@@ -67,6 +67,18 @@ public sealed partial class CirclooCoach(
         },
     };
 
+    /// <summary>Board column names as people read them, per language (ids: ActivityCatalog.ColumnsOf).</summary>
+    private static readonly Dictionary<string, Dictionary<string, string>> ColumnNames = new()
+    {
+        ["en"] = new() { ["start"] = "Start", ["stop"] = "Stop", ["continue"] = "Continue", ["well"] = "Went well", ["improve"] = "To improve", ["kudos"] = "Kudos", ["ideas"] = "Ideas", ["maybe"] = "Maybe", ["next"] = "Next steps" },
+        ["fr"] = new() { ["start"] = "Commencer", ["stop"] = "Arrêter", ["continue"] = "Continuer", ["well"] = "Réussites", ["improve"] = "À améliorer", ["kudos"] = "Bravos", ["ideas"] = "Idées", ["maybe"] = "Peut-être", ["next"] = "Prochaines étapes" },
+        ["ar"] = new() { ["start"] = "نبدأ", ["stop"] = "نتوقف", ["continue"] = "نستمر", ["well"] = "ما نجح", ["improve"] = "ما نحسّنه", ["kudos"] = "شكر", ["ideas"] = "أفكار", ["maybe"] = "ربما", ["next"] = "الخطوات التالية" },
+        ["es"] = new() { ["start"] = "Empezar", ["stop"] = "Dejar", ["continue"] = "Continuar", ["well"] = "Lo bueno", ["improve"] = "A mejorar", ["kudos"] = "Agradecimientos", ["ideas"] = "Ideas", ["maybe"] = "Quizás", ["next"] = "Próximos pasos" },
+    };
+
+    private static string ColumnName(string lang, string column) =>
+        (ColumnNames.TryGetValue(lang, out var names) ? names : ColumnNames["en"]).GetValueOrDefault(column, column);
+
     private static readonly Dictionary<string, string> LanguageNames = new()
     {
         ["en"] = "English", ["fr"] = "French", ["ar"] = "Arabic (Modern Standard, friendly)", ["es"] = "Spanish",
@@ -109,14 +121,15 @@ public sealed partial class CirclooCoach(
         history.Reverse();
         var members = await db.CircleMembers.AsNoTracking().Where(m => m.CircleId == circleId)
             .ToDictionaryAsync(m => m.Id, m => (m.Name, m.Role), ct);
+        var board = await BoardAsync(circleId, activity.Id, ct);
 
         var watch = Stopwatch.StartNew();
         string text;
         try
         {
             text = _o.IsSeed
-                ? await SeedReplyAsync(lang, activity, ask, history, members, onDelta, ct)
-                : await ModelReplyAsync(lang, activity, ask, history, members, onDelta, ct);
+                ? await SeedReplyAsync(lang, activity, ask, history, members, board, onDelta, ct)
+                : await ModelReplyAsync(lang, activity, ask, history, members, board, onDelta, ct);
         }
         catch (Exception e) when (e is not OperationCanceledException || !ct.IsCancellationRequested)
         {
@@ -131,8 +144,21 @@ public sealed partial class CirclooCoach(
         return ok ? text : Line(lang, "unsafe");
     }
 
+    /// <summary>The board of this activity as "column: note (votes)" lines, most-voted first within each column.</summary>
+    private async Task<List<(string Column, string Text, int Votes)>> BoardAsync(Guid circleId, string activityId, CancellationToken ct)
+    {
+        var columns = ActivityCatalog.ColumnsOf(activityId);
+        if (columns.Length == 0)
+        {
+            return [];
+        }
+        var notes = await db.BoardNotes.AsNoTracking().Where(n => n.CircleId == circleId && n.ActivityId == activityId)
+            .Select(n => new { n.Column, n.Text, Votes = n.Votes.Count }).ToListAsync(ct);
+        return [.. notes.OrderBy(n => Array.IndexOf(columns, n.Column)).ThenByDescending(n => n.Votes).Select(n => (n.Column, n.Text, n.Votes))];
+    }
+
     private async Task<string> ModelReplyAsync(string lang, ActivityDef activity, string? ask, List<CircleMessage> history,
-        Dictionary<Guid, (string Name, string Role)> members, Func<string, Task> onDelta, CancellationToken ct)
+        Dictionary<Guid, (string Name, string Role)> members, List<(string Column, string Text, int Votes)> board, Func<string, Task> onDelta, CancellationToken ct)
     {
         var messages = new List<ChatMessage>
         {
@@ -158,6 +184,12 @@ public sealed partial class CirclooCoach(
                     ? $"Animator ({who.Name}): {m.Text}"
                     : $"Participant {who.Name} said: «{m.Text}»"));
             }
+        }
+        if (board.Count > 0)
+        {
+            // Board notes are participant content: quoted data, never instructions.
+            messages.Add(new ChatMessage(ChatRole.User, "Participant board notes (column: «note» [votes]):\n"
+                + string.Join('\n', board.Take(60).Select(n => $"{n.Column}: «{n.Text}» [{n.Votes}]"))));
         }
         if (ask is null)
         {
@@ -185,11 +217,16 @@ public sealed partial class CirclooCoach(
 
     /// <summary>The zero-cost dev voice: seed sparks for deck activities, openers otherwise, a plain summary on request.</summary>
     private async Task<string> SeedReplyAsync(string lang, ActivityDef activity, string? ask, List<CircleMessage> history,
-        Dictionary<Guid, (string Name, string Role)> members, Func<string, Task> onDelta, CancellationToken ct)
+        Dictionary<Guid, (string Name, string Role)> members, List<(string Column, string Text, int Votes)> board, Func<string, Task> onDelta, CancellationToken ct)
     {
         var lower = ask is null ? "" : SafetyPolicy.Normalize(ask);
         string text;
-        if (SummaryWords.Any(lower.Contains))
+        if (SummaryWords.Any(lower.Contains) && board.Count > 0)
+        {
+            var lines = board.GroupBy(n => n.Column).Select(g => $"{ColumnName(lang, g.Key)}: " + string.Join(" · ", g.Take(3).Select(n => n.Votes > 0 ? $"{n.Text} ({n.Votes})" : n.Text)));
+            text = $"{Line(lang, "heard")}\n{string.Join('\n', lines)}";
+        }
+        else if (SummaryWords.Any(lower.Contains))
         {
             var said = history.Where(m => m.Kind == "member" && m.MemberId is { } id && members.TryGetValue(id, out var w) && w.Role == Roles.Participant)
                 .TakeLast(12).Select(m => $"• {members[m.MemberId!.Value].Name}: {m.Text}").ToList();

@@ -21,6 +21,18 @@ export interface Message {
   at: string
 }
 
+export type NoteColor = 'yellow' | 'pink' | 'blue' | 'green' | 'violet'
+
+export interface BoardNote {
+  id: number
+  activityId: string
+  column: string
+  text: string
+  color: NoteColor
+  authorId: string
+  voters: string[]
+}
+
 export interface CircleSummary {
   id: string
   name: string
@@ -42,6 +54,7 @@ export interface CircleView {
   me: Member
   members: Member[]
   messages: Message[]
+  notes: BoardNote[]
 }
 
 export interface JoinInfo {

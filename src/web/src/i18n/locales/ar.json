@@ -519,6 +519,10 @@
     "agree-or-not": {
       "title": "موافق أم لا",
       "body": "عبارة واحدة، وترون من يوافق ومن لا يوافق."
+    },
+    "brainstorm": {
+      "title": "عصف ذهني",
+      "body": "أفكار على لوحة مباشرة، ثم تصويت بالنقاط لاختيار الأفضل."
     }
   },
   "circles": {
@@ -642,7 +646,54 @@
       "no-activity": "ابدأ نشاطًا أولًا.",
       "activity-invalid": "هذا النشاط ليس جزءًا من الدائرة.",
       "offline": "غير متصل. جارٍ إعادة الاتصال…",
-      "slowDown": "تمهّل قليلًا وحاول بعد دقيقة."
+      "slowDown": "تمهّل قليلًا وحاول بعد دقيقة.",
+      "note-invalid": "الملاحظات من 1 إلى 140 حرفًا.",
+      "board-full": "هذه اللوحة ممتلئة.",
+      "no-votes-left": "لم تبقَ نقاط. استرجع واحدة لتصوّت مجددًا.",
+      "author-only": "الكاتب وحده (أو المنشّط) يستطيع ذلك."
+    }
+  },
+  "boards": {
+    "view": "العرض",
+    "board": "اللوحة",
+    "add": "أضف",
+    "placeholder": "اكتب ملاحظة…",
+    "color": "لون الملاحظة",
+    "colors": {
+      "yellow": "أصفر",
+      "pink": "وردي",
+      "blue": "أزرق",
+      "green": "أخضر",
+      "violet": "بنفسجي"
+    },
+    "addTo": "أضف ملاحظة إلى {{column}}",
+    "edit": "عدّل الملاحظة",
+    "editNote": "تعديل: {{text}}",
+    "deleteNote": "حذف: {{text}}",
+    "moveTo": "انقل «{{text}}» إلى",
+    "voteFor_zero": "لا أصوات. صوّت لـ: {{text}}",
+    "voteFor_one": "صوت واحد. صوّت لـ: {{text}}",
+    "voteFor_two": "صوتان. صوّت لـ: {{text}}",
+    "voteFor_few": "{{count}} أصوات. صوّت لـ: {{text}}",
+    "voteFor_many": "{{count}} صوتًا. صوّت لـ: {{text}}",
+    "voteFor_other": "{{count}} صوت. صوّت لـ: {{text}}",
+    "dotsLeft_zero": "لم تبقَ نقاط",
+    "dotsLeft_one": "بقيت نقطة واحدة",
+    "dotsLeft_two": "بقيت نقطتان",
+    "dotsLeft_few": "بقيت {{count}} نقاط",
+    "dotsLeft_many": "بقيت {{count}} نقطة",
+    "dotsLeft_other": "بقيت {{count}} نقطة",
+    "sortByVotes": "الأكثر تصويتًا أولًا",
+    "columns": {
+      "start": "نبدأ",
+      "stop": "نتوقف",
+      "continue": "نستمر",
+      "well": "ما نجح",
+      "improve": "ما نحسّنه",
+      "kudos": "شكر",
+      "ideas": "أفكار",
+      "maybe": "ربما",
+      "next": "الخطوات التالية"
     }
   }
 }

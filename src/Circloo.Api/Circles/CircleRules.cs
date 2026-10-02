@@ -91,3 +91,9 @@ public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, str
 {
     public static MessageDto From(CircleMessage m) => new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt);
 }
+
+public sealed record BoardNoteDto(long Id, string ActivityId, string Column, string Text, string Color, Guid AuthorId, Guid[] Voters)
+{
+    public static BoardNoteDto From(BoardNote n) =>
+        new(n.Id, n.ActivityId, n.Column, n.Text, n.Color, n.AuthorMemberId, [.. n.Votes.Select(v => v.MemberId)]);
+}

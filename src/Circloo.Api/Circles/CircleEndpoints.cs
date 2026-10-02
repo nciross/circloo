@@ -13,7 +13,7 @@ public sealed record JoinCircle(string? Name, string? Character);
 public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, string Role, string Status, DateTimeOffset CreatedAt, int People);
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
-    MemberDto Me, MemberDto[] Members, MessageDto[] Messages);
+    MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes);
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn);
 
 public static class CircleAccess
@@ -113,10 +113,12 @@ public static class CircleEndpoints
                 .OrderBy(m => m.JoinedAt).Select(m => MemberDto.From(m)).ToArrayAsync(ct);
             var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id)
                 .OrderByDescending(m => m.Id).Take(200).ToListAsync(ct);
+            var notes = await db.BoardNotes.AsNoTracking().Include(n => n.Votes).Where(n => n.CircleId == id)
+                .OrderBy(n => n.Id).Take(ActivityCatalog.MaxNotes * 4).ToListAsync(ct);
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
-                [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)]));
+                [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)], [.. notes.Select(BoardNoteDto.From)]));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
