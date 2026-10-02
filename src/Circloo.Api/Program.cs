@@ -19,7 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<CirclooDbContext>("circloodb");
 // Slide pictures (spec 006): Azurite in dev, the storage account through managed identity in Azure.
-builder.AddAzureBlobServiceClient("blobs");
+// No blob health check: /health is the readiness probe, and presentations must not take sign-in and check-ins offline.
+builder.AddAzureBlobServiceClient("blobs", settings => settings.DisableHealthChecks = true);
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddProblemDetails();

@@ -277,8 +277,8 @@ var emailSender = 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'
 
 // ---------- Deck converter (spec 006, research R1) ----------
 // LibreOffice parses untrusted .pptx files, so it runs on its own: internal ingress only (unreachable from the
-// internet), no managed identity, no secrets, scale to zero. Webhooks and Chromium routes are off, so it never fetches
-// a URL on request. Plan Complexity Tracking: the one justified second production container.
+// internet), no managed identity, no secrets, scale to zero. Webhooks, download-from and Chromium routes are off, so
+// it never fetches a URL on request. Plan Complexity Tracking: the one justified second production container.
 resource converter 'Microsoft.App/containerApps@2024-03-01' = {
   name: 'ca-conv-${token}'
   location: location
@@ -296,8 +296,8 @@ resource converter 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           name: 'converter'
-          image: 'docker.io/gotenberg/gotenberg:8'
-          args: [ 'gotenberg', '--api-timeout=120s', '--chromium-disable-routes=true', '--webhook-disable=true', '--prometheus-disable-collect=true' ]
+          image: 'docker.io/gotenberg/gotenberg:8.37.0' // pinned: bump deliberately
+          args: [ 'gotenberg', '--api-timeout=120s', '--chromium-disable-routes=true', '--webhook-disable=true', '--api-disable-download-from=true', '--prometheus-disable-collect=true' ]
           resources: { cpu: json('1.0'), memory: '2Gi' }
           probes: [
             { type: 'Readiness', httpGet: { path: '/health', port: 3000 }, periodSeconds: 15 }
@@ -317,7 +317,7 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
     type: 'UserAssigned'
     userAssignedIdentities: { '${identity.id}': {} }
   }
-  dependsOn: [ acrPull, kvSecretsUser, foundryUser ]
+  dependsOn: [ acrPull, kvSecretsUser, foundryUser, blobContributor ]
   properties: {
     managedEnvironmentId: containerEnv.id
     configuration: {

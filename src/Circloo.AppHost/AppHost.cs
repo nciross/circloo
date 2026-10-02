@@ -18,10 +18,11 @@ var storage = builder.AddAzureStorage("storage")
 var blobs = storage.AddBlobs("blobs");
 
 // Turns .pptx decks into PDF (LibreOffice inside Gotenberg), isolated from the API and its secrets (spec 006, R1).
-// Webhooks and the Chromium routes are off, and decks reach it without external links (spec 006 threat model). The API
-// does not wait for it, so the first (large) image pull never blocks start-up; uploads stay "processing" until it is up.
-var converter = builder.AddContainer("converter", "gotenberg/gotenberg", "8")
-    .WithArgs("gotenberg", "--api-timeout=120s", "--chromium-disable-routes=true", "--webhook-disable=true", "--prometheus-disable-collect=true")
+// Webhooks, download-from and the Chromium routes are off, and decks reach it without external links (spec 006 threat
+// model). The API does not wait for it, so the first (large) image pull never blocks start-up; uploads stay "processing"
+// until it is up.
+var converter = builder.AddContainer("converter", "gotenberg/gotenberg", "8.37.0") // same pin as infra/modules/app.bicep
+    .WithArgs("gotenberg", "--api-timeout=120s", "--chromium-disable-routes=true", "--webhook-disable=true", "--api-disable-download-from=true", "--prometheus-disable-collect=true")
     .WithHttpEndpoint(targetPort: 3000, name: "http")
     .WithHttpHealthCheck("/health", endpointName: "http")
     .WithLifetime(ContainerLifetime.Persistent);

@@ -7,7 +7,7 @@ How to prove the feature works end to end, locally and at zero cost. Details: [d
 
 - Docker or Podman (`ASPIRE_CONTAINER_RUNTIME=podman`), .NET 10 SDK, Node 24.
 - `dotnet run --project src/Circloo.AppHost` starts, in addition to Postgres and Mailpit: **Azurite** (`storage`)
-  and **Gotenberg** (`converter`). The first start pulls `gotenberg/gotenberg:8` (~1.3 GB, once).
+  and **Gotenberg** (`converter`). The first start pulls `gotenberg/gotenberg:8.37.0` (~1.7 GB, once).
 - Reference deck: `tests/fixtures/decks/circloo-demo.pptx` (12 slides, one hidden, speaker notes on slides 2 and 5,
   an Arabic slide, an animation and an embedded video).
 

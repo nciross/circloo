@@ -16,7 +16,7 @@ Decisions behind `plan.md`. Each one: what we chose, why, and what we rejected.
 
 **Rationale**: LibreOffice is the only free engine that renders arbitrary PowerPoint layouts well; putting it in a
 separate, network-isolated container keeps the parser of untrusted files away from the API's secrets and keeps the API
-image small (Gotenberg is ~1.3 GB; the API image stays ~120 MB). Gotenberg is a maintained, widely used HTTP wrapper
+image small (Gotenberg is ~1.7 GB; the API image stays ~120 MB). Gotenberg is a maintained, widely used HTTP wrapper
 with health checks and timeouts, so we write no LibreOffice glue. PDFium is the PDF engine of Chrome, fast and exact.
 Zero cost in dev (local container), a few cents in prod (scale to zero, runs only during conversions).
 
