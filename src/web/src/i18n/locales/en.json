@@ -190,6 +190,57 @@
       "title": "circloo in 20 seconds",
       "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
       "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
+    },
+    "nav": {
+      "label": "On this page",
+      "story": "How it works",
+      "pricing": "Pricing",
+      "integrations": "Integrations"
+    },
+    "story": {
+      "title": "Watch a circle come to life",
+      "lead": "Six short moments from one circle, from the first hello to the follow-up.",
+      "nav": "Story steps",
+      "play": "Play video: {{step}}",
+      "pause": "Pause video: {{step}}",
+      "steps": {
+        "circle": {
+          "label": "Gather",
+          "title": "One link brings everyone in",
+          "body": "Share a link or a short code. Each person joins with a first name and a character, no email needed.",
+          "video": "Silent video. Eight friends join a circle one by one as characters, and the circloo face smiles wider with each arrival."
+        },
+        "chat": {
+          "label": "Break the ice",
+          "title": "circloo runs the activity with you",
+          "body": "It asks the question, keeps the pace and lets everyone answer in their own words. You get to play too.",
+          "video": "Silent video. The circloo panda asks what small thing made you smile this week, and two friends answer."
+        },
+        "canvas": {
+          "label": "Think out loud",
+          "title": "One canvas, everyone at once",
+          "body": "Drop notes anywhere, pick their colour and shape, and watch each friend’s cursor glide by with their character.",
+          "video": "Silent video. Notes land on a dotted canvas while three friends’ named cursors move around; one note is dragged and starred."
+        },
+        "board": {
+          "label": "Decide",
+          "title": "Decide together, live",
+          "body": "Notes go into columns, everyone votes with dots and the favourite rises. Retros, trips and family plans in minutes.",
+          "video": "Silent video. Notes drop into Start, Stop and Continue columns, then dot votes land on them."
+        },
+        "send": {
+          "label": "Follow up",
+          "title": "Results go where your team works",
+          "body": "Send the summary to Microsoft Teams, Jira, Confluence or Notion in one click, so nothing gets lost after the meeting.",
+          "video": "Silent video. A summary card flies to Teams, Jira and Notion and comes back with a check each time."
+        },
+        "pirikoo": {
+          "label": "Ask",
+          "title": "Pirikoo answers your questions",
+          "body": "Not sure where something is? Ask Pirikoo the parakeet in your language and get a short, clear answer.",
+          "video": "Silent video. Someone asks Pirikoo how to invite people; the parakeet writes, then answers step by step."
+        }
+      }
     }
   },
   "auth": {

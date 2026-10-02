@@ -190,6 +190,57 @@
       "title": "circloo en 20 secondes",
       "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
       "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
+    },
+    "nav": {
+      "label": "Sur cette page",
+      "story": "Comment ça marche",
+      "pricing": "Tarif",
+      "integrations": "Intégrations"
+    },
+    "story": {
+      "title": "Un cercle prend vie",
+      "lead": "Six petits moments d’un même cercle, du premier bonjour jusqu’au suivi.",
+      "nav": "Étapes de l’histoire",
+      "play": "Lire la vidéo : {{step}}",
+      "pause": "Mettre la vidéo en pause : {{step}}",
+      "steps": {
+        "circle": {
+          "label": "Rassembler",
+          "title": "Un lien, et tout le monde est là",
+          "body": "Partage un lien ou un code court. Chacun rejoint avec un prénom et un personnage, sans adresse e-mail.",
+          "video": "Vidéo muette. Huit amis rejoignent un cercle un par un sous forme de personnages, et le visage de circloo sourit un peu plus à chaque arrivée."
+        },
+        "chat": {
+          "label": "Briser la glace",
+          "title": "circloo anime l’activité avec toi",
+          "body": "Il pose la question, garde le rythme et laisse chacun répondre avec ses mots. Toi aussi, tu joues.",
+          "video": "Vidéo muette. Le panda de circloo demande quelle petite chose t’a fait sourire cette semaine, et deux amis répondent."
+        },
+        "canvas": {
+          "label": "Réfléchir à voix haute",
+          "title": "Une seule toile, tout le monde en même temps",
+          "body": "Pose des notes où tu veux, choisis leur couleur et leur forme, et regarde passer le curseur de chacun avec son personnage.",
+          "video": "Vidéo muette. Des notes arrivent sur une toile à points pendant que les curseurs nommés de trois amis se déplacent ; une note est déplacée puis étoilée."
+        },
+        "board": {
+          "label": "Décider",
+          "title": "Décidez ensemble, en direct",
+          "body": "Les notes vont dans des colonnes, chacun vote avec des pastilles et la favorite remonte. Rétros, voyages et projets de famille en quelques minutes.",
+          "video": "Vidéo muette. Des notes tombent dans les colonnes Commencer, Arrêter et Continuer, puis les votes à pastilles arrivent."
+        },
+        "send": {
+          "label": "Assurer le suivi",
+          "title": "Les résultats vont là où ton équipe travaille",
+          "body": "Envoie le résumé vers Microsoft Teams, Jira, Confluence ou Notion en un clic : rien ne se perd après la réunion.",
+          "video": "Vidéo muette. Une carte de résumé s’envole vers Teams, Jira et Notion et revient chaque fois avec une coche."
+        },
+        "pirikoo": {
+          "label": "Demander",
+          "title": "Pirikoo répond à tes questions",
+          "body": "Tu ne trouves pas quelque chose ? Demande à Pirikoo la perruche, dans ta langue, et reçois une réponse courte et claire.",
+          "video": "Vidéo muette. Quelqu’un demande à Pirikoo comment inviter des gens ; la perruche écrit, puis répond étape par étape."
+        }
+      }
     }
   },
   "auth": {

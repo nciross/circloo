@@ -1,6 +1,9 @@
 import { loadFont } from '@remotion/google-fonts/ReadexPro'
 import { interpolate } from 'remotion'
-import type { CSSProperties, ReactNode } from 'react'
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
+
+/** Story clips on the landing page sit next to their own text, so they turn the captions off. */
+export const Captions = createContext(true)
 
 export const { fontFamily } = loadFont('normal', { weights: ['400', '500', '600', '700'], subsets: ['latin', 'arabic'] })
 
@@ -58,6 +61,8 @@ export function Panda({ size, progress }: { size: number; progress: number }) {
 
 /** A full-frame canvas with the brand font, direction and a caption line at the bottom. */
 export function Frame({ dir, caption, captionOpacity = 1, children }: { dir: 'ltr' | 'rtl'; caption?: string; captionOpacity?: number; children: ReactNode }) {
+  const captions = useContext(Captions)
+  if (!captions) caption = undefined
   return (
     <div dir={dir} style={{ position: 'absolute', inset: 0, background: CANVAS, fontFamily, color: INK, overflow: 'hidden' }}>
       {children}

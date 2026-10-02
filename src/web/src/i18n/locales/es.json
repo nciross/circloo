@@ -190,6 +190,57 @@
       "title": "circloo en 20 segundos",
       "lead": "Se forma un círculo, circloo dirige un rompehielos, el equipo decide en un tablero en vivo y los resultados van a Teams, Jira o Notion.",
       "description": "Vídeo sin sonido. La cara de circloo sonríe; ocho amigos entran en un círculo como personajes; circloo hace una pregunta y dos personas responden; notas y votos llenan un tablero Empezar, Dejar, Continuar; los resultados se envían a Teams, Jira y Notion; Pirikoo el periquito se posa junto a la cara."
+    },
+    "nav": {
+      "label": "En esta página",
+      "story": "Cómo funciona",
+      "pricing": "Precio",
+      "integrations": "Integraciones"
+    },
+    "story": {
+      "title": "Mira cómo cobra vida un círculo",
+      "lead": "Seis momentos cortos de un mismo círculo, del primer hola al seguimiento.",
+      "nav": "Pasos de la historia",
+      "play": "Reproducir el vídeo: {{step}}",
+      "pause": "Pausar el vídeo: {{step}}",
+      "steps": {
+        "circle": {
+          "label": "Reunirse",
+          "title": "Un enlace y todos dentro",
+          "body": "Comparte un enlace o un código corto. Cada uno entra con su nombre y un personaje, sin correo electrónico.",
+          "video": "Vídeo sin sonido. Ocho amigos entran en un círculo uno a uno como personajes, y la cara de circloo sonríe más con cada llegada."
+        },
+        "chat": {
+          "label": "Romper el hielo",
+          "title": "circloo dirige la actividad contigo",
+          "body": "Hace la pregunta, marca el ritmo y deja que cada uno responda con sus palabras. Tú también juegas.",
+          "video": "Vídeo sin sonido. El panda de circloo pregunta qué pequeña cosa te hizo sonreír esta semana y dos amigos responden."
+        },
+        "canvas": {
+          "label": "Pensar en voz alta",
+          "title": "Un lienzo, todos a la vez",
+          "body": "Pon notas donde quieras, elige su color y su forma, y mira pasar el cursor de cada amigo con su personaje.",
+          "video": "Vídeo sin sonido. Aparecen notas en un lienzo de puntos mientras se mueven los cursores con nombre de tres amigos; una nota se arrastra y se marca con una estrella."
+        },
+        "board": {
+          "label": "Decidir",
+          "title": "Decidid juntos, en vivo",
+          "body": "Las notas van a columnas, todos votan con puntos y la favorita sube. Retros, viajes y planes familiares en minutos.",
+          "video": "Vídeo sin sonido. Caen notas en las columnas Empezar, Dejar y Continuar, y luego llegan los votos con puntos."
+        },
+        "send": {
+          "label": "Dar seguimiento",
+          "title": "Los resultados van adonde trabaja tu equipo",
+          "body": "Envía el resumen a Microsoft Teams, Jira, Confluence o Notion con un clic, para que nada se pierda tras la reunión.",
+          "video": "Vídeo sin sonido. Una tarjeta de resumen vuela a Teams, Jira y Notion y vuelve cada vez con una marca de verificación."
+        },
+        "pirikoo": {
+          "label": "Preguntar",
+          "title": "Pirikoo responde a tus preguntas",
+          "body": "¿No encuentras algo? Pregúntale a Pirikoo, el periquito, en tu idioma y recibe una respuesta corta y clara.",
+          "video": "Vídeo sin sonido. Alguien pregunta a Pirikoo cómo invitar a la gente; el periquito escribe y luego responde paso a paso."
+        }
+      }
     }
   },
   "auth": {
