@@ -126,7 +126,7 @@
     },
     "integrations": {
       "title": "متصل بأسبوعك",
-      "body": "سيأتيك circloo حيث تعمل أصلًا. هذه التكاملات في الطريق، ليست جاهزة بعد.",
+      "body": "يرسل circloo ما تقرره دائرتك إلى حيث يعمل فريقك أصلًا. Salesforce قادم قريبًا.",
       "items": {
         "teams": "ابدأ اجتماعات Teams بسؤال لكسر الجليد",
         "salesforce": "احتفل بالصفقات التي يربحها فريقك",
@@ -134,7 +134,8 @@
         "confluence": "انشر لوحة كصفحة",
         "notion": "أرسل اللوحات والملاحظات إلى مساحتك"
       },
-      "stamp": "قريبًا"
+      "stamp": "قريبًا",
+      "available": "متاح"
     },
     "how": {
       "title": "ثلاث خطوات، بلا كلمة مرور",
@@ -694,6 +695,89 @@
       "ideas": "أفكار",
       "maybe": "ربما",
       "next": "الخطوات التالية"
+    }
+  },
+  "integrations": {
+    "title": "التكاملات",
+    "lead": "اربط الأدوات التي يستخدمها فريقك، لتتمكن الدوائر من إرسال نتائجها إليها.",
+    "connected": "متصل",
+    "notConnected": "غير متصل",
+    "connect": "اربط",
+    "edit": "غيّر",
+    "disconnect": "افصل",
+    "save": "احفظ واربط",
+    "secretNote": "الأسرار مشفّرة ولا تُعرض مرة أخرى أبدًا. لا يستخدمها إلا circloo، وفقط لإرسال ما تطلبه.",
+    "lastUsed": "آخر استخدام {{date}}",
+    "testOk": "يعمل.",
+    "testFailed": "أجابت الخدمة بالرمز {{status}}. تحقق من البيانات.",
+    "send": "أرسل النتائج",
+    "sending": "جارٍ الإرسال…",
+    "open": "افتح",
+    "noneConnected": "لا توجد خدمة متصلة بعد.",
+    "sent_zero": "لم يُرسل شيء إلى {{name}}.",
+    "sent_one": "أُرسل إلى {{name}}.",
+    "sent_two": "أُرسل إلى {{name}}: عنصران.",
+    "sent_few": "أُرسل إلى {{name}}: {{count}} عناصر.",
+    "sent_many": "أُرسل إلى {{name}}: {{count}} عنصرًا.",
+    "sent_other": "أُرسل إلى {{name}}: {{count}} عنصر.",
+    "sendFailed": "رفضت {{name}} الطلب. تحقق من الاتصال.",
+    "fields": {
+      "webhookUrl": "رابط webhook في Workflows",
+      "site": "موقع Atlassian",
+      "email": "بريد الحساب",
+      "apiToken": "رمز API",
+      "projectKey": "مفتاح المشروع",
+      "spaceId": "معرّف المساحة",
+      "token": "سر التكامل",
+      "parentPageId": "الصفحة الأم (رابط أو معرّف)"
+    },
+    "errors": {
+      "webhookUrl": "استخدم رابط https لـ webhook من Workflows في Teams.",
+      "site": "استخدم موقع Atlassian الخاص بك، مثل your-team.atlassian.net.",
+      "email": "استخدم بريد حسابك في Atlassian.",
+      "apiToken": "الصق رمز API من Atlassian.",
+      "projectKey": "استخدم مفتاح مشروع Jira، مثل TEAM.",
+      "spaceId": "استخدم المعرّف الرقمي لمساحة Confluence.",
+      "token": "الصق سر تكامل داخلي من Notion.",
+      "parentPageId": "استخدم رابط صفحة Notion أو معرّفها."
+    },
+    "teams": {
+      "name": "Microsoft Teams",
+      "what": "انشر بطاقة ملخص الدائرة في قناة.",
+      "how": "في Teams افتح القناة، واختر Workflows ثم «النشر في قناة عند تلقي طلب webhook»، والصق رابطه هنا.",
+      "test": "أرسل رسالة تجريبية",
+      "sendTo": "انشر في Teams"
+    },
+    "jira": {
+      "name": "Jira",
+      "what": "حوّل ملاحظات العمل الأكثر تصويتًا إلى مهام.",
+      "how": "أنشئ رمز API في حساب Atlassian (الأمان، رموز API) واختر مشروع المهام.",
+      "test": "اختبر الاتصال",
+      "sendTo": "أنشئ مهام في Jira"
+    },
+    "confluence": {
+      "name": "Confluence",
+      "what": "انشر الدائرة كصفحة في مساحة.",
+      "how": "استخدم رمز API من Atlassian والمعرّف الرقمي للمساحة (إعدادات المساحة أو REST API).",
+      "test": "اختبر الاتصال",
+      "sendTo": "انشر في Confluence"
+    },
+    "notion": {
+      "name": "Notion",
+      "what": "اكتب الدائرة كصفحة في مساحة عملك.",
+      "how": "أنشئ تكاملًا داخليًا في Notion (الإعدادات، الاتصالات)، وشارك معه الصفحة الأم، ثم الصق سره ورابط الصفحة.",
+      "test": "اختبر الاتصال",
+      "sendTo": "اكتب في Notion"
+    },
+    "placeholders": {
+      "webhookUrl": "https://prod-00.westeurope.logic.azure.com/workflows/…",
+      "site": "your-team.atlassian.net",
+      "email": "you@company.com",
+      "apiToken": "••••••••••••",
+      "projectKey": "TEAM",
+      "spaceId": "98304",
+      "token": "ntn_…",
+      "parentPageId": "https://www.notion.so/…"
     }
   }
 }

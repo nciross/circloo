@@ -122,7 +122,7 @@
     },
     "integrations": {
       "title": "Plugs into your week",
-      "body": "circloo will meet you where you already work. These are on the way, not ready yet.",
+      "body": "circloo sends what your circle decides where your team already works. Salesforce is on the way.",
       "items": {
         "teams": "Start Teams meetings with an icebreaker",
         "salesforce": "Celebrate the deals your team wins",
@@ -130,7 +130,8 @@
         "confluence": "Publish a board as a page",
         "notion": "Send boards and notes to your workspace"
       },
-      "stamp": "Coming soon"
+      "stamp": "Coming soon",
+      "available": "Available"
     },
     "how": {
       "title": "Three steps, no password",
@@ -666,6 +667,85 @@
       "ideas": "Ideas",
       "maybe": "Maybe",
       "next": "Next steps"
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "lead": "Connect the tools your team already uses. Circles can then send their results there.",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "connect": "Connect",
+    "edit": "Change",
+    "disconnect": "Disconnect",
+    "save": "Save and connect",
+    "secretNote": "Secrets are encrypted and never shown again. Only circloo can use them, only to send what you ask.",
+    "lastUsed": "Last used {{date}}",
+    "testOk": "It works.",
+    "testFailed": "The service answered {{status}}. Check the details.",
+    "send": "Send results",
+    "sending": "Sending…",
+    "open": "Open",
+    "noneConnected": "No service connected yet.",
+    "sent_one": "Sent to {{name}}.",
+    "sent_other": "Sent to {{name}}: {{count}} items.",
+    "sendFailed": "{{name}} refused the request. Check the connection.",
+    "fields": {
+      "webhookUrl": "Workflow webhook URL",
+      "site": "Atlassian site",
+      "email": "Account email",
+      "apiToken": "API token",
+      "projectKey": "Project key",
+      "spaceId": "Space id",
+      "token": "Integration secret",
+      "parentPageId": "Parent page (link or id)"
+    },
+    "errors": {
+      "webhookUrl": "Use the https URL of a Teams Workflows webhook.",
+      "site": "Use your Atlassian site, like your-team.atlassian.net.",
+      "email": "Use the email of your Atlassian account.",
+      "apiToken": "Paste an Atlassian API token.",
+      "projectKey": "Use a Jira project key, like TEAM.",
+      "spaceId": "Use the numeric id of the Confluence space.",
+      "token": "Paste the secret of a Notion internal integration.",
+      "parentPageId": "Use the link or id of a Notion page."
+    },
+    "teams": {
+      "name": "Microsoft Teams",
+      "what": "Post a circle summary card to a channel.",
+      "how": "In Teams, open the channel, choose Workflows, pick \"Post to a channel when a webhook request is received\", and paste its URL here.",
+      "test": "Send a test message",
+      "sendTo": "Post to Teams"
+    },
+    "jira": {
+      "name": "Jira",
+      "what": "Turn the top-voted action notes into tasks.",
+      "how": "Create an API token in your Atlassian account (Security, API tokens) and pick the project for the tasks.",
+      "test": "Test connection",
+      "sendTo": "Create Jira tasks"
+    },
+    "confluence": {
+      "name": "Confluence",
+      "what": "Publish the circle as a page in a space.",
+      "how": "Use an Atlassian API token and the numeric id of the space (Space settings or the REST API).",
+      "test": "Test connection",
+      "sendTo": "Publish to Confluence"
+    },
+    "notion": {
+      "name": "Notion",
+      "what": "Write the circle as a page in your workspace.",
+      "how": "Create an internal integration in Notion (Settings, Connections), share the parent page with it, then paste its secret and the page link.",
+      "test": "Test connection",
+      "sendTo": "Write to Notion"
+    },
+    "placeholders": {
+      "webhookUrl": "https://prod-00.westeurope.logic.azure.com/workflows/…",
+      "site": "your-team.atlassian.net",
+      "email": "you@company.com",
+      "apiToken": "••••••••••••",
+      "projectKey": "TEAM",
+      "spaceId": "98304",
+      "token": "ntn_…",
+      "parentPageId": "https://www.notion.so/…"
     }
   }
 }

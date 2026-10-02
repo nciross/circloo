@@ -242,7 +242,9 @@ export function Landing() {
                   </span>
                   <p className="integration__name" lang="en" dir="ltr">{p.name}</p>
                   <p className="integration__what">{t(`landing.integrations.items.${p.id}`)}</p>
-                  <span className="lozenge lozenge--neutral integration__soon">{t('landing.integrations.stamp')}</span>
+                  {p.id === 'salesforce'
+                    ? <span className="lozenge lozenge--neutral integration__soon">{t('landing.integrations.stamp')}</span>
+                    : <span className="lozenge lozenge--success integration__soon">{t('landing.integrations.available')}</span>}
                 </li>
               ))}
             </ul>
