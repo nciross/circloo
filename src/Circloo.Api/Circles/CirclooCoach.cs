@@ -72,8 +72,9 @@ public sealed partial class CirclooCoach(
         ["en"] = "English", ["fr"] = "French", ["ar"] = "Arabic (Modern Standard, friendly)", ["es"] = "Spanish",
     };
 
-    private static readonly string[] SummaryWords = ["summar", "sum up", "résum", "resum", "synth", "لخص", "تلخيص", "ملخص"];
-    private static readonly string[] AnswerWords = ["answer", "réponse", "reponse", "respuesta", "solution", "solución", "الجواب", "الحل", "الإجابة"];
+    // Matched against SafetyPolicy.Normalize(ask): lower case, no accents or Arabic marks, unified alef forms.
+    private static readonly string[] SummaryWords = ["summar", "sum up", "resum", "synth", "لخص", "تلخيص", "ملخص"];
+    private static readonly string[] AnswerWords = ["answer", "reponse", "respuesta", "solution", "solucion", "الجواب", "الحل", "الاجابه"];
 
     public static string Line(string lang, string key) => (Say.TryGetValue(lang, out var l) ? l : Say["en"])[key];
 
@@ -186,7 +187,7 @@ public sealed partial class CirclooCoach(
     private async Task<string> SeedReplyAsync(string lang, ActivityDef activity, string? ask, List<CircleMessage> history,
         Dictionary<Guid, (string Name, string Role)> members, Func<string, Task> onDelta, CancellationToken ct)
     {
-        var lower = ask?.ToLowerInvariant() ?? "";
+        var lower = ask is null ? "" : SafetyPolicy.Normalize(ask);
         string text;
         if (SummaryWords.Any(lower.Contains))
         {

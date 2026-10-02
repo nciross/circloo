@@ -428,5 +428,201 @@
       "locale": "Passer la langue en {{value}}",
       "theme": "Passer en {{value}}"
     }
+  },
+  "characters": {
+    "panda": "Panda",
+    "fox": "Renard",
+    "frog": "Grenouille",
+    "cat": "Chat",
+    "owl": "Hibou",
+    "octopus": "Pieuvre",
+    "bear": "Ours",
+    "bunny": "Lapin",
+    "robot": "Robot",
+    "ghost": "Fantôme",
+    "chick": "Poussin",
+    "dino": "Dino"
+  },
+  "activities": {
+    "category": "Catégorie",
+    "all": "Toutes",
+    "categories": {
+      "icebreakers": "Brise-glace",
+      "energizers": "Énergisants",
+      "retro": "Rétro",
+      "decide": "Décider"
+    },
+    "quick-question": {
+      "title": "Questions express",
+      "body": "circloo pose des questions simples et chaleureuses ; chacun répond en une phrase."
+    },
+    "would-you-rather": {
+      "title": "Tu préfères",
+      "body": "Deux options rigolotes, chacun choisit et dit pourquoi."
+    },
+    "joke-round": {
+      "title": "Tour de blagues",
+      "body": "Une blague gentille de circloo, puis partagez vos meilleures."
+    },
+    "riddle-time": {
+      "title": "Devinettes",
+      "body": "Devinez ensemble ; demandez la réponse à circloo si vous séchez."
+    },
+    "two-truths": {
+      "title": "Deux vérités, un mensonge",
+      "body": "Trois faits sur toi ; les autres trouvent le mensonge."
+    },
+    "one-word": {
+      "title": "Un mot pour arriver",
+      "body": "Chacun dit comment il arrive, en un seul mot."
+    },
+    "mood-weather": {
+      "title": "Météo des humeurs",
+      "body": "Ton humeur en bulletin météo ; circloo résume le ciel."
+    },
+    "story-chain": {
+      "title": "Histoire à la chaîne",
+      "body": "Écrivez une histoire loufoque ensemble, une phrase chacun."
+    },
+    "start-stop-continue": {
+      "title": "Commencer, arrêter, continuer",
+      "body": "Une rétro rapide ; circloo regroupe les idées en prochaines étapes."
+    },
+    "went-well": {
+      "title": "Réussites et améliorations",
+      "body": "Célébrer et améliorer : un de chaque pour tout le monde."
+    },
+    "kudos": {
+      "title": "Tour des bravos",
+      "body": "Remercie quelqu'un pour quelque chose de précis."
+    },
+    "quick-poll": {
+      "title": "Sondage express",
+      "body": "circloo formule la question et compte les votes dans la discussion."
+    },
+    "agree-or-not": {
+      "title": "D'accord ou pas",
+      "body": "Une affirmation, et vous voyez qui est d'accord ou non."
+    }
+  },
+  "circles": {
+    "new": "Nouveau cercle",
+    "taken": "Pris",
+    "you": "toi",
+    "online": "en ligne",
+    "away": "absent",
+    "people_one": "{{count}} personne",
+    "people_other": "{{count}} personnes",
+    "roles": {
+      "animator": "Animateur",
+      "participant": "Participant"
+    },
+    "status": {
+      "open": "Ouvert",
+      "closed": "Fermé",
+      "connecting": "Connexion…",
+      "live": "En direct",
+      "reconnecting": "Reconnexion…",
+      "offline": "Hors ligne"
+    },
+    "mine": {
+      "title": "Tes cercles",
+      "emptyTitle": "Pas encore de cercle",
+      "emptyBody": "Un cercle est une session en direct : choisis des activités, partage le lien, et chacun rejoint avec un prénom et un personnage.",
+      "create": "Créer ton premier cercle"
+    },
+    "create": {
+      "title": "Nouveau cercle",
+      "lead": "Donne-lui un nom, choisis ton personnage et les activités. Tu obtiendras un lien à partager.",
+      "basics": "Le cercle",
+      "name": "Nom du cercle",
+      "namePlaceholder": "Rétro du lundi, Dimanche en famille…",
+      "yourCharacter": "Ton personnage",
+      "activities": "Activités",
+      "activitiesHelp": "Choisis ce que tu pourras lancer dans ce cercle. Tu démarres chacune quand tu veux.",
+      "picked": "{{count}} sur {{max}}",
+      "add": "Ajouter",
+      "added": "Ajoutée",
+      "submit": "Créer et obtenir le lien",
+      "errors": {
+        "name": "Donne un nom à ton cercle.",
+        "activities": "Choisis au moins une activité."
+      }
+    },
+    "invite": {
+      "title": "Inviter",
+      "body": "Avec ce lien, chacun rejoint avec un prénom et un personnage. Aucun compte nécessaire.",
+      "link": "Lien pour rejoindre",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "code": "Ou utilise le code"
+    },
+    "join": {
+      "title": "Rejoindre un cercle",
+      "invitedBy": "<b>{{name}}</b> t’invite à rejoindre",
+      "name": "Ton prénom dans ce cercle",
+      "nameHelp": "Seules les personnes du cercle le voient. 1 à 24 caractères.",
+      "character": "Choisis ton personnage",
+      "submit": "Rejoindre le cercle",
+      "enter": "Entrer dans le cercle",
+      "alreadyIn": "Tu es déjà dans ce cercle.",
+      "closedTitle": "Ce cercle n'est pas ouvert",
+      "closedBody": "Le lien est peut-être faux, ou le cercle est terminé. Demande un nouveau lien à l'animateur.",
+      "errors": {
+        "name": "Écris le prénom que les autres verront.",
+        "character": "Choisis un personnage pour rejoindre.",
+        "taken": "Quelqu'un vient de prendre ce personnage. Choisis-en un autre.",
+        "full": "Ce cercle est complet."
+      }
+    },
+    "room": {
+      "title": "Cercle",
+      "peopleTitle": "Dans le cercle",
+      "pickTitle": "Lancer une activité",
+      "pickBody": "Choisis-en une ; tout le monde la voit et circloo l’ouvre.",
+      "start": "Lancer",
+      "end": "Terminer l'activité",
+      "waitTitle": "Tu es dedans !",
+      "waitBody": "L'animateur va lancer une activité dans un instant.",
+      "conversation": "Conversation",
+      "thinking": "circloo réfléchit…",
+      "started": "{{name}} a lancé {{activity}}",
+      "ended": "{{name}} a terminé {{activity}}",
+      "to": "Envoyer à",
+      "toCircloo": "circloo",
+      "toEveryone": "Tout le monde",
+      "askLabel": "Demander à circloo",
+      "sayLabel": "Message au cercle",
+      "askPlaceholder": "Demande à circloo : une autre question, plus drôle, résumer…",
+      "sayPlaceholder": "Dis quelque chose au cercle…",
+      "send": "Envoyer",
+      "quickLabel": "Demandes rapides",
+      "quick": [
+        "Une autre, s’il te plaît",
+        "Plus rigolo",
+        "Résume ce que chacun a dit",
+        "Donne la réponse"
+      ],
+      "close": "Fermer le cercle",
+      "closeConfirm": "Oui, le fermer pour tout le monde",
+      "closed": "Fermé",
+      "closedTitle": "Ce cercle est terminé",
+      "closedBody": "Merci d'avoir participé. L'animateur a fermé le cercle."
+    },
+    "missing": {
+      "title": "Cercle introuvable",
+      "body": "Il est peut-être terminé, ou tu n'en fais pas partie."
+    },
+    "errors": {
+      "failed": "Ça n'a pas marché. Réessaie.",
+      "message-invalid": "Les messages font 1 à 280 caractères.",
+      "message-unsafe": "Restons gentils. Reformule ton message.",
+      "animator-only": "Seul l'animateur peut faire ça.",
+      "not-a-member": "Tu ne fais plus partie de ce cercle.",
+      "no-activity": "Lance d'abord une activité.",
+      "activity-invalid": "Cette activité ne fait pas partie du cercle.",
+      "offline": "Hors ligne. Reconnexion…",
+      "slowDown": "Doucement, réessaie dans une minute."
+    }
   }
 }

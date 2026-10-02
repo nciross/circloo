@@ -428,5 +428,201 @@
       "locale": "Switch the language to {{value}}",
       "theme": "Switch to {{value}}"
     }
+  },
+  "characters": {
+    "panda": "Panda",
+    "fox": "Fox",
+    "frog": "Frog",
+    "cat": "Cat",
+    "owl": "Owl",
+    "octopus": "Octopus",
+    "bear": "Bear",
+    "bunny": "Bunny",
+    "robot": "Robot",
+    "ghost": "Ghost",
+    "chick": "Chick",
+    "dino": "Dino"
+  },
+  "activities": {
+    "category": "Category",
+    "all": "All",
+    "categories": {
+      "icebreakers": "Icebreakers",
+      "energizers": "Energizers",
+      "retro": "Retro",
+      "decide": "Decide"
+    },
+    "quick-question": {
+      "title": "Quick questions",
+      "body": "circloo asks easy, warm questions; everyone answers in a sentence."
+    },
+    "would-you-rather": {
+      "title": "Would you rather",
+      "body": "Two funny options, everyone picks one and says why."
+    },
+    "joke-round": {
+      "title": "Joke round",
+      "body": "A kind joke from circloo, then share your own best clean joke."
+    },
+    "riddle-time": {
+      "title": "Riddle time",
+      "body": "Guess together; ask circloo for the answer when you give up."
+    },
+    "two-truths": {
+      "title": "Two truths and a lie",
+      "body": "Share three facts about you; the others find the lie."
+    },
+    "one-word": {
+      "title": "One-word check-in",
+      "body": "Everyone says how they arrive, in a single word."
+    },
+    "mood-weather": {
+      "title": "Mood weather",
+      "body": "Your mood as a weather report; circloo sums up the sky."
+    },
+    "story-chain": {
+      "title": "Story chain",
+      "body": "Write a silly story together, one sentence each."
+    },
+    "start-stop-continue": {
+      "title": "Start, stop, continue",
+      "body": "A quick retro; circloo groups the ideas into next steps."
+    },
+    "went-well": {
+      "title": "Went well, to improve",
+      "body": "Celebrate and improve: one of each from everyone."
+    },
+    "kudos": {
+      "title": "Kudos round",
+      "body": "Thank someone for something specific."
+    },
+    "quick-poll": {
+      "title": "Quick poll",
+      "body": "circloo frames the question and counts the votes in the chat."
+    },
+    "agree-or-not": {
+      "title": "Agree or not",
+      "body": "One statement, and you see who agrees and who does not."
+    }
+  },
+  "circles": {
+    "new": "New circle",
+    "taken": "Taken",
+    "you": "you",
+    "online": "online",
+    "away": "away",
+    "people_one": "{{count}} person",
+    "people_other": "{{count}} people",
+    "roles": {
+      "animator": "Animator",
+      "participant": "Participant"
+    },
+    "status": {
+      "open": "Open",
+      "closed": "Closed",
+      "connecting": "Connecting…",
+      "live": "Live",
+      "reconnecting": "Reconnecting…",
+      "offline": "Offline"
+    },
+    "mine": {
+      "title": "Your circles",
+      "emptyTitle": "No circle yet",
+      "emptyBody": "A circle is a live session: pick activities, share the link, and people join with a name and a character.",
+      "create": "Create your first circle"
+    },
+    "create": {
+      "title": "New circle",
+      "lead": "Name it, pick your character and the activities. You will get a link to share.",
+      "basics": "The circle",
+      "name": "Circle name",
+      "namePlaceholder": "Monday retro, Family Sunday…",
+      "yourCharacter": "Your character",
+      "activities": "Activities",
+      "activitiesHelp": "Choose what you may run in this circle. You start each one when you are ready.",
+      "picked": "{{count}} of {{max}}",
+      "add": "Add",
+      "added": "Added",
+      "submit": "Create and get the link",
+      "errors": {
+        "name": "Give your circle a name.",
+        "activities": "Pick at least one activity."
+      }
+    },
+    "invite": {
+      "title": "Invite people",
+      "body": "Anyone with this link joins with a name and a character. No account needed.",
+      "link": "Join link",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "code": "Or use the code"
+    },
+    "join": {
+      "title": "Join a circle",
+      "invitedBy": "<b>{{name}}</b> invites you to join",
+      "name": "Your name in this circle",
+      "nameHelp": "Only people in this circle see it. 1 to 24 characters.",
+      "character": "Pick your character",
+      "submit": "Join the circle",
+      "enter": "Enter the circle",
+      "alreadyIn": "You are already in this circle.",
+      "closedTitle": "This circle is not open",
+      "closedBody": "The link may be wrong, or the circle has ended. Ask the animator for a new link.",
+      "errors": {
+        "name": "Write the name people will see.",
+        "character": "Pick a character to join.",
+        "taken": "Someone just picked this character. Choose another one.",
+        "full": "This circle is full."
+      }
+    },
+    "room": {
+      "title": "Circle",
+      "peopleTitle": "In the circle",
+      "pickTitle": "Start an activity",
+      "pickBody": "Pick one; everyone sees it and circloo opens it.",
+      "start": "Start",
+      "end": "End activity",
+      "waitTitle": "You are in!",
+      "waitBody": "The animator will start an activity in a moment.",
+      "conversation": "Conversation",
+      "thinking": "circloo is thinking…",
+      "started": "{{name}} started {{activity}}",
+      "ended": "{{name}} ended {{activity}}",
+      "to": "Send to",
+      "toCircloo": "circloo",
+      "toEveryone": "Everyone",
+      "askLabel": "Ask circloo",
+      "sayLabel": "Message to the circle",
+      "askPlaceholder": "Ask circloo: another question, make it sillier, sum up…",
+      "sayPlaceholder": "Say something to the circle…",
+      "send": "Send",
+      "quickLabel": "Quick requests",
+      "quick": [
+        "Another one, please",
+        "Make it sillier",
+        "Summarise what people said",
+        "Reveal the answer"
+      ],
+      "close": "Close circle",
+      "closeConfirm": "Yes, close it for everyone",
+      "closed": "Closed",
+      "closedTitle": "This circle has ended",
+      "closedBody": "Thanks for joining. The animator closed the circle."
+    },
+    "missing": {
+      "title": "Circle not found",
+      "body": "It may have ended, or you are not in it."
+    },
+    "errors": {
+      "failed": "That did not work. Try again.",
+      "message-invalid": "Messages are 1 to 280 characters.",
+      "message-unsafe": "Let us keep it kind. Rephrase your message.",
+      "animator-only": "Only the animator can do that.",
+      "not-a-member": "You are not in this circle anymore.",
+      "no-activity": "Start an activity first.",
+      "activity-invalid": "That activity is not part of this circle.",
+      "offline": "You are offline. Reconnecting…",
+      "slowDown": "Slow down a little and try again in a minute."
+    }
   }
 }

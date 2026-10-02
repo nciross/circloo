@@ -17,6 +17,9 @@ var api = builder.AddProject<Projects.Circloo_Api>("api")
     .WithReference(mailpit).WaitFor(mailpit)
     .WithEnvironment("Security__Pepper", pepper)
     .WithEnvironment("Ai__Provider", "Seed") // zero cost: remix seeds locally; switch to OpenAICompatible for Foundry Local
+    // Local only: the e2e suite signs in many times from one IP. Production keeps the strict defaults.
+    .WithEnvironment("RateLimits__OtpRequestsPerIpPerHour", "500")
+    .WithEnvironment("RateLimits__OtpVerifiesPerIpPer10Min", "500")
     .WithHttpHealthCheck("/health");
 
 builder.AddViteApp("web", "../web")
