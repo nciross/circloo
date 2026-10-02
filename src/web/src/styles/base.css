@@ -147,7 +147,7 @@ kbd {
 .skip-link {
   position: absolute;
   inset-inline-start: var(--s-4);
-  inset-block-start: -100px;
+  inset-block-start: var(--s-2);
   z-index: 100;
   padding: var(--s-2) var(--s-4);
   border-radius: var(--r-sm);
@@ -156,8 +156,14 @@ kbd {
   box-shadow: var(--shadow-overlay);
   font-weight: 600;
 }
-.skip-link:focus {
-  inset-block-start: var(--s-2);
+/* Clipped rather than parked off screen: an invisible link above the bar would sit on top of content scrolled under it. */
+.skip-link:not(:focus) {
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Directional icons mirror in RTL */

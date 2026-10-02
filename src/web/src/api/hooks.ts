@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, ApiError, refreshCsrf } from './client'
 import type { Locale } from '../i18n'
+import { forgetPirikoo } from '../stores/pirikoo'
 
 export interface Me {
   id: string
@@ -72,6 +73,7 @@ function useSignOutBase(path: string) {
     onSuccess: async () => {
       qc.setQueryData(meKey, null)
       qc.removeQueries({ predicate: (q) => q.queryKey[0] !== 'me' && q.queryKey[0] !== 'spark' })
+      forgetPirikoo()
       await refreshCsrf()
     },
   })

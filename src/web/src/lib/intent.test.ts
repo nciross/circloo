@@ -66,7 +66,7 @@ describe('Ask bar planner', () => {
 
   it('turns every example the Ask bar offers, in every language, into a plan', () => {
     for (const locale of [en, fr, es, ar]) {
-      for (const example of [...locale.askbar.examples, ...locale.home.suggest.items]) expect(plan(example).length, example).toBeGreaterThan(0)
+      for (const example of [...locale.pirikoo.plan.examples, ...locale.home.suggest.items]) expect(plan(example).length, example).toBeGreaterThan(0)
     }
   })
 })

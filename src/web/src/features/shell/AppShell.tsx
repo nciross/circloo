@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, Sparkles, X } from 'lucide-react'
+import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
 import { ButtonLink } from '../../components/Button'
 import { usePopover } from '../../components/usePopover'
-import { AskBar } from '../ask/AskBar'
-import { Pirikoo } from '../pirikoo/Pirikoo'
-import { useAskBar } from './askBarStore'
+import { Bird } from '../pirikoo/Bird'
+import { PirikooChat } from '../pirikoo/PirikooChat'
+import { usePirikoo } from '../../stores/pirikoo'
 import '../../styles/app.css'
 
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
@@ -134,40 +134,21 @@ function AccountMenu() {
   )
 }
 
-/** The signed-in shell: top bar with Ask circloo, a left sidebar (a drawer on small screens) and the page. */
+/** The signed-in shell: top bar with Ask Pirikoo, a left sidebar (a drawer on small screens) and the page. */
 export function AppShell() {
   const { t } = useTranslation()
-  const { open, initial, show, hide } = useAskBar()
-  const [toast, setToast] = useState('')
+  const { data: me } = useMe()
   const drawerRef = useRef<HTMLDialogElement>(null)
   const menuRef = useRef<HTMLButtonElement>(null)
   const location = useLocation()
   const shortcut = isMac() ? '⌘K' : 'Ctrl K'
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyK') {
-        e.preventDefault()
-        show()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [show])
-
-  useEffect(() => {
-    if (!toast) return
-    const id = window.setTimeout(() => setToast(''), 4000)
-    return () => window.clearTimeout(id)
-  }, [toast])
-
-  // A route change (link in the drawer, or an Ask circloo plan) closes the drawer.
+  // A route change (link in the drawer, or a plan Pirikoo ran) closes the drawer.
   useEffect(() => {
     if (drawerRef.current?.open) drawerRef.current.close()
   }, [location.pathname])
 
   const closeDrawer = useCallback(() => drawerRef.current?.close(), [])
-  const onDone = useCallback((message: string) => setToast(message), [])
 
   return (
     <div className="shell">
@@ -184,9 +165,9 @@ export function AppShell() {
           <Menu size={20} aria-hidden="true" />
         </button>
         <Brand to="/app" />
-        <button type="button" className="topbar__ask" onClick={() => show()} aria-keyshortcuts="Control+K Meta+K">
-          <Sparkles size={16} aria-hidden="true" />
-          <span className="topbar__ask-text">{t('askbar.open')}</span>
+        <button type="button" className="topbar__ask" onClick={() => usePirikoo.getState().open('center')} aria-keyshortcuts="Control+K Meta+K">
+          <span className="topbar__bird"><Bird /></span>
+          <span className="topbar__ask-text">{t('pirikoo.ask')}</span>
           <kbd className="topbar__kbd" dir="ltr">{shortcut}</kbd>
         </button>
         <div className="topbar__end">
@@ -222,9 +203,7 @@ export function AppShell() {
         <SideNav onNavigate={closeDrawer} />
       </dialog>
 
-      <AskBar open={open} initial={initial} onClose={hide} onDone={onDone} />
-      <Pirikoo />
-      <p className="toast" role="status" aria-live="polite" hidden={!toast}>{toast}</p>
+      <PirikooChat owner={me ? `user:${me.id}` : null} />
     </div>
   )
 }

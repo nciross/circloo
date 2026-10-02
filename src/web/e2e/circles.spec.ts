@@ -64,9 +64,13 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   await expect(guest.locator('.chat__ai').first()).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.chat__ai .lozenge--ai').first()).toBeVisible({ timeout: 15_000 })
 
+  // #89: like any instant chat, the animator sees the guest typing; the message ends it.
+  await guest.locator('#composer-input').pressSequentially(locale === 'ar' ? 'أنا' : 'I would', { delay: 40 })
+  await expect(page.locator('.chat__typing')).toContainText(locale === 'ar' ? 'يوسف' : 'Youssef')
   await guest.locator('#composer-input').fill(locale === 'ar' ? 'أنا مستعد!' : 'I would be a cat for a day!')
   await guest.locator('#composer-input').press('Enter')
   await expect(page.locator('.chat__msg').last()).toContainText(locale === 'ar' ? 'مستعد' : 'cat')
+  await expect(page.locator('.chat__typing')).toHaveCount(0)
 
   await page.locator('.composer__chips .chip').nth(2).click() // summarise
   await expect(guest.locator('.chat__ai').last()).toContainText(locale === 'ar' ? 'يوسف' : 'Youssef', { timeout: 15_000 })

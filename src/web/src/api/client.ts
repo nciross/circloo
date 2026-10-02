@@ -49,15 +49,18 @@ async function ensureCsrf() {
   await (csrfPromise ?? refreshCsrf())
 }
 
+/** The CSRF header for an unsafe request made with fetch directly (streams). */
+export async function csrfHeaders(): Promise<Record<string, string>> {
+  await ensureCsrf()
+  const token = readCookie(CSRF_COOKIE)
+  return token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}
+}
+
 export async function api<T>(path: string, init: { method?: string; body?: unknown; signal?: AbortSignal } = {}, retried = false): Promise<T> {
   const method = init.method ?? 'GET'
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (init.body !== undefined) headers['Content-Type'] = 'application/json'
-  if (UNSAFE.has(method)) {
-    await ensureCsrf()
-    const token = readCookie(CSRF_COOKIE)
-    if (token) headers['X-XSRF-TOKEN'] = decodeURIComponent(token)
-  }
+  if (UNSAFE.has(method)) Object.assign(headers, await csrfHeaders())
 
   const res = await fetch(path, {
     method,

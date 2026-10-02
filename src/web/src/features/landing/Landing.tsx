@@ -51,7 +51,7 @@ function ProductPreview() {
     <figure className="preview" aria-label={t('landing.preview')}>
       <div className="preview__bar" aria-hidden="true">
         <span className="preview__brand"><Wordmark interactive={false} /></span>
-        <span className="preview__search"><Search size={14} /> {t('askbar.open')}</span>
+        <span className="preview__search"><Search size={14} /> {t('pirikoo.ask')}</span>
         <Avatar name="Amina" size="sm" />
       </div>
       <div className="preview__body">

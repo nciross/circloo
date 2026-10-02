@@ -293,7 +293,7 @@
       "off": "Off",
       "suggest": "Suggest"
     },
-    "autonomyHelp": "With Suggest, Pirikoo the parakeet proposes next steps as you go. Nothing runs until you choose it."
+    "autonomyHelp": "With Suggest, Pirikoo pops up with the next step as you go. Nothing runs until you choose it. You can chat with Pirikoo either way."
   },
   "notFound": {
     "title": "We can't find this page.",
@@ -403,37 +403,6 @@
     "lead": "Deal a card, put everyone in the line, and take turns.",
     "present": "Present",
     "stopPresenting": "Stop presenting"
-  },
-  "askbar": {
-    "open": "Ask circloo",
-    "title": "Ask circloo",
-    "label": "What do you want to do?",
-    "placeholder": "Try: a silly icebreaker for the family",
-    "planTitle": "The plan. Check it before it runs.",
-    "run": "Run the plan",
-    "nothing": "circloo cannot do that yet. Try one of these:",
-    "examples": [
-      "A silly icebreaker for the family",
-      "Round with Amina, Théo and Lucía",
-      "Fresh AI cards about summer",
-      "Switch to dark mode"
-    ],
-    "done": "Done. The plan ran.",
-    "steps": {
-      "home": "Go to Home",
-      "icebreakers": "Open Icebreakers",
-      "settings": "Open Settings",
-      "audience": "Audience: {{value}}",
-      "tone": "Tone: {{value}}",
-      "kind": "Type: {{value}}",
-      "kidsSafe": "Kids-safe cards only",
-      "deal": "Deal a new card",
-      "people": "Put {{names}} in the line",
-      "start": "Start the round",
-      "ask": "Ask AI for fresh cards about “{{theme}}”",
-      "locale": "Switch the language to {{value}}",
-      "theme": "Switch to {{value}}"
-    }
   },
   "characters": {
     "panda": "Panda",
@@ -619,7 +588,12 @@
       "closed": "Closed",
       "closedTitle": "This circle has ended",
       "closedBody": "Thanks for joining. The animator closed the circle.",
-      "joined": "{{name}} joined the circle."
+      "joined": "{{name}} joined the circle.",
+      "typing": {
+        "one": "{{name}} is typing",
+        "two": "{{a}} and {{b}} are typing",
+        "many": "Several people are typing"
+      }
     },
     "missing": {
       "title": "Circle not found",
@@ -758,6 +732,7 @@
   "pirikoo": {
     "name": "Pirikoo",
     "label": "Pirikoo, your guide",
+    "ask": "Ask Pirikoo",
     "notNow": "Not now",
     "hide": "Turn off suggestions",
     "actions": {
@@ -782,6 +757,80 @@
       "mix": "A good mix: an icebreaker to warm up, then a board to decide.",
       "connect": "Connect Teams, Jira, Confluence or Notion and send your circle’s results there.",
       "keys": "Add the names of everyone in the room, then press Space for the next person."
+    },
+    "plan": {
+      "title": "Here’s the plan. Check it before it runs.",
+      "ran": "Done. This plan ran.",
+      "run": "Run the plan",
+      "remove": "Remove: {{step}}",
+      "intro": "I can do that. Check the steps, remove what you don’t want, then run it.",
+      "offer": "Want me to do it? Here’s the plan.",
+      "done": "Done. The plan ran.",
+      "examples": [
+        "A silly icebreaker for the family",
+        "Round with Amina, Théo and Lucía",
+        "Fresh AI cards about summer",
+        "Switch to dark mode"
+      ],
+      "steps": {
+        "home": "Go to Home",
+        "icebreakers": "Open Icebreakers",
+        "settings": "Open Settings",
+        "audience": "Audience: {{value}}",
+        "tone": "Tone: {{value}}",
+        "kind": "Type: {{value}}",
+        "kidsSafe": "Kids-safe cards only",
+        "deal": "Deal a new card",
+        "people": "Put {{names}} in the line",
+        "start": "Start the round",
+        "ask": "Ask AI for fresh cards about “{{theme}}”",
+        "locale": "Switch the language to {{value}}",
+        "theme": "Switch to {{value}}"
+      }
+    },
+    "chat": {
+      "ai": "AI",
+      "open": "Chat with Pirikoo",
+      "openUnread": "Chat with Pirikoo, new answer",
+      "subtitle": "Your guide in circloo",
+      "writing": "Pirikoo is writing",
+      "writingShort": "writing…",
+      "new": "New conversation",
+      "expand": "Open in the middle",
+      "collapse": "Back to the corner",
+      "log": "Conversation with Pirikoo",
+      "label": "Message Pirikoo",
+      "placeholder": "Ask about circloo, or say what to do",
+      "send": "Send",
+      "stop": "Stop the answer",
+      "stopped": "Stopped.",
+      "retry": "Try again",
+      "disclaimer": "Pirikoo is AI and can make mistakes. Your chat stays in this tab.",
+      "hello": "Hi! I’m Pirikoo.",
+      "helloName": "Hi {{name}}, I’m Pirikoo!",
+      "intro": "Ask me how circloo works, or tell me what to do. I show you the plan before anything runs.",
+      "introGuest": "Ask me anything about this circle: joining in, the board, the dots.",
+      "nextStep": "Suggested next step",
+      "try": "Try asking",
+      "nextAnimator": "What should I do next?",
+      "nextParticipant": "What should I do now?",
+      "questions": [
+        "How do I invite people?",
+        "How do boards and dots work?",
+        "How do I send results to Teams or Jira?"
+      ],
+      "guestQuestions": [
+        "How do boards and dots work?",
+        "Is this circle private?"
+      ],
+      "errors": {
+        "limited": "That’s all my answers for today. Come back tomorrow!",
+        "unsafe": "Let’s keep it kind. Ask me something else?",
+        "failed": "I couldn’t answer just now.",
+        "offline": "The connection dropped. Check you’re online and try again.",
+        "busy": "Lots of questions at once! Give me a few seconds.",
+        "signedOut": "Your session ended. Sign in again to keep chatting."
+      }
     }
   }
 }
