@@ -153,6 +153,12 @@ resource uploads 'Microsoft.Storage/storageAccounts/blobServices/containers@2023
   name: 'uploads'
 }
 
+// Slide pictures of presentations (spec 006). Private: the API streams them after an access check.
+resource presentations 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'presentations'
+}
+
 var blobContributorRoleId = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 resource blobContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storage.id, identity.id, blobContributorRoleId)
@@ -269,6 +275,40 @@ resource containerEnv 'Microsoft.App/managedEnvironments@2024-03-01' = {
 
 var emailSender = 'DoNotReply@${emailDomain.properties.mailFromSenderDomain}'
 
+// ---------- Deck converter (spec 006, research R1) ----------
+// LibreOffice parses untrusted .pptx files, so it runs on its own: internal ingress only (unreachable from the
+// internet), no managed identity, no secrets, scale to zero. Webhooks and Chromium routes are off, so it never fetches
+// a URL on request. Plan Complexity Tracking: the one justified second production container.
+resource converter 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'ca-conv-${token}'
+  location: location
+  tags: tags
+  properties: {
+    managedEnvironmentId: containerEnv.id
+    configuration: {
+      ingress: {
+        external: false
+        targetPort: 3000
+        transport: 'http'
+      }
+    }
+    template: {
+      containers: [
+        {
+          name: 'converter'
+          image: 'docker.io/gotenberg/gotenberg:8'
+          args: [ 'gotenberg', '--api-timeout=120s', '--chromium-disable-routes=true', '--webhook-disable=true', '--prometheus-disable-collect=true' ]
+          resources: { cpu: json('1.0'), memory: '2Gi' }
+          probes: [
+            { type: 'Readiness', httpGet: { path: '/health', port: 3000 }, periodSeconds: 15 }
+          ]
+        }
+      ]
+      scale: { minReplicas: 0, maxReplicas: 1 }
+    }
+  }
+}
+
 resource web 'Microsoft.App/containerApps@2024-03-01' = {
   name: 'ca-circloo-${token}' // ≤ 32 chars; azd finds it by the azd-service-name tag
   location: location
@@ -317,6 +357,10 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'Ai__Auth', value: 'ManagedIdentity' }
             { name: 'AZURE_STORAGE_ACCOUNT', value: storage.name }
             { name: 'AZURE_STORAGE_CONTAINER', value: uploads.name }
+            // Spec 006: slide pictures through managed identity, decks converted by the internal converter app.
+            { name: 'ConnectionStrings__blobs', value: storage.properties.primaryEndpoints.blob }
+            { name: 'Presentations__Container', value: presentations.name }
+            { name: 'Presentations__ConverterUrl', value: 'https://${converter.properties.configuration.ingress.fqdn}' }
             { name: 'AZURE_CLIENT_ID', value: identity.properties.clientId }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
           ]
@@ -328,7 +372,9 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
           ]
         }
       ]
-      scale: { minReplicas: 0, maxReplicas: 3 }
+      // One replica: SignalR groups, presence and the quiz clock live in memory until the Web PubSub backplane
+      // (spec 006 plan, Scale/Scope). Data-side rules (answers, conversion leases) already hold across replicas.
+      scale: { minReplicas: 0, maxReplicas: 1 }
     }
   }
 }

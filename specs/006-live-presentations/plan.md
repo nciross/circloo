@@ -66,7 +66,8 @@ safe for several replicas.
 
 | Threat | Mitigation |
 |---|---|
-| Malicious .pptx exploiting the office parser (RCE in LibreOffice) | Conversion in a separate Gotenberg container with no secrets, no managed identity, internal ingress only, no outbound internet (Container Apps internal environment rule / dev: no published ports except to the API), 120 s timeout, killed and restarted on failure; API pre-validates with Open XML |
+| Malicious .pptx exploiting the office parser (RCE in LibreOffice) | Conversion in a separate Gotenberg container with no secrets, no managed identity and internal ingress only (unreachable from the internet), 120 s timeout, restarted on failure; API pre-validates with Open XML. Outbound traffic is **not** blocked in this slice (Container Apps without a VNet); a compromised converter could reach the internet but holds nothing of value. A VNet with egress rules is a later hardening issue |
+| Deck that makes the converter fetch URLs (SSRF via linked pictures, media or OLE objects) | `DeckInspector` removes external relationships of pictures, media and OLE objects (`TargetMode="External"`) before conversion, so linked content is never fetched (hyperlinks are kept as text, never followed); Gotenberg webhooks and Chromium URL routes are disabled |
 | Zip bomb / huge decks exhausting memory or disk | 50 MB request limit on the endpoint; uncompressed size, entry count and slide count caps before conversion; 2 conversions per replica; PDFium renders page by page |
 | Macro or embedded active content reaching browsers | Macro files refused; only rasterised WebP pictures are ever served; notes are plain text and rendered as text |
 | Reading someone else's deck or future slides | Owner check on library endpoints; image endpoint requires owner or a circle member whose session already reached that slide; 404 on any denial |

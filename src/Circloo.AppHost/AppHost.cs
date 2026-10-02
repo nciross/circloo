@@ -12,9 +12,25 @@ var db = postgres.AddDatabase("circloodb");
 // Captures every email locally (SMTP + web UI). Nothing leaves the machine.
 var mailpit = builder.AddMailPit("mailpit");
 
+// Blob Storage emulator (Azurite) for slide pictures; the real storage account in Azure (spec 006).
+var storage = builder.AddAzureStorage("storage")
+    .RunAsEmulator(azurite => azurite.WithDataVolume("circloo-azurite").WithLifetime(ContainerLifetime.Persistent));
+var blobs = storage.AddBlobs("blobs");
+
+// Turns .pptx decks into PDF (LibreOffice inside Gotenberg), isolated from the API and its secrets (spec 006, R1).
+// Webhooks and the Chromium routes are off, and decks reach it without external links (spec 006 threat model). The API
+// does not wait for it, so the first (large) image pull never blocks start-up; uploads stay "processing" until it is up.
+var converter = builder.AddContainer("converter", "gotenberg/gotenberg", "8")
+    .WithArgs("gotenberg", "--api-timeout=120s", "--chromium-disable-routes=true", "--webhook-disable=true", "--prometheus-disable-collect=true")
+    .WithHttpEndpoint(targetPort: 3000, name: "http")
+    .WithHttpHealthCheck("/health", endpointName: "http")
+    .WithLifetime(ContainerLifetime.Persistent);
+
 var api = builder.AddProject<Projects.Circloo_Api>("api")
     .WithReference(db).WaitFor(db)
     .WithReference(mailpit).WaitFor(mailpit)
+    .WithReference(blobs).WaitFor(blobs)
+    .WithEnvironment("Presentations__ConverterUrl", converter.GetEndpoint("http"))
     .WithEnvironment("Security__Pepper", pepper)
     .WithEnvironment("Ai__Provider", "Seed") // zero cost: remix seeds locally; switch to OpenAICompatible for Foundry Local
     // Local only: the e2e suite signs in many times from one IP. Production keeps the strict defaults.

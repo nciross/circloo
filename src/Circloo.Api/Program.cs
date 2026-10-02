@@ -6,6 +6,7 @@ using Circloo.Api.Integrations;
 using Circloo.Api.Data;
 using Circloo.Api.Email;
 using Circloo.Api.Pirikoo;
+using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Circloo.Api.Sparks;
 using Circloo.Api.Users;
@@ -17,6 +18,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<CirclooDbContext>("circloodb");
+// Slide pictures (spec 006): Azurite in dev, the storage account through managed identity in Azure.
+builder.AddAzureBlobServiceClient("blobs");
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddProblemDetails();
@@ -58,6 +61,18 @@ builder.Services.AddSingleton<CirclePresence>();
 builder.Services.AddHttpClient(IntegrationSender.ClientName, c => c.Timeout = TimeSpan.FromSeconds(15))
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
 builder.Services.AddSingleton<IntegrationSender>();
+// The deck converter is internal only; conversions of large decks take up to two minutes (spec 006, R1).
+builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
+builder.Services.AddHttpClient(PresentationOptions.ConverterClient, (sp, c) =>
+    {
+        var url = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<PresentationOptions>>().Value.ConverterUrl;
+        if (!string.IsNullOrEmpty(url))
+        {
+            c.BaseAddress = new Uri(url);
+        }
+        c.Timeout = TimeSpan.FromSeconds(130);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
     builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
