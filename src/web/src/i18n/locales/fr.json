@@ -488,7 +488,8 @@
       "icebreakers": "Brise-glace",
       "energizers": "Énergisants",
       "retro": "Rétro",
-      "decide": "Décider"
+      "decide": "Décider",
+      "present": "Présenter"
     },
     "quick-question": {
       "title": "Questions express",
@@ -549,6 +550,10 @@
     "canvas": {
       "title": "Toile en direct",
       "body": "Des notes partout sur une grande surface, avec le curseur de chacun, des couleurs et des stickers."
+    },
+    "presentation": {
+      "title": "Présentation",
+      "body": "Montre tes diapos PowerPoint avec des sondages et des quiz en direct ; chacun suit sur son écran."
     }
   },
   "circles": {

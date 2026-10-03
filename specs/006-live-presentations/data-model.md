@@ -31,7 +31,7 @@ questions and blobs.
 |---|---|---|
 | Id | Guid | PK; also the blob name |
 | PresentationId | Guid | FK, cascade; index (PresentationId, Position) |
-| Position | int | 0-based, unique per presentation, dense after every reorder |
+| Position | int | 0-based, dense after every reorder (kept by the endpoints; the index is not unique so a reorder never collides mid-update) |
 | Kind | string | `deck` \| `poll` \| `quiz` |
 | Hidden | bool | deck slides only; pre-set from the file's hidden flag |
 | SourceIndex | int? | deck slides: index in the .pptx (for re-render and tests) |

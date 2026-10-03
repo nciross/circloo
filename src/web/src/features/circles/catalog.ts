@@ -1,9 +1,9 @@
 import {
-  Award, BookOpen, Lightbulb, StickyNote, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
+  Award, BookOpen, Lightbulb, StickyNote, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Presentation, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
   type LucideIcon,
 } from 'lucide-react'
 
-export type Category = 'icebreakers' | 'energizers' | 'retro' | 'decide'
+export type Category = 'icebreakers' | 'energizers' | 'retro' | 'decide' | 'present'
 
 export interface Activity {
   id: string
@@ -28,6 +28,7 @@ export const ACTIVITIES: Activity[] = [
   { id: 'agree-or-not', category: 'decide', icon: Split },
   { id: 'brainstorm', category: 'decide', icon: Lightbulb },
   { id: 'canvas', category: 'decide', icon: StickyNote },
+  { id: 'presentation', category: 'present', icon: Presentation },
 ]
 
 /** The live canvas activity (issue #93); mirrors ActivityCatalog.Canvas and its limits. */
@@ -48,7 +49,10 @@ export const BOARD_COLUMNS: Record<string, string[]> = {
 export const VOTES_PER_MEMBER = 3
 export const NOTE_MAX = 140
 
-export const CATEGORIES: Category[] = ['icebreakers', 'energizers', 'retro', 'decide']
+export const CATEGORIES: Category[] = ['icebreakers', 'energizers', 'retro', 'decide', 'present']
+
+/** Live presentations (spec 006); mirrors ActivityCatalog.Presentation. */
+export const PRESENTATION = 'presentation'
 export const MAX_ACTIVITIES = 8
 
 export const activityById = (id: string | null | undefined) => ACTIVITIES.find((a) => a.id === id)

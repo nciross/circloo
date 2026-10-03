@@ -488,7 +488,8 @@
       "icebreakers": "Icebreakers",
       "energizers": "Energizers",
       "retro": "Retro",
-      "decide": "Decide"
+      "decide": "Decide",
+      "present": "Present"
     },
     "quick-question": {
       "title": "Quick questions",
@@ -549,6 +550,10 @@
     "canvas": {
       "title": "Live canvas",
       "body": "Notes anywhere on one big surface, with everyone’s cursor, colours and stickers."
+    },
+    "presentation": {
+      "title": "Presentation",
+      "body": "Show your PowerPoint slides with live polls and quizzes; everyone follows on their own screen."
     }
   },
   "circles": {
