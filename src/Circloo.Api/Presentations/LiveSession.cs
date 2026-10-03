@@ -1,0 +1,238 @@
+using System.Text.Json;
+using Circloo.Api.Data;
+
+namespace Circloo.Api.Presentations;
+
+/// <summary>One answer choice as participants see it.</summary>
+public sealed record OptionView(string Id, string Text);
+
+/// <summary>A slide frozen into a session at start (data-model.md, <c>Snapshot</c>). Notes stay in the Slide table.</summary>
+public sealed record SnapshotSlide(
+    Guid SlideId,
+    string Kind,
+    string? Question = null,
+    IReadOnlyList<OptionView>? Options = null,
+    string? Correct = null,
+    bool Multiple = false,
+    int? Timer = null,
+    bool ShowFirst = true,
+    bool ShowLive = false,
+    bool HasNotes = false);
+
+/// <summary>Where a question stood when the animator left it, so coming back restores it (never reopens it).</summary>
+public sealed record QuestionPhase(string Phase, DateTimeOffset? OpenedAt, DateTimeOffset? Deadline, DateTimeOffset? LockedAt);
+
+/// <summary>The current slide as everyone sees it (contracts/hub.md <c>PresentationState.slide</c>).</summary>
+public sealed record SlideStateView(
+    string Kind,
+    Guid SlideId,
+    string? Image = null,
+    string? Question = null,
+    IReadOnlyList<OptionView>? Options = null,
+    bool? MultipleChoice = null,
+    int? TimerSeconds = null,
+    bool? ShowFirst = null,
+    bool? ShowLive = null);
+
+/// <summary>What every screen in the circle renders (contracts/hub.md). Results and podium come with US4–US6.</summary>
+public sealed record PresentationStateView(
+    Guid SessionId,
+    string PresentationName,
+    int Position,
+    int Count,
+    bool Blank,
+    SlideStateView Slide,
+    string Phase,
+    DateTimeOffset? OpenedAt,
+    DateTimeOffset? Deadline,
+    DateTimeOffset ServerNow);
+
+/// <summary>The animator's view of the next slide, beside their notes.</summary>
+public sealed record NextSlideView(Guid SlideId, string Kind, string? Image, string? Question);
+
+/// <summary>
+/// The presenting state machine (data-model.md, phase transitions), kept free of I/O so every rule is unit-tested:
+/// moving, blanking, and the question phases <c>idle → answering → locked → revealed → podium</c>. Moving away from a
+/// question that is still answering locks it; coming back shows the stored phase, and a quiz timer never restarts.
+/// </summary>
+public static class LiveSession
+{
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    /// <summary>The visible slides in order: deck slides not hidden, and every question.</summary>
+    public static List<SnapshotSlide> BuildSnapshot(IEnumerable<Slide> slides) =>
+        [.. slides
+            .Where(s => SlideKinds.IsQuestion(s.Kind) || !s.Hidden)
+            .OrderBy(s => s.Position)
+            .Select(s => SlideKinds.IsQuestion(s.Kind)
+                ? new SnapshotSlide(s.Id, s.Kind, s.Question, [.. s.Options.Select(o => new OptionView(o.Id, o.Text))],
+                    s.Kind == SlideKinds.Quiz ? s.CorrectOption : null, s.Kind == SlideKinds.Poll && s.MultipleChoice,
+                    s.Kind == SlideKinds.Quiz ? s.TimerSeconds ?? PresentationRules.TimerDefault : null, s.ShowFirst, s.Kind == SlideKinds.Poll && s.ShowLive)
+                : new SnapshotSlide(s.Id, s.Kind, HasNotes: !string.IsNullOrWhiteSpace(s.Notes)))];
+
+    public static PresentationSession Start(Guid circleId, Guid presentationId, Guid animatorMemberId, IReadOnlyList<SnapshotSlide> snapshot, bool showPodium, DateTimeOffset now)
+    {
+        if (snapshot.Count == 0)
+        {
+            throw new LiveSessionException("presentation-empty");
+        }
+        return new PresentationSession
+        {
+            CircleId = circleId,
+            PresentationId = presentationId,
+            StartedByMemberId = animatorMemberId,
+            Snapshot = JsonSerializer.Serialize(snapshot, Json),
+            ShowPodium = showPodium,
+            Phase = SessionPhases.Idle,
+            StartedAt = now,
+        };
+    }
+
+    public static IReadOnlyList<SnapshotSlide> Slides(PresentationSession s) =>
+        JsonSerializer.Deserialize<List<SnapshotSlide>>(s.Snapshot, Json) ?? [];
+
+    public static Dictionary<Guid, QuestionPhase> Phases(PresentationSession s) =>
+        JsonSerializer.Deserialize<Dictionary<Guid, QuestionPhase>>(s.QuestionPhases, Json) ?? [];
+
+    /// <summary>Moves to <paramref name="position"/>: the slide shows unblanked, and a question shows its stored phase.</summary>
+    public static void GoTo(PresentationSession s, int position, DateTimeOffset now)
+    {
+        var slides = Slides(s);
+        if (position < 0 || position >= slides.Count)
+        {
+            throw new LiveSessionException("out-of-range");
+        }
+        var phases = Phases(s);
+        Remember(s, slides[s.Position], phases, now);
+
+        s.Position = position;
+        s.MaxPosition = Math.Max(s.MaxPosition, position);
+        s.Blank = false;
+        var target = slides[position];
+        if (SlideKinds.IsQuestion(target.Kind) && phases.TryGetValue(target.SlideId, out var stored))
+        {
+            (s.Phase, s.OpenedAt, s.Deadline, s.LockedAt) = (stored.Phase, stored.OpenedAt, stored.Deadline, stored.LockedAt);
+        }
+        else
+        {
+            (s.Phase, s.OpenedAt, s.Deadline, s.LockedAt) = (SessionPhases.Idle, null, null, null);
+        }
+        s.QuestionPhases = JsonSerializer.Serialize(phases, Json);
+    }
+
+    public static void SetBlank(PresentationSession s, bool blank) => s.Blank = blank;
+
+    /// <summary>Opens answering on the current question; a quiz gets its deadline from the server clock.</summary>
+    public static void Open(PresentationSession s, DateTimeOffset now)
+    {
+        var slide = Current(s);
+        if (!SlideKinds.IsQuestion(slide.Kind))
+        {
+            throw new LiveSessionException("not-a-question");
+        }
+        if (s.Phase != SessionPhases.Idle)
+        {
+            throw new LiveSessionException("already-open");
+        }
+        s.Phase = SessionPhases.Answering;
+        s.OpenedAt = now;
+        s.Deadline = slide.Kind == SlideKinds.Quiz ? now.AddSeconds(slide.Timer ?? PresentationRules.TimerDefault) : null;
+        s.LockedAt = null;
+    }
+
+    public static void Lock(PresentationSession s, DateTimeOffset now)
+    {
+        if (s.Phase != SessionPhases.Answering)
+        {
+            throw new LiveSessionException("not-answering");
+        }
+        s.Phase = SessionPhases.Locked;
+        // A quiz locked by its timer locks at the deadline, not when the clock noticed.
+        s.LockedAt = s.Deadline is { } deadline && deadline < now ? deadline : now;
+    }
+
+    /// <summary>Reveal locks first when answering is still open.</summary>
+    public static void Reveal(PresentationSession s, DateTimeOffset now)
+    {
+        if (s.Phase == SessionPhases.Answering)
+        {
+            Lock(s, now);
+        }
+        if (s.Phase != SessionPhases.Locked)
+        {
+            throw new LiveSessionException("not-open");
+        }
+        s.Phase = SessionPhases.Revealed;
+    }
+
+    public static void ShowPodium(PresentationSession s)
+    {
+        if (!s.ShowPodium || Current(s).Kind != SlideKinds.Quiz)
+        {
+            throw new LiveSessionException("podium-off");
+        }
+        if (s.Phase != SessionPhases.Revealed)
+        {
+            throw new LiveSessionException("not-revealed");
+        }
+        s.Phase = SessionPhases.Podium;
+    }
+
+    public static SnapshotSlide Current(PresentationSession s) => Slides(s)[s.Position];
+
+    /// <summary>Whether a member may load this slide's picture: it is in the session and has been shown.</summary>
+    public static bool HasShown(PresentationSession s, Guid slideId)
+    {
+        var slides = Slides(s);
+        for (var i = 0; i <= Math.Min(s.MaxPosition, slides.Count - 1); i++)
+        {
+            if (slides[i].SlideId == slideId)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static PresentationStateView View(PresentationSession s, string presentationName, DateTimeOffset now)
+    {
+        var slides = Slides(s);
+        var slide = slides[s.Position];
+        var view = SlideKinds.IsQuestion(slide.Kind)
+            ? new SlideStateView(slide.Kind, slide.SlideId, Question: slide.Question, Options: slide.Options ?? [], MultipleChoice: slide.Multiple,
+                TimerSeconds: slide.Timer, ShowFirst: slide.ShowFirst, ShowLive: slide.ShowLive)
+            : new SlideStateView(slide.Kind, slide.SlideId, Image: PresentationEndpoints.ImageUrl(slide.SlideId));
+        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now);
+    }
+
+    public static NextSlideView? Next(PresentationSession s)
+    {
+        var slides = Slides(s);
+        if (s.Position + 1 >= slides.Count)
+        {
+            return null;
+        }
+        var next = slides[s.Position + 1];
+        return new NextSlideView(next.SlideId, next.Kind, SlideKinds.IsQuestion(next.Kind) ? null : PresentationEndpoints.ImageUrl(next.SlideId), next.Question);
+    }
+
+    /// <summary>Stores the phase of the question being left; one still answering locks now (or at its passed deadline).</summary>
+    private static void Remember(PresentationSession s, SnapshotSlide leaving, Dictionary<Guid, QuestionPhase> phases, DateTimeOffset now)
+    {
+        if (!SlideKinds.IsQuestion(leaving.Kind) || s.Phase == SessionPhases.Idle)
+        {
+            return;
+        }
+        if (s.Phase == SessionPhases.Answering)
+        {
+            Lock(s, now);
+        }
+        phases[leaving.SlideId] = new QuestionPhase(s.Phase, s.OpenedAt, s.Deadline, s.LockedAt);
+    }
+}
+
+/// <summary>A refused presenting action; the code is the hub error the client translates.</summary>
+public sealed class LiveSessionException(string code) : Exception(code)
+{
+    public string Code { get; } = code;
+}

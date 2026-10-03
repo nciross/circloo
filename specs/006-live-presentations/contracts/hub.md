@@ -7,7 +7,7 @@ membership (`CurrentAsync`) and refuses with `HubException` codes, as boards do.
 
 | Method | Who | Effect | Errors |
 |---|---|---|---|
-| `StartPresentation(Guid presentationId)` | animator | Requires a `ready` presentation owned by the animator's user; ends any active session; creates a session with the snapshot (visible slides only); sets `Circle.CurrentActivity = "presentation"`; broadcasts `Activity` + `PresentationState` | `animator-only`, `presentation-not-ready`, `presentation-empty` |
+| `StartPresentation(Guid presentationId)` | animator | Requires a `ready` presentation owned by the animator's user; ends any active session; creates a session with the snapshot (visible slides only); sets `Circle.CurrentActivity = "presentation"`; broadcasts `Activity` + `PresentationState` | `animator-only`, `presentation-not-ready`, `presentation-empty`, `session-conflict` (another tab started one at the same moment) |
 | `GoToSlide(int position)` | animator | Moves (0 ≤ position < count); `Phase = idle`, `Blank = false`; bumps `MaxPosition` | `out-of-range`, `no-session` |
 | `SetBlank(bool blank)` | animator | Blank on/off | `no-session` |
 | `OpenQuestion()` | animator | Current slide must be a question in `idle`; `Phase = answering`, `OpenedAt = now`, quiz `Deadline = now + timer`; schedules the quiz lock | `not-a-question`, `already-open` |
@@ -16,10 +16,12 @@ membership (`CurrentAsync`) and refuses with `HubException` codes, as boards do.
 | `ShowPodium()` | animator | Quiz slide in `revealed`, presentation `ShowPodium`; `Phase = podium`; broadcasts `Podium` | `podium-off`, `not-revealed` |
 | `EndPresentation()` | animator | `EndedAt = now`; activity cleared; broadcasts `PresentationEnded` | `no-session` |
 | `Answer(Guid slideId, string[] options)` | participant | Upsert under the rules of data-model.md; replies to the caller with `MyAnswer`; sends `AnswerCount` to animator + audience (and `Results` live for `showLive` polls) | `answers-closed`, `not-current-question`, `invalid-options`, `quiz-final`, `animator-cannot-answer` |
-| `EnterAudience(Guid circleId)` | animator (user session) | Joins `circle:{id}` and `audience:{id}` groups without presence; returns current `PresentationView` | `animator-only` |
+| `EnterAudience(Guid circleId)` | animator (user session) | Joins `circle:{id}` and `audience:{id}` groups without presence; returns the current `PresentationState`, or null when nothing is presented | `animator-only` |
 
-`Enter(circleId)` (existing) additionally returns/pushes the current `PresentationState` and, for participants,
-`MyAnswer` for the open question, so reloads and late joiners land in place (FR-608).
+`Enter(circleId)` (existing) additionally pushes the current `PresentationState` to the caller (and `PresenterNotes` to an
+animator, whose connections join `animator:{id}`) and, for participants, `MyAnswer` for the open question, so reloads and
+late joiners land in place (FR-608). Starting another activity, ending the activity or deleting the presentation ends the
+session and sends `PresentationEnded`.
 
 ## Server → client (`ICircleClient` additions)
 

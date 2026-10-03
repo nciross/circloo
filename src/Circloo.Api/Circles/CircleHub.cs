@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using Circloo.Api.Auth;
 using Circloo.Api.Ai;
 using Circloo.Api.Data;
+using Circloo.Api.Presentations;
+using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,11 @@ public interface ICircleClient
     Task CanvasDeleted(long id);
     /// <summary>Someone else's pointer on the canvas, in canvas coordinates. Never stored.</summary>
     Task Cursor(Guid memberId, double x, double y);
+    /// <summary>The running presentation changed: slide, blank, phase (spec 006, contracts/hub.md).</summary>
+    Task PresentationState(PresentationStateView state);
+    /// <summary>Animator connections only: the current slide's notes and a preview of the next slide.</summary>
+    Task PresenterNotes(Guid slideId, string? notes, NextSlideView? upcoming);
+    Task PresentationEnded();
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -50,7 +57,7 @@ public sealed class CirclePresence
 /// member loses access at once; only the animator can steer activities or talk to circloo.
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
-public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety) : Hub<ICircleClient>
+public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -91,8 +98,14 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         Context.Items[CircleKey] = circleId;
         presence.Add(Context.ConnectionId, circleId, me.Id);
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
+        if (me.Role == Roles.Animator)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
+        }
         var online = presence.Online(circleId);
         await Clients.Group(Group(circleId)).Presence(online);
+        // Reloads and late joiners land on the current slide (spec 006 FR-608).
+        await SendPresentationAsync(circleId, Clients.Caller, notes: me.Role == Roles.Animator);
         return online;
     }
 
@@ -132,6 +145,8 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
         {
             throw new HubException("activity-invalid");
         }
+        // Switching activity ends a running presentation for everyone (spec 006 US3 #6).
+        await EndSessionAsync(circleId, me);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
@@ -148,6 +163,7 @@ public sealed class CircleHub(CirclooDbContext db, CirclePresence presence, Time
     {
         var (circleId, me) = await CurrentAsync(animatorOnly: true);
         var activityId = me.Circle!.CurrentActivity;
+        await EndSessionAsync(circleId, me);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));

@@ -65,6 +65,7 @@ builder.Services.AddSingleton<IntegrationSender>();
 // The deck converter is internal only; conversions of large decks take up to two minutes (spec 006, R1).
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
+builder.Services.AddScoped<LiveSessions>();
 builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();
 builder.Services.AddSingleton<ConversionBacklog>();
 builder.Services.AddSingleton<PresentationConverterService>();
