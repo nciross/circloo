@@ -13,6 +13,8 @@ using Circloo.Api.Users;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,9 +85,23 @@ builder.Services.AddHttpClient(PresentationOptions.ConverterClient, (sp, c) =>
         c.Timeout = TimeSpan.FromSeconds(130);
     })
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false })
-    // A conversion takes longer than the default 10 s attempt / 30 s total and must never be retried mid-way (it
-    // re-sends the deck): the converter call keeps its own 130 s timeout and the pipeline re-queues failures (#139).
-    .RemoveAllResilienceHandlers();
+    // A conversion takes longer than the default 10 s attempt / 30 s total, so the standard handler is removed and the
+    // call keeps its own 130 s timeout (#139). A converter failure marks the deck failed (only a dead replica's lease is
+    // re-queued), so transient failures get two retries: connection errors and 502/503/504, e.g. while the converter
+    // scales up from zero. Gotenberg is stateless, so re-sending the deck is safe; a timeout is never retried.
+    .RemoveAllResilienceHandlers()
+    .AddResilienceHandler("converter-retry", pipeline => pipeline.AddRetry(new HttpRetryStrategyOptions
+    {
+        MaxRetryAttempts = 2,
+        Delay = TimeSpan.FromSeconds(2),
+        BackoffType = DelayBackoffType.Exponential,
+        ShouldHandle = args => ValueTask.FromResult(args.Outcome switch
+        {
+            { Exception: HttpRequestException } => true,
+            { Result.StatusCode: System.Net.HttpStatusCode.BadGateway or System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.GatewayTimeout } => true,
+            _ => false,
+        }),
+    }));
 #pragma warning restore EXTEXP0001
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
