@@ -24,7 +24,17 @@ public sealed record PresentationDetail(
 
 public sealed record UpdatePresentation(string? Name, bool? ShowPodium, int Version);
 
-public sealed record UpdateDeckSlide(bool? Hidden, int Version);
+/// <summary>Edits a slide: <c>hidden</c> for deck slides, the question fields for poll/quiz slides (contracts/rest.md).</summary>
+public sealed record SlideUpdate(
+    int Version, bool? Hidden = null, string? Kind = null, string? Question = null, IReadOnlyList<OptionInput>? Options = null,
+    bool? MultipleChoice = null, string? CorrectOption = null, int? TimerSeconds = null, bool? ShowFirst = null, bool? ShowLive = null);
+
+/// <summary>A new question slide, inserted after <c>afterSlideId</c> (or at the end).</summary>
+public sealed record CreateQuestion(
+    int Version, string Kind, string? Question, IReadOnlyList<OptionInput>? Options, Guid? AfterSlideId = null,
+    bool? MultipleChoice = null, string? CorrectOption = null, int? TimerSeconds = null, bool? ShowFirst = null, bool? ShowLive = null);
+
+public sealed record SlideOrder(IReadOnlyList<Guid> SlideIds, int Version);
 
 /// <summary>The animator's presentation library (spec 006 US1, contracts/rest.md). Owner-only; other people get 404.</summary>
 public static class PresentationEndpoints
@@ -173,7 +183,7 @@ public static class PresentationEndpoints
             return Results.NoContent();
         });
 
-        group.MapPut("/{id:guid}/slides/{slideId:guid}", async (Guid id, Guid slideId, UpdateDeckSlide body, HttpContext ctx, CirclooDbContext db,
+        group.MapPut("/{id:guid}/slides/{slideId:guid}", async (Guid id, Guid slideId, SlideUpdate body, HttpContext ctx, CirclooDbContext db,
             TimeProvider clock, CancellationToken ct) =>
         {
             var presentation = await OwnedAsync(db, ctx, id, ct);
@@ -186,10 +196,92 @@ public static class PresentationEndpoints
             {
                 return Stale();
             }
-            if (slide.Kind == SlideKinds.Deck && body.Hidden is { } hidden)
+            if (slide.Kind == SlideKinds.Deck)
             {
-                slide.Hidden = hidden;
+                if (body.Hidden is { } hidden)
+                {
+                    slide.Hidden = hidden;
+                }
             }
+            else
+            {
+                var (valid, errors) = PresentationRules.Validate(new QuestionInput(body.Kind ?? slide.Kind, body.Question, body.Options,
+                    body.MultipleChoice, body.CorrectOption, body.TimerSeconds, body.ShowFirst, body.ShowLive));
+                if (valid is null)
+                {
+                    return Results.ValidationProblem(errors);
+                }
+                CopyQuestion(valid, slide);
+            }
+            return await SaveAsync(db, presentation, clock, ct);
+        });
+
+        group.MapPost("/{id:guid}/questions", async (Guid id, CreateQuestion body, HttpContext ctx, CirclooDbContext db, TimeProvider clock, CancellationToken ct) =>
+        {
+            var presentation = await OwnedAsync(db, ctx, id, ct);
+            if (presentation is null)
+            {
+                return NotFound();
+            }
+            if (body.Version != presentation.Version)
+            {
+                return Stale();
+            }
+            if (presentation.Status != PresentationStatus.Ready)
+            {
+                return Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "not-ready", title: "This presentation is not ready yet.");
+            }
+            var slides = await db.Slides.Where(s => s.PresentationId == id).OrderBy(s => s.Position).ToListAsync(ct);
+            if (slides.Count(s => s.Kind != SlideKinds.Deck) >= PresentationRules.MaxQuestionSlides)
+            {
+                return Results.ValidationProblem(new Dictionary<string, string[]> { ["questions"] = ["too-many-questions"] });
+            }
+            var (question, errors) = PresentationRules.Validate(new QuestionInput(body.Kind, body.Question, body.Options,
+                body.MultipleChoice, body.CorrectOption, body.TimerSeconds, body.ShowFirst, body.ShowLive));
+            if (question is null)
+            {
+                return Results.ValidationProblem(errors);
+            }
+            var at = slides.Count;
+            if (body.AfterSlideId is { } after)
+            {
+                var index = slides.FindIndex(s => s.Id == after);
+                if (index < 0)
+                {
+                    return Results.ValidationProblem(new Dictionary<string, string[]> { ["afterSlideId"] = ["order-mismatch"] });
+                }
+                at = index + 1;
+            }
+            question.PresentationId = id;
+            slides.Insert(at, question);
+            db.Slides.Add(question);
+            Renumber(slides);
+            var result = await SaveAsync(db, presentation, clock, ct);
+            return result is Microsoft.AspNetCore.Http.HttpResults.Ok<PresentationDetail> ok
+                ? Results.Created($"/api/presentations/{id}", ok.Value)
+                : result;
+        });
+
+        group.MapPut("/{id:guid}/order", async (Guid id, SlideOrder body, HttpContext ctx, CirclooDbContext db, TimeProvider clock, CancellationToken ct) =>
+        {
+            var presentation = await OwnedAsync(db, ctx, id, ct);
+            if (presentation is null)
+            {
+                return NotFound();
+            }
+            if (body.Version != presentation.Version)
+            {
+                return Stale();
+            }
+            var slides = await db.Slides.Where(s => s.PresentationId == id).ToListAsync(ct);
+            var byId = slides.ToDictionary(s => s.Id);
+            // The full order, every slide exactly once: anything else is refused rather than guessed.
+            if (body.SlideIds is null || body.SlideIds.Count != slides.Count || body.SlideIds.Distinct().Count() != slides.Count
+                || body.SlideIds.Any(s => !byId.ContainsKey(s)))
+            {
+                return Results.ValidationProblem(new Dictionary<string, string[]> { ["slideIds"] = ["order-mismatch"] });
+            }
+            Renumber([.. body.SlideIds.Select(s => byId[s])]);
             return await SaveAsync(db, presentation, clock, ct);
         });
 
@@ -212,12 +304,7 @@ public static class PresentationEndpoints
                 return Stale();
             }
             db.Slides.Remove(slide);
-            // Keep positions dense (data-model.md).
-            var position = 0;
-            foreach (var s in slides.Where(s => s.Id != slideId))
-            {
-                s.Position = position++;
-            }
+            Renumber([.. slides.Where(s => s.Id != slideId)]);
             if (slide.Kind == SlideKinds.Deck)
             {
                 presentation.SlideCount--;
@@ -275,6 +362,27 @@ public static class PresentationEndpoints
         var summary = Summary(p, slides.Count(s => s.Kind != SlideKinds.Deck), first, now);
         return new PresentationDetail(summary.Id, summary.Name, summary.Status, summary.Error, summary.SlideCount, summary.ProcessedSlides,
             summary.QuestionCount, summary.Thumbnail, summary.LastUsedAt, summary.DeletesInDays, p.ShowPodium, p.Version, slides);
+    }
+
+    /// <summary>Positions stay dense, in the given order (data-model.md).</summary>
+    private static void Renumber(List<Slide> ordered)
+    {
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            ordered[i].Position = i;
+        }
+    }
+
+    private static void CopyQuestion(Slide from, Slide to)
+    {
+        to.Kind = from.Kind;
+        to.Question = from.Question;
+        to.Options = from.Options;
+        to.CorrectOption = from.CorrectOption;
+        to.MultipleChoice = from.MultipleChoice;
+        to.TimerSeconds = from.TimerSeconds;
+        to.ShowFirst = from.ShowFirst;
+        to.ShowLive = from.ShowLive;
     }
 
     internal static async Task<Presentation?> OwnedAsync(CirclooDbContext db, HttpContext ctx, Guid id, CancellationToken ct)
