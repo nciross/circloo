@@ -61,7 +61,10 @@ Write-Host "Subscription: $subId"
 # The location is part of every resource name, so only set it for a new env or when passed explicitly.
 $known = @()
 $listed = azd env list --output json --no-prompt 2>$null
-if ($LASTEXITCODE -eq 0 -and $listed) { $known = @(($listed | ConvertFrom-Json) | ForEach-Object { $_.Name }) }
+if ($LASTEXITCODE -eq 0 -and $listed) {
+  try { $known = @(($listed | Out-String | ConvertFrom-Json) | ForEach-Object { $_.Name }) }
+  catch { Stop-Deploy 'Could not read the list of azd environments (azd env list).' }
+}
 if ($known -contains $Environment) {
   Invoke-Checked "selecting azd environment '$Environment'" { azd env select $Environment --no-prompt }
   if ($PSBoundParameters.ContainsKey('Location')) { Invoke-Checked 'setting the location' { azd env set AZURE_LOCATION $Location --no-prompt } }
@@ -83,21 +86,20 @@ foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET') {
 
 # Repair values that picked up a Windows carriage return from an earlier run (a CRLF tool output, e.g. a Windows openssl
 # under Git Bash): Bicep parameter resolution fails on them with "invalid character '\r' in string literal" (#135).
-# A carriage return shows either as a raw CR or as the escaped two characters \r; nothing was ever provisioned with them.
+# "get-values" shows the carriage return escaped as \r (and escapes other characters too, e.g. "!" as "\!", so its text
+# must never be written back). The real value comes from "get-value": PowerShell splits native output at a carriage
+# return, so joining its lines gives the value without it. Nothing was ever provisioned with these values.
 $parameterKeys = 'AZURE_ENV_NAME', 'AZURE_LOCATION', 'AZURE_SUBSCRIPTION_ID', 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET', 'SERVICE_WEB_IMAGE_NAME'
-$crPattern = '\\r|\r'
-foreach ($line in @(azd env get-values --no-prompt)) {
-  if ($line -notmatch '^([A-Z_]+)="(.*)"\s*$') { continue }
-  # Keep the captures before the next -match overwrites $Matches.
-  $key = $Matches[1]
-  $value = $Matches[2]
-  if ($parameterKeys -contains $key -and $value -match $crPattern) {
-    $clean = $value -replace $crPattern, ''
-    Write-Host "Repairing $key (it contained a Windows line break)." -ForegroundColor Yellow
-    Invoke-Checked "repairing $key" { azd env set $key $clean --no-prompt }
-  }
+foreach ($key in $parameterKeys) {
+  $escaped = $values | Where-Object { $_ -like "$key=*" } | Select-Object -First 1
+  if (-not $escaped -or $escaped -notmatch '\\r') { continue }
+  $clean = @(azd env get-value $key --no-prompt) -join ''
+  if ($LASTEXITCODE -ne 0) { Stop-Deploy "Could not read $key from the azd environment '$Environment'." }
+  Write-Host "Repairing $key (it contained a Windows line break)." -ForegroundColor Yellow
+  Invoke-Checked "repairing $key" { azd env set $key $clean --no-prompt }
 }
 $values = @(azd env get-values --no-prompt)
+if ($LASTEXITCODE -ne 0) { Stop-Deploy "Could not read the azd environment '$Environment'." }
 
 if (Test-Path 'src/Circloo.Api/Dockerfile') {
   $firstDeploy = -not ($values -match '^SERVICE_WEB_IMAGE_NAME=".+"')
