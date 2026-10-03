@@ -35,11 +35,13 @@ public sealed partial class PresentationJanitor(IServiceScopeFactory scopes, Tim
         var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<SlideStore>();
         var audit = scope.ServiceProvider.GetRequiredService<AuditLog>();
+        var live = scope.ServiceProvider.GetRequiredService<LiveSessions>();
 
         var limit = clock.GetUtcNow().AddDays(-PresentationRules.IdleDeleteDays);
         var idle = await db.Presentations.Where(p => p.LastUsedAt < limit).ToListAsync(ct);
         foreach (var presentation in idle)
         {
+            await live.EndForPresentationAsync(presentation.Id, presentation.OwnerUserId, ct);
             await store.DeletePresentationAsync(presentation.OwnerUserId, presentation.Id, ct);
             db.Presentations.Remove(presentation);
             audit.Add(AuditTypes.PresentationPurged, presentation.OwnerUserId, detail: new { presentation = presentation.Id });

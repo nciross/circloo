@@ -169,13 +169,15 @@ public static class PresentationEndpoints
             return await SaveAsync(db, presentation, clock, ct);
         });
 
-        group.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, SlideStore store, AuditLog audit, CancellationToken ct) =>
+        group.MapDelete("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, SlideStore store, AuditLog audit, LiveSessions live, CancellationToken ct) =>
         {
             var presentation = await OwnedAsync(db, ctx, id, ct);
             if (presentation is null)
             {
                 return NotFound();
             }
+            // Circles presenting it leave the presentation together.
+            await live.EndForPresentationAsync(id, presentation.OwnerUserId, ct);
             await store.DeletePresentationAsync(presentation.OwnerUserId, id, ct);
             db.Presentations.Remove(presentation);
             audit.Add(AuditTypes.PresentationDeleted, presentation.OwnerUserId, detail: new { presentation = id });
@@ -318,16 +320,17 @@ public static class PresentationEndpoints
             return result;
         });
 
-        // Slide pictures, streamed after an access check (research R3). Owner only here; circle members get access to
-        // the slides their session has shown in T607.
-        api.MapGet("/slides/{slideId:guid}/image", async (Guid slideId, string? size, HttpContext ctx, CirclooDbContext db, SlideStore store, CancellationToken ct) =>
+        // Slide pictures, streamed after an access check (research R3): the owner, and circle members for the slides their
+        // session has shown (spec 006 US3).
+        api.MapGet("/slides/{slideId:guid}/image", async (Guid slideId, string? size, HttpContext ctx, CirclooDbContext db, SlideStore store, LiveSessions live, CancellationToken ct) =>
         {
             var userId = ctx.User.FindFirst(CirclooClaims.UserId)?.Value is { } sub && Guid.TryParse(sub, out var u) ? u : (Guid?)null;
             var owner = await db.Slides.AsNoTracking()
                 .Where(s => s.Id == slideId && s.Kind == SlideKinds.Deck)
                 .Join(db.Presentations, s => s.PresentationId, p => p.Id, (s, p) => new { p.Id, p.OwnerUserId })
                 .FirstOrDefaultAsync(ct);
-            if (owner is null || userId is null || owner.OwnerUserId != userId)
+            // The owner always; circle members (users or guests) once the slide has been shown in their session (spec 006 US3).
+            if (owner is null || (owner.OwnerUserId != userId && !await live.MayViewAsync(ctx.User, owner.Id, slideId, ct)))
             {
                 return NotFound();
             }
