@@ -29,9 +29,22 @@ public sealed class DeckInspectorTests
     }
 
     [Fact]
-    public void Externally_linked_pictures_are_removed_before_conversion()
+    public void Bounding_notes_never_splits_an_emoji()
     {
-        var deck = TestDecks.Build(2, externalPictureOn: 1);
+        var notes = new string('n', PresentationRules.NotesMax - 1) + "\U0001F600 and more";
+
+        var result = DeckInspector.Inspect(TestDecks.Build(1, notes: new() { [0] = notes }));
+
+        Assert.Equal(PresentationRules.NotesMax - 1, result.Slides[0].Notes!.Length);
+        Assert.False(char.IsHighSurrogate(result.Slides[0].Notes![^1]));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)] // declared as a hyperlink: the SDK files it apart, LibreOffice resolves the picture by id anyway
+    public void Externally_linked_pictures_are_removed_before_conversion(bool linkAsHyperlink)
+    {
+        var deck = TestDecks.Build(2, externalPictureOn: 1, linkAsHyperlink: linkAsHyperlink);
         Assert.Equal(1, DeckInspector.CountExternalLinks(deck));
 
         var result = DeckInspector.Inspect(deck);
@@ -50,6 +63,8 @@ public sealed class DeckInspectorTests
         { "101", "too-many-slides" },
         { "bomb", "too-large" },
         { "empty", "not-pptx" },
+        { "broken-xml", "not-pptx" },
+        { "huge-xml", "not-pptx" },
     };
 
     [Theory]
@@ -65,6 +80,9 @@ public sealed class DeckInspectorTests
             "template" => TestDecks.Build(2, type: PresentationDocumentType.Template),
             "101" => TestDecks.Build(101),
             "bomb" => TestDecks.ZipBomb(),
+            "broken-xml" => TestDecks.BrokenXml(),
+            // Notes far beyond any real deck: the parser stops at the bound instead of loading it all.
+            "huge-xml" => TestDecks.Build(1, notes: new() { [0] = new string('n', (int)DeckInspector.MaxXmlCharacters + 1) }),
             _ => TestDecks.Build(0),
         };
 
@@ -98,6 +116,19 @@ public sealed class DeckInspectorTests
         Assert.True(IsWebp(rendered.Full));
         Assert.True(IsWebp(rendered.Thumb));
         Assert.True(rendered.Thumb.Length < rendered.Full.Length);
+    }
+
+    [Theory]
+    [InlineData(960, 540, 1920, 1080, 480, 270)] // 16:9, the usual case
+    [InlineData(100, 5600, 68, 3840, 17, 960)] // a 1:56 slide fits the box instead of a 1920 x 107 520 bitmap
+    public void Pictures_fit_a_bounded_box(float pageWidth, float pageHeight, int width, int height, int thumbWidth, int thumbHeight)
+    {
+        var rendered = SlideRenderer.Render(TestDecks.Pdf(1, pageWidth, pageHeight), 0);
+
+        using var full = SkiaSharp.SKBitmap.Decode(rendered.Full);
+        using var thumb = SkiaSharp.SKBitmap.Decode(rendered.Thumb);
+        Assert.Equal((width, height), (full.Width, full.Height));
+        Assert.Equal((thumbWidth, thumbHeight), (thumb.Width, thumb.Height));
     }
 
     private static bool IsWebp(byte[] b) => b.Length > 12 && b[0] == 'R' && b[1] == 'I' && b[2] == 'F' && b[3] == 'F' && b[8] == 'W' && b[9] == 'E' && b[10] == 'B' && b[11] == 'P';

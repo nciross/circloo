@@ -20,8 +20,11 @@ public static class TestDecks
     /// <param name="hidden">0-based indexes of hidden slides.</param>
     /// <param name="notes">Speaker notes by 0-based slide index.</param>
     /// <param name="externalPictureOn">0-based index of a slide that links a picture from the internet.</param>
+    /// <param name="linkAsHyperlink">Declares that picture link as a hyperlink relationship (LibreOffice still fetches it).</param>
+    /// <param name="linkTarget">Where the linked picture points.</param>
     public static byte[] Build(int count, int[]? hidden = null, Dictionary<int, string>? notes = null, int? externalPictureOn = null,
-        PresentationDocumentType type = PresentationDocumentType.Presentation)
+        PresentationDocumentType type = PresentationDocumentType.Presentation, bool linkAsHyperlink = false,
+        string linkTarget = "http://169.254.169.254/latest/meta-data/pic.png")
     {
         using var ms = new MemoryStream();
         using (var doc = PresentationDocument.Create(ms, type))
@@ -47,9 +50,12 @@ public static class TestDecks
                 var picture = "";
                 if (externalPictureOn == i)
                 {
-                    var rel = slide.AddExternalRelationship("http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", new Uri("http://169.254.169.254/latest/meta-data/pic.png"), "rIdX");
+                    var target = new Uri(linkTarget);
+                    var rel = linkAsHyperlink
+                        ? slide.AddHyperlinkRelationship(target, isExternal: true, "rIdX").Id
+                        : slide.AddExternalRelationship("http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", target, "rIdX").Id;
                     picture = "<p:pic><p:nvPicPr><p:cNvPr id=\"3\" name=\"Linked\"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr>"
-                        + $"<p:blipFill><a:blip r:link=\"{rel.Id}\"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>"
+                        + $"<p:blipFill><a:blip r:link=\"{rel}\"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>"
                         + "<p:spPr><a:xfrm><a:off x=\"0\" y=\"0\"/><a:ext cx=\"914400\" cy=\"914400\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></p:spPr></p:pic>";
                 }
                 Feed(slide, $"<p:sld {Ns}{show}><p:cSld><p:spTree>{Group}"
@@ -112,15 +118,29 @@ public static class TestDecks
         return ms.ToArray();
     }
 
+    /// <summary>A genuine deck whose presentation.xml is cut off mid-element.</summary>
+    public static byte[] BrokenXml()
+    {
+        using var ms = new MemoryStream();
+        ms.Write(Build(1));
+        using (var zip = new ZipArchive(ms, ZipArchiveMode.Update, leaveOpen: true))
+        {
+            zip.GetEntry("ppt/presentation.xml")!.Delete();
+            using var stream = zip.CreateEntry("ppt/presentation.xml").Open();
+            stream.Write(Encoding.UTF8.GetBytes("<?xml version=\"1.0\"?><p:presentation xmlns:p=\"http://schemas.openxmlformats.org/presentationml/2006/main\"><p:sldIdLst"));
+        }
+        return ms.ToArray();
+    }
+
     /// <summary>A real PDF of <paramref name="pages"/> blank 16:9 pages, as a converter would return.</summary>
-    public static byte[] Pdf(int pages)
+    public static byte[] Pdf(int pages, float width = 960, float height = 540)
     {
         using var ms = new MemoryStream();
         using (var document = SKDocument.CreatePdf(ms))
         {
             for (var i = 0; i < pages; i++)
             {
-                var canvas = document.BeginPage(960, 540);
+                var canvas = document.BeginPage(width, height);
                 canvas.Clear(SKColors.White);
                 using var paint = new SKPaint { Color = SKColors.Navy };
                 canvas.DrawRect(80, 80, 200 + i * 10, 120, paint);

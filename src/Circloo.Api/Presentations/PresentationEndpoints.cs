@@ -310,5 +310,7 @@ public static class PresentationEndpoints
     private static IResult Rejected(string code) =>
         Results.Problem(statusCode: code == "too-large" ? StatusCodes.Status413PayloadTooLarge : StatusCodes.Status400BadRequest, type: code, title: "This file cannot be used.");
 
-    private static string Truncate(string value, int max) => value.Length > max ? value[..max] : value;
+    // Never cut a surrogate pair in half: PostgreSQL refuses the lone half.
+    private static string Truncate(string value, int max) =>
+        value.Length <= max ? value : value[..(char.IsHighSurrogate(value[max - 1]) ? max - 1 : max)];
 }

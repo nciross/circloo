@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text;
+using System.Xml;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Presentation;
@@ -22,14 +23,17 @@ public sealed class DeckRejectedException(string code) : Exception(code)
 /// <summary>
 /// Checks an uploaded deck before LibreOffice ever sees it (research R2, plan threat model): a genuine .pptx,
 /// not encrypted, no macros, no zip bomb, at most 100 slides. Reads speaker notes and hidden flags, and removes every
-/// external relationship (linked pictures, media, OLE objects, templates) so the converter never fetches a URL.
-/// Hyperlinks are kept: they are text in a picture and are never followed.
+/// external relationship (linked pictures, media, OLE objects, templates, hyperlinks) so the converter never fetches a
+/// URL. LibreOffice resolves a picture link by relationship id whatever its declared type, so hyperlinks go too, and a
+/// final scan of the raw relationship files refuses anything that still points outside the deck.
 /// </summary>
 public static class DeckInspector
 {
     public const long MaxUncompressedTotal = 300L * 1024 * 1024;
     public const long MaxUncompressedPart = 100L * 1024 * 1024;
     public const int MaxEntries = 5000;
+    /// <summary>Bounds every XML part the inspector parses into memory (presentation, notes).</summary>
+    public const long MaxXmlCharacters = 5_000_000;
 
     private static readonly byte[] Zip = [0x50, 0x4B, 0x03, 0x04];
     private static readonly byte[] Ole = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
@@ -60,7 +64,7 @@ public static class DeckInspector
         var slides = new List<DeckSlide>();
         try
         {
-            using (var doc = PresentationDocument.Open(copy, isEditable: true))
+            using (var doc = PresentationDocument.Open(copy, isEditable: true, new OpenSettings { MaxCharactersInPart = MaxXmlCharacters }))
             {
                 if (doc.DocumentType is PresentationDocumentType.MacroEnabledPresentation
                     or PresentationDocumentType.MacroEnabledSlideshow or PresentationDocumentType.MacroEnabledTemplate
@@ -90,22 +94,24 @@ public static class DeckInspector
                     {
                         throw new DeckRejectedException("not-pptx");
                     }
-                    var hidden = slidePart.Slide?.Show is { } show && !show.Value;
-                    slides.Add(new DeckSlide(i, hidden, NotesOf(slidePart)));
+                    slides.Add(new DeckSlide(i, IsHidden(slidePart), NotesOf(slidePart)));
                 }
 
                 RemoveExternalLinks(doc);
             }
         }
-        catch (OpenXmlPackageException)
+        catch (Exception e) when (e is OpenXmlPackageException or InvalidDataException or XmlException or FormatException
+            or ArgumentException or IOException or InvalidOperationException)
+        {
+            // Malformed packages, relationship targets or XML (or XML over the size bound) all mean "not a deck we use".
+            throw new DeckRejectedException("not-pptx");
+        }
+        var deck = copy.ToArray();
+        if (CountExternalLinks(deck) > 0)
         {
             throw new DeckRejectedException("not-pptx");
         }
-        catch (InvalidDataException)
-        {
-            throw new DeckRejectedException("not-pptx");
-        }
-        return new DeckInspection(slides, copy.ToArray());
+        return new DeckInspection(slides, deck);
     }
 
     /// <summary>Refuses archives that would explode when unpacked, before any XML parser touches them.</summary>
@@ -138,6 +144,21 @@ public static class DeckInspector
         }
     }
 
+    /// <summary>The slide's show="0" flag, read from its root element without loading the slide into memory.</summary>
+    private static bool IsHidden(SlidePart slide)
+    {
+        using var reader = OpenXmlReader.Create(slide);
+        while (reader.Read())
+        {
+            if (reader.IsStartElement)
+            {
+                var show = reader.Attributes.FirstOrDefault(a => a.LocalName == "show" && a.NamespaceUri.Length == 0).Value;
+                return show is "0" or "false";
+            }
+        }
+        return false;
+    }
+
     /// <summary>The text of the notes placeholder, one line per paragraph, bounded.</summary>
     private static string? NotesOf(SlidePart slide)
     {
@@ -157,29 +178,53 @@ public static class DeckInspector
         {
             return null;
         }
-        return text.Length > PresentationRules.NotesMax ? text[..PresentationRules.NotesMax] : text;
+        if (text.Length <= PresentationRules.NotesMax)
+        {
+            return text;
+        }
+        // Never cut a surrogate pair in half: PostgreSQL refuses the lone half.
+        return text[..(char.IsHighSurrogate(text[PresentationRules.NotesMax - 1]) ? PresentationRules.NotesMax - 1 : PresentationRules.NotesMax)];
     }
 
-    /// <summary>Drops every external relationship of every part, so nothing in the deck points outside it.</summary>
+    /// <summary>
+    /// Drops every external relationship of every part, so nothing in the deck points outside it. The SDK files
+    /// hyperlink-typed relationships apart from the other external ones, so both lists are emptied.
+    /// </summary>
     private static void RemoveExternalLinks(PresentationDocument doc)
     {
-        foreach (var part in doc.GetAllParts().ToList())
+        foreach (var container in doc.GetAllParts().Cast<OpenXmlPartContainer>().Append(doc).ToList())
         {
-            foreach (var link in part.ExternalRelationships.ToList())
+            foreach (var link in container.ExternalRelationships.ToList())
             {
-                part.DeleteExternalRelationship(link);
+                container.DeleteExternalRelationship(link);
             }
-        }
-        foreach (var link in doc.ExternalRelationships.ToList())
-        {
-            doc.DeleteExternalRelationship(link);
+            foreach (var link in container.HyperlinkRelationships.Where(h => h.IsExternal).ToList())
+            {
+                container.DeleteReferenceRelationship(link);
+            }
         }
     }
 
-    /// <summary>For tests and diagnostics: how many external relationships a deck still has.</summary>
+    /// <summary>
+    /// How many relationships in the raw package still have TargetMode="External", whatever their type: read straight
+    /// from the .rels files, so it does not depend on how the SDK classifies them.
+    /// </summary>
     public static int CountExternalLinks(byte[] deck)
     {
-        using var doc = PresentationDocument.Open(new MemoryStream(deck), isEditable: false);
-        return doc.ExternalRelationships.Count() + doc.GetAllParts().Sum(p => p.ExternalRelationships.Count());
+        using var zip = new ZipArchive(new MemoryStream(deck), ZipArchiveMode.Read);
+        var count = 0;
+        foreach (var entry in zip.Entries.Where(e => e.FullName.EndsWith(".rels", StringComparison.OrdinalIgnoreCase)))
+        {
+            using var reader = XmlReader.Create(entry.Open(), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "Relationship"
+                    && string.Equals(reader.GetAttribute("TargetMode"), "External", StringComparison.OrdinalIgnoreCase))
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }

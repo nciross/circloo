@@ -47,6 +47,16 @@ public sealed class GotenbergConverterTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_deck_whose_picture_links_were_stripped_still_converts()
+    {
+        var deck = DeckInspector.Inspect(TestDecks.Build(2, externalPictureOn: 0, linkAsHyperlink: true)).Deck;
+
+        var pdf = await _converter.ToPdfAsync(deck, default);
+
+        Assert.Equal(2, SlideRenderer.PageCount(pdf));
+    }
+
+    [Fact]
     public async Task A_thirty_slide_deck_is_ready_in_under_a_minute()
     {
         var watch = Stopwatch.StartNew();

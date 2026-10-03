@@ -66,6 +66,8 @@ public static class SlideRenderer
 {
     public const int FullWidth = 1920;
     public const int ThumbWidth = 480;
+    /// <summary>Tall pages fit a 1920 x 3840 box: a deck can declare an extreme slide size that would need GBs of bitmap.</summary>
+    public const int MaxHeight = 2 * FullWidth;
     private const int FullQuality = 82;
     private const int ThumbQuality = 75;
 
@@ -74,10 +76,16 @@ public static class SlideRenderer
     /// <summary>Renders one page; pages are rendered one at a time so memory stays flat for big decks.</summary>
     public static RenderedSlide Render(byte[] pdf, int page)
     {
-        using var bitmap = Conversion.ToImage(pdf, page, options: new RenderOptions(Width: FullWidth, WithAspectRatio: true, BackgroundColor: SKColors.White));
+        var size = Conversion.GetPageSize(pdf, page);
+        var options = size.Width > 0 && size.Height * FullWidth > MaxHeight * (double)size.Width
+            ? new RenderOptions(Height: MaxHeight, WithAspectRatio: true, BackgroundColor: SKColors.White)
+            : new RenderOptions(Width: FullWidth, WithAspectRatio: true, BackgroundColor: SKColors.White);
+        using var bitmap = Conversion.ToImage(pdf, page, options: options);
         var full = Encode(bitmap, FullQuality);
-        var thumbHeight = Math.Max(1, (int)Math.Round(bitmap.Height * (ThumbWidth / (double)bitmap.Width)));
-        using var thumb = bitmap.Resize(new SKImageInfo(ThumbWidth, thumbHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+        var scale = Math.Min(ThumbWidth / (double)bitmap.Width, MaxHeight / 4 / (double)bitmap.Height);
+        var thumbWidth = Math.Max(1, (int)Math.Round(bitmap.Width * scale));
+        var thumbHeight = Math.Max(1, (int)Math.Round(bitmap.Height * scale));
+        using var thumb = bitmap.Resize(new SKImageInfo(thumbWidth, thumbHeight), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
         return new RenderedSlide(full, Encode(thumb, ThumbQuality));
     }
 
