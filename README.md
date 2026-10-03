@@ -44,6 +44,8 @@ dotnet run --project src/Circloo.AppHost      # Postgres, Mailpit, Azurite, deck
 ```
 Open the Aspire dashboard link it prints. Use the `web` endpoint for the app and the `mailpit` endpoint to read your sign-in codes. No email ever leaves your machine.
 
+> **Once, if you ran the AppHost before #139:** Azurite used to be a long-lived container. Stop the AppHost, find the old one with `podman ps -a --filter name=storage-` (or `docker ps -a --filter name=storage-`), remove it with `podman rm -f <name>` (the `circloo-azurite` volume keeps your slides) and start the AppHost again. Otherwise two Azurite processes can end up writing the same volume.
+
 Tests: `dotnet test` (API against a real Postgres through Testcontainers) and, in `src/web`, `npm test`, plus `npx playwright test` with `E2E_BASE_URL` and `MAILPIT_URL` set.
 
 Ship it to Azure (one resource group, one command) or make it vanish just as fast:
