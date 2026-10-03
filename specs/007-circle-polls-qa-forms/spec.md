@@ -8,6 +8,14 @@
 
 **Input**: User description: "Live polls, Q&A and satisfaction forms as standalone circle activities (idea #136). Three new activities an animator can start in a circle, next to boards and the canvas, without a presentation: (1) live poll & vote, (2) Q&A with upvotes and answers, (3) a satisfaction form builder with rating (1–5, 0–10), single/multiple choice, yes/no and free-text questions. Private circles, phones, four languages incl. Arabic RTL, safety filter, one answer per member, live counts over the circle's real-time channel, results in the existing export."
 
+## Clarifications
+
+### Session 2026-10-03
+
+- Q: Should participants see a poll's live results while voting is still open? → A: Live by default; the animator can switch a poll to "show results when the vote closes".
+- Q: Should a feedback form be built for one circle only, or saved so the animator can reuse it in later circles? → A: Saved in the animator's "My forms" library; picking one copies it into the circle (edits in the circle don't change the saved form).
+- Q: After a feedback form closes, what may participants see of its results? → A: Private by default; after closing, the animator may share the summary of the rating, choice and yes/no questions with everyone, never the free-text answers.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Run a quick live poll (Priority: P1)
@@ -21,7 +29,7 @@ In a circle, the animator starts **Poll**, types a question and two to six answe
 **Acceptance Scenarios**:
 
 1. **Given** I am the animator of an open circle with Poll enabled, **When** I start Poll, write a question (1–140 characters) and 2–6 answers (1–80 characters each) and open the vote, **Then** every member sees the question and the answers as buttons on their screen.
-2. **Given** a single-choice poll is open, **When** I tap an answer, **Then** my vote is recorded, marked as mine, and the results move for everyone within a second.
+2. **Given** a single-choice poll is open, **When** I tap an answer, **Then** my vote is recorded, marked as mine, and the results move for everyone within a second (unless the animator chose "show results when the vote closes", in which case members see only "n votes" until it closes and the animator still sees the live results).
 3. **Given** a multiple-choice poll is open, **When** I pick several answers and confirm, **Then** each picked answer counts once for me.
 4. **Given** I already voted, **When** I change my answer before the vote closes, **Then** my vote is replaced, never added.
 5. **Given** the animator closes the vote, **When** I try to vote, **Then** I am told voting is closed, and the final result (counts, percentages adding up to 100, most chosen marked by icon and label, not by colour alone) stays on every screen.
@@ -53,21 +61,23 @@ The animator starts **Q&A**. Participants write questions; everyone upvotes the 
 
 ### User Story 3 - Build and fill a satisfaction form (Priority: P1)
 
-The animator starts **Feedback form**, builds a short form (up to 10 questions) from ready question types, and opens it. Each participant fills it in once on their device and can change their answers until the animator closes it. The animator watches responses arrive and sees a summary per question.
+The animator starts **Feedback form**, picks a form from their **My forms** library or builds a new one (up to 10 questions) from ready question types, and opens it. Each participant fills it in once on their device and can change their answers until the animator closes it. The animator watches responses arrive and sees a summary per question.
 
 **Why this priority**: teams end sessions with feedback; doing it inside the private circle, in the participant's language, replaces a separate survey tool.
 
-**Independent Test**: the animator builds a form with one 1–5 rating, one 0–10 recommend question, one single choice, one yes/no and one free-text question; three participants answer; the animator sees "3 of 3 responded", the average rating with its distribution, the recommend score with promoters/passives/detractors, choice percentages, and the free-text answers without names.
+**Independent Test**: the animator builds a form, saves it to My forms, and opens it in the circle: one 1–5 rating, one 0–10 recommend question, one single choice, one yes/no and one free-text question; three participants answer; the animator sees "3 of 3 responded", the average rating with its distribution, the recommend score with promoters/passives/detractors, choice percentages, and the free-text answers without names.
 
 **Acceptance Scenarios**:
 
-1. **Given** I am the animator, **When** I build a form, **Then** I can add, edit, reorder and remove up to 10 questions of these types: rating 1–5 (shown as stars or as smileys), recommend 0–10, single choice (2–6 answers), multiple choice (2–6 answers), yes/no, free text (short: up to 200 characters, or long: up to 1 000), and mark each question required or optional.
-2. **Given** a form is open, **When** I fill it in and send it, **Then** my response is saved; a required question left empty is pointed out next to it and nothing is sent until it is answered.
-3. **Given** I already sent my response, **When** I open the form again before it closes, **Then** I see my answers and can change them; my response is replaced, never duplicated.
-4. **Given** I am the animator, **While** the form is open, **Then** I see "n of N responded" update live, and the summary per question: average and distribution for 1–5 ratings, the recommend score (percentage of 9–10 minus percentage of 0–6) with the counts of promoters, passives and detractors for 0–10, counts and percentages for choices and yes/no, and the list of free-text answers.
-5. **Given** free-text answers, **Then** they are shown without names, unless the animator turned on "Show names with answers" before opening the form, in which case participants are told so on the form before they answer.
-6. **Given** the animator closes the form, **When** I try to send or change a response, **Then** I am told the form is closed; the summary stays available to the animator.
-7. **Given** the interface is in Arabic, **Then** the form and its controls are mirrored, the 0–10 scale reads from the right, and stars or smileys are not flipped in meaning.
+1. **Given** I am the animator, **When** I start Feedback form, **Then** I can pick one of my saved forms (it is copied into the circle) or start a new one, and save a form I built in the circle back to My forms under a name.
+2. **Given** I am the animator, **When** I build or edit the circle's copy of a form, **Then** I can add, edit, reorder and remove up to 10 questions of these types: rating 1–5 (shown as stars or as smileys), recommend 0–10, single choice (2–6 answers), multiple choice (2–6 answers), yes/no, free text (short: up to 200 characters, or long: up to 1 000), and mark each question required or optional.
+3. **Given** a form is open, **When** I fill it in and send it, **Then** my response is saved; a required question left empty is pointed out next to it and nothing is sent until it is answered.
+4. **Given** I already sent my response, **When** I open the form again before it closes, **Then** I see my answers and can change them; my response is replaced, never duplicated.
+5. **Given** I am the animator, **While** the form is open, **Then** I see "n of N responded" update live, and the summary per question: average and distribution for 1–5 ratings, the recommend score (percentage of 9–10 minus percentage of 0–6) with the counts of promoters, passives and detractors for 0–10, counts and percentages for choices and yes/no, and the list of free-text answers.
+6. **Given** free-text answers, **Then** they are shown without names, unless the animator turned on "Show names with answers" before opening the form, in which case participants are told so on the form before they answer.
+7. **Given** the animator closes the form, **When** I try to send or change a response, **Then** I am told the form is closed; the summary stays available to the animator.
+8. **Given** a closed form, **When** the animator shares the summary with the circle, **Then** everyone sees the results of the rating, recommend, choice and yes/no questions, and never the free-text answers; until then participants see only "Thank you, your answers were sent".
+9. **Given** the interface is in Arabic, **Then** the form and its controls are mirrored, the 0–10 scale reads from the right, and stars or smileys are not flipped in meaning.
 
 ---
 
@@ -92,7 +102,8 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 - A participant leaves and rejoins (or reloads): their earlier vote, upvotes and form answers are shown as theirs; nothing is counted twice.
 - The animator starts another activity while a poll or form is open: it closes, keeping what was answered.
 - Two taps at the same moment from one person (two tabs or devices): still one vote, one upvote, one form response.
-- The animator edits a form question after responses arrived: not allowed while open; a closed form can be copied into a new one instead.
+- The animator edits a form question after responses arrived: not allowed while open; a closed form can be saved to My forms and picked again as a new form.
+- A saved form is deleted from My forms while a circle is using its copy: the circle's form keeps working.
 - Free text that is only spaces, or longer than allowed: refused with a message next to the field.
 - More than 12 people cannot be in a circle, so counts never exceed the circle's size.
 - A rating question nobody answered: the summary says "No answers" instead of an average.
@@ -109,7 +120,7 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 **Poll**
 - **FR-703**: A poll MUST have a question (1–140 characters) and 2–6 answers (1–80 characters each), single or multiple choice.
 - **FR-704**: Each member MUST have at most one vote per poll, replaceable until the poll closes; the animator does not vote.
-- **FR-705**: Results (counts, percentages adding up to exactly 100, most chosen marked by icon and label) MUST update live for every member while the poll is open and stay visible after it closes.
+- **FR-705**: Results (counts, percentages adding up to exactly 100, most chosen marked by icon and label) MUST update live for every member while the poll is open and stay visible after it closes. The animator MAY switch a poll to "show results when the vote closes" before opening it; members then see only the number of votes until it closes, while the animator always sees the live results.
 - **FR-706**: Several polls MAY be run one after another in the same circle; each keeps its own result.
 
 **Q&A**
@@ -121,11 +132,12 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 
 **Feedback form**
 - **FR-712**: The animator MUST be able to build a form of 1–10 questions from the types: rating 1–5 (stars or smileys), recommend 0–10, single choice, multiple choice (2–6 answers each), yes/no, free text (short ≤ 200 / long ≤ 1 000 characters); each question has a label (1–140 characters) and is required or optional.
+- **FR-724**: Animators MUST have a personal **My forms** library: save a form under a name (1–80 characters), rename, duplicate and delete saved forms, and pick one when starting Feedback form. Picking copies the form into the circle; editing the circle's copy never changes the saved form, and deleting a saved form never touches circles that used it. Saved forms belong to the animator's account (signed-in users only) and are removed after 12 months without use, like presentations.
 - **FR-713**: A form MUST be editable only before it opens; while open, members fill it in; after it closes, no response can be sent or changed.
 - **FR-714**: Each member MUST have at most one response per form, replaceable until the form closes; required questions must be answered before a response is accepted.
 - **FR-715**: The animator MUST see live "n of N responded" and a per-question summary: average (one decimal) and distribution for 1–5; recommend score = % of 9–10 minus % of 0–6 (rounded to a whole number, from −100 to 100) with counts of promoters (9–10), passives (7–8) and detractors (0–6); counts and percentages for choices and yes/no; the list of free-text answers.
 - **FR-716**: Free-text answers MUST be shown without names unless "Show names with answers" was turned on before the form opened; participants MUST be told on the form when names are shown.
-- **FR-717**: Participants MUST NOT see other people's form responses or the summary (the animator may choose to show a question's summary to everyone after closing, as a poll-style result).
+- **FR-717**: Participants MUST NOT see other people's form responses or the summary while the form is open or after it closes, unless the animator, after closing, chooses "Share the summary with the circle": everyone then sees the summaries of the rating, recommend, choice and yes/no questions. Free-text answers are never shared with participants. Sharing can be undone.
 
 **Safety, privacy, languages**
 - **FR-718**: Every question, answer option, Q&A question, Q&A answer and free-text response MUST pass the existing safety filter; unsafe text is refused with a kind message and never stored or shown.
@@ -139,11 +151,12 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 
 ### Key Entities
 
-- **Poll**: belongs to a circle; question, answers, single/multiple choice, state (draft, open, closed), opened/closed times.
+- **Poll**: belongs to a circle; question, answers, single/multiple choice, results visibility (live, or when the vote closes), state (draft, open, closed), opened/closed times.
 - **Vote**: one per member per poll; the chosen answers; when it was last changed.
 - **Q&A question**: belongs to a circle; text, author (member), anonymous flag, upvote count, state (open, answered, hidden), optional written answer and when it was answered.
 - **Upvote**: one per member per Q&A question.
-- **Form**: belongs to a circle; title (optional), "show names with answers" flag, state (draft, open, closed), ordered questions.
+- **Saved form**: belongs to an animator's account (My forms); name, ordered questions (same types as below), "show names with answers" default, last used; copied into a circle when picked.
+- **Form**: belongs to a circle (a copy of a saved form or built in place); title (optional), "show names with answers" flag, "summary shared with the circle" flag (only after closing), state (draft, open, closed), ordered questions.
 - **Form question**: type (rating 1–5 with stars or smileys, recommend 0–10, single choice, multiple choice, yes/no, short or long text), label, required flag, answer options for choices.
 - **Form response**: one per member per form; one answer per question; when it was last changed.
 
