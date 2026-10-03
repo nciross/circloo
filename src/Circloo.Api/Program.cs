@@ -72,6 +72,7 @@ builder.Services.AddSingleton<PresentationConverterService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PresentationConverterService>());
 builder.Services.AddSingleton<PresentationJanitor>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PresentationJanitor>());
+#pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is marked for evaluation
 builder.Services.AddHttpClient(PresentationOptions.ConverterClient, (sp, c) =>
     {
         var url = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<PresentationOptions>>().Value.ConverterUrl;
@@ -81,7 +82,11 @@ builder.Services.AddHttpClient(PresentationOptions.ConverterClient, (sp, c) =>
         }
         c.Timeout = TimeSpan.FromSeconds(130);
     })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false })
+    // A conversion takes longer than the default 10 s attempt / 30 s total and must never be retried mid-way (it
+    // re-sends the deck): the converter call keeps its own 130 s timeout and the pipeline re-queues failures (#139).
+    .RemoveAllResilienceHandlers();
+#pragma warning restore EXTEXP0001
 if (builder.Configuration["Email:Provider"] == "Acs")
 {
     builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
