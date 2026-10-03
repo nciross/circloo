@@ -56,7 +56,9 @@ done
 # written back); only carriage returns are removed. Nothing was ever provisioned with them.
 CR=$'\r'
 for key in AZURE_ENV_NAME AZURE_LOCATION AZURE_SUBSCRIPTION_ID POSTGRES_ADMIN_PASSWORD AUTH_SECRET SERVICE_WEB_IMAGE_NAME; do
-  value="$(azd env get-value "$key" --no-prompt 2>/dev/null)" || continue
+  # The "x" sentinel keeps a trailing \r visible: Git Bash's $(...) drops a final \r\n, not only the \n.
+  value="$(azd env get-value "$key" --no-prompt 2>/dev/null && printf x)" || continue
+  value="${value%x}"; value="${value%$'\n'}"
   clean="${value//$CR/}"
   if [ "$clean" != "$value" ]; then
     echo "Repairing $key (it contained a Windows line break)."
