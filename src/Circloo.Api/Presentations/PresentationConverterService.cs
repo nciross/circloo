@@ -12,13 +12,17 @@ public sealed class ConversionBacklog
 
     public ValueTask EnqueueAsync(Guid id, CancellationToken ct = default) => _channel.Writer.WriteAsync(id, ct);
 
+    /// <summary>Queues without waiting; false when the backlog is full (the deck is offered again a minute later).</summary>
+    public bool TryEnqueue(Guid id) => _channel.Writer.TryWrite(id);
+
     public ChannelReader<Guid> Reader => _channel.Reader;
 }
 
 /// <summary>
 /// Converts uploaded decks in the background: claims a lease so only one replica works on a deck, asks the converter
 /// for a PDF, renders each page to WebP pictures, reports progress, then marks the presentation ready (or failed with
-/// a code). Decks left "processing" by a restart are picked up again; any stuck for 10 minutes are marked "timeout".
+/// a code). The lease is renewed while the work runs. Decks left "processing" by a restart, or whose lease expired, are
+/// picked up again; any stuck for 10 minutes are marked "timeout". Only the lease holder may finish a deck.
 /// </summary>
 public sealed partial class PresentationConverterService(
     IServiceScopeFactory scopes, ConversionBacklog queue, TimeProvider clock, ILogger<PresentationConverterService> log) : BackgroundService
@@ -30,9 +34,10 @@ public sealed partial class PresentationConverterService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await RequeueAsync(stoppingToken);
+        // Workers first: the bounded backlog only drains while they run.
         var workers = Enumerable.Range(0, Workers).Select(_ => WorkAsync(stoppingToken)).ToList();
         workers.Add(WatchdogAsync(stoppingToken));
+        await RequeueAsync(stoppingToken);
         await Task.WhenAll(workers);
     }
 
@@ -93,6 +98,8 @@ public sealed partial class PresentationConverterService(
             .Where(s => s.PresentationId == id && s.Kind == SlideKinds.Deck)
             .OrderBy(s => s.SourceIndex)
             .ToListAsync(ct);
+        using var stopRenewing = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var renewing = KeepLeaseAsync(id, stopRenewing.Token);
         try
         {
             await using var source = await store.OpenSourceAsync(presentation.OwnerUserId, id, ct)
@@ -100,7 +107,6 @@ public sealed partial class PresentationConverterService(
             using var buffer = new MemoryStream();
             await source.CopyToAsync(buffer, ct);
             var pdf = await converter.ToPdfAsync(buffer.ToArray(), ct);
-            await RenewAsync(db, id, ct);
 
             var targets = MapPages(SlideRenderer.PageCount(pdf), slides);
             for (var page = 0; page < targets.Count; page++)
@@ -110,24 +116,56 @@ public sealed partial class PresentationConverterService(
                 await store.PutSlideAsync(presentation.OwnerUserId, id, slide.Id, thumb: false, new MemoryStream(rendered.Full), ct);
                 await store.PutSlideAsync(presentation.OwnerUserId, id, slide.Id, thumb: true, new MemoryStream(rendered.Thumb), ct);
                 var progress = page + 1;
-                var at = clock.GetUtcNow();
-                await db.Presentations.Where(p => p.Id == id)
-                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProcessedSlides, progress).SetProperty(p => p.LeaseUntil, at + Lease), ct);
+                await db.Presentations.Where(p => p.Id == id && p.ConvertingBy == Me)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.ProcessedSlides, progress), ct);
             }
 
-            await FinishAsync(db, id, PresentationStatus.Ready, null, ct);
-            await store.DeleteSourceAsync(presentation.OwnerUserId, id, ct);
-            await audit.WriteAsync(AuditTypes.PresentationConverted, presentation.OwnerUserId, detail: new { presentation = id, slides = slides.Count }, ct: ct);
+            // Deleted meanwhile, or timed out by the watchdog: nothing to finish, and no "converted" event.
+            if (await FinishAsync(db, id, PresentationStatus.Ready, null, ct))
+            {
+                await store.DeleteSourceAsync(presentation.OwnerUserId, id, ct);
+                await audit.WriteAsync(AuditTypes.PresentationConverted, presentation.OwnerUserId, detail: new { presentation = id, slides = slides.Count }, ct: ct);
+            }
         }
         catch (ConversionFailedException e)
         {
-            await FailAsync(db, audit, presentation, e.Code, ct);
+            await FailAsync(db, store, audit, presentation, e.Code, ct);
             LogConversionFailed(log, id, e.Code, e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            await FailAsync(db, audit, presentation, "conversion-failed", ct);
+            await FailAsync(db, store, audit, presentation, "conversion-failed", ct);
             LogConversionCrashed(log, id, e);
+        }
+        finally
+        {
+            await stopRenewing.CancelAsync();
+            await renewing;
+        }
+    }
+
+    /// <summary>Renews the lease every 30 seconds while this replica works on a deck, the converter call included.</summary>
+    private async Task KeepLeaseAsync(Guid id, CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(Lease / 4, clock);
+        try
+        {
+            while (await timer.WaitForNextTickAsync(ct))
+            {
+                try
+                {
+                    await using var scope = scopes.CreateAsyncScope();
+                    await RenewAsync(scope.ServiceProvider.GetRequiredService<CirclooDbContext>(), id, ct);
+                }
+                catch (Exception e) when (e is not OperationCanceledException)
+                {
+                    LogLeaseRenewalFailed(log, id, e);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // The conversion ended.
         }
     }
 
@@ -152,28 +190,35 @@ public sealed partial class PresentationConverterService(
     private async Task RenewAsync(CirclooDbContext db, Guid id, CancellationToken ct)
     {
         var until = clock.GetUtcNow() + Lease;
-        await db.Presentations.Where(p => p.Id == id).ExecuteUpdateAsync(s => s.SetProperty(p => p.LeaseUntil, until), ct);
+        await db.Presentations.Where(p => p.Id == id && p.Status == PresentationStatus.Processing && p.ConvertingBy == Me)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.LeaseUntil, until), ct);
     }
 
-    private async Task FinishAsync(CirclooDbContext db, Guid id, string status, string? error, CancellationToken ct)
+    /// <summary>Ends the conversion if this replica still holds it; false when someone else got there first.</summary>
+    private async Task<bool> FinishAsync(CirclooDbContext db, Guid id, string status, string? error, CancellationToken ct)
     {
         var now = clock.GetUtcNow();
-        await db.Presentations.Where(p => p.Id == id).ExecuteUpdateAsync(s => s
-            .SetProperty(p => p.Status, status)
-            .SetProperty(p => p.Error, error)
-            .SetProperty(p => p.ConvertingBy, (string?)null)
-            .SetProperty(p => p.LeaseUntil, (DateTimeOffset?)null)
-            .SetProperty(p => p.UpdatedAt, now)
-            .SetProperty(p => p.Version, p => p.Version + 1), ct);
+        return await db.Presentations.Where(p => p.Id == id && p.Status == PresentationStatus.Processing && p.ConvertingBy == Me)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.Status, status)
+                .SetProperty(p => p.Error, error)
+                .SetProperty(p => p.ConvertingBy, (string?)null)
+                .SetProperty(p => p.LeaseUntil, (DateTimeOffset?)null)
+                .SetProperty(p => p.UpdatedAt, now)
+                .SetProperty(p => p.Version, p => p.Version + 1), ct) == 1;
     }
 
-    private async Task FailAsync(CirclooDbContext db, AuditLog audit, Presentation presentation, string code, CancellationToken ct)
+    private async Task FailAsync(CirclooDbContext db, SlideStore store, AuditLog audit, Presentation presentation, string code, CancellationToken ct)
     {
-        await FinishAsync(db, presentation.Id, PresentationStatus.Failed, code, ct);
-        await audit.WriteAsync(AuditTypes.PresentationFailed, presentation.OwnerUserId, detail: new { presentation = presentation.Id, code }, ct: ct);
+        if (await FinishAsync(db, presentation.Id, PresentationStatus.Failed, code, ct))
+        {
+            await audit.WriteAsync(AuditTypes.PresentationFailed, presentation.OwnerUserId, detail: new { presentation = presentation.Id, code }, ct: ct);
+            // The upload is kept only until conversion ends, failed or not (research R3).
+            await store.DeleteSourceAsync(presentation.OwnerUserId, presentation.Id, ct);
+        }
     }
 
-    /// <summary>Marks decks stuck in "processing" for 10 minutes as failed, every minute.</summary>
+    /// <summary>Every minute: re-queues decks whose converter died, and fails decks stuck for 10 minutes.</summary>
     private async Task WatchdogAsync(CancellationToken ct)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1), clock);
@@ -194,16 +239,43 @@ public sealed partial class PresentationConverterService(
     {
         await using var scope = scopes.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+        var store = scope.ServiceProvider.GetRequiredService<SlideStore>();
+        var audit = scope.ServiceProvider.GetRequiredService<AuditLog>();
         var now = clock.GetUtcNow();
         var limit = now - StuckAfter;
-        return await db.Presentations
+
+        // A lease that ran out means its converter died (or restarted while the lease was still valid): try again.
+        var orphaned = await db.Presentations
+            .Where(p => p.Status == PresentationStatus.Processing && p.LeaseUntil != null && p.LeaseUntil < now && p.UpdatedAt >= limit)
+            .Select(p => p.Id).ToListAsync(ct);
+        foreach (var id in orphaned)
+        {
+            queue.TryEnqueue(id);
+        }
+
+        var stuck = await db.Presentations
             .Where(p => p.Status == PresentationStatus.Processing && p.UpdatedAt < limit && (p.LeaseUntil == null || p.LeaseUntil < now))
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(p => p.Status, PresentationStatus.Failed)
-                .SetProperty(p => p.Error, "timeout")
-                .SetProperty(p => p.ConvertingBy, (string?)null)
-                .SetProperty(p => p.LeaseUntil, (DateTimeOffset?)null)
-                .SetProperty(p => p.UpdatedAt, now), ct);
+            .Select(p => new { p.Id, p.OwnerUserId }).ToListAsync(ct);
+        var failed = 0;
+        foreach (var deck in stuck)
+        {
+            var updated = await db.Presentations
+                .Where(p => p.Id == deck.Id && p.Status == PresentationStatus.Processing && (p.LeaseUntil == null || p.LeaseUntil < now))
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.Status, PresentationStatus.Failed)
+                    .SetProperty(p => p.Error, "timeout")
+                    .SetProperty(p => p.ConvertingBy, (string?)null)
+                    .SetProperty(p => p.LeaseUntil, (DateTimeOffset?)null)
+                    .SetProperty(p => p.UpdatedAt, now)
+                    .SetProperty(p => p.Version, p => p.Version + 1), ct);
+            if (updated == 1)
+            {
+                failed++;
+                await audit.WriteAsync(AuditTypes.PresentationFailed, deck.OwnerUserId, detail: new { presentation = deck.Id, code = "timeout" }, ct: ct);
+                await store.DeleteSourceAsync(deck.OwnerUserId, deck.Id, ct);
+            }
+        }
+        return failed;
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Could not re-queue presentations left processing")]
@@ -214,6 +286,9 @@ public sealed partial class PresentationConverterService(
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Presentation {Id} conversion crashed")]
     private static partial void LogConversionCrashed(ILogger logger, Guid id, Exception e);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not renew the conversion lease of presentation {Id}")]
+    private static partial void LogLeaseRenewalFailed(ILogger logger, Guid id, Exception e);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Presentation watchdog failed")]
     private static partial void LogWatchdogFailed(ILogger logger, Exception e);

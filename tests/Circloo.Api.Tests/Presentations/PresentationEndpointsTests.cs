@@ -131,10 +131,12 @@ public sealed class PresentationEndpointsTests(PostgresFixture pg) : IAsyncLifet
         Assert.True(await db.AuditEvents.AnyAsync(a => a.Type == "presentation.converted" && a.UserId == row.OwnerUserId));
     }
 
-    [Fact]
-    public async Task The_converter_never_sees_external_links()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task The_converter_never_sees_external_links(bool linkAsHyperlink)
     {
-        await UploadReadyAsync(TestDecks.Build(2, externalPictureOn: 0));
+        await UploadReadyAsync(TestDecks.Build(2, externalPictureOn: 0, linkAsHyperlink: linkAsHyperlink));
 
         Assert.Equal(0, DeckInspector.CountExternalLinks(_converter.LastDeck!));
     }
@@ -171,11 +173,62 @@ public sealed class PresentationEndpointsTests(PostgresFixture pg) : IAsyncLifet
 
             Assert.Equal("failed", detail.GetProperty("status").GetString());
             Assert.Equal("timeout", detail.GetProperty("error").GetString());
+            // The upload is not kept after a failure either (research R3), and the failure is audited (FR-619).
+            using var scope = _factory.Services.CreateScope();
+            var row = await scope.ServiceProvider.GetRequiredService<CirclooDbContext>().Presentations.AsNoTracking()
+                .SingleAsync(p => p.Id == detail.GetProperty("id").GetGuid());
+            Assert.Null(await scope.ServiceProvider.GetRequiredService<SlideStore>().OpenSourceAsync(row.OwnerUserId, row.Id, default));
+            Assert.True(await scope.ServiceProvider.GetRequiredService<CirclooDbContext>().AuditEvents
+                .AnyAsync(a => a.Type == "presentation.failed" && a.UserId == row.OwnerUserId));
         }
         finally
         {
             _converter.Fail = null;
         }
+    }
+
+    [Fact]
+    public async Task A_deck_leased_by_another_replica_is_left_alone()
+    {
+        var id = await UploadReadyAsync(TestDecks.Build(1));
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+        var until = _root.Clock.GetUtcNow().AddMinutes(1);
+        await db.Presentations.Where(p => p.Id == id).ExecuteUpdateAsync(s => s
+            .SetProperty(p => p.Status, PresentationStatus.Processing).SetProperty(p => p.ConvertingBy, "other:1").SetProperty(p => p.LeaseUntil, until));
+
+        await _factory.Services.GetRequiredService<PresentationConverterService>().ConvertAsync(id, default);
+
+        var row = await db.Presentations.AsNoTracking().SingleAsync(p => p.Id == id);
+        Assert.Equal((PresentationStatus.Processing, "other:1"), (row.Status, row.ConvertingBy));
+    }
+
+    [Fact]
+    public async Task The_watchdog_retries_dead_conversions_and_times_out_stuck_ones()
+    {
+        var dead = await UploadReadyAsync(TestDecks.Build(2));
+        var stuck = await UploadReadyAsync(TestDecks.Build(1));
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+        var store = scope.ServiceProvider.GetRequiredService<SlideStore>();
+        var now = _root.Clock.GetUtcNow();
+        var owner = (await db.Presentations.AsNoTracking().SingleAsync(p => p.Id == dead)).OwnerUserId;
+        // A converter that died a minute ago (its lease ran out), and a deck nobody finished in 10 minutes.
+        await db.Presentations.Where(p => p.Id == dead).ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PresentationStatus.Processing)
+            .SetProperty(p => p.ConvertingBy, "gone:1").SetProperty(p => p.LeaseUntil, now.AddSeconds(-1)).SetProperty(p => p.UpdatedAt, now.AddMinutes(-1)));
+        await store.PutSourceAsync(owner, dead, new MemoryStream(DeckInspector.Inspect(TestDecks.Build(2)).Deck), default);
+        await db.Presentations.Where(p => p.Id == stuck).ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, PresentationStatus.Processing)
+            .SetProperty(p => p.UpdatedAt, now.AddMinutes(-11)));
+        await store.PutSourceAsync(owner, stuck, new MemoryStream([1]), default);
+        var version = (await db.Presentations.AsNoTracking().SingleAsync(p => p.Id == stuck)).Version;
+
+        Assert.True(await _factory.Services.GetRequiredService<PresentationConverterService>().TimeOutStuckAsync(default) >= 1);
+
+        Assert.Equal("ready", (await WaitReadyAsync(dead)).GetProperty("status").GetString());
+        var row = await db.Presentations.AsNoTracking().SingleAsync(p => p.Id == stuck);
+        Assert.Equal((PresentationStatus.Failed, "timeout", version + 1), (row.Status, row.Error, row.Version));
+        Assert.Null(await store.OpenSourceAsync(owner, stuck, default));
+        Assert.True(await db.AuditEvents.AnyAsync(a => a.Type == "presentation.failed" && a.UserId == owner));
     }
 
     [Fact]
