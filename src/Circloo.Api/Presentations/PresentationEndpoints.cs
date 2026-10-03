@@ -233,8 +233,8 @@ public static class PresentationEndpoints
             return result;
         });
 
-        // Slide pictures, streamed after an access check (research R3). Owner only here; circle members get access to
-        // the slides their session has shown in T607.
+        // Slide pictures, streamed after an access check (research R3): the owner, and circle members for the slides their
+        // session has shown (spec 006 US3).
         api.MapGet("/slides/{slideId:guid}/image", async (Guid slideId, string? size, HttpContext ctx, CirclooDbContext db, SlideStore store, LiveSessions live, CancellationToken ct) =>
         {
             var userId = ctx.User.FindFirst(CirclooClaims.UserId)?.Value is { } sub && Guid.TryParse(sub, out var u) ? u : (Guid?)null;

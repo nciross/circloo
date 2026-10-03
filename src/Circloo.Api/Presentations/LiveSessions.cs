@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Circloo.Api.Circles;
 using Circloo.Api.Data;
@@ -7,7 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Circloo.Api.Presentations;
 
-/// <summary>Running sessions seen from outside the hub: who may load a slide picture, and ending sessions when a deck goes.</summary>
+public sealed record EndedSession(Guid SessionId, Guid CircleId);
+
+/// <summary>
+/// Running sessions seen from outside the presenting actions: who may load a slide picture, and ending sessions
+/// (the animator ends or switches activity, the deck is deleted or purged, the circle closes).
+/// </summary>
 public sealed class LiveSessions(CirclooDbContext db, IHubContext<CircleHub, ICircleClient> hub, AuditLog audit, TimeProvider clock)
 {
     /// <summary>
@@ -29,33 +35,53 @@ public sealed class LiveSessions(CirclooDbContext db, IHubContext<CircleHub, ICi
         return false;
     }
 
-    /// <summary>Ends every session running this presentation (it is being deleted) and takes those circles out of it.</summary>
-    public async Task EndForPresentationAsync(Guid presentationId, Guid? userId, CancellationToken ct)
+    /// <summary>The presentation is being deleted or purged: circles presenting it leave it together.</summary>
+    public Task EndForPresentationAsync(Guid presentationId, Guid? userId, CancellationToken ct) =>
+        EndAsync(s => s.PresentationId == presentationId, userId, "presentation-deleted", clearActivity: true, ct);
+
+    /// <summary>The circle closed: its presentation ends with it.</summary>
+    public Task EndForCircleAsync(Guid circleId, Guid? userId, CancellationToken ct) =>
+        EndAsync(s => s.CircleId == circleId, userId, "circle-closed", clearActivity: true, ct);
+
+    /// <summary>
+    /// Ends the matching running sessions, audits them and tells each circle which session ended (screens ignore a late
+    /// event about another session). With <paramref name="clearActivity"/>, circles still on the presentation activity
+    /// go back to none; the hub clears it itself when the animator ends or switches.
+    /// </summary>
+    public async Task<IReadOnlyList<EndedSession>> EndAsync(Expression<Func<PresentationSession, bool>> which, Guid? userId, string reason,
+        bool clearActivity, CancellationToken ct)
     {
-        var running = await db.PresentationSessions
-            .Where(s => s.PresentationId == presentationId && s.EndedAt == null)
-            .Select(s => new { s.Id, s.CircleId })
+        var running = await db.PresentationSessions.Where(s => s.EndedAt == null).Where(which)
+            .Select(s => new EndedSession(s.Id, s.CircleId))
             .ToListAsync(ct);
         if (running.Count == 0)
         {
-            return;
+            return running;
         }
         var now = clock.GetUtcNow();
-        var ids = running.Select(r => r.Id).ToList();
-        var circles = running.Select(r => r.CircleId).ToList();
+        var ids = running.Select(r => r.SessionId).ToList();
+        var circles = running.Select(r => r.CircleId).Distinct().ToList();
         await db.PresentationSessions.Where(s => ids.Contains(s.Id))
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.EndedAt, now).SetProperty(x => x.Version, x => x.Version + 1), ct);
-        await db.Circles.Where(c => circles.Contains(c.Id) && c.CurrentActivity == ActivityCatalog.Presentation)
-            .ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null), ct);
+        List<Guid> cleared = [];
+        if (clearActivity)
+        {
+            cleared = await db.Circles.Where(c => circles.Contains(c.Id) && c.CurrentActivity == ActivityCatalog.Presentation).Select(c => c.Id).ToListAsync(ct);
+            await db.Circles.Where(c => cleared.Contains(c.Id)).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null), ct);
+        }
         foreach (var r in running)
         {
-            audit.Add("session.ended", userId, detail: new { circleId = r.CircleId, sessionId = r.Id, reason = "presentation-deleted" });
+            audit.Add(AuditTypes.SessionEnded, userId, detail: new { circleId = r.CircleId, sessionId = r.SessionId, reason });
         }
         await db.SaveChangesAsync(ct);
-        foreach (var circleId in circles)
+        foreach (var r in running)
         {
-            await hub.Clients.Group(CircleHub.Group(circleId)).PresentationEnded();
+            await hub.Clients.Group(CircleHub.Group(r.CircleId)).PresentationEnded(r.SessionId);
+        }
+        foreach (var circleId in cleared)
+        {
             await hub.Clients.Group(CircleHub.Group(circleId)).Activity(new ActivityState(null, null));
         }
+        return running;
     }
 }

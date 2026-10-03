@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Circloo.Api.Auth;
 using Circloo.Api.Data;
+using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
@@ -124,7 +125,7 @@ public static class CircleEndpoints
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
-            IHubContext<CircleHub, ICircleClient> hub, CancellationToken ct) =>
+            IHubContext<CircleHub, ICircleClient> hub, LiveSessions live, CancellationToken ct) =>
         {
             var userId = ctx.User.GetUserId();
             var circle = await db.Circles.FirstOrDefaultAsync(c => c.Id == id && c.OwnerUserId == userId, ct);
@@ -135,6 +136,7 @@ public static class CircleEndpoints
             circle.ClosedAt ??= clock.GetUtcNow();
             audit.Add(AuditTypes.CircleClosed, userId, detail: new { circle = id });
             await db.SaveChangesAsync(ct);
+            await live.EndForCircleAsync(id, userId, ct);
             await hub.Clients.Group(CircleHub.Group(id)).Closed();
             return Results.NoContent();
         }).RequireAuthorization();

@@ -7,8 +7,8 @@ membership (`CurrentAsync`) and refuses with `HubException` codes, as boards do.
 
 | Method | Who | Effect | Errors |
 |---|---|---|---|
-| `StartPresentation(Guid presentationId)` | animator | Requires a `ready` presentation owned by the animator's user; ends any active session; creates a session with the snapshot (visible slides only); sets `Circle.CurrentActivity = "presentation"`; broadcasts `Activity` + `PresentationState` | `animator-only`, `presentation-not-ready`, `presentation-empty`, `session-conflict` (another tab started one at the same moment) |
-| `GoToSlide(int position)` | animator | Moves (0 ≤ position < count); `Phase = idle`, `Blank = false`; bumps `MaxPosition` | `out-of-range`, `no-session` |
+| `StartPresentation(Guid presentationId)` | animator | Requires a `ready` presentation owned by the animator's user; ends any active session; creates a session with the snapshot (visible slides only); sets `Circle.CurrentActivity = "presentation"`; broadcasts `Activity` + `PresentationState` | `animator-only`, `activity-invalid` (the circle doesn't offer presentations), `presentation-not-ready`, `presentation-empty`, `session-conflict` (another tab started one at the same moment) |
+| `GoToSlide(int position)` | animator | Moves (0 ≤ position < count); `Phase = idle` (or the question's stored phase), `Blank = false`; bumps `MaxPosition`. Moving to the slide already shown only unblanks it (never closes its question) and sends nothing when nothing changed | `out-of-range`, `no-session`, `busy` |
 | `SetBlank(bool blank)` | animator | Blank on/off | `no-session` |
 | `OpenQuestion()` | animator | Current slide must be a question in `idle`; `Phase = answering`, `OpenedAt = now`, quiz `Deadline = now + timer`; schedules the quiz lock | `not-a-question`, `already-open` |
 | `LockQuestion()` | animator | `answering → locked` | `not-answering` |
@@ -16,7 +16,7 @@ membership (`CurrentAsync`) and refuses with `HubException` codes, as boards do.
 | `ShowPodium()` | animator | Quiz slide in `revealed`, presentation `ShowPodium`; `Phase = podium`; broadcasts `Podium` | `podium-off`, `not-revealed` |
 | `EndPresentation()` | animator | `EndedAt = now`; activity cleared; broadcasts `PresentationEnded` | `no-session` |
 | `Answer(Guid slideId, string[] options)` | participant | Upsert under the rules of data-model.md; replies to the caller with `MyAnswer`; sends `AnswerCount` to animator + audience (and `Results` live for `showLive` polls) | `answers-closed`, `not-current-question`, `invalid-options`, `quiz-final`, `animator-cannot-answer` |
-| `EnterAudience(Guid circleId)` | animator (user session) | Joins `circle:{id}` and `audience:{id}` groups without presence; returns the current `PresentationState`, or null when nothing is presented | `animator-only` |
+| `EnterAudience(Guid circleId)` | animator (user session) | Joins `circle:{id}` and `audience:{id}` groups without presence; returns the current `PresentationState`, or null when nothing is presented. The connection only listens: `Enter` is refused (`audience-read-only`) and every action answers `not-entered` | `animator-only` |
 
 `Enter(circleId)` (existing) additionally pushes the current `PresentationState` to the caller (and `PresenterNotes` to an
 animator, whose connections join `animator:{id}`) and, for participants, `MyAnswer` for the open question, so reloads and
@@ -35,6 +35,7 @@ type PresentationState = {
         multipleChoice: boolean; timerSeconds?: number; showFirst: boolean; showLive: boolean }
   phase: 'idle' | 'answering' | 'locked' | 'revealed' | 'podium'
   openedAt?: string; deadline?: string; serverNow: string   // clients correct countdown skew with serverNow
+  version: number     // grows with every change of the session; a screen ignores a state older than the one it shows
   results?: Results                                          // set when revealed (or live polls)
   podium?: Podium                                            // set in podium phase
 }
@@ -54,7 +55,7 @@ type MyAnswer = { slideId: string; options: string[]; correct?: boolean; points?
 | `AnswerCount(count)` | animator connections + `audience:{id}` | after each answer, throttled to 4/s |
 | `MyAnswer(answer)` | the answering connection(s) of that member | after their answer; after reveal (correct, points); after podium (rank) |
 | `PresenterNotes(slideId, notes?, next?)` | animator connections only | on every move: notes of the current slide and a preview of the next one |
-| `PresentationEnded()` | circle group | session ended or presentation deleted |
+| `PresentationEnded(sessionId)` | circle group | session ended, replaced, its activity switched, its presentation deleted or purged, or the circle closed; screens ignore it unless it names the session they show |
 
 Privacy rules (FR-612/614): before reveal, nothing about counts reaches participants unless `showLive`; `first` is
 omitted when `showFirst` is false; `pending` lists ids only to the animator and the audience screen; notes and the

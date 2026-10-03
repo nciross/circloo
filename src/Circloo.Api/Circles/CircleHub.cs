@@ -36,7 +36,8 @@ public interface ICircleClient
     Task PresentationState(PresentationStateView state);
     /// <summary>Animator connections only: the current slide's notes and a preview of the next slide.</summary>
     Task PresenterNotes(Guid slideId, string? notes, NextSlideView? upcoming);
-    Task PresentationEnded();
+    /// <summary>The session ended; screens still showing it leave the presentation (a late event about another one is ignored).</summary>
+    Task PresentationEnded(Guid sessionId);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -57,7 +58,7 @@ public sealed class CirclePresence
 /// member loses access at once; only the animator can steer activities or talk to circloo.
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
-public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit) : Hub<ICircleClient>
+public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -94,6 +95,10 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
     /// <summary>Joins the circle's group and announces presence. Returns the online member ids.</summary>
     public async Task<Guid[]> Enter(Guid circleId)
     {
+        if (Context.Items.ContainsKey(AudienceKey))
+        {
+            throw new HubException("audience-read-only");
+        }
         var me = await MemberAsync(circleId);
         Context.Items[CircleKey] = circleId;
         presence.Add(Context.ConnectionId, circleId, me.Id);
@@ -146,7 +151,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             throw new HubException("activity-invalid");
         }
         // Switching activity ends a running presentation for everyone (spec 006 US3 #6).
-        await EndSessionAsync(circleId, me);
+        await EndSessionAsync(circleId, me, "switched");
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
@@ -163,7 +168,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
     {
         var (circleId, me) = await CurrentAsync(animatorOnly: true);
         var activityId = me.Circle!.CurrentActivity;
-        await EndSessionAsync(circleId, me);
+        await EndSessionAsync(circleId, me, "ended");
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));

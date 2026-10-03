@@ -101,12 +101,13 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     /// <summary>An animator with a presentation circle and a guest in it, both in the live room.</summary>
-    private async Task<Room> RoomAsync(Action<HubConnection>? beforeAnimatorEnters = null, Action<HubConnection>? beforeGuestEnters = null)
+    private async Task<Room> RoomAsync(Action<HubConnection>? beforeAnimatorEnters = null, Action<HubConnection>? beforeGuestEnters = null,
+        string[]? activities = null)
     {
         var (http, cookies) = Browser();
         var csrf = await http.SignInAsync(_factory, $"present-{Guid.NewGuid():N}@example.test");
         (await http.PutJsonAsync("/api/me/profile", new { displayName = "Amina", locale = "en" }, csrf)).EnsureSuccessStatusCode();
-        var res = await http.PostJsonAsync("/api/circles", new { name = "Kickoff", activities = new[] { "presentation", "quick-question" }, character = "panda", locale = "en" }, csrf);
+        var res = await http.PostJsonAsync("/api/circles", new { name = "Kickoff", activities = activities ?? ["presentation", "quick-question"], character = "panda", locale = "en" }, csrf);
         res.EnsureSuccessStatusCode();
         var body = await res.Content.ReadFromJsonAsync<JsonElement>();
         var id = body.GetProperty("id").GetGuid();
@@ -279,7 +280,7 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Ending_or_switching_activity_takes_everyone_out_together()
     {
         Inbox<bool>? ended = null;
-        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On("PresentationEnded", () => add(true))));
+        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On<Guid>("PresentationEnded", _ => add(true))));
         var (deckId, _) = await DeckAsync(room.AnimatorUserId);
 
         await room.Animator.InvokeAsync("StartPresentation", deckId);
@@ -370,7 +371,7 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Deleting_the_presentation_ends_its_session_for_everyone()
     {
         Inbox<bool>? ended = null;
-        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On("PresentationEnded", () => add(true))));
+        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On<Guid>("PresentationEnded", _ => add(true))));
         var (deckId, slides) = await DeckAsync(room.AnimatorUserId);
         await PicturesAsync(room.AnimatorUserId, deckId, slides);
         await room.Animator.InvokeAsync("StartPresentation", deckId);
@@ -380,6 +381,97 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
         var session = await DbAsync(db => db.PresentationSessions.SingleAsync(x => x.CircleId == room.CircleId));
         Assert.NotNull(session.EndedAt);
         Assert.Null(session.PresentationId);
+        Assert.Null(await DbAsync(db => db.Circles.Where(c => c.Id == room.CircleId).Select(c => c.CurrentActivity).SingleAsync()));
+        Assert.Contains("no-session", await RefusedAsync(() => room.Animator.InvokeAsync("GoToSlide", 1)));
+    }
+
+    [Fact]
+    public async Task A_circle_that_does_not_offer_presentations_cannot_start_one()
+    {
+        await using var room = await RoomAsync(activities: ["quick-question"]);
+        var (deckId, _) = await DeckAsync(room.AnimatorUserId);
+        Assert.Contains("activity-invalid", await RefusedAsync(() => room.Animator.InvokeAsync("StartPresentation", deckId)));
+    }
+
+    [Fact]
+    public async Task Every_animator_tab_gets_the_state_and_notes_and_versions_only_grow()
+    {
+        await using var room = await RoomAsync();
+        var (deckId, _) = await DeckAsync(room.AnimatorUserId);
+        await using var tab = Hub(room.AnimatorCookies);
+        var states = new Inbox<PresentationStateView>(tab, "PresentationState");
+        var notes = NotesOf(tab);
+        await tab.StartAsync();
+        await tab.InvokeAsync<Guid[]>("Enter", room.CircleId);
+
+        await room.Animator.InvokeAsync("StartPresentation", deckId);
+        var first = await states.NextAsync();
+        Assert.Equal("Welcome everyone", (await notes.NextAsync()).Text);
+
+        // Two tabs moving at the same time: every move lands (last write wins), and versions only grow.
+        await Task.WhenAll(
+            room.Animator.InvokeAsync("GoToSlide", 1), tab.InvokeAsync("GoToSlide", 2),
+            room.Animator.InvokeAsync("GoToSlide", 0), tab.InvokeAsync("GoToSlide", 1));
+        var session = await DbAsync(db => db.PresentationSessions.SingleAsync(x => x.CircleId == room.CircleId && x.EndedAt == null));
+        // The order is up to the server; two moves to the same slide in a row count once.
+        Assert.InRange(session.Version, first.Version + 2, first.Version + 4);
+
+        // Moving to the slide already shown changes nothing and sends nothing.
+        var before = session.Version;
+        await room.Animator.InvokeAsync("GoToSlide", session.Position);
+        Assert.Equal(before, await DbAsync(db => db.PresentationSessions.Where(x => x.Id == session.Id).Select(x => x.Version).SingleAsync()));
+    }
+
+    [Fact]
+    public async Task The_audience_screen_only_listens()
+    {
+        await using var room = await RoomAsync();
+        var (deckId, _) = await DeckAsync(room.AnimatorUserId);
+        await room.Animator.InvokeAsync("StartPresentation", deckId);
+        await using var audience = Hub(room.AnimatorCookies);
+        await audience.StartAsync();
+        await audience.InvokeAsync<PresentationStateView?>("EnterAudience", room.CircleId);
+
+        Assert.Contains("audience-read-only", await RefusedAsync(() => audience.InvokeAsync<Guid[]>("Enter", room.CircleId)));
+        Assert.Contains("not-entered", await RefusedAsync(() => audience.InvokeAsync("GoToSlide", 1)));
+        Assert.Contains("not-entered", await RefusedAsync(() => audience.InvokeAsync("Say", "hello")));
+    }
+
+    [Fact]
+    public async Task Signed_in_members_load_shown_slides_until_the_circle_closes()
+    {
+        Inbox<bool>? ended = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On<Guid>("PresentationEnded", _ => add(true))));
+        var (deckId, slides) = await DeckAsync(room.AnimatorUserId);
+        await PicturesAsync(room.AnimatorUserId, deckId, slides);
+        var (member, _) = Browser();
+        var memberCsrf = await member.SignInAsync(_factory, $"member-{Guid.NewGuid():N}@example.test");
+        (await member.PostJsonAsync($"/api/join/{room.JoinCode}", new { name = "Youssef", character = "owl" }, memberCsrf)).EnsureSuccessStatusCode();
+
+        await room.Animator.InvokeAsync("StartPresentation", deckId);
+        Assert.Equal(HttpStatusCode.OK, await ImageAsync(member, slides[0].Id));
+
+        // Closing the circle ends its presentation; nobody keeps loading its slides.
+        (await room.AnimatorHttp.PostJsonAsync($"/api/circles/{room.CircleId}/close", new { }, room.AnimatorCsrf)).EnsureSuccessStatusCode();
+        await ended!.NextAsync();
+        Assert.Equal(HttpStatusCode.NotFound, await ImageAsync(member, slides[0].Id));
+        Assert.Equal(HttpStatusCode.NotFound, await ImageAsync(room.GuestHttp, slides[0].Id));
+        Assert.Equal(0, await DbAsync(db => db.PresentationSessions.CountAsync(x => x.CircleId == room.CircleId && x.EndedAt == null)));
+    }
+
+    [Fact]
+    public async Task The_janitor_ends_a_session_whose_presentation_it_purges()
+    {
+        Inbox<bool>? ended = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g => ended = new Inbox<bool>(add => g.On<Guid>("PresentationEnded", _ => add(true))));
+        var (deckId, _) = await DeckAsync(room.AnimatorUserId);
+        await room.Animator.InvokeAsync("StartPresentation", deckId);
+
+        var old = _factory.Clock.GetUtcNow().AddDays(-(PresentationRules.IdleDeleteDays + 1));
+        await DbAsync(db => db.Presentations.Where(x => x.Id == deckId).ExecuteUpdateAsync(u => u.SetProperty(x => x.LastUsedAt, old)));
+        await _factory.Services.GetRequiredService<PresentationJanitor>().SweepAsync(default);
+
+        await ended!.NextAsync();
         Assert.Null(await DbAsync(db => db.Circles.Where(c => c.Id == room.CircleId).Select(c => c.CurrentActivity).SingleAsync()));
         Assert.Contains("no-session", await RefusedAsync(() => room.Animator.InvokeAsync("GoToSlide", 1)));
     }

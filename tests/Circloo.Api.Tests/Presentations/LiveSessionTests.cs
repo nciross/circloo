@@ -178,4 +178,19 @@ public sealed class LiveSessionTests
         Assert.Equal(("7 × 8?", 20), (quiz.Question, quiz.TimerSeconds));
         Assert.Null(LiveSession.Next(s));
     }
+
+    [Fact]
+    public void Moving_to_the_slide_already_shown_only_unblanks_it()
+    {
+        var (s, _) = Running();
+        LiveSession.GoTo(s, 1, T0);
+        LiveSession.Open(s, T0);
+        Assert.False(LiveSession.GoTo(s, 1, T0.AddSeconds(2)));
+        Assert.Equal(SessionPhases.Answering, s.Phase);
+        Assert.True(LiveSession.SetBlank(s, true));
+        Assert.False(LiveSession.SetBlank(s, true));
+        Assert.True(LiveSession.GoTo(s, 1, T0.AddSeconds(3)));
+        Assert.False(s.Blank);
+        Assert.Equal(SessionPhases.Answering, s.Phase);
+    }
 }

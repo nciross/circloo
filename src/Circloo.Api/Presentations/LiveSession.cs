@@ -45,7 +45,8 @@ public sealed record PresentationStateView(
     string Phase,
     DateTimeOffset? OpenedAt,
     DateTimeOffset? Deadline,
-    DateTimeOffset ServerNow);
+    DateTimeOffset ServerNow,
+    int Version);
 
 /// <summary>The animator's view of the next slide, beside their notes.</summary>
 public sealed record NextSlideView(Guid SlideId, string Kind, string? Image, string? Question);
@@ -94,13 +95,25 @@ public static class LiveSession
     public static Dictionary<Guid, QuestionPhase> Phases(PresentationSession s) =>
         JsonSerializer.Deserialize<Dictionary<Guid, QuestionPhase>>(s.QuestionPhases, Json) ?? [];
 
-    /// <summary>Moves to <paramref name="position"/>: the slide shows unblanked, and a question shows its stored phase.</summary>
-    public static void GoTo(PresentationSession s, int position, DateTimeOffset now)
+    /// <summary>
+    /// Moves to <paramref name="position"/>: the slide shows unblanked, and a question shows its stored phase. Moving to
+    /// the slide already shown only unblanks it, and never closes its question. Returns whether anything changed.
+    /// </summary>
+    public static bool GoTo(PresentationSession s, int position, DateTimeOffset now)
     {
         var slides = Slides(s);
         if (position < 0 || position >= slides.Count)
         {
             throw new LiveSessionException("out-of-range");
+        }
+        if (position == s.Position)
+        {
+            if (!s.Blank)
+            {
+                return false;
+            }
+            s.Blank = false;
+            return true;
         }
         var phases = Phases(s);
         Remember(s, slides[s.Position], phases, now);
@@ -118,9 +131,19 @@ public static class LiveSession
             (s.Phase, s.OpenedAt, s.Deadline, s.LockedAt) = (SessionPhases.Idle, null, null, null);
         }
         s.QuestionPhases = JsonSerializer.Serialize(phases, Json);
+        return true;
     }
 
-    public static void SetBlank(PresentationSession s, bool blank) => s.Blank = blank;
+    /// <summary>Blank on or off; returns whether it changed.</summary>
+    public static bool SetBlank(PresentationSession s, bool blank)
+    {
+        if (s.Blank == blank)
+        {
+            return false;
+        }
+        s.Blank = blank;
+        return true;
+    }
 
     /// <summary>Opens answering on the current question; a quiz gets its deadline from the server clock.</summary>
     public static void Open(PresentationSession s, DateTimeOffset now)
@@ -202,7 +225,7 @@ public static class LiveSession
             ? new SlideStateView(slide.Kind, slide.SlideId, Question: slide.Question, Options: slide.Options ?? [], MultipleChoice: slide.Multiple,
                 TimerSeconds: slide.Timer, ShowFirst: slide.ShowFirst, ShowLive: slide.ShowLive)
             : new SlideStateView(slide.Kind, slide.SlideId, Image: PresentationEndpoints.ImageUrl(slide.SlideId));
-        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now);
+        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now, s.Version);
     }
 
     public static NextSlideView? Next(PresentationSession s)
