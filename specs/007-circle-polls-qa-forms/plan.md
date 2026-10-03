@@ -91,7 +91,7 @@ specs/007-circle-polls-qa-forms/
 src/Circloo.Api/
 ├── Common/Percentages.cs                 # largest remainder (shared with spec 006)
 ├── Circles/ActivityCatalog.cs            # + poll, qa, feedback
-├── Circles/CircleHub.Decide.cs           # poll, Q&A, form hub methods
+├── Circles/CircleHub.Poll.cs, CircleHub.Qa.cs, CircleHub.Form.cs   # hub methods, one partial per activity
 ├── Circles/CircleEndpoints.cs            # CircleView.decide
 ├── Decide/PollRules.cs                   # validation, results
 ├── Decide/FormRules.cs                   # question validation, answer validation
@@ -117,7 +117,7 @@ src/web/e2e/decide.spec.ts                # poll, Q&A, form journeys (en + ar, a
 ```
 
 **Structure Decision**: same web-application layout as specs 003–006; the new server code lives in a `Decide`
-folder, hub methods in a `CircleHub` partial, UI under `features/circles/decide` plus a My forms page.
+folder, hub methods in one `CircleHub` partial per activity, UI under `features/circles/decide` plus a My forms page.
 
 ## Complexity Tracking
 

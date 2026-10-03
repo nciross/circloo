@@ -1,5 +1,8 @@
 # Data model: Live polls, Q&A and satisfaction forms (007)
 
+Glossary: a poll's **options** are the answers people choose (the spec says "answers"); a form **question** has a
+**type** and, for choices, options too.
+
 EF Core entities in `src/Circloo.Api/Data/Entities.cs`, one migration `CirclePollsQaForms`. Times are `DateTimeOffset`
 (UTC). Ids: `Guid.CreateVersion7()` for aggregates, `long` identity for high-volume rows. Every circle-owned table
 cascades from `Circle`; member references cascade from `CircleMember` (votes, upvotes, responses go with the member).

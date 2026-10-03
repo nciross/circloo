@@ -1,6 +1,7 @@
 # Hub contract: polls, Q&A and forms in a circle (007)
 
-Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`). Every method re-resolves the caller's
+Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`). `Enter` also joins the caller to `member:{memberId}`, the group used for `MyVote`, `MyUpvote` and `MyResponse` (all
+of a member's tabs and devices). Every method re-resolves the caller's
 membership; refusals are `HubException` codes. Animator-only methods refuse others with `animator-only`; methods for
 participants refuse the animator with `animator-cannot-answer`. Any text is cleaned and safety-filtered
 (`message-invalid`, `message-unsafe`). Rate limits answer `slow-down`.
@@ -51,8 +52,8 @@ type QaQuestionView = { id: number; text: string; author?: { memberId: string; n
 
 | Event | To | When |
 |---|---|---|
-| `QaChanged(QaQuestionView)` | circle group (hidden: animator group; members get `QaRemoved`) | ask, answer, reopen, hide/unhide, upvote count change (throttled 4/s per question) |
-| `QaRemoved(id)` | circle group except the animator group | hidden |
+| `QaChanged(QaQuestionView)` | circle group; for a hidden question, the animator group only | ask, answer, reopen, unhide, upvote count change (throttled 4/s per question) |
+| `QaRemoved(id)` | circle group | hidden: sent first to everyone, then `QaChanged(state: hidden)` to the animator group, which keeps the question in its moderation list |
 | `QaSettings(allowAnonymous)` | circle group | animator changes it |
 
 `mine` and `upvotedByMe` are computed per connection: broadcasts carry `mine: false, upvotedByMe: false`, and clients

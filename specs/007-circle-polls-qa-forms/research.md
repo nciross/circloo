@@ -10,7 +10,7 @@ Decisions for [spec.md](spec.md). Each entry: decision, rationale, alternatives 
 
 ## R2. Real time over the existing circle hub
 
-- **Decision**: a new partial `CircleHub.Decide.cs` with poll, Q&A and form methods; events go to the circle group (`circle:{id}`) and, for animator-only data, the `animator:{id}` group from spec 006. Writes happen through the hub (like boards and canvas), reads for late joiners through `GET /api/circles/{id}` (extended view).
+- **Decision**: new `CircleHub` partials, one per activity (`CircleHub.Poll.cs`, `CircleHub.Qa.cs`, `CircleHub.Form.cs`); events go to the circle group (`circle:{id}`) and, for animator-only data, the `animator:{id}` group from spec 006. Writes happen through the hub (like boards and canvas), reads for late joiners through `GET /api/circles/{id}` (extended view).
 - **Rationale**: membership is already re-checked per hub call; presence, groups and reconnect exist; the app is pinned to one replica (spec 006 plan), so group broadcasts reach everyone.
 - **Alternatives**: REST writes + hub notifications (two code paths for the same action); a separate hub (more connections per phone, duplicated auth).
 
