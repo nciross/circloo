@@ -26,6 +26,8 @@ public static class AuditTypes
     public const string PresentationDeleted = "presentation.deleted";
     public const string SessionStarted = "session.started";
     public const string SessionEnded = "session.ended";
+    public const string PollOpened = "poll.opened";
+    public const string PollClosed = "poll.closed";
     public const string PresentationPurged = "presentation.purged";
 }
 

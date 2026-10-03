@@ -10,11 +10,11 @@ participants refuse the animator with `animator-cannot-answer`. Any text is clea
 
 | Method | Who | Effect | Errors |
 |---|---|---|---|
-| `CreatePoll(PollInput)` | animator | Draft poll; returns `PollView` | `poll-invalid`, `activity-invalid` |
+| `CreatePoll(PollInput)` | animator | Draft poll; returns `PollView` | `poll-invalid:<field>:<code>` (e.g. `poll-invalid:options[1]:option-length`), `activity-invalid` (Poll is not the running activity) |
 | `UpdatePoll(Guid pollId, PollInput)` | animator | Edit a draft | `poll-not-draft` |
 | `OpenPoll(Guid pollId)` | animator | Opens it; closes any other open poll | `poll-not-draft` |
 | `ClosePoll(Guid pollId)` | animator | Closes it; final results to everyone | `poll-not-open` |
-| `Vote(Guid pollId, string[] options)` | participant | Upsert own vote | `poll-not-open`, `invalid-options` |
+| `VotePoll(Guid pollId, string[] options)` (named apart from the board's `Vote`) | participant | Upsert own vote | `poll-not-open`, `invalid-options` |
 
 `PollInput = { question, options: string[], multipleChoice, resultsLive }` (2–6 options; ids assigned by the server).
 

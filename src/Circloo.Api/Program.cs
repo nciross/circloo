@@ -68,6 +68,8 @@ builder.Services.AddSingleton<IntegrationSender>();
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
 builder.Services.AddScoped<LiveSessions>();
+builder.Services.AddScoped<Circloo.Api.Decide.Polls>();
+builder.Services.AddSingleton<Circloo.Api.Decide.LiveThrottle>();
 builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();
 builder.Services.AddSingleton<ConversionBacklog>();
 builder.Services.AddSingleton<PresentationConverterService>();

@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Circloo.Api.Auth;
 using Circloo.Api.Ai;
 using Circloo.Api.Data;
+using Circloo.Api.Decide;
 using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +39,14 @@ public interface ICircleClient
     Task PresenterNotes(Guid slideId, string? notes, NextSlideView? upcoming);
     /// <summary>The session ended; screens still showing it leave the presentation (a late event about another one is ignored).</summary>
     Task PresentationEnded(Guid sessionId);
+    /// <summary>A poll was created, edited, opened or closed (drafts reach the animator only, spec 007).</summary>
+    Task PollChanged(PollView poll);
+    /// <summary>Aggregated results: to everyone when the poll shows them, otherwise to the animator only.</summary>
+    Task PollResults(PollResultsView results);
+    /// <summary>How many voted, for members while the results are hidden.</summary>
+    Task PollCount(Guid pollId, int votes);
+    /// <summary>The member's own vote, to all of their connections.</summary>
+    Task MyVote(Guid pollId, string[] options);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -58,7 +67,8 @@ public sealed class CirclePresence
 /// member loses access at once; only the animator can steer activities or talk to circloo.
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
-public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live) : Hub<ICircleClient>
+public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
+    Polls polls, LiveThrottle throttle) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -103,6 +113,8 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         Context.Items[CircleKey] = circleId;
         presence.Add(Context.ConnectionId, circleId, me.Id);
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
+        // All of a member's tabs and devices: their own vote, upvotes and answers (spec 007).
+        await Groups.AddToGroupAsync(Context.ConnectionId, MemberGroup(me.Id));
         if (me.Role == Roles.Animator)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
@@ -152,6 +164,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         }
         // Switching activity ends a running presentation for everyone (spec 006 US3 #6).
         await EndSessionAsync(circleId, me, "switched");
+        await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
@@ -169,6 +182,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         var (circleId, me) = await CurrentAsync(animatorOnly: true);
         var activityId = me.Circle!.CurrentActivity;
         await EndSessionAsync(circleId, me, "ended");
+        await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
