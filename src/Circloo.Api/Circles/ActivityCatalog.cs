@@ -97,6 +97,24 @@ public static class ActivityCatalog
               ["Je suis là. Demande-moi quand tu veux que je t'aide à expliquer les résultats."],
               ["أنا هنا. اطلب مني متى شئت أن أساعدك في شرح النتائج."],
               ["Aquí estoy. Pídeme ayuda cuando quieras explicar los resultados."])),
+        new(Poll, "decide", null,
+            "The animator runs a live poll; stay quiet unless asked, then help read the result in one or two kind sentences.",
+            L(["I'm here. Ask me when you'd like a hand reading the result."],
+              ["Je suis là. Demande-moi si tu veux de l'aide pour lire le résultat."],
+              ["أنا هنا. اسألني إن أردت مساعدة في قراءة النتيجة."],
+              ["Aquí estoy. Pregúntame si quieres ayuda para leer el resultado."])),
+        new(Qa, "decide", null,
+            "The circle runs a Q&A; stay quiet unless asked, then help the animator group similar questions or draft a short, kind answer.",
+            L(["I'm here. Ask me to group similar questions or to draft an answer."],
+              ["Je suis là. Demande-moi de regrouper les questions proches ou de proposer une réponse."],
+              ["أنا هنا. اطلب مني جمع الأسئلة المتشابهة أو اقتراح إجابة."],
+              ["Aquí estoy. Pídeme agrupar preguntas parecidas o proponer una respuesta."])),
+        new(Feedback, "retro", null,
+            "The animator collects feedback with a short form; stay quiet unless asked, then summarise the shared results kindly, never quoting people.",
+            L(["I'm here. Once the form is closed, ask me for a short summary."],
+              ["Je suis là. Quand le formulaire est fermé, demande-moi un court résumé."],
+              ["أنا هنا. بعد إغلاق الاستمارة، اطلب مني ملخصًا قصيرًا."],
+              ["Aquí estoy. Cuando cierres el formulario, pídeme un resumen breve."])),
     ];
 
     private static readonly Dictionary<string, ActivityDef> ById = All.ToDictionary(a => a.Id);
@@ -123,6 +141,14 @@ public static class ActivityCatalog
 
     /// <summary>Live presentations (spec 006): the animator's deck with polls and quizzes, everyone in sync.</summary>
     public const string Presentation = "presentation";
+
+    /// <summary>Live poll, Q&A and feedback form (spec 007).</summary>
+    public const string Poll = "poll";
+    public const string Qa = "qa";
+    public const string Feedback = "feedback";
+
+    /// <summary>Activities that are tools rather than conversations: circloo does not open them (it answers when asked).</summary>
+    public static bool IsQuiet(string? activityId) => activityId is Presentation or Poll or Qa or Feedback;
 
     /// <summary>The live canvas (issue #93): notes anywhere, styled by their author, cursors for everyone.</summary>
     public const string Canvas = "canvas";

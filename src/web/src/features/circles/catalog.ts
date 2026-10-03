@@ -1,5 +1,5 @@
 import {
-  Award, BookOpen, Lightbulb, StickyNote, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Presentation, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
+  Award, BarChart3, BookOpen, ClipboardCheck, Lightbulb, MessagesSquare, StickyNote, CloudSun, Laugh, ListChecks, MessageCircleQuestion, Presentation, Puzzle, Scale, Split, ThumbsUp, Type, Vote, VenetianMask,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -24,10 +24,13 @@ export const ACTIVITIES: Activity[] = [
   { id: 'start-stop-continue', category: 'retro', icon: ListChecks },
   { id: 'went-well', category: 'retro', icon: ThumbsUp },
   { id: 'kudos', category: 'retro', icon: Award },
+  { id: 'feedback', category: 'retro', icon: ClipboardCheck },
   { id: 'quick-poll', category: 'decide', icon: Vote },
   { id: 'agree-or-not', category: 'decide', icon: Split },
   { id: 'brainstorm', category: 'decide', icon: Lightbulb },
   { id: 'canvas', category: 'decide', icon: StickyNote },
+  { id: 'poll', category: 'decide', icon: BarChart3 },
+  { id: 'qa', category: 'decide', icon: MessagesSquare },
   { id: 'presentation', category: 'present', icon: Presentation },
 ]
 
@@ -53,6 +56,11 @@ export const CATEGORIES: Category[] = ['icebreakers', 'energizers', 'retro', 'de
 
 /** Live presentations (spec 006); mirrors ActivityCatalog.Presentation. */
 export const PRESENTATION = 'presentation'
+
+/** Live poll, Q&A and feedback form (spec 007); mirror ActivityCatalog.Poll, Qa and Feedback. */
+export const POLL = 'poll'
+export const QA = 'qa'
+export const FEEDBACK = 'feedback'
 export const MAX_ACTIVITIES = 8
 
 export const activityById = (id: string | null | undefined) => ACTIVITIES.find((a) => a.id === id)
