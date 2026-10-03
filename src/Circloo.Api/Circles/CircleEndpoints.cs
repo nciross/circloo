@@ -103,7 +103,7 @@ public static class CircleEndpoints
                 r.ClosedAt is null && r.ExpiresAt > now ? "open" : "closed", r.CreatedAt, r.People)));
         }).RequireAuthorization();
 
-        circles.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, TimeProvider clock, Polls polls, CancellationToken ct) =>
+        circles.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, TimeProvider clock, Polls polls, Qa qa, CancellationToken ct) =>
         {
             var me = await CircleAccess.ResolveAsync(db, ctx.User, id, ct);
             if (me is null)
@@ -120,12 +120,13 @@ public static class CircleEndpoints
             var canvas = await db.CanvasNotes.AsNoTracking().Where(n => n.CircleId == id)
                 .OrderBy(n => n.Id).Take(ActivityCatalog.MaxCanvasNotes).ToListAsync(ct);
             var poll = await polls.ForMemberAsync(c.Id, me, ct);
+            var questions = await qa.ForMemberAsync(c, me, ct);
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
                 [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
-                // Q&A and forms are filled in by their tasks (spec 007 T704, T707).
-                DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished }));
+                // Forms are filled in by their task (spec 007 T707).
+                DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished, Qa = questions }));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,

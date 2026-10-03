@@ -69,6 +69,7 @@ builder.Services.AddOptions<PresentationOptions>().BindConfiguration(Presentatio
 builder.Services.AddSingleton<SlideStore>();
 builder.Services.AddScoped<LiveSessions>();
 builder.Services.AddScoped<Circloo.Api.Decide.Polls>();
+builder.Services.AddScoped<Circloo.Api.Decide.Qa>();
 builder.Services.AddSingleton<Circloo.Api.Decide.LiveThrottle>();
 builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();
 builder.Services.AddSingleton<ConversionBacklog>();
