@@ -704,7 +704,12 @@
       "note-invalid": "الملاحظات من 1 إلى 140 حرفًا.",
       "board-full": "هذه اللوحة ممتلئة.",
       "no-votes-left": "لم تبقَ نقاط. استرجع واحدة لتصوّت مجددًا.",
-      "author-only": "الكاتب وحده (أو المنشّط) يستطيع ذلك."
+      "author-only": "الكاتب وحده (أو المنشّط) يستطيع ذلك.",
+      "presentation-not-ready": "هذا العرض ليس جاهزًا بعد.",
+      "presentation-empty": "كل شرائح هذا العرض مخفية.",
+      "session-conflict": "بدأ عرض للتو من نافذة أخرى.",
+      "no-session": "لا يوجد عرض جارٍ.",
+      "out-of-range": "لا توجد شريحة هناك."
     }
   },
   "boards": {
@@ -1105,5 +1110,47 @@
       "quizAdded": "أُضيف الاختبار في الشريحة {{number}}."
     },
     "movedTo": "نُقلت الشريحة إلى الموضع {{number}} من {{count}}."
+  },
+  "present": {
+    "pickTitle": "اختر عرضًا",
+    "pickBody": "يتابع كل شخص في الدائرة شرائحك على شاشته.",
+    "pickEmpty": "لا يوجد عرض جاهز بعد.",
+    "pickLibrary": "افتح عروضي",
+    "present": "اعرض",
+    "presentNamed": "اعرض {{name}}",
+    "back": "العودة إلى الأنشطة",
+    "presenterTitle": "عرض {{name}}",
+    "prev": "الشريحة السابقة",
+    "next": "الشريحة التالية",
+    "counter": "الشريحة {{n}} من {{count}}",
+    "blank": "شاشة فارغة",
+    "unblank": "أظهر الشريحة",
+    "end": "إنهاء",
+    "endConfirm": "إنهاء للجميع",
+    "audience": "افتح شاشة الجمهور",
+    "keys": "الأسهم أو Page Up/Down أو المسافة للتنقل؛ B لإخفاء الشاشة.",
+    "following_zero": "لا أحد يتابع",
+    "following_one": "شخص واحد يتابع",
+    "following_two": "شخصان يتابعان",
+    "following_few": "{{count}} أشخاص يتابعون",
+    "following_many": "{{count}} شخصًا يتابعون",
+    "following_other": "{{count}} شخص يتابعون",
+    "upNext": "التالية",
+    "lastSlide": "هذه آخر شريحة.",
+    "notes": "ملاحظاتك",
+    "noNotes": "لا ملاحظات على هذه الشريحة.",
+    "slideAlt": "الشريحة {{n}} من {{count}}",
+    "poll": "استطلاع",
+    "quiz": "اختبار",
+    "blankTitle": "نعود بعد لحظة",
+    "waitTitle": "في انتظار المنشّط",
+    "waitBody": "ستظهر الشرائح هنا فور بدء العرض.",
+    "fullscreen": "ملء الشاشة",
+    "exitFullscreen": "الخروج من ملء الشاشة",
+    "audienceTitle": "شاشة الجمهور",
+    "audienceRefused": "وحده منشّط هذه الدائرة يمكنه فتح شاشة الجمهور.",
+    "joinTitle": "انضم إلى هذه الدائرة",
+    "joinAt": "انضم عبر {{host}} بالرمز",
+    "qrAlt": "رمز QR للانضمام إلى هذه الدائرة"
   }
 }

@@ -28,6 +28,15 @@ export function AuthOnly() {
   )
 }
 
+/** Signed in, without the app shell: full-screen pages such as the audience screen. */
+export function AuthBare() {
+  return (
+    <RequireAuth>
+      <Outlet />
+    </RequireAuth>
+  )
+}
+
 export function ProfileOptional() {
   return (
     <RequireAuth allowIncompleteProfile>

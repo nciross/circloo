@@ -684,7 +684,12 @@
       "note-invalid": "Notes are 1 to 140 characters.",
       "board-full": "This board is full.",
       "no-votes-left": "No dots left. Take one back to vote again.",
-      "author-only": "Only the author (or the animator) can do that."
+      "author-only": "Only the author (or the animator) can do that.",
+      "presentation-not-ready": "This presentation is not ready yet.",
+      "presentation-empty": "Every slide of this presentation is hidden.",
+      "session-conflict": "A presentation was just started from another window.",
+      "no-session": "No presentation is running.",
+      "out-of-range": "There is no slide there."
     }
   },
   "boards": {
@@ -1049,5 +1054,43 @@
       "quizAdded": "Quiz added as slide {{number}}."
     },
     "movedTo": "Slide moved to place {{number}} of {{count}}."
+  },
+  "present": {
+    "pickTitle": "Pick a presentation",
+    "pickBody": "Everyone in the circle follows your slides on their own screen.",
+    "pickEmpty": "No presentation is ready yet.",
+    "pickLibrary": "Open My presentations",
+    "present": "Present",
+    "presentNamed": "Present {{name}}",
+    "back": "Back to activities",
+    "presenterTitle": "Presenting {{name}}",
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "counter": "Slide {{n}} of {{count}}",
+    "blank": "Blank screen",
+    "unblank": "Show the slide",
+    "end": "End",
+    "endConfirm": "End for everyone",
+    "audience": "Open audience screen",
+    "keys": "Arrow keys, Page Up/Down or Space move; B blanks the screen.",
+    "following_one": "{{count}} person following",
+    "following_other": "{{count}} people following",
+    "upNext": "Next",
+    "lastSlide": "This is the last slide.",
+    "notes": "Your notes",
+    "noNotes": "No notes on this slide.",
+    "slideAlt": "Slide {{n}} of {{count}}",
+    "poll": "Poll",
+    "quiz": "Quiz",
+    "blankTitle": "Back in a moment",
+    "waitTitle": "Waiting for the animator",
+    "waitBody": "The slides show up here as soon as the presentation starts.",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Leave full screen",
+    "audienceTitle": "Audience screen",
+    "audienceRefused": "Only the animator of this circle can open its audience screen.",
+    "joinTitle": "Join this circle",
+    "joinAt": "Join at {{host}} with the code",
+    "qrAlt": "QR code to join this circle"
   }
 }

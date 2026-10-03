@@ -1,0 +1,306 @@
+/* Presenting in a circle (spec 006 US3): slide stage, presenter view, participant view, picker, audience screen.
+   Logical properties only; deck pictures are never mirrored in RTL. */
+
+/* ---------- The slide stage ---------- */
+.stage-slide {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+}
+.stage-slide__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  background: #ffffff;
+}
+.stage-slide.is-blank {
+  background: var(--surface);
+}
+.stage-slide__blank {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  color: var(--text-subtlest);
+  font-size: var(--fs-sm);
+}
+.stage-slide__question {
+  display: grid;
+  align-content: center;
+  gap: var(--s-4);
+  inline-size: 100%;
+  block-size: 100%;
+  padding: clamp(var(--s-4), 5%, var(--s-9));
+  background: var(--surface);
+}
+.stage-slide__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+.stage-slide__title {
+  margin: 0;
+  font-size: clamp(var(--fs-lg), 3.2vw, var(--fs-3xl));
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.stage-slide__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--s-2) var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stage-slide__options li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: clamp(var(--fs-md), 1.6vw, var(--fs-xl));
+}
+.stage-slide__letter {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+/* ---------- Presenter view ---------- */
+.presenter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  gap: var(--s-5);
+  align-items: start;
+}
+.presenter__main {
+  display: grid;
+  gap: var(--s-3);
+}
+.presenter__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+.presenter__count {
+  min-inline-size: 7rem;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: center;
+}
+.presenter__spacer {
+  flex: 1;
+}
+.presenter__keys {
+  margin: 0;
+}
+.presenter__side {
+  display: grid;
+  gap: var(--s-4);
+}
+.presenter__followers {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-weight: 600;
+}
+.presenter__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+.presenter__next-slide img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: #ffffff;
+}
+.presenter__next-question {
+  margin: 0;
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-weight: 600;
+}
+.presenter__notes-text {
+  margin: 0;
+  max-block-size: 18rem;
+  overflow-y: auto;
+  white-space: pre-line;
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+
+/* ---------- Participant view ---------- */
+.follow {
+  display: grid;
+  gap: var(--s-2);
+}
+.follow__frame {
+  position: relative;
+}
+.follow__frame:fullscreen {
+  display: grid;
+  place-items: center;
+  background: #000000;
+}
+.follow__frame:fullscreen .follow__stage {
+  max-block-size: 100vh;
+  inline-size: min(100vw, calc(100vh * 16 / 9));
+  border: 0;
+  border-radius: 0;
+}
+.follow__full {
+  position: absolute;
+  inset-block-end: var(--s-2);
+  inset-inline-end: var(--s-2);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+}
+.follow__count {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-subtle);
+  text-align: end;
+}
+
+/* ---------- Picker ---------- */
+.picker .panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.picker__list {
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.picker__item {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.picker__thumb {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-xs);
+  background: var(--surface-sunken);
+}
+.picker__thumb img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+.picker__text {
+  display: grid;
+  min-inline-size: 0;
+}
+.picker__name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picker__empty {
+  margin: var(--s-3) 0 0;
+}
+
+/* ---------- Audience screen (projector / TV) ---------- */
+.audience {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(var(--s-3), 2vw, var(--s-6));
+  background: #0d1117;
+  color: #f4f6f8;
+}
+.audience__stage {
+  inline-size: min(100%, calc((100vh - 2 * var(--s-6)) * 16 / 9));
+  border: 0;
+}
+.audience__wait {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-4);
+  font-size: var(--fs-xl);
+}
+.audience__panda {
+  inline-size: 8rem;
+}
+.audience__join {
+  position: fixed;
+  inset-block-end: var(--s-5);
+  inset-inline-end: var(--s-5);
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: #ffffff;
+  color: #10161d;
+  box-shadow: var(--shadow-float);
+}
+.audience__qr {
+  display: block;
+  inline-size: 7.5rem;
+  block-size: 7.5rem;
+}
+.audience__join-text {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  font-size: var(--fs-md);
+}
+.audience__code {
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 56rem) {
+  .presenter {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

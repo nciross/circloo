@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router'
-import { Root, AuthOnly, ProfileOptional, PublicLanding } from './layouts'
+import { Root, AuthBare, AuthOnly, ProfileOptional, PublicLanding } from './layouts'
 
 const page = (load: () => Promise<{ default: React.ComponentType }>) => async () => ({ Component: (await load()).default })
 
@@ -13,6 +13,11 @@ export const router = createBrowserRouter([
       {
         lazy: page(() => import('../features/circles/GuestShell')),
         children: [{ path: '/c/:id', lazy: page(() => import('../features/circles/CircleRoom')) }],
+      },
+      {
+        // The audience screen for a projector: the animator's own window, full screen, no app chrome (spec 006 US3 #7).
+        Component: AuthBare,
+        children: [{ path: '/app/circles/:id/audience', lazy: page(() => import('../features/circles/present/AudienceScreen')) }],
       },
       {
         Component: ProfileOptional,
