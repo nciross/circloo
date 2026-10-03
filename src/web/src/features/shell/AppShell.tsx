@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Settings, X } from 'lucide-react'
+import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Presentation, Settings, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
@@ -34,6 +34,12 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink to="/app/icebreakers" className={cls} onClick={onNavigate} viewTransition>
             <MessagesSquare size={18} aria-hidden="true" />
             <span>{t('common.nav.icebreakers')}</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/app/presentations" className={cls} onClick={onNavigate} viewTransition>
+            <Presentation size={18} aria-hidden="true" />
+            <span>{t('presentations.title')}</span>
           </NavLink>
         </li>
         <li>

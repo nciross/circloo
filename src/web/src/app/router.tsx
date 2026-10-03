@@ -27,6 +27,8 @@ export const router = createBrowserRouter([
           { path: '/app/circles/new', lazy: page(() => import('../features/circles/CreateCircle')) },
           { path: '/app/circles/:id', lazy: page(() => import('../features/circles/CircleRoom')) },
           { path: '/app/integrations', lazy: page(() => import('../features/integrations/Integrations')) },
+          { path: '/app/presentations', lazy: page(() => import('../features/presentations/Library')) },
+          { path: '/app/presentations/:id', lazy: page(() => import('../features/presentations/Editor')) },
         ],
       },
       { path: '*', lazy: page(() => import('../features/NotFound')) },

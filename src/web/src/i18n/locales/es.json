@@ -956,5 +956,56 @@
       "violet": "Violeta",
       "white": "Blanco"
     }
+  },
+  "presentations": {
+    "title": "Presentaciones",
+    "lead": "Sube un PowerPoint, añade encuestas y quizzes y preséntalo en vivo en un círculo.",
+    "name": "Nombre de la presentación",
+    "upload": {
+      "title": "Suelta aquí un archivo de PowerPoint",
+      "hint": "Un archivo .pptx de hasta 50 MB y 100 diapositivas. Cada diapositiva se convierte en imagen; tus notas también se guardan.",
+      "choose": "Elegir un archivo",
+      "sending": "Subiendo"
+    },
+    "errors": {
+      "not-pptx": "No es un archivo de PowerPoint (.pptx). En PowerPoint, usa Guardar como y elige .pptx.",
+      "encrypted": "Este archivo está protegido con contraseña. Quítala en PowerPoint y vuelve a subirlo.",
+      "macros": "No aceptamos archivos con macros. Guárdalo como .pptx normal, sin macros.",
+      "too-large": "El archivo es demasiado grande. Mantenlo por debajo de 50 MB, por ejemplo comprimiendo las imágenes en PowerPoint.",
+      "too-many-slides": "Tiene más de 100 diapositivas. Divídelo en presentaciones más cortas.",
+      "conversion-failed": "No pudimos convertir este archivo en diapositivas. Guárdalo de nuevo en PowerPoint e inténtalo otra vez.",
+      "timeout": "La conversión tardó demasiado. Inténtalo de nuevo o divide el archivo.",
+      "rate-limited": "Son muchas subidas en una hora. Inténtalo un poco más tarde.",
+      "name-length": "Ponle a la presentación un nombre de hasta 80 caracteres.",
+      "stale": "Esta presentación cambió en otra pestaña. Cargamos la última versión."
+    },
+    "converting": "Convirtiendo {{done}} de {{total}}",
+    "failed": "Error",
+    "slides_one": "{{count}} diapositiva",
+    "slides_many": "{{count}} diapositivas",
+    "slides_other": "{{count}} diapositivas",
+    "questions_one": "{{count}} pregunta",
+    "questions_many": "{{count}} preguntas",
+    "questions_other": "{{count}} preguntas",
+    "deletesIn_one": "Se borra en {{count}} día",
+    "deletesIn_many": "Se borra en {{count}} días",
+    "deletesIn_other": "Se borra en {{count}} días",
+    "delete": "Borrar",
+    "deleteConfirm": "¿Borrar esta presentación?",
+    "deleteNamed": "Borrar {{name}}",
+    "deleteSlide": "Borrar diapositiva",
+    "deleteSlideConfirm": "¿Borrar esta diapositiva?",
+    "empty": {
+      "title": "Todavía no hay presentaciones",
+      "body": "Sube tu primer PowerPoint arriba. Es privado hasta que lo presentes en un círculo."
+    },
+    "slideLabel": "Diapositiva {{number}} {{state}}",
+    "hiddenState": "(oculta)",
+    "show": "Mostrar diapositiva",
+    "hide": "Ocultar diapositiva",
+    "notes": "Notas del orador",
+    "noNotes": "Esta diapositiva no tiene notas. Solo tú ves las notas al presentar.",
+    "stillNote": "Las diapositivas se muestran como imágenes fijas: no se reproducen animaciones, transiciones ni audio o vídeo incrustados.",
+    "strip": "Diapositivas"
   }
 }
