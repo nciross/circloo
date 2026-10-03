@@ -89,7 +89,7 @@ At most one open form per circle (filtered unique index, as for polls).
 | required | bool | |
 | look | string? | `rating5`: `stars` \| `smileys` |
 | options | `{ id, text }[]`? | `single`/`multiple`: 2–6, 1–80 chars |
-| long | bool? | `text`: short ≤ 200 / long ≤ 1 000 |
+| longText | bool? | `text`: short ≤ 200 / long ≤ 1 000 |
 
 ## FormResponse
 

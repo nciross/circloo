@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using DecideRules = Circloo.Api.Decide.DecideRules;
 using PresentationRules = Circloo.Api.Presentations.PresentationRules;
 
 namespace Circloo.Api.Data;
@@ -27,6 +29,13 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<Slide> Slides => Set<Slide>();
     public DbSet<PresentationSession> PresentationSessions => Set<PresentationSession>();
     public DbSet<SessionAnswer> SessionAnswers => Set<SessionAnswer>();
+    public DbSet<Poll> Polls => Set<Poll>();
+    public DbSet<PollVote> PollVotes => Set<PollVote>();
+    public DbSet<QaQuestion> QaQuestions => Set<QaQuestion>();
+    public DbSet<QaUpvote> QaUpvotes => Set<QaUpvote>();
+    public DbSet<Form> Forms => Set<Form>();
+    public DbSet<FormResponse> FormResponses => Set<FormResponse>();
+    public DbSet<SavedForm> SavedForms => Set<SavedForm>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -227,6 +236,99 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.HasIndex(a => new { a.SessionId, a.SlideId, a.MemberId }).IsUnique();
             e.HasOne<PresentationSession>().WithMany().HasForeignKey(a => a.SessionId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<CircleMember>().WithMany().HasForeignKey(a => a.MemberId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        // ---------- Polls, Q&A and feedback forms (spec 007, data-model.md) ----------
+        modelBuilder.Entity<Poll>(e =>
+        {
+            e.Property(p => p.Question).HasMaxLength(DecideRules.PollQuestionMax);
+            e.OwnsMany(p => p.Options, o =>
+            {
+                o.ToJson();
+                o.Property(x => x.Id).HasMaxLength(1);
+                o.Property(x => x.Text).HasMaxLength(DecideRules.OptionMax);
+            });
+            e.Property(p => p.Version).IsConcurrencyToken();
+            e.HasIndex(p => p.CircleId);
+            // At most one open poll per circle.
+            e.HasIndex(p => p.CircleId, "IX_Polls_CircleId_Open").IsUnique().HasFilter("\"OpenedAt\" IS NOT NULL AND \"ClosedAt\" IS NULL");
+            e.HasOne<Circle>().WithMany().HasForeignKey(p => p.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(p => p.CreatedByMemberId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<PollVote>(e =>
+        {
+            e.Property(v => v.Id).UseIdentityAlwaysColumn();
+            // One vote per member per poll, whatever the tabs or devices (SC-703).
+            e.HasIndex(v => new { v.PollId, v.MemberId }).IsUnique();
+            e.HasOne<Poll>().WithMany().HasForeignKey(v => v.PollId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(v => v.MemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<QaQuestion>(e =>
+        {
+            e.Property(q => q.Id).UseIdentityAlwaysColumn();
+            e.Property(q => q.Text).HasMaxLength(DecideRules.QaQuestionMax);
+            e.Property(q => q.Answer).HasMaxLength(DecideRules.QaAnswerMax);
+            e.Property(q => q.State).HasMaxLength(8);
+            e.HasIndex(q => new { q.CircleId, q.State });
+            e.HasOne<Circle>().WithMany().HasForeignKey(q => q.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(q => q.AuthorMemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<QaUpvote>(e =>
+        {
+            // One upvote per member per question (SC-703).
+            e.HasKey(u => new { u.QuestionId, u.MemberId });
+            e.HasOne<QaQuestion>().WithMany().HasForeignKey(u => u.QuestionId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Form>(e =>
+        {
+            e.Property(f => f.Title).HasMaxLength(DecideRules.FormTitleMax);
+            ConfigureQuestions(e.OwnsMany(f => f.Questions));
+            e.Property(f => f.Version).IsConcurrencyToken();
+            e.HasIndex(f => f.CircleId);
+            // At most one open form per circle.
+            e.HasIndex(f => f.CircleId, "IX_Forms_CircleId_Open").IsUnique().HasFilter("\"OpenedAt\" IS NOT NULL AND \"ClosedAt\" IS NULL");
+            e.HasOne<Circle>().WithMany().HasForeignKey(f => f.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<SavedForm>().WithMany().HasForeignKey(f => f.SavedFormId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<FormResponse>(e =>
+        {
+            e.Property(r => r.Id).UseIdentityAlwaysColumn();
+            e.Property(r => r.Answers).HasColumnType("jsonb");
+            // One response per member per form (SC-703).
+            e.HasIndex(r => new { r.FormId, r.MemberId }).IsUnique();
+            e.HasOne<Form>().WithMany().HasForeignKey(r => r.FormId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(r => r.MemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SavedForm>(e =>
+        {
+            e.Property(f => f.Name).HasMaxLength(DecideRules.SavedFormNameMax);
+            e.Property(f => f.Title).HasMaxLength(DecideRules.FormTitleMax);
+            ConfigureQuestions(e.OwnsMany(f => f.Questions));
+            e.Property(f => f.Version).IsConcurrencyToken();
+            e.HasIndex(f => f.OwnerUserId);
+            e.HasOne<User>().WithMany().HasForeignKey(f => f.OwnerUserId).OnDelete(DeleteBehavior.Cascade);
+        });
+    }
+
+    /// <summary>Form questions live in the form row as JSON, each with its own options.</summary>
+    private static void ConfigureQuestions<TOwner>(OwnedNavigationBuilder<TOwner, FormQuestion> q) where TOwner : class
+    {
+        q.ToJson();
+        q.Property(x => x.Id).HasMaxLength(3);
+        q.Property(x => x.Type).HasMaxLength(8);
+        q.Property(x => x.Label).HasMaxLength(DecideRules.FormLabelMax);
+        q.Property(x => x.Look).HasMaxLength(8);
+        q.OwnsMany(x => x.Options, o =>
+        {
+            o.Property(x => x.Id).HasMaxLength(1);
+            o.Property(x => x.Text).HasMaxLength(DecideRules.OptionMax);
         });
     }
 }

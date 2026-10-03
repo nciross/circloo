@@ -81,6 +81,13 @@ public static class TextRules
         return text;
     }
 
+    /// <summary>
+    /// <see cref="Clean"/> for typed text: LRM, RLM and ALM are ordinary when typing Arabic, so they are dropped rather
+    /// than refused; overrides and isolates (which can spoof text) are still refused.
+    /// </summary>
+    public static string? CleanTyped(string? value, int max) =>
+        Clean(value is null ? null : new string([.. value.Where(c => c is not ((char)0x200E or (char)0x200F or (char)0x061C))]), max);
+
     /// <summary>Directional overrides and isolates let a name visually spoof another (e.g. U+202E).</summary>
     public static bool IsBidiControl(char c) =>
         c is '‎' or '‏' or '؜' || (c >= '‪' && c <= '‮') || (c >= '⁦' && c <= '⁩');

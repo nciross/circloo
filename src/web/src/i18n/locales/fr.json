@@ -554,6 +554,18 @@
     "presentation": {
       "title": "Présentation",
       "body": "Montre tes diapos PowerPoint avec des sondages et des quiz en direct ; chacun suit sur son écran."
+    },
+    "poll": {
+      "title": "Sondage en direct",
+      "body": "Pose une question avec quelques réponses : chacun vote depuis son écran et les barres bougent en direct."
+    },
+    "qa": {
+      "title": "Questions-réponses",
+      "body": "Chacun pose ses questions et vote pour celles qu’il veut voir traitées ; tu réponds d’abord aux plus demandées."
+    },
+    "feedback": {
+      "title": "Formulaire de retour",
+      "body": "Recueille un avis rapide avec des notes, des choix et des commentaires ; le résumé se remplit au fil des réponses."
     }
   },
   "circles": {

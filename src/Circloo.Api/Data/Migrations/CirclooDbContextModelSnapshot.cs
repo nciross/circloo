@@ -281,6 +281,9 @@ namespace Circloo.Api.Data.Migrations
                     b.Property<Guid>("OwnerUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("QaAllowAnonymous")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("JoinCode")
@@ -421,6 +424,88 @@ namespace Circloo.Api.Data.Migrations
                     b.ToTable("EmailOutbox", (string)null);
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.Form", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("SavedFormId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ShowNames")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SummaryShared")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CircleId");
+
+                    b.HasIndex("SavedFormId");
+
+                    b.HasIndex(new[] { "CircleId" }, "IX_Forms_CircleId_Open")
+                        .IsUnique()
+                        .HasFilter("\"OpenedAt\" IS NOT NULL AND \"ClosedAt\" IS NULL");
+
+                    b.ToTable("Forms");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.FormResponse", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Answers")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FormId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("FormId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("FormResponses");
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.IntegrationConnection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -504,6 +589,89 @@ namespace Circloo.Api.Data.Migrations
                         .IsDescending(false, true);
 
                     b.ToTable("OtpChallenges");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Poll", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("MultipleChoice")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)");
+
+                    b.Property<bool>("ResultsLive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CircleId");
+
+                    b.HasIndex("CreatedByMemberId");
+
+                    b.HasIndex(new[] { "CircleId" }, "IX_Polls_CircleId_Open")
+                        .IsUnique()
+                        .HasFilter("\"OpenedAt\" IS NOT NULL AND \"ClosedAt\" IS NULL");
+
+                    b.ToTable("Polls");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.PollVote", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.PrimitiveCollection<string[]>("Options")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<Guid>("PollId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("PollId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("PollVotes");
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.Presentation", b =>
@@ -644,6 +812,111 @@ namespace Circloo.Api.Data.Migrations
                     b.HasIndex("StartedByMemberId");
 
                     b.ToTable("PresentationSessions");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.QaQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Anonymous")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Answer")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset?>("AnsweredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("AuthorMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Upvotes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorMemberId");
+
+                    b.HasIndex("CircleId", "State");
+
+                    b.ToTable("QaQuestions");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.QaUpvote", b =>
+                {
+                    b.Property<long>("QuestionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("QuestionId", "MemberId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("QaUpvotes");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.SavedForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ShowNames")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerUserId");
+
+                    b.ToTable("SavedForms");
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.SessionAnswer", b =>
@@ -986,11 +1259,166 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.Form", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.SavedForm", null)
+                        .WithMany()
+                        .HasForeignKey("SavedFormId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.OwnsMany("Circloo.Api.Data.FormQuestion", "Questions", b1 =>
+                        {
+                            b1.Property<Guid>("FormId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("Id")
+                                .IsRequired()
+                                .HasMaxLength(3);
+
+                            b1.Property<string>("Label")
+                                .IsRequired()
+                                .HasMaxLength(140);
+
+                            b1.Property<bool?>("LongText");
+
+                            b1.Property<string>("Look")
+                                .HasMaxLength(8);
+
+                            b1.Property<bool>("Required");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasMaxLength(8);
+
+                            b1.HasKey("FormId", "__synthesizedOrdinal");
+
+                            b1.ToTable("Forms");
+
+                            b1
+                                .ToJson("Questions")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("FormId");
+
+                            b1.OwnsMany("Circloo.Api.Data.ChoiceOption", "Options", b2 =>
+                                {
+                                    b2.Property<Guid>("FormQuestionFormId");
+
+                                    b2.Property<int>("FormQuestion__synthesizedOrdinal");
+
+                                    b2.Property<int>("__synthesizedOrdinal")
+                                        .ValueGeneratedOnAdd();
+
+                                    b2.Property<string>("Id")
+                                        .IsRequired()
+                                        .HasMaxLength(1);
+
+                                    b2.Property<string>("Text")
+                                        .IsRequired()
+                                        .HasMaxLength(80);
+
+                                    b2.HasKey("FormQuestionFormId", "FormQuestion__synthesizedOrdinal", "__synthesizedOrdinal");
+
+                                    b2.ToTable("Forms");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("FormQuestionFormId", "FormQuestion__synthesizedOrdinal");
+                                });
+
+                            b1.Navigation("Options");
+                        });
+
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.FormResponse", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Form", null)
+                        .WithMany()
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.IntegrationConnection", b =>
                 {
                     b.HasOne("Circloo.Api.Data.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Poll", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByMemberId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.OwnsMany("Circloo.Api.Data.ChoiceOption", "Options", b1 =>
+                        {
+                            b1.Property<Guid>("PollId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("Id")
+                                .IsRequired()
+                                .HasMaxLength(1);
+
+                            b1.Property<string>("Text")
+                                .IsRequired()
+                                .HasMaxLength(80);
+
+                            b1.HasKey("PollId", "__synthesizedOrdinal");
+
+                            b1.ToTable("Polls");
+
+                            b1
+                                .ToJson("Options")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PollId");
+                        });
+
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.PollVote", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.Poll", null)
+                        .WithMany()
+                        .HasForeignKey("PollId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1022,6 +1450,111 @@ namespace Circloo.Api.Data.Migrations
                         .HasForeignKey("StartedByMemberId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.QaQuestion", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.QaUpvote", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.QaQuestion", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.SavedForm", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("Circloo.Api.Data.FormQuestion", "Questions", b1 =>
+                        {
+                            b1.Property<Guid>("SavedFormId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("Id")
+                                .HasMaxLength(3);
+
+                            b1.Property<string>("Label")
+                                .IsRequired()
+                                .HasMaxLength(140);
+
+                            b1.Property<bool?>("LongText");
+
+                            b1.Property<string>("Look")
+                                .HasMaxLength(8);
+
+                            b1.Property<bool>("Required");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasMaxLength(8);
+
+                            b1.HasKey("SavedFormId", "__synthesizedOrdinal");
+
+                            b1.ToTable("SavedForms");
+
+                            b1
+                                .ToJson("Questions")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SavedFormId");
+
+                            b1.OwnsMany("Circloo.Api.Data.ChoiceOption", "Options", b2 =>
+                                {
+                                    b2.Property<Guid>("FormQuestionSavedFormId");
+
+                                    b2.Property<int>("FormQuestion__synthesizedOrdinal");
+
+                                    b2.Property<int>("__synthesizedOrdinal")
+                                        .ValueGeneratedOnAdd();
+
+                                    b2.Property<string>("Id")
+                                        .IsRequired()
+                                        .HasMaxLength(1);
+
+                                    b2.Property<string>("Text")
+                                        .IsRequired()
+                                        .HasMaxLength(80);
+
+                                    b2.HasKey("FormQuestionSavedFormId", "FormQuestion__synthesizedOrdinal", "__synthesizedOrdinal");
+
+                                    b2.ToTable("SavedForms");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("FormQuestionSavedFormId", "FormQuestion__synthesizedOrdinal");
+                                });
+
+                            b1.Navigation("Options");
+                        });
+
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.SessionAnswer", b =>

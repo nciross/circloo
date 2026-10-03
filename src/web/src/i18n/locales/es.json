@@ -554,6 +554,18 @@
     "presentation": {
       "title": "Presentación",
       "body": "Muestra tus diapositivas de PowerPoint con encuestas y quizzes en vivo; cada uno lo sigue en su pantalla."
+    },
+    "poll": {
+      "title": "Encuesta en directo",
+      "body": "Haz una pregunta con varias respuestas: cada persona vota desde su pantalla y las barras se mueven en directo."
+    },
+    "qa": {
+      "title": "Preguntas y respuestas",
+      "body": "Cada persona hace sus preguntas y apoya las que quiere que se respondan; respondes primero a las más pedidas."
+    },
+    "feedback": {
+      "title": "Formulario de opinión",
+      "body": "Recoge opiniones rápidas con valoraciones, opciones y comentarios; el resumen se completa según llegan las respuestas."
     }
   },
   "circles": {

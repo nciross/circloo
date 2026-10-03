@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Circloo.Api.Auth;
 using Circloo.Api.Data;
+using Circloo.Api.Decide;
 using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -14,7 +15,7 @@ public sealed record JoinCircle(string? Name, string? Character);
 public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, string Role, string Status, DateTimeOffset CreatedAt, int People);
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
-    MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas);
+    MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide);
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn);
 
 public static class CircleAccess
@@ -121,7 +122,9 @@ public static class CircleEndpoints
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
-                [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)]));
+                [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
+                // Polls, Q&A and forms are filled in by their tasks (spec 007 T702, T704, T707).
+                DecideView.Empty(c)));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,

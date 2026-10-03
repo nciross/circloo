@@ -75,6 +75,71 @@ export interface CircleView {
   messages: Message[]
   notes: BoardNote[]
   canvas: CanvasNote[]
+  /** Polls, Q&A and the feedback form of the circle (spec 007, contracts/rest.md). */
+  decide: DecideView
+}
+
+export interface ChoiceView {
+  id: string
+  text: string
+}
+
+export interface PollView {
+  id: string
+  question: string
+  options: ChoiceView[]
+  multipleChoice: boolean
+  resultsLive: boolean
+  state: 'draft' | 'open' | 'closed'
+  myVote?: string[] | null
+}
+
+export interface PollResultsView {
+  pollId: string
+  votes: number
+  options: { id: string; count: number; percent: number; winner: boolean }[]
+}
+
+export interface QaQuestionView {
+  id: number
+  text: string
+  /** Absent for anonymous questions, for everyone. */
+  author?: { memberId: string; name: string; character: string } | null
+  upvotes: number
+  state: 'open' | 'answered' | 'hidden'
+  answer?: string | null
+  createdAt: string
+  answeredAt?: string | null
+  mine: boolean
+  upvotedByMe: boolean
+}
+
+export type FormQuestionType = 'rating5' | 'nps' | 'single' | 'multiple' | 'yesno' | 'text'
+
+export interface FormQuestionView {
+  id: string
+  type: FormQuestionType
+  label: string
+  required: boolean
+  look?: 'stars' | 'smileys' | null
+  longText?: boolean | null
+  options: ChoiceView[]
+}
+
+export interface FormView {
+  id: string
+  title?: string | null
+  questions: FormQuestionView[]
+  showNames: boolean
+  summaryShared: boolean
+  state: 'draft' | 'open' | 'closed'
+}
+
+export interface DecideView {
+  poll: PollView | null
+  polls: { id: string; question: string; closedAt: string; results: PollResultsView }[]
+  qa: { allowAnonymous: boolean; questions: QaQuestionView[] }
+  form: FormView | null
 }
 
 export interface JoinInfo {

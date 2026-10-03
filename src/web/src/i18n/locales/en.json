@@ -554,6 +554,18 @@
     "presentation": {
       "title": "Presentation",
       "body": "Show your PowerPoint slides with live polls and quizzes; everyone follows on their own screen."
+    },
+    "poll": {
+      "title": "Live poll",
+      "body": "Ask a question with a few answers; everyone votes from their own screen and the bars move live."
+    },
+    "qa": {
+      "title": "Q&A",
+      "body": "People ask questions and upvote the ones they want answered; you answer the most wanted first."
+    },
+    "feedback": {
+      "title": "Feedback form",
+      "body": "Collect quick feedback with ratings, choices and comments; see the summary as answers come in."
     }
   },
   "circles": {

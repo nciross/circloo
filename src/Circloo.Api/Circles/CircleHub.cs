@@ -158,7 +158,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
         // circloo opens the activity; it streams in the background so the room stays responsive.
         // A presentation has its own start flow (spec 006), and circloo stays quiet there until asked.
-        if (activityId != ActivityCatalog.Presentation)
+        if (!ActivityCatalog.IsQuiet(activityId))
         {
             coach.Start(circleId, me.UserId!.Value, activityId, ask: null);
         }

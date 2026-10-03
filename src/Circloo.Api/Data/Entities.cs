@@ -117,6 +117,8 @@ public sealed class Circle
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset ExpiresAt { get; set; }
     public DateTimeOffset? ClosedAt { get; set; }
+    /// <summary>Q&A: whether members may ask anonymously (spec 007, off by default).</summary>
+    public bool QaAllowAnonymous { get; set; }
 
     public bool IsOpen(DateTimeOffset now) => ClosedAt is null && ExpiresAt > now;
 }
@@ -288,4 +290,126 @@ public sealed class SessionAnswer
     public DateTimeOffset ReceivedAt { get; set; }
     public bool? Correct { get; set; }
     public int Points { get; set; }
+}
+
+// ---------- Polls, Q&A and feedback forms in a circle (spec 007) ----------
+
+/// <summary>One answer people can choose: a poll option or a form choice. Ids are "a"…"f", assigned by position.</summary>
+public sealed class ChoiceOption
+{
+    public required string Id { get; set; }
+    public required string Text { get; set; }
+}
+
+/// <summary>A live poll in a circle: draft (not opened), open, then closed with its result kept (spec 007 US1).</summary>
+public sealed class Poll
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CircleId { get; set; }
+    public required string Question { get; set; }
+    public List<ChoiceOption> Options { get; set; } = [];
+    public bool MultipleChoice { get; set; }
+    /// <summary>Members see results while voting; off means "show results when the vote closes" (clarification Q1).</summary>
+    public bool ResultsLive { get; set; } = true;
+    public Guid CreatedByMemberId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? OpenedAt { get; set; }
+    public DateTimeOffset? ClosedAt { get; set; }
+    public int Version { get; set; }
+}
+
+/// <summary>A member's vote: one per poll, replaced until the poll closes.</summary>
+public sealed class PollVote
+{
+    public long Id { get; set; }
+    public Guid PollId { get; set; }
+    public Guid MemberId { get; set; }
+    public string[] Options { get; set; } = [];
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+/// <summary>A question asked in Q&A (spec 007 US2). The author is always stored, never shown when anonymous.</summary>
+public sealed class QaQuestion
+{
+    public long Id { get; set; }
+    public Guid CircleId { get; set; }
+    public Guid AuthorMemberId { get; set; }
+    public bool Anonymous { get; set; }
+    public required string Text { get; set; }
+    /// <summary>"open", "answered" or "hidden" (<see cref="Decide.QaStates"/>).</summary>
+    public required string State { get; set; }
+    public string? Answer { get; set; }
+    /// <summary>Kept equal to the number of <see cref="QaUpvote"/> rows, updated in the same transaction.</summary>
+    public int Upvotes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? AnsweredAt { get; set; }
+}
+
+/// <summary>One upvote per member per question; never on one's own question.</summary>
+public sealed class QaUpvote
+{
+    public long QuestionId { get; set; }
+    public Guid MemberId { get; set; }
+}
+
+/// <summary>A question of a feedback form, stored inside the form (JSON). See data-model.md "FormQuestion".</summary>
+public sealed class FormQuestion
+{
+    /// <summary>"q1"…"q10", assigned by position.</summary>
+    public required string Id { get; set; }
+    /// <summary>"rating5", "nps", "single", "multiple", "yesno" or "text" (<see cref="Decide.FormQuestionTypes"/>).</summary>
+    public required string Type { get; set; }
+    public required string Label { get; set; }
+    public bool Required { get; set; }
+    /// <summary>rating5 only: "stars" or "smileys".</summary>
+    public string? Look { get; set; }
+    /// <summary>text only: long answers (up to 1 000 characters) instead of short (up to 200).</summary>
+    public bool? LongText { get; set; }
+    public List<ChoiceOption> Options { get; set; } = [];
+}
+
+/// <summary>A feedback form in a circle (spec 007 US3): a copy of a saved form or built in place.</summary>
+public sealed class Form
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CircleId { get; set; }
+    public string? Title { get; set; }
+    public List<FormQuestion> Questions { get; set; } = [];
+    /// <summary>Free-text answers show who wrote them; fixed once the form opens, and announced on the form.</summary>
+    public bool ShowNames { get; set; }
+    /// <summary>After closing, the animator shared the (non free-text) summary with the circle (clarification Q3).</summary>
+    public bool SummaryShared { get; set; }
+    public Guid? SavedFormId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? OpenedAt { get; set; }
+    public DateTimeOffset? ClosedAt { get; set; }
+    public int Version { get; set; }
+}
+
+/// <summary>A member's answers to a form: one per form, replaced until it closes. Answers are JSON keyed by question id.</summary>
+public sealed class FormResponse
+{
+    public long Id { get; set; }
+    public Guid FormId { get; set; }
+    public Guid MemberId { get; set; }
+    public string Answers { get; set; } = "{}";
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+/// <summary>A form in the animator's My forms library (clarification Q2); copied into a circle when picked.</summary>
+public sealed class SavedForm
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid OwnerUserId { get; set; }
+    public required string Name { get; set; }
+    public string? Title { get; set; }
+    public List<FormQuestion> Questions { get; set; } = [];
+    public bool ShowNames { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    /// <summary>Saved forms unused for 365 days are deleted (like presentations).</summary>
+    public DateTimeOffset LastUsedAt { get; set; }
+    public int Version { get; set; }
 }
