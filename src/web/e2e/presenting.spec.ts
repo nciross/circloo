@@ -71,13 +71,15 @@ test('presenting: everyone follows the animator live, a late joiner lands in pla
   await expect(onSlide(amina, 0)).toBeVisible()
   await expect(onSlide(kenji, 0)).toBeVisible()
 
-  // The audience screen opens in its own window and follows too, with the join code between questions.
-  const audience = await page.context().newPage()
-  await audience.goto(`/app/circles/${circle.id}/audience`)
+  // "Open audience screen" opens a window that follows too, with the join link and QR code between questions.
+  const [audience] = await Promise.all([page.waitForEvent('popup'), page.locator('.presenter__audience').click()])
   // First load of a lazy page, sign-in check and hub connection: give it room under a parallel run.
   await expect(onSlide(audience, 0, '.audience')).toBeVisible({ timeout: 15_000 })
-  await expect(audience.locator('.audience__code')).toHaveText(circle.code)
+  await expect(audience.locator('.audience__url')).toContainText(`/join/${circle.code}`)
   await expect(audience.locator('.audience__qr')).toBeVisible()
+  await axe(audience)
+  // It does not count as someone following.
+  await expect(page.locator('.presenter__followers')).toHaveAttribute('data-count', '2')
 
   // Five moves with the keyboard; every screen follows (SC-603: each change shows in under a second on the local stack).
   // In Arabic the left arrow goes forward; Page Down works in every language. The median must stay under a second; a
@@ -101,9 +103,9 @@ test('presenting: everyone follows the animator live, a late joiner lands in pla
 
   // The demo deck has notes on slide 5 (position 4) for the animator only; slide 6 (position 5) has none.
   await page.keyboard.press('PageUp')
-  await expect(page.locator('.presenter__notes-text')).toBeVisible()
-  await expect(amina.locator('.presenter__notes, .presenter__notes-text')).toHaveCount(0)
-  await expect(audience.locator('.presenter__notes, .presenter__notes-text')).toHaveCount(0)
+  const notes = (await page.locator('.presenter__notes-text').innerText()).trim().slice(0, 20)
+  expect(notes.length).toBeGreaterThan(0)
+  for (const screen of [amina, kenji, audience]) await expect(screen.getByText(notes, { exact: false })).toHaveCount(0)
 
   // A late joiner lands on the current slide.
   const lucia = await join(browser, circle.code, ar ? 'لوسيا' : 'Lucía', 'owl', locale)
@@ -113,6 +115,8 @@ test('presenting: everyone follows the animator live, a late joiner lands in pla
   // B blanks every screen and brings the slide back.
   await page.keyboard.press('b')
   await expect(amina.locator('.stage-slide.is-blank')).toBeVisible({ timeout: 1_000 })
+  // The projector stays dark while blank.
+  await expect(audience.locator('.stage-slide.is-blank')).toHaveCSS('background-color', 'rgb(11, 15, 20)')
   await page.keyboard.press('b')
   await expect(amina.locator('.stage-slide.is-blank')).toHaveCount(0)
   await axe(page)

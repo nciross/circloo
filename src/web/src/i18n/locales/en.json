@@ -689,7 +689,8 @@
       "presentation-empty": "Every slide of this presentation is hidden.",
       "session-conflict": "A presentation was just started from another window.",
       "no-session": "No presentation is running.",
-      "out-of-range": "There is no slide there."
+      "out-of-range": "There is no slide there.",
+      "busy": "Several changes at once. Try again."
     }
   },
   "boards": {
@@ -1066,20 +1067,20 @@
     "presenterTitle": "Presenting {{name}}",
     "prev": "Previous slide",
     "next": "Next slide",
-    "counter": "Slide {{n}} of {{count}}",
+    "counter": "Slide {{n}} of {{total}}",
     "blank": "Blank screen",
     "unblank": "Show the slide",
     "end": "End",
     "endConfirm": "End for everyone",
     "audience": "Open audience screen",
-    "keys": "Arrow keys, Page Up/Down or Space move; B blanks the screen.",
+    "keys": "While this view has focus: arrow keys, Page Up/Down or Space move; B blanks the screen.",
     "following_one": "{{count}} person following",
     "following_other": "{{count}} people following",
     "upNext": "Next",
     "lastSlide": "This is the last slide.",
     "notes": "Your notes",
     "noNotes": "No notes on this slide.",
-    "slideAlt": "Slide {{n}} of {{count}}",
+    "slideAlt": "Slide {{n}} of {{total}}",
     "poll": "Poll",
     "quiz": "Quiz",
     "blankTitle": "Back in a moment",
@@ -1090,7 +1091,12 @@
     "audienceTitle": "Audience screen",
     "audienceRefused": "Only the animator of this circle can open its audience screen.",
     "joinTitle": "Join this circle",
-    "joinAt": "Join at {{host}} with the code",
-    "qrAlt": "QR code to join this circle"
+    "qrAlt": "QR code to join this circle",
+    "popupBlocked": "Your browser blocked the new window. Allow pop-ups for circloo, then try again.",
+    "reconnecting": "Connection lost. Reconnecting…",
+    "offline": "This screen is offline. Reload it to follow again.",
+    "converting": "Converting…",
+    "listFailed": "Your presentations could not be loaded.",
+    "retry": "Try again"
   }
 }

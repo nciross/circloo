@@ -37,6 +37,9 @@ export default function CircleRoom() {
   const room = useRoom()
   const live = useLive((s) => s.state)
   const [picking, setPicking] = useState(false)
+  // A reload while presenting: the state arrives right after entering; until then show a wait, not the picker
+  // (whose "Present" would replace the running session). After a few seconds the picker appears as a way out.
+  const [stateLate, setStateLate] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [starting, setStarting] = useState(false)
   const [pane, setPane] = useState<'board' | 'chat'>('board')
@@ -46,6 +49,12 @@ export default function CircleRoom() {
     if (circle.data) useRoom.getState().load(circle.data)
   }, [circle.data])
   useCircleConnection(circle.data)
+
+  useEffect(() => {
+    if (live || room.activity !== PRESENTATION) return
+    const timer = window.setTimeout(() => setStateLate(true), 3000)
+    return () => window.clearTimeout(timer)
+  }, [live, room.activity])
 
   if (circle.isPending) return <Loading />
   if (circle.isError || !circle.data) {
@@ -121,11 +130,11 @@ export default function CircleRoom() {
           </div>
         </section>
       ) : (
-        <div className="room__grid">
+        <div className={['room__grid', activity === PRESENTATION && isAnimator && live ? 'is-presenting' : '', activity === PRESENTATION && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
           <div className="room__main">
             {activity === PRESENTATION ? (
               <div className="room__reveal">
-                {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : <PresentationPicker />) : <ParticipantView />}
+                {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
               </div>
             ) : picking && isAnimator && !activity ? (
               <div className="room__reveal">

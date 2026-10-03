@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
 import { api } from '../../api/client'
 import { bindPresentation, useLive } from './present/presentation'
+import { PRESENTATION } from './catalog'
 import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
@@ -215,9 +216,9 @@ export function useCircleConnection(view: CircleView | undefined) {
     })
     connection.on('Activity', (a: { activityId: string | null }) => {
       useRoom.setState({ activity: a.activityId })
-      if (a.activityId !== 'presentation') useLive.getState().reset()
+      if (a.activityId !== PRESENTATION) useLive.getState().reset()
     })
-    bindPresentation(connection)
+    bindPresentation(connection, () => useRoom.getState().connection === connection)
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))
     connection.on('AiDelta', (d: { text: string }) => useRoom.setState((s) => ({ draft: s.draft + d.text })))
@@ -238,6 +239,8 @@ export function useCircleConnection(view: CircleView | undefined) {
     connection.onreconnecting(() => useRoom.setState({ status: 'reconnecting' }))
     connection.onreconnected(async () => {
       useRoom.setState({ status: 'live' })
+      // Entering again pushes the current presentation, if any; a stale one must not stay on screen.
+      useLive.getState().reset()
       await connection.invoke('Enter', id).catch(() => undefined)
       await resync(id).catch(() => undefined)
     })

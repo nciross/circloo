@@ -8,19 +8,32 @@ import { SlideStage } from './SlideStage'
 
 /**
  * What participants see (spec 006 US3 #5): the current slide fitted to the screen, following the animator. No way to
- * move or to see notes; a full-screen button for phones and laptops alike.
+ * move or to see notes; a full-screen button for phones and laptops alike. Where the browser has no full-screen API
+ * (iPhone Safari), the slide fills the window instead.
  */
 export function ParticipantView() {
   const { t } = useTranslation()
   const state = useLive((s) => s.state)
   const frame = useRef<HTMLDivElement>(null)
-  const [full, setFull] = useState(false)
+  const [native, setNative] = useState(false)
+  const [filled, setFilled] = useState(false)
+  const canNative = typeof document !== 'undefined' && document.fullscreenEnabled
+  const full = native || filled
 
   useEffect(() => {
-    const onChange = () => setFull(document.fullscreenElement === frame.current)
+    const onChange = () => setNative(document.fullscreenElement === frame.current)
     document.addEventListener('fullscreenchange', onChange)
     return () => document.removeEventListener('fullscreenchange', onChange)
   }, [])
+
+  useEffect(() => {
+    if (!filled) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFilled(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [filled])
 
   if (!state) {
     return (
@@ -35,20 +48,23 @@ export function ParticipantView() {
   }
 
   const toggleFull = () => {
+    if (!canNative) {
+      setFilled((f) => !f)
+      return
+    }
     if (document.fullscreenElement) void document.exitFullscreen()
     else void frame.current?.requestFullscreen?.()
   }
 
   return (
-    <section className="follow" aria-label={state.presentationName}>
-      <div ref={frame} className="follow__frame">
+    <section className="follow" aria-labelledby="follow-title">
+      <h2 id="follow-title" className="visually-hidden" dir="auto">{state.presentationName}</h2>
+      <div ref={frame} className={['follow__frame', filled ? 'is-filled' : ''].filter(Boolean).join(' ')}>
         <SlideStage state={state} className="follow__stage" />
-        {document.fullscreenEnabled ? (
-          <Button size="sm" variant="subtle" className="follow__full" icon={full ? <Minimize size={16} /> : <Maximize size={16} />}
-            aria-label={full ? t('present.exitFullscreen') : t('present.fullscreen')} onClick={toggleFull} />
-        ) : null}
+        <Button size="sm" variant="subtle" className="follow__full" icon={full ? <Minimize size={16} /> : <Maximize size={16} />}
+          aria-label={full ? t('present.exitFullscreen') : t('present.fullscreen')} onClick={toggleFull} />
       </div>
-      <p className="follow__count" aria-live="polite">{t('present.counter', { n: state.position + 1, count: state.count })}</p>
+      <p className="follow__count" aria-live="polite">{t('present.counter', { n: state.position + 1, total: state.count })}</p>
     </section>
   )
 }

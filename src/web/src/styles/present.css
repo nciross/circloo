@@ -12,6 +12,9 @@
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   background: var(--surface-sunken);
+  color: var(--text);
+  /* Text inside the stage scales with the stage, not with the window. */
+  container-type: inline-size;
 }
 .stage-slide__image {
   display: block;
@@ -28,30 +31,40 @@
   place-items: center;
   inline-size: 100%;
   block-size: 100%;
-  color: var(--text-subtlest);
-  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+  font-size: clamp(var(--fs-sm), 3cqi, var(--fs-2xl));
+}
+.stage-slide__blank p {
+  margin: 0;
+}
+/* A question keeps 16:9 but grows taller when its answers need the room (phones) instead of cutting them off: with
+   visible overflow, a box with an aspect ratio grows to fit its content. */
+.stage-slide.is-question {
+  overflow: visible;
+  place-items: stretch;
+  background: var(--surface);
+  color: var(--text);
 }
 .stage-slide__question {
   display: grid;
   align-content: center;
-  gap: var(--s-4);
+  gap: clamp(var(--s-2), 2.5cqi, var(--s-5));
   inline-size: 100%;
-  block-size: 100%;
-  padding: clamp(var(--s-4), 5%, var(--s-9));
-  background: var(--surface);
+  padding: clamp(var(--s-3), 5cqi, var(--s-9));
 }
 .stage-slide__kind {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   margin: 0;
-  font-size: var(--fs-sm);
+  font-size: clamp(var(--fs-xs), 2cqi, var(--fs-lg));
   font-weight: 600;
   color: var(--text-subtle);
 }
 .stage-slide__title {
   margin: 0;
-  font-size: clamp(var(--fs-lg), 3.2vw, var(--fs-3xl));
+  font-size: clamp(var(--fs-lg), 4.5cqi, 3.5rem);
+  font-weight: 700;
   line-height: 1.2;
   text-wrap: balance;
 }
@@ -67,30 +80,38 @@
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--border);
+  padding: clamp(var(--s-2), 1.5cqi, var(--s-4)) clamp(var(--s-3), 2cqi, var(--s-5));
+  border: 1px solid var(--border-strong);
   border-radius: var(--r-md);
-  font-size: clamp(var(--fs-md), 1.6vw, var(--fs-xl));
+  font-size: clamp(var(--fs-md), 2.4cqi, 2rem);
 }
 .stage-slide__letter {
   display: grid;
   flex: none;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  inline-size: 1.75em;
+  block-size: 1.75em;
   border-radius: var(--r-pill);
   background: var(--surface-sunken);
-  font-size: var(--fs-sm);
+  font-size: 0.8em;
   font-weight: 600;
   color: var(--text-subtle);
 }
 
 /* ---------- Presenter view ---------- */
+.room__grid.is-presenting {
+  grid-template-columns: minmax(0, 1fr);
+}
 .presenter {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
   gap: var(--s-5);
   align-items: start;
+  border-radius: var(--r-md);
+}
+.presenter:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
 }
 .presenter__main {
   display: grid;
@@ -159,9 +180,18 @@
   white-space: pre-line;
   font-size: var(--fs-md);
   line-height: 1.5;
+  border-radius: var(--r-xs);
+}
+.presenter__notes-text:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* ---------- Participant view ---------- */
+/* On a phone the slide comes first, the people below it. */
+.room__grid.is-following .room__side {
+  order: 1;
+}
 .follow {
   display: grid;
   gap: var(--s-2);
@@ -169,14 +199,30 @@
 .follow__frame {
   position: relative;
 }
-.follow__frame:fullscreen {
+.follow__stage {
+  /* Landscape phones: the whole slide fits the window height. */
+  max-inline-size: calc((100dvh - 7rem) * 16 / 9);
+  margin-inline: auto;
+}
+.follow__stage.is-question {
+  max-inline-size: none;
+}
+.follow__frame:fullscreen,
+.follow__frame.is-filled {
   display: grid;
   place-items: center;
   background: #000000;
 }
-.follow__frame:fullscreen .follow__stage {
-  max-block-size: 100vh;
-  inline-size: min(100vw, calc(100vh * 16 / 9));
+.follow__frame.is-filled {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+.follow__frame:fullscreen .follow__stage,
+.follow__frame.is-filled .follow__stage {
+  max-inline-size: none;
+  max-block-size: 100dvh;
+  inline-size: min(100vw, calc(100dvh * 16 / 9));
   border: 0;
   border-radius: 0;
 }
@@ -242,65 +288,142 @@
   white-space: nowrap;
 }
 .picker__empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-2);
   margin: var(--s-3) 0 0;
 }
 
-/* ---------- Audience screen (projector / TV) ---------- */
+/* ---------- Audience screen (projector / TV) ----------
+   Always dark, whatever the app theme: a projector reads best with light content on a dark room. */
 .audience {
+  --audience-bg: #0b0f14;
+  --audience-text: #eef2f6;
+  --audience-subtle: #aab4c0;
   position: fixed;
   inset: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(var(--s-3), 2vmin, var(--s-6));
+  padding: clamp(var(--s-3), 2.5vmin, var(--s-7));
+  background: var(--audience-bg);
+  color: var(--audience-text);
+}
+.audience.has-join {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.audience.is-idle {
+  cursor: none;
+}
+.audience__screen {
+  display: grid;
   place-items: center;
-  padding: clamp(var(--s-3), 2vw, var(--s-6));
-  background: #0d1117;
-  color: #f4f6f8;
+  min-inline-size: 0;
+  block-size: 100%;
 }
 .audience__stage {
-  inline-size: min(100%, calc((100vh - 2 * var(--s-6)) * 16 / 9));
+  inline-size: min(100%, calc((100dvh - 5vmin) * 16 / 9));
   border: 0;
+}
+.audience__stage.is-question {
+  inline-size: 100%;
+}
+/* Blank stays dark on the projector. */
+.audience .stage-slide.is-blank {
+  background: var(--audience-bg);
+}
+.audience .stage-slide.is-blank .stage-slide__blank {
+  color: var(--audience-subtle);
 }
 .audience__wait {
   display: grid;
   justify-items: center;
   gap: var(--s-4);
-  font-size: var(--fs-xl);
+  font-size: clamp(var(--fs-lg), 3vmin, var(--fs-3xl));
 }
 .audience__panda {
-  inline-size: 8rem;
+  inline-size: 18vmin;
+  color: var(--audience-text);
 }
 .audience__join {
-  position: fixed;
-  inset-block-end: var(--s-5);
-  inset-inline-end: var(--s-5);
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-  padding: var(--s-3) var(--s-4);
+  display: grid;
+  justify-items: center;
+  gap: 1.5vmin;
+  inline-size: 26vmin;
+  padding: 2vmin;
   border-radius: var(--r-lg);
   background: #ffffff;
   color: #10161d;
-  box-shadow: var(--shadow-float);
+}
+.audience__join-title {
+  margin: 0;
+  font-size: 2.6vmin;
+  font-weight: 700;
+  text-align: center;
 }
 .audience__qr {
   display: block;
-  inline-size: 7.5rem;
-  block-size: 7.5rem;
+  inline-size: 100%;
+  block-size: auto;
 }
-.audience__join-text {
-  display: grid;
-  gap: var(--s-1);
+.audience__url {
   margin: 0;
-  font-size: var(--fs-md);
-}
-.audience__code {
-  font-size: var(--fs-3xl);
+  font-size: 2.4vmin;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.audience__status {
+  position: fixed;
+  inset-block-start: var(--s-4);
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  margin: 0;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  background: #ffffff;
+  color: #10161d;
+  font-weight: 600;
+}
+[dir='rtl'] .audience__status {
+  translate: 50% 0;
+}
+.audience__full {
+  position: fixed;
+  inset-block-start: var(--s-3);
+  inset-inline-end: var(--s-3);
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--audience-text);
+  opacity: 0.6;
+  cursor: pointer;
+}
+.audience__full:hover,
+.audience__full:focus-visible {
+  opacity: 1;
+}
+.audience.is-idle .audience__full {
+  opacity: 0;
+}
+.audience__full:focus-visible {
+  outline: 2px solid var(--audience-text);
+  outline-offset: 2px;
 }
 
 @media (max-width: 56rem) {
   .presenter {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .audience__full {
+    transition: none;
   }
 }

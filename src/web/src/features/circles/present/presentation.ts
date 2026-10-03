@@ -61,20 +61,32 @@ export function isNewer(incoming: PresentationState, shown: PresentationState | 
   return !shown || shown.sessionId !== incoming.sessionId || incoming.version >= shown.version
 }
 
-/** Applies a state from the server, unless it is older than the one shown. */
+/**
+ * Applies a state from the server, unless it is older than the one shown. `null` is the server saying nothing is
+ * presented (an answer to entering again after a reconnect): whatever was shown is gone.
+ */
 export function receive(state: PresentationState | null) {
-  if (!state) return
+  if (!state) {
+    useLive.getState().reset()
+    return
+  }
   if (isNewer(state, useLive.getState().state)) useLive.setState({ state, receivedAt: Date.now() })
 }
 
-/** Wires a hub connection (the room's, or the audience screen's) to the store. */
-export function bindPresentation(connection: HubConnection) {
-  connection.on('PresentationState', receive)
-  connection.on('PresenterNotes', (slideId: string, notes: string | null, upcoming: PresenterNotes['upcoming']) =>
-    useLive.setState({ notes: { slideId, notes, upcoming } }))
+/**
+ * Wires a hub connection (the room's, or the audience screen's) to the store. `isCurrent` drops events from a
+ * connection that is being replaced (stopping is asynchronous), so a late event never lands in the next circle.
+ */
+export function bindPresentation(connection: HubConnection, isCurrent: () => boolean = () => true) {
+  connection.on('PresentationState', (state: PresentationState) => {
+    if (isCurrent()) receive(state)
+  })
+  connection.on('PresenterNotes', (slideId: string, notes: string | null, upcoming: PresenterNotes['upcoming']) => {
+    if (isCurrent()) useLive.setState({ notes: { slideId, notes, upcoming } })
+  })
   connection.on('PresentationEnded', (sessionId: string) => {
     ended.add(sessionId)
-    if (useLive.getState().state?.sessionId === sessionId) useLive.getState().reset()
+    if (isCurrent() && useLive.getState().state?.sessionId === sessionId) useLive.getState().reset()
   })
 }
 

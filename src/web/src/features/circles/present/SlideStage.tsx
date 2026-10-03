@@ -5,14 +5,17 @@ import type { PresentationState } from './presentation'
 
 /**
  * The current slide as everyone sees it: a deck picture fitted to the width (never mirrored, even in RTL), a question
- * card, or a calm blank screen. Answering arrives with US4; here a question is shown, read only.
+ * card that grows to fit its answers on small screens, or a calm blank screen. Answering arrives with US4; here a
+ * question is shown, read only.
  */
 export function SlideStage({ state, className, children }: { state: PresentationState; className?: string; children?: ReactNode }) {
   const { t } = useTranslation()
-  const label = t('present.slideAlt', { n: state.position + 1, count: state.count })
+  const label = t('present.slideAlt', { n: state.position + 1, total: state.count })
   const slide = state.slide
+  const question = slide.kind !== 'deck'
   return (
-    <div className={['stage-slide', state.blank ? 'is-blank' : '', className].filter(Boolean).join(' ')} data-position={state.position}>
+    <div className={['stage-slide', state.blank ? 'is-blank' : '', question && !state.blank ? 'is-question' : '', className].filter(Boolean).join(' ')}
+      data-position={state.position}>
       {state.blank ? (
         <div className="stage-slide__blank" role="status">
           <p>{t('present.blankTitle')}</p>
@@ -25,7 +28,7 @@ export function SlideStage({ state, className, children }: { state: Presentation
             {slide.kind === 'quiz' ? <ListChecks size={18} aria-hidden="true" /> : <Vote size={18} aria-hidden="true" />}
             {t(slide.kind === 'quiz' ? 'present.quiz' : 'present.poll')}
           </p>
-          <h2 className="stage-slide__title" dir="auto">{slide.question}</h2>
+          <p className="stage-slide__title" dir="auto">{slide.question}</p>
           <ol className="stage-slide__options">
             {slide.options.map((o, i) => (
               <li key={o.id}>
