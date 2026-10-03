@@ -108,6 +108,30 @@ public sealed class PresentationRulesTests
         Assert.Equal(expected, PresentationRules.NameFromFile(file));
 
     [Fact]
+    public void Names_drop_spoofing_characters_before_trimming_and_never_split_an_emoji()
+    {
+        Assert.Equal("evil", PresentationRules.NameFromFile($"{(char)0x202E} evil.pptx"));
+
+        var emoji = char.ConvertFromUtf32(0x1F600);
+        var name = PresentationRules.NameFromFile(new string('x', PresentationRules.NameMax - 1) + emoji + "tail.pptx");
+        Assert.Equal(new string('x', PresentationRules.NameMax - 1), name);
+    }
+
+    [Fact]
+    public void Arabic_direction_marks_are_dropped_but_overrides_are_refused()
+    {
+        string rlm = $"{(char)0x200F}", lrm = $"{(char)0x200E}", alm = $"{(char)0x061C}";
+        var (slide, errors) = PresentationRules.Validate(new QuestionInput("poll", $"{rlm}أين نأكل؟{lrm}", [new(null, $"مطعم{alm}"), new(null, "Pizza")]));
+
+        Assert.Empty(errors);
+        Assert.Equal("أين نأكل؟", slide!.Question);
+        Assert.Equal("مطعم", slide.Options[0].Text);
+
+        var (_, refused) = PresentationRules.Validate(new QuestionInput("poll", $"{(char)0x202E}Pick one", Options(2)));
+        Assert.Equal(["question-length"], refused["question"]);
+    }
+
+    [Fact]
     public void Idle_presentations_are_flagged_in_the_last_30_days()
     {
         var now = DateTimeOffset.Parse("2027-10-01T00:00:00Z", System.Globalization.CultureInfo.InvariantCulture);

@@ -66,14 +66,27 @@ public static class PresentationRules
     /// <summary>The name shown for a fresh upload: the file name without its extension, cleaned and bounded.</summary>
     public static string NameFromFile(string fileName)
     {
-        var name = Path.GetFileNameWithoutExtension(fileName ?? "").Trim();
-        name = new string([.. name.Where(c => !char.IsControl(c) && !TextRules.IsBidiControl(c))]);
+        var name = Path.GetFileNameWithoutExtension(fileName ?? "");
+        name = new string([.. name.Where(c => !char.IsControl(c) && !TextRules.IsBidiControl(c))]).Trim();
         if (name.Length == 0)
         {
             return "Presentation";
         }
-        return name.Length > NameMax ? name[..NameMax].TrimEnd() : name;
+        if (name.Length <= NameMax)
+        {
+            return name;
+        }
+        // Never cut an emoji or other surrogate pair in half.
+        var cut = char.IsHighSurrogate(name[NameMax - 1]) ? NameMax - 1 : NameMax;
+        return name[..cut].TrimEnd();
     }
+
+    /// <summary>
+    /// LRM, RLM and ALM are ordinary when typing Arabic, so they are dropped rather than refused;
+    /// overrides and isolates (which can spoof text) are still refused by <see cref="TextRules.Clean"/>.
+    /// </summary>
+    private static string? CleanText(string? value, int max) =>
+        TextRules.Clean(value is null ? null : new string([.. value.Where(c => c is not ((char)0x200E or (char)0x200F or (char)0x061C))]), max);
 
     /// <summary>
     /// Checks a question and turns it into slide fields. Errors use stable codes the web translates:
@@ -90,7 +103,7 @@ public static class PresentationRules
             return (null, errors);
         }
 
-        var question = TextRules.Clean(input.Question, QuestionMax);
+        var question = CleanText(input.Question, QuestionMax);
         if (question is null)
         {
             Add("question", "question-length");
@@ -106,7 +119,7 @@ public static class PresentationRules
         {
             for (var i = 0; i < raw.Count; i++)
             {
-                var text = TextRules.Clean(raw[i].Text, OptionMax);
+                var text = CleanText(raw[i].Text, OptionMax);
                 if (text is null)
                 {
                     Add($"options[{i}]", "option-length");
