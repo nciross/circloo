@@ -171,5 +171,25 @@ public sealed class QuestionEndpointsTests(PostgresFixture pg) : IAsyncLifetime
             new { version = detail.GetProperty("version").GetInt32(), kind = "poll", question = "Hi", options = Options("A", "B") }, csrf);
 
         Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
+        var version = detail.GetProperty("version").GetInt32();
+        var slide = detail.GetProperty("slides")[0].GetProperty("id").GetGuid();
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.PutJsonAsync($"/api/presentations/{id}/slides/{slide}", new { version, hidden = true }, csrf)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.PutJsonAsync($"/api/presentations/{id}/order", new { version, slideIds = new[] { slide } }, csrf)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.DeleteAsync($"/api/presentations/{id}/slides/{slide}?version={version}", csrf)).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_deck_that_is_not_ready_takes_no_questions()
+    {
+        _host.Converter.Fail = new Circloo.Api.Presentations.ConversionFailedException("conversion-failed", "broken");
+        var upload = await PresentationHost.UploadAsync(_host.Owner, _host.Csrf, TestDecks.Build(2));
+        var detail = await _host.WaitReadyAsync((await upload.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid());
+        Assert.Equal("failed", detail.GetProperty("status").GetString());
+
+        var res = await AddAsync(detail.GetProperty("id").GetGuid(), detail.GetProperty("version").GetInt32(),
+            new { kind = "poll", question = "Too early?", options = Options("Yes", "No") });
+
+        Assert.Equal(HttpStatusCode.Conflict, res.StatusCode);
+        Assert.Equal("not-ready", (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("type").GetString());
     }
 }
