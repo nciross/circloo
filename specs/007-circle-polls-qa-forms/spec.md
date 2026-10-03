@@ -92,7 +92,7 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 **Acceptance Scenarios**:
 
 1. **Given** finished polls, Q&A and forms in a circle, **When** the animator uses "Send results", **Then** the export contains each poll's question and final percentages, each Q&A question with its upvotes and answer (anonymous questions stay anonymous), and each form's per-question summary (free-text answers without names unless names were turned on).
-2. **Given** a circle has closed or reached the end of its lifetime, **Then** its polls, questions, forms and responses are removed with it.
+2. **Given** a circle is deleted, **Then** its polls, questions, forms and responses are deleted with it (saved forms in My forms are kept).
 
 ---
 
@@ -141,7 +141,7 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 
 **Safety, privacy, languages**
 - **FR-718**: Every question, answer option, Q&A question, Q&A answer and free-text response MUST pass the existing safety filter; unsafe text is refused with a kind message and never stored or shown.
-- **FR-719**: All content MUST be visible only to the members of the circle; it is removed with the circle at the end of its lifetime.
+- **FR-719**: All content MUST be visible only to the members of the circle and is deleted together with the circle.
 - **FR-720**: Rate limits MUST apply to asking questions and sending answers so that one member cannot flood the circle.
 - **FR-721**: Every user-facing string MUST exist in English, French, Arabic and Spanish; layouts MUST work right-to-left in Arabic and on phones from 360 px wide; status MUST never be shown by colour alone; motion MUST respect reduced-motion settings.
 - **FR-722**: Members joining late or reloading MUST land on the current state (open poll with their vote, Q&A list with their upvotes, open form with their saved answers).
@@ -174,7 +174,7 @@ When a poll, a Q&A or a form ends, its results stay in the circle for its lifeti
 
 ## Assumptions
 
-- Circles keep their current limits (up to 12 people, 7-day lifetime); results live as long as the circle.
+- Circles keep their current limits (up to 12 people, 7-day lifetime); results live as long as the circle row does. Circles are not purged automatically today (a closed circle keeps its content); an automatic purge of old circles is a separate, cross-cutting decision tracked outside this spec.
 - "Kids-safe" is not a circle setting today: the existing safety filter applies to all text in every circle, which covers the kids-safe requirement.
 - One poll, one Q&A and one form run at a time per circle (the activity that is running); finished ones remain in the circle's history.
 - The animator does not vote, upvote or answer their own form; they moderate.
