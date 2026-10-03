@@ -44,6 +44,8 @@ dotnet run --project src/Circloo.AppHost      # Postgres, Mailpit, Azurite, deck
 ```
 Open the Aspire dashboard link it prints. Use the `web` endpoint for the app and the `mailpit` endpoint to read your sign-in codes. No email ever leaves your machine.
 
+> Uploading a PowerPoint fails with "The API version … is not supported by Azurite"? An Azurite container from an older checkout is still running without `--skipApiVersionCheck`. Stop the AppHost, remove it once (`podman rm -f <storage-…>` or `docker rm -f <storage-…>`; the `circloo-azurite` volume keeps your slides) and start the AppHost again.
+
 Tests: `dotnet test` (API against a real Postgres through Testcontainers) and, in `src/web`, `npm test`, plus `npx playwright test` with `E2E_BASE_URL` and `MAILPIT_URL` set.
 
 Ship it to Azure (one resource group, one command) or make it vanish just as fast:
