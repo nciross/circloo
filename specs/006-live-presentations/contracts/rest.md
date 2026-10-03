@@ -19,7 +19,7 @@ user (`RequireAuthorization()`), except slide images (see below). New endpoint f
 
 | Method & path | Body | Success | Errors |
 |---|---|---|---|
-| `POST /presentations/{id}/questions` | `QuestionInput & { afterSlideId?: Guid, version }` | `201 PresentationDetail` | `400` validation (`options-count`, `quiz-correct`, `timer-range`, `question-length`, `option-length`, `too-many-questions`), `409 stale` |
+| `POST /presentations/{id}/questions` | `QuestionInput & { afterSlideId?: Guid, version }` | `201 PresentationDetail` | `400` validation (`options-count`, `quiz-correct`, `timer-range`, `question-length`, `option-length`, `too-many-questions`; `order-mismatch` for an unknown `afterSlideId`), `404`, `409 stale`, `409 not-ready` (status is not `ready`) |
 | `PUT /presentations/{id}/slides/{slideId}` | `QuestionInput` (question slides) or `{ hidden }` (deck slides), plus `version` | `200 PresentationDetail` | `400`, `404`, `409 stale` |
 | `PUT /presentations/{id}/order` | `{ slideIds: Guid[], version }` (full order, same set) | `200 PresentationDetail` | `400 order-mismatch`, `409 stale` |
 | `DELETE /presentations/{id}/slides/{slideId}` | – (`?version=`) | `200 PresentationDetail` | `404`, `409 stale` |

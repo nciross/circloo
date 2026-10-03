@@ -956,5 +956,56 @@
       "violet": "Violet",
       "white": "Blanc"
     }
+  },
+  "presentations": {
+    "title": "Présentations",
+    "lead": "Importe un PowerPoint, ajoute des sondages et des quiz, puis présente-le en direct dans un cercle.",
+    "name": "Nom de la présentation",
+    "upload": {
+      "title": "Dépose un fichier PowerPoint ici",
+      "hint": "Un fichier .pptx de 50 Mo et 100 diapos maximum. Chaque diapo devient une image ; tes notes suivent.",
+      "choose": "Choisir un fichier",
+      "sending": "Envoi en cours"
+    },
+    "errors": {
+      "not-pptx": "Ce n’est pas un fichier PowerPoint (.pptx). Dans PowerPoint, utilise Enregistrer sous et choisis .pptx.",
+      "encrypted": "Ce fichier est protégé par un mot de passe. Retire-le dans PowerPoint puis importe-le à nouveau.",
+      "macros": "Les fichiers avec des macros ne sont pas acceptés. Enregistre-le en .pptx simple, sans macros.",
+      "too-large": "Ce fichier est trop lourd. Reste sous 50 Mo, par exemple en compressant les images dans PowerPoint.",
+      "too-many-slides": "Ce fichier a plus de 100 diapos. Découpe-le en présentations plus courtes.",
+      "conversion-failed": "Impossible de transformer ce fichier en diapos. Enregistre-le de nouveau dans PowerPoint et réessaie.",
+      "timeout": "La conversion a pris trop de temps. Réessaie, ou découpe le fichier en plusieurs.",
+      "rate-limited": "Ça fait beaucoup d’imports en une heure. Réessaie un peu plus tard.",
+      "name-length": "Donne à la présentation un nom de 80 caractères maximum.",
+      "stale": "Cette présentation a changé dans un autre onglet. On a chargé la dernière version."
+    },
+    "converting": "Conversion {{done}} sur {{total}}",
+    "failed": "Échec",
+    "slides_one": "{{count}} diapo",
+    "slides_many": "{{count}} diapos",
+    "slides_other": "{{count}} diapos",
+    "questions_one": "{{count}} question",
+    "questions_many": "{{count}} questions",
+    "questions_other": "{{count}} questions",
+    "deletesIn_one": "Supprimée dans {{count}} jour",
+    "deletesIn_many": "Supprimée dans {{count}} jours",
+    "deletesIn_other": "Supprimée dans {{count}} jours",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer cette présentation ?",
+    "deleteNamed": "Supprimer {{name}}",
+    "deleteSlide": "Supprimer la diapo",
+    "deleteSlideConfirm": "Supprimer cette diapo ?",
+    "empty": {
+      "title": "Aucune présentation pour l’instant",
+      "body": "Importe ton premier PowerPoint ci-dessus. Il reste privé jusqu’à ce que tu le présentes dans un cercle."
+    },
+    "slideLabel": "Diapo {{number}} {{state}}",
+    "hiddenState": "(masquée)",
+    "show": "Afficher la diapo",
+    "hide": "Masquer la diapo",
+    "notes": "Notes de l’orateur",
+    "noNotes": "Pas de notes sur cette diapo. Toi seul vois les notes pendant la présentation.",
+    "stillNote": "Les diapos s’affichent en images fixes : animations, transitions, sons et vidéos intégrés ne sont pas joués.",
+    "strip": "Diapos"
   }
 }

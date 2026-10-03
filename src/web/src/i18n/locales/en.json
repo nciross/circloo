@@ -956,5 +956,53 @@
       "violet": "Violet",
       "white": "White"
     }
+  },
+  "presentations": {
+    "title": "Presentations",
+    "lead": "Upload a PowerPoint, add polls and quizzes, then present it live in a circle.",
+    "name": "Presentation name",
+    "upload": {
+      "title": "Drop a PowerPoint file here",
+      "hint": "A .pptx file up to 50 MB and 100 slides. Each slide becomes a picture; your speaker notes come along.",
+      "choose": "Choose a file",
+      "sending": "Uploading"
+    },
+    "errors": {
+      "not-pptx": "This is not a PowerPoint (.pptx) file. In PowerPoint, use Save as and pick .pptx.",
+      "encrypted": "This file is protected by a password. Remove the password in PowerPoint and upload it again.",
+      "macros": "Files with macros cannot be used. Save it as a plain .pptx without macros.",
+      "too-large": "This file is too big. Keep it under 50 MB, for example by compressing pictures in PowerPoint.",
+      "too-many-slides": "This deck has more than 100 slides. Split it into smaller presentations.",
+      "conversion-failed": "We could not turn this deck into slides. Try saving it again in PowerPoint and upload it once more.",
+      "timeout": "Converting took too long. Try again, or split the deck into smaller ones.",
+      "rate-limited": "That is a lot of uploads for one hour. Try again a little later.",
+      "name-length": "Give the presentation a name of up to 80 characters.",
+      "stale": "This presentation changed in another tab. We loaded the latest version."
+    },
+    "converting": "Converting {{done}} of {{total}}",
+    "failed": "Failed",
+    "slides_one": "{{count}} slide",
+    "slides_other": "{{count}} slides",
+    "questions_one": "{{count}} question",
+    "questions_other": "{{count}} questions",
+    "deletesIn_one": "Deleted in {{count}} day",
+    "deletesIn_other": "Deleted in {{count}} days",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this presentation?",
+    "deleteNamed": "Delete {{name}}",
+    "deleteSlide": "Delete slide",
+    "deleteSlideConfirm": "Delete this slide?",
+    "empty": {
+      "title": "No presentations yet",
+      "body": "Upload your first PowerPoint above. It stays private until you present it in a circle."
+    },
+    "slideLabel": "Slide {{number}} {{state}}",
+    "hiddenState": "(hidden)",
+    "show": "Show slide",
+    "hide": "Hide slide",
+    "notes": "Speaker notes",
+    "noNotes": "No notes on this slide. Only you see notes while presenting.",
+    "stillNote": "Slides are shown as still pictures: animations, transitions and embedded audio or video are not played.",
+    "strip": "Slides"
   }
 }
