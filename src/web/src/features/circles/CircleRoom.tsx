@@ -13,11 +13,16 @@ import { SendResults } from './SendResults'
 import { Chat } from './Chat'
 import { Board } from './Board'
 import { Canvas } from './Canvas'
-import { BOARD_COLUMNS, CANVAS } from './catalog'
+import { BOARD_COLUMNS, CANVAS, PRESENTATION } from './catalog'
+import { useLive } from './present/presentation'
+import { PresenterView } from './present/PresenterView'
+import { ParticipantView } from './present/ParticipantView'
+import { PresentationPicker } from './present/PresentationPicker'
 import { Segmented } from '../../components/Segmented'
 import { useCircleConnection, useRoom } from './room'
 import '../../styles/circles.css'
 import '../../styles/integrations.css'
+import '../../styles/present.css'
 
 const STATUS_KEY = { connecting: 'connecting', live: 'live', reconnecting: 'reconnecting', offline: 'offline' } as const
 
@@ -30,6 +35,11 @@ export default function CircleRoom() {
   const circle = useCircle(id)
   const close = useCloseCircle()
   const room = useRoom()
+  const live = useLive((s) => s.state)
+  const [picking, setPicking] = useState(false)
+  // A reload while presenting: the state arrives right after entering; until then show a wait, not the picker
+  // (whose "Present" would replace the running session). After a few seconds the picker appears as a way out.
+  const [stateLate, setStateLate] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [starting, setStarting] = useState(false)
   const [pane, setPane] = useState<'board' | 'chat'>('board')
@@ -39,6 +49,12 @@ export default function CircleRoom() {
     if (circle.data) useRoom.getState().load(circle.data)
   }, [circle.data])
   useCircleConnection(circle.data)
+
+  useEffect(() => {
+    if (live || room.activity !== PRESENTATION) return
+    const timer = window.setTimeout(() => setStateLate(true), 3000)
+    return () => window.clearTimeout(timer)
+  }, [live, room.activity])
 
   if (circle.isPending) return <Loading />
   if (circle.isError || !circle.data) {
@@ -56,6 +72,12 @@ export default function CircleRoom() {
   const closed = ready ? room.closed : view.status === 'closed'
 
   const start = async (activityId: string) => {
+    // A presentation starts from the picker: the animator chooses which one (spec 006 US3 #1).
+    if (activityId === PRESENTATION) {
+      room.clearError()
+      setPicking(true)
+      return
+    }
     setStarting(true)
     try {
       await room.start(activityId)
@@ -108,9 +130,17 @@ export default function CircleRoom() {
           </div>
         </section>
       ) : (
-        <div className="room__grid">
+        <div className={['room__grid', activity === PRESENTATION && isAnimator && live ? 'is-presenting' : '', activity === PRESENTATION && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
           <div className="room__main">
-            {activity && (BOARD_COLUMNS[activity] || activity === CANVAS) ? (
+            {activity === PRESENTATION ? (
+              <div className="room__reveal">
+                {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
+              </div>
+            ) : picking && isAnimator && !activity ? (
+              <div className="room__reveal">
+                <PresentationPicker onBack={() => setPicking(false)} onStarted={() => setPicking(false)} />
+              </div>
+            ) : activity && (BOARD_COLUMNS[activity] || activity === CANVAS) ? (
               <>
                 <Segmented<'board' | 'chat'>
                   label={t('boards.view')}

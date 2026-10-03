@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { create } from 'zustand'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
 import { api } from '../../api/client'
+import { bindPresentation, useLive } from './present/presentation'
+import { PRESENTATION } from './catalog'
 import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
@@ -50,6 +52,11 @@ interface RoomState {
   sendCursor: (x: number, y: number) => void
   /** Tells the others you are writing; sent at most every few seconds, never an error. */
   notifyTyping: () => void
+  /** Presenting (spec 006 US3): animator only, the server refuses everyone else. */
+  startPresentation: (presentationId: string) => Promise<void>
+  goToSlide: (position: number) => Promise<void>
+  setBlank: (blank: boolean) => Promise<void>
+  endPresentation: () => Promise<void>
   clearError: () => void
 }
 
@@ -163,6 +170,10 @@ export const useRoom = create<RoomState>()((set) => ({
     lastTyping = now
     connection.invoke('Typing').catch(() => undefined)
   },
+  startPresentation: (presentationId) => invoke('StartPresentation', presentationId),
+  goToSlide: (position) => invoke('GoToSlide', position),
+  setBlank: (blank) => invoke('SetBlank', blank),
+  endPresentation: () => invoke('EndPresentation'),
   clearError: () => set({ error: null }),
 }))
 
@@ -203,7 +214,11 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m], arrivals: [...s.arrivals, m.id], announcement: m.name }))
       window.setTimeout(() => useRoom.setState((s) => ({ arrivals: s.arrivals.filter((x) => x !== m.id) })), 1600)
     })
-    connection.on('Activity', (a: { activityId: string | null }) => useRoom.setState({ activity: a.activityId }))
+    connection.on('Activity', (a: { activityId: string | null }) => {
+      useRoom.setState({ activity: a.activityId })
+      if (a.activityId !== PRESENTATION) useLive.getState().reset()
+    })
+    bindPresentation(connection, () => useRoom.getState().connection === connection)
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))
     connection.on('AiDelta', (d: { text: string }) => useRoom.setState((s) => ({ draft: s.draft + d.text })))
@@ -224,6 +239,8 @@ export function useCircleConnection(view: CircleView | undefined) {
     connection.onreconnecting(() => useRoom.setState({ status: 'reconnecting' }))
     connection.onreconnected(async () => {
       useRoom.setState({ status: 'live' })
+      // Entering again pushes the current presentation, if any; a stale one must not stay on screen.
+      useLive.getState().reset()
       await connection.invoke('Enter', id).catch(() => undefined)
       await resync(id).catch(() => undefined)
     })
@@ -244,6 +261,7 @@ export function useCircleConnection(view: CircleView | undefined) {
     return () => {
       cancelled = true
       clearTyping()
+      useLive.getState().reset()
       useRoom.setState({ connection: null })
       void connection.stop()
     }

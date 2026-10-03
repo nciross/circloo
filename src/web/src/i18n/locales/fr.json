@@ -696,7 +696,13 @@
       "note-invalid": "Les notes font 1 à 140 caractères.",
       "board-full": "Ce tableau est plein.",
       "no-votes-left": "Plus de points. Reprends-en un pour voter à nouveau.",
-      "author-only": "Seul l'auteur (ou l'animateur) peut faire ça."
+      "author-only": "Seul l'auteur (ou l'animateur) peut faire ça.",
+      "presentation-not-ready": "Cette présentation n’est pas encore prête.",
+      "presentation-empty": "Toutes les diapositives de cette présentation sont masquées.",
+      "session-conflict": "Une présentation vient d’être lancée depuis une autre fenêtre.",
+      "no-session": "Aucune présentation en cours.",
+      "out-of-range": "Il n’y a pas de diapositive à cet endroit.",
+      "busy": "Plusieurs changements en même temps. Réessaie."
     }
   },
   "boards": {
@@ -1065,5 +1071,48 @@
       "quizAdded": "Quiz ajouté en diapositive {{number}}."
     },
     "movedTo": "Diapositive déplacée en position {{number}} sur {{count}}."
+  },
+  "present": {
+    "pickTitle": "Choisir une présentation",
+    "pickBody": "Chaque personne du cercle suit tes diapositives sur son propre écran.",
+    "pickEmpty": "Aucune présentation n’est encore prête.",
+    "pickLibrary": "Ouvrir Mes présentations",
+    "present": "Présenter",
+    "presentNamed": "Présenter {{name}}",
+    "back": "Retour aux activités",
+    "presenterTitle": "Présentation de {{name}}",
+    "prev": "Diapositive précédente",
+    "next": "Diapositive suivante",
+    "counter": "Diapositive {{n}} sur {{total}}",
+    "blank": "Écran noir",
+    "unblank": "Afficher la diapositive",
+    "end": "Terminer",
+    "endConfirm": "Terminer pour tout le monde",
+    "audience": "Ouvrir l’écran public",
+    "keys": "Quand cette vue a le focus : flèches, Page préc./suiv. ou Espace pour se déplacer ; B pour masquer l’écran.",
+    "following_one": "{{count}} personne suit",
+    "following_other": "{{count}} personnes suivent",
+    "upNext": "Ensuite",
+    "lastSlide": "C’est la dernière diapositive.",
+    "notes": "Tes notes",
+    "noNotes": "Pas de notes sur cette diapositive.",
+    "slideAlt": "Diapositive {{n}} sur {{total}}",
+    "poll": "Sondage",
+    "quiz": "Quiz",
+    "blankTitle": "On revient dans un instant",
+    "waitTitle": "En attente de l’animateur",
+    "waitBody": "Les diapositives s’afficheront ici dès que la présentation commence.",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "audienceTitle": "Écran public",
+    "audienceRefused": "Seul l’animateur de ce cercle peut ouvrir son écran public.",
+    "joinTitle": "Rejoindre ce cercle",
+    "qrAlt": "QR code pour rejoindre ce cercle",
+    "popupBlocked": "Ton navigateur a bloqué la nouvelle fenêtre. Autorise les fenêtres pop-up pour circloo, puis réessaie.",
+    "reconnecting": "Connexion perdue. Reconnexion…",
+    "offline": "Cet écran est hors ligne. Recharge-le pour suivre à nouveau.",
+    "converting": "Conversion…",
+    "listFailed": "Impossible de charger tes présentations.",
+    "retry": "Réessayer"
   }
 }
