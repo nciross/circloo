@@ -56,7 +56,10 @@ test('library: upload a PowerPoint, watch it convert, read notes, hide, rename, 
   // Rename, then delete the last slide.
   const name = page.locator('.deck-rename__input')
   await name.fill(locale === 'ar' ? 'لقاء الفريق' : 'Team kickoff')
+  // Wait for the rename to land before the next edit (both carry the presentation version).
+  const renamed = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().includes('/api/presentations/'))
   await name.press('Enter')
+  expect((await renamed).ok()).toBe(true)
   await thumbs.nth(11).click()
   await page.locator('.slide-preview__bar .btn').last().click()
   await page.locator('.slide-preview__bar .btn--danger').click()

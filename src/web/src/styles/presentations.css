@@ -354,7 +354,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .slide-strip {
-    order: 2;
     grid-auto-flow: column;
     grid-auto-columns: 8rem;
     max-block-size: none;

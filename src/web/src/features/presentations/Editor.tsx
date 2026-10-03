@@ -44,7 +44,8 @@ function Rename({ deck }: { deck: PresentationDetail }) {
   const save = async (e?: FormEvent) => {
     e?.preventDefault()
     const clean = name.trim()
-    if (clean === deck.name) return
+    // Enter then blur would send the same rename twice.
+    if (clean === deck.name || (update.isPending && update.variables?.name === clean)) return
     if (!clean) {
       setError(t('presentations.errors.name-length'))
       return
@@ -72,7 +73,7 @@ function SlideThumb({ slide, number, selected, onSelect }: { slide: SlideView; n
   const question = slide.kind !== 'deck'
   return (
     <button type="button" className={['slide-thumb', selected ? 'is-selected' : '', slide.hidden ? 'is-hidden' : '', question ? 'is-question' : ''].filter(Boolean).join(' ')}
-      aria-pressed={selected} onClick={onSelect}
+      aria-current={selected ? 'true' : undefined} onClick={onSelect}
       aria-label={t('presentations.slideLabel', { number, state: slide.hidden ? t('presentations.hiddenState') : '' }).trim()}>
       <span className="slide-thumb__frame">
         {slide.thumbnail ? <img src={slide.thumbnail} alt="" loading="lazy" width={480} height={270} /> : null}
@@ -97,7 +98,7 @@ function Preview({ deck, slide, number }: { deck: PresentationDetail; slide: Sli
   const setHidden = useSetHidden(deck.id)
   const remove = useDeleteSlide(deck.id)
   const [confirming, setConfirming] = useState(false)
-  const failed = setHidden.isError || remove.isError
+  const failure = setHidden.error ?? remove.error
   return (
     <section className="slide-preview" aria-label={t('presentations.slideLabel', { number, state: '' }).trim()}>
       <div className="slide-preview__frame">
@@ -121,7 +122,11 @@ function Preview({ deck, slide, number }: { deck: PresentationDetail; slide: Sli
           <Button size="sm" variant="subtle" icon={<Trash2 size={14} />} onClick={() => setConfirming(true)}>{t('presentations.deleteSlide')}</Button>
         )}
       </div>
-      {failed ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
+      {failure ? (
+        <p className="field__error" role="alert">
+          {t(failure instanceof ApiError && failure.status === 409 ? 'presentations.errors.stale' : 'common.errorGeneric')}
+        </p>
+      ) : null}
       <div className="slide-notes">
         <h2 className="slide-notes__title"><StickyNote size={14} aria-hidden="true" /> {t('presentations.notes')}</h2>
         {slide.notes ? <p className="slide-notes__text" dir="auto">{slide.notes}</p> : <p className="field__help">{t('presentations.noNotes')}</p>}

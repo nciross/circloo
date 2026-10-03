@@ -55,12 +55,15 @@ const detailKey = (id: string) => ['presentations', id] as const
 
 /** Polls every second while something converts, and not at all otherwise. */
 const whileProcessing = (busy: boolean) => (busy ? 1000 : false)
+/** A 4xx (gone, forbidden) won't change on retry: fail fast so the page can react. */
+const retry = (count: number, err: Error) => !(err instanceof ApiError && err.status >= 400 && err.status < 500) && count < 3
 
 export const usePresentations = () =>
   useQuery({
     queryKey: presentationsKey,
     queryFn: ({ signal }) => api<PresentationSummary[]>('/api/presentations', { signal }),
     refetchInterval: (q) => whileProcessing(q.state.data?.some((p) => p.status === 'processing') ?? false),
+    retry,
   })
 
 export const usePresentation = (id: string) =>
@@ -68,6 +71,7 @@ export const usePresentation = (id: string) =>
     queryKey: detailKey(id),
     queryFn: ({ signal }) => api<PresentationDetail>(`/api/presentations/${id}`, { signal }),
     refetchInterval: (q) => whileProcessing(q.state.data?.status === 'processing'),
+    retry,
   })
 
 /**
@@ -113,19 +117,21 @@ export function useUpload() {
   })
 }
 
-/** Every edit returns the fresh detail; it replaces the cache so the version stays current. */
+/**
+ * Every edit returns the fresh detail; it replaces the cache so the version stays current.
+ * Edits to one presentation run one after another (shared scope), so each reads the version the previous one returned.
+ */
 function useEdit<V>(id: string, request: (vars: V, version: number) => Promise<PresentationDetail>) {
   const qc = useQueryClient()
   return useMutation({
+    scope: { id: `presentation:${id}` },
     mutationFn: (vars: V) => request(vars, qc.getQueryData<PresentationDetail>(detailKey(id))?.version ?? 0),
     onSuccess: (detail) => {
       qc.setQueryData(detailKey(id), detail)
       void qc.invalidateQueries({ queryKey: presentationsKey, exact: true })
     },
-    onError: (err) => {
-      // Someone (another tab) changed it first: reload the truth.
-      if (err instanceof ApiError && err.status === 409) void qc.invalidateQueries({ queryKey: detailKey(id) })
-    },
+    // Someone (another tab) changed it first: reload the truth.
+    onError: (err) => (err instanceof ApiError && err.status === 409 ? qc.invalidateQueries({ queryKey: detailKey(id) }) : undefined),
   })
 }
 

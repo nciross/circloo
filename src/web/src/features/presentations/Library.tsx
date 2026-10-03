@@ -144,6 +144,7 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
           )}
         </span>
       </div>
+      {remove.isError ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
     </li>
   )
 }
