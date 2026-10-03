@@ -257,7 +257,7 @@ public sealed partial class CirclooCoach(
             var lines = activity.Lines.GetValueOrDefault(lang) ?? activity.Lines["en"];
             var lastAi = history.LastOrDefault(m => m.Kind == "ai")?.Text;
             var candidates = lines.Where(l => l != lastAi).ToArray();
-            text = candidates.Length > 0 ? candidates[RandomNumberGenerator.GetInt32(candidates.Length)] : lines[0];
+            text = candidates.Length > 0 ? candidates[RandomNumberGenerator.GetInt32(candidates.Length)] : lines.FirstOrDefault() ?? Line(lang, "failed");
         }
 
         // Stream it word by word so the room sees circloo "type", like the real model.

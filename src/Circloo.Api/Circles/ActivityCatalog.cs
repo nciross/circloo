@@ -92,7 +92,11 @@ public static class ActivityCatalog
               ["لوحة حرّة مباشرة! انقر مرتين في أي مكان لتضع ملاحظة، واسحب الملاحظات ولوّنها. اطلبوا مني التلخيص عندما تكونون جاهزين."],
               ["¡Lienzo en vivo! Haz doble clic en cualquier sitio para poner una nota, arrastra las notas y dales color. Pedidme un resumen cuando estéis listos."])),
         new(Presentation, "present", null,
-            "The animator presents slides with polls and quizzes; stay quiet unless asked, then help explain results briefly.", None),
+            "The animator presents slides with polls and quizzes; stay quiet unless asked, then help explain results briefly.",
+            L(["I'm here. Ask me whenever you want help explaining the results."],
+              ["Je suis là. Demande-moi quand tu veux que je t'aide à expliquer les résultats."],
+              ["أنا هنا. اطلب مني متى شئت أن أساعدك في شرح النتائج."],
+              ["Aquí estoy. Pídeme ayuda cuando quieras explicar los resultados."])),
     ];
 
     private static readonly Dictionary<string, ActivityDef> ById = All.ToDictionary(a => a.Id);
