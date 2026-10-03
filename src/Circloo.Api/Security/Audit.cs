@@ -20,6 +20,11 @@ public static class AuditTypes
     public const string CircleExported = "circle.exported";
     public const string IntegrationConnected = "integration.connected";
     public const string IntegrationDisconnected = "integration.disconnected";
+    public const string PresentationUploaded = "presentation.uploaded";
+    public const string PresentationConverted = "presentation.converted";
+    public const string PresentationFailed = "presentation.failed";
+    public const string PresentationDeleted = "presentation.deleted";
+    public const string PresentationPurged = "presentation.purged";
 }
 
 /// <summary>Writes security events. Emails and IPs are stored as keyed hashes only.</summary>
