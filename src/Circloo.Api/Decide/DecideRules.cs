@@ -59,9 +59,9 @@ public static class DecideRules
     public static readonly string[] RatingLooks = ["stars", "smileys"];
 
     /// <summary>Cleans and safety-checks one text; returns the text, or the error code.</summary>
-    public static (string? Text, string? Error) Text(string? value, int max, Func<string, bool> isSafe, string lengthCode)
+    public static (string? Text, string? Error) Text(string? value, int max, Func<string, bool> isSafe, string lengthCode, bool keepLines = false)
     {
-        var text = TextRules.CleanTyped(value, max);
+        var text = TextRules.CleanTyped(value, max, keepLines);
         if (text is null)
         {
             return (null, lengthCode);
@@ -211,8 +211,9 @@ public static class DecideRules
                 {
                     return (null, "out-of-range");
                 }
-                var (text, error) = Text(value.GetString(), q.LongText == true ? LongTextMax : ShortTextMax, isSafe, "too-long");
-                return (text, error);
+                // A long answer may run over several lines; a short one is a single line.
+                var multiline = q.LongText == true;
+                return Text(value.GetString(), multiline ? LongTextMax : ShortTextMax, isSafe, "too-long", multiline);
             default:
                 return (null, "out-of-range");
         }

@@ -122,4 +122,20 @@ public sealed class RulesTests
         Assert.Equal("message-unsafe", bad["q6"][0]);
         Assert.Equal("too-long", DecideRules.ValidateResponse(Questions, Answers($$"""{"q1":3,"q6":"{{new string('x', 201)}}"}"""), Safe).Errors["q6"][0]);
     }
+
+    [Fact]
+    public void A_long_answer_keeps_its_line_breaks_a_short_one_stays_on_one_line()
+    {
+        List<FormQuestion> questions =
+        [
+            new() { Id = "q1", Type = "text", Label = "Short?", LongText = false },
+            new() { Id = "q2", Type = "text", Label = "Long?", LongText = true },
+        ];
+        var (json, errors) = DecideRules.ValidateResponse(questions, Answers("""{"q2":"Good pace.\r\nMore games next time.\u0007"}"""), Safe);
+        Assert.Equal("too-long", errors["q2"][0]);
+        (json, errors) = DecideRules.ValidateResponse(questions, Answers("""{"q2":" Good pace.\r\n\r\nMore games next time. "}"""), Safe);
+        Assert.Empty(errors);
+        Assert.Equal("Good pace.\n\nMore games next time.", Answers(json!)["q2"].GetString());
+        Assert.Equal("too-long", DecideRules.ValidateResponse(questions, Answers("""{"q1":"Good\nday"}"""), Safe).Errors["q1"][0]);
+    }
 }

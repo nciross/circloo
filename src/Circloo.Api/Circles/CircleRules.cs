@@ -71,10 +71,15 @@ public static class TextRules
     public const int MessageMax = 280;
     public const int AskMax = 400;
 
-    public static string? Clean(string? value, int max)
+    /// <param name="keepLines">Multi-line text (a long answer): line breaks are kept, as <c>\n</c>.</param>
+    public static string? Clean(string? value, int max, bool keepLines = false)
     {
         var text = (value ?? "").Trim();
-        if (text.Length == 0 || text.Length > max || text.Any(c => char.IsControl(c) || IsBidiControl(c)))
+        if (keepLines)
+        {
+            text = text.ReplaceLineEndings("\n");
+        }
+        if (text.Length == 0 || text.Length > max || text.Any(c => (char.IsControl(c) && !(keepLines && c == '\n')) || IsBidiControl(c)))
         {
             return null;
         }
@@ -85,8 +90,8 @@ public static class TextRules
     /// <see cref="Clean"/> for typed text: LRM, RLM and ALM are ordinary when typing Arabic, so they are dropped rather
     /// than refused; overrides and isolates (which can spoof text) are still refused.
     /// </summary>
-    public static string? CleanTyped(string? value, int max) =>
-        Clean(value is null ? null : new string([.. value.Where(c => c is not ((char)0x200E or (char)0x200F or (char)0x061C))]), max);
+    public static string? CleanTyped(string? value, int max, bool keepLines = false) =>
+        Clean(value is null ? null : new string([.. value.Where(c => c is not ((char)0x200E or (char)0x200F or (char)0x061C))]), max, keepLines);
 
     /// <summary>Directional overrides and isolates let a name visually spoof another (e.g. U+202E).</summary>
     public static bool IsBidiControl(char c) =>
