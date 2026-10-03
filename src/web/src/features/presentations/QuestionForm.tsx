@@ -93,7 +93,9 @@ export function QuestionForm({ initial, kind, onSave, onCancel, onDirtyChange, s
   useEffect(() => {
     // After a refused save, focus the first field to fix (or the message that says what went wrong).
     if (Object.keys(errors).length === 0) return
-    const target = form.current?.querySelector<HTMLElement>('[aria-invalid="true"]') ?? form.current?.querySelector<HTMLElement>('.qform__form-error')
+    // A group error (answer count, no correct answer) focuses the group's first control: the first radio or answer.
+    const target = form.current?.querySelector<HTMLElement>('[aria-invalid="true"], .qform__options.is-invalid input')
+      ?? form.current?.querySelector<HTMLElement>('.qform__form-error')
     target?.focus()
   }, [errors])
 
