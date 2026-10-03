@@ -117,20 +117,23 @@ export function useUpload() {
   })
 }
 
-/**
- * Every edit returns the fresh detail; it replaces the cache so the version stays current.
- * Edits to one presentation run one after another (shared scope), so each reads the version the previous one returned.
- */
-function useEdit<V>(id: string, request: (vars: V, version: number) => Promise<PresentationDetail>) {
+/** Every edit returns the fresh detail; it replaces the cache so the version stays current. */
+function useEdit<V>(id: string, request: (vars: V, version: number, current?: PresentationDetail) => Promise<PresentationDetail>) {
   const qc = useQueryClient()
   return useMutation({
+    // Edits to one presentation run one after another, so each reads the version the previous one returned
+    // (a rename on Enter then blur, or a delete right after a rename, would otherwise send a stale version).
     scope: { id: `presentation:${id}` },
-    mutationFn: (vars: V) => request(vars, qc.getQueryData<PresentationDetail>(detailKey(id))?.version ?? 0),
+    mutationFn: (vars: V) => {
+      const current = qc.getQueryData<PresentationDetail>(detailKey(id))
+      return request(vars, current?.version ?? 0, current)
+    },
     onSuccess: (detail) => {
       qc.setQueryData(detailKey(id), detail)
       void qc.invalidateQueries({ queryKey: presentationsKey, exact: true })
     },
-    // Someone (another tab) changed it first: reload the truth.
+    // Someone (another tab) changed it first: reload the truth. Returning the promise holds the next queued edit
+    // until the fresh version is in the cache.
     onError: (err) => (err instanceof ApiError && err.status === 409 ? qc.invalidateQueries({ queryKey: detailKey(id) }) : undefined),
   })
 }
@@ -160,4 +163,81 @@ export function useDeletePresentation() {
 /** The message key for an upload or conversion problem. */
 export function errorKey(code: string | null | undefined): string {
   return code && (ERROR_CODES as readonly string[]).includes(code) ? `presentations.errors.${code}` : 'common.errorGeneric'
+}
+
+/** What the question form sends (contracts/rest.md `QuestionInput`); option ids are assigned by the server. */
+export interface QuestionInput {
+  kind: 'poll' | 'quiz'
+  question: string
+  options: { text: string }[]
+  multipleChoice?: boolean
+  correctOption?: string | null
+  timerSeconds?: number | null
+  showFirst?: boolean
+  showLive?: boolean
+}
+
+export const QUESTION_MAX = 140
+export const OPTION_MAX = 80
+export const MIN_OPTIONS = 2
+export const MAX_OPTIONS = 6
+export const TIMERS = [10, 15, 20, 30, 45, 60] as const
+
+/** The timer choices, plus a value set elsewhere (any 10–60 is valid on the server) so it is never shown wrong. */
+export const timerChoices = (current: number | null | undefined): number[] =>
+  current && !(TIMERS as readonly number[]).includes(current) ? [...TIMERS, current].sort((a, b) => a - b) : [...TIMERS]
+export const OPTION_IDS = ['a', 'b', 'c', 'd', 'e', 'f'] as const
+
+export const useAddQuestion = (id: string) =>
+  useEdit<QuestionInput & { afterSlideId?: string | null }>(id, (body, version) =>
+    api(`/api/presentations/${id}/questions`, { method: 'POST', body: { ...body, version } }))
+
+export const useUpdateQuestion = (id: string) =>
+  useEdit<{ slideId: string; question: QuestionInput }>(id, ({ slideId, question }, version) =>
+    api(`/api/presentations/${id}/slides/${slideId}`, { method: 'PUT', body: { ...question, version } }))
+
+/**
+ * Moves one slide to the place of another (drag) or by `delta` places (keyboard). The order is computed when the
+ * request starts, from the latest saved order, so quick repeated moves never send a stale one.
+ */
+export const useMoveSlide = (id: string) =>
+  useEdit<{ slideId: string; delta?: number; to?: string }>(id, ({ slideId, delta, to }, version, current) => {
+    const ids = (current?.slides ?? []).map((s) => s.id)
+    const step = to ? ids.indexOf(to) - ids.indexOf(slideId) : (delta ?? 0)
+    return api(`/api/presentations/${id}/order`, { method: 'PUT', body: { slideIds: moved(ids, slideId, step), version } })
+  })
+
+/** Moves one slide by `delta` places and returns the new full order. */
+export function moved(ids: string[], id: string, delta: number): string[] {
+  const from = ids.indexOf(id)
+  const to = from + delta
+  if (from < 0 || to < 0 || to >= ids.length) return ids
+  const next = [...ids]
+  next.splice(from, 1)
+  next.splice(to, 0, id)
+  return next
+}
+
+/** The form values of an existing question slide. */
+export const fromSlide = (s: SlideView): QuestionInput => ({
+  kind: s.kind === 'quiz' ? 'quiz' : 'poll',
+  question: s.question ?? '',
+  options: (s.options ?? []).map((o) => ({ text: o.text })),
+  multipleChoice: s.multipleChoice,
+  correctOption: s.correctOption,
+  timerSeconds: s.timerSeconds ?? 20,
+  showFirst: s.showFirst,
+  showLive: s.showLive,
+})
+
+/**
+ * Removes answer `index`. The quiz's correct answer follows its option when one above it goes; when the correct
+ * answer itself is removed, none is marked, so the author picks again instead of saving a wrong one.
+ */
+export function withoutOption(q: QuestionInput, index: number): QuestionInput {
+  const options = q.options.filter((_, k) => k !== index)
+  if (q.kind !== 'quiz') return { ...q, options }
+  const correct = q.correctOption ? OPTION_IDS.indexOf(q.correctOption as (typeof OPTION_IDS)[number]) : -1
+  const next = correct < 0 || correct === index ? null : OPTION_IDS[correct > index ? correct - 1 : correct]
+  return { ...q, options, correctOption: next }
 }

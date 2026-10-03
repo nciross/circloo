@@ -483,13 +483,16 @@
   background: #ffffff;
   transition: transform 180ms var(--ease-out);
 }
-.switch[aria-pressed='true'] .switch__track {
+.switch[aria-pressed='true'] .switch__track,
+.switch[aria-checked='true'] .switch__track {
   background: var(--success);
 }
-.switch[aria-pressed='true'] .switch__knob {
+.switch[aria-pressed='true'] .switch__knob,
+.switch[aria-checked='true'] .switch__knob {
   transform: translateX(1.25rem);
 }
-[dir='rtl'] .switch[aria-pressed='true'] .switch__knob {
+[dir='rtl'] .switch[aria-pressed='true'] .switch__knob,
+[dir='rtl'] .switch[aria-checked='true'] .switch__knob {
   transform: translateX(-1.25rem);
 }
 
