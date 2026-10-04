@@ -23,7 +23,7 @@ public sealed class LiveSessions(CirclooDbContext db, IHubContext<CircleHub, ICi
     public async Task BroadcastAsync(PresentationSession session, string? name = null, CancellationToken ct = default)
     {
         name ??= await db.Presentations.Where(p => p.Id == session.PresentationId).Select(p => p.Name).FirstOrDefaultAsync(ct) ?? "";
-        var results = LiveSession.ShowsLiveResults(session) ? await ResultsAsync(session, ct) : null;
+        var results = LiveSession.ShowsResults(session) ? await ResultsAsync(session, ct) : null;
         await hub.Clients.Group(CircleHub.Group(session.CircleId)).PresentationState(LiveSession.View(session, name, clock.GetUtcNow(), results));
         await SendNotesAsync(hub.Clients.Group(CircleHub.AnimatorGroup(session.CircleId)), session, ct);
         if (LiveSession.AsksNow(session))
@@ -82,11 +82,25 @@ public sealed class LiveSessions(CirclooDbContext db, IHubContext<CircleHub, ICi
         await hub.Clients.Groups(CircleHub.AnimatorGroup(session.CircleId), CircleHub.AudienceGroup(session.CircleId)).AnswerCount(count);
     }
 
+    /// <summary>
+    /// The current question's results: counts while live, and once revealed the correct option (quiz) and the spotlight
+    /// on the first answer, named only when the question shows who was first.
+    /// </summary>
     public async Task<ResultsView> ResultsAsync(PresentationSession session, CancellationToken ct = default)
     {
         var slide = LiveSession.Current(session);
-        var answers = await db.SessionAnswers.Where(a => a.SessionId == session.Id && a.SlideId == slide.SlideId).Select(a => a.Options).ToListAsync(ct);
-        return ResultsBuilder.Build(slide, [.. answers.Select(a => (IReadOnlyList<string>)a)]);
+        var answers = await db.SessionAnswers.AsNoTracking()
+            .Where(a => a.SessionId == session.Id && a.SlideId == slide.SlideId)
+            .Select(a => new AnswerRow(a.Seq, a.MemberId, a.Options, a.FirstReceivedAt, a.Correct))
+            .ToListAsync(ct);
+        if (!LiveSession.Revealed(session))
+        {
+            return ResultsBuilder.Build(slide, [.. answers.Select(a => a.Options)]);
+        }
+        var ids = answers.Select(a => a.MemberId).ToList();
+        var members = await db.CircleMembers.AsNoTracking().Where(m => ids.Contains(m.Id))
+            .ToDictionaryAsync(m => m.Id, m => (m.Name, m.Character), ct);
+        return ResultsBuilder.Reveal(slide, answers, session.OpenedAt, members);
     }
 
     /// <summary>

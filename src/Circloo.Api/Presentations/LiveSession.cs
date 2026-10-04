@@ -211,6 +211,13 @@ public static class LiveSession
     public static bool ShowsLiveResults(PresentationSession s) =>
         Current(s) is { Kind: SlideKinds.Poll, ShowLive: true } && s.Phase is SessionPhases.Answering or SessionPhases.Locked;
 
+    /// <summary>Whether the current question has been revealed (its results stay on screen, podium included).</summary>
+    public static bool Revealed(PresentationSession s) =>
+        SlideKinds.IsQuestion(Current(s).Kind) && s.Phase is SessionPhases.Revealed or SessionPhases.Podium;
+
+    /// <summary>Whether everyone sees results now: once revealed, or live for polls that show them.</summary>
+    public static bool ShowsResults(PresentationSession s) => Revealed(s) || ShowsLiveResults(s);
+
     /// <summary>
     /// Whether an answer to <paramref name="slideId"/> is accepted now: the current question, answering open, and for a
     /// quiz before its deadline. Returns the refusal code, or null.

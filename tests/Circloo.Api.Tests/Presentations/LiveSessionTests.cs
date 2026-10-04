@@ -259,4 +259,27 @@ public sealed class LiveSessionTests
         var none = ResultsBuilder.Build(slides[1], [], winners: true);
         Assert.All(none.Options, o => Assert.Equal((0, 0, false), (o.Count, o.Percent, o.Winner)));
     }
+
+    [Fact]
+    public void The_reveal_spotlights_the_earliest_answer_and_for_a_quiz_the_earliest_correct_one()
+    {
+        var (_, slides) = Running();
+        var (amina, kenji, ghost) = (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        var members = new Dictionary<Guid, (string, string)> { [amina] = ("Amina", "robot"), [kenji] = ("Kenji", "fox") };
+        AnswerRow Row(long seq, Guid who, string option, double seconds, bool? correct = null) =>
+            new(seq, who, [option], T0.AddSeconds(seconds), correct);
+
+        var poll = ResultsBuilder.Reveal(slides[1], [Row(7, kenji, "b", 4.25), Row(3, amina, "a", 2.4)], T0, members);
+        Assert.Equal(("Amina", "robot", 2400L), (poll.First!.Name, poll.First.Character, poll.First.Ms));
+        Assert.All(poll.Options, o => Assert.Null(o.Correct));
+
+        var quiz = ResultsBuilder.Reveal(slides[3], [Row(3, amina, "a", 1, correct: false), Row(5, kenji, "b", 3.5, correct: true)], T0, members);
+        Assert.Equal(("Kenji", 3500L), (quiz.First!.Name, quiz.First.Ms));
+        Assert.Equal([false, true], quiz.Options.Select(o => o.Correct!.Value));
+
+        // Nobody right, someone who is no longer known, or the spotlight off: no name.
+        Assert.Null(ResultsBuilder.Reveal(slides[3], [Row(3, amina, "a", 1, correct: false)], T0, members).First);
+        Assert.Null(ResultsBuilder.Reveal(slides[1], [Row(1, ghost, "a", 1)], T0, members).First);
+        Assert.Null(ResultsBuilder.Reveal(slides[1] with { ShowFirst = false }, [Row(1, amina, "a", 1)], T0, members).First);
+    }
 }
