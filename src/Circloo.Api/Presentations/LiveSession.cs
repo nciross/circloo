@@ -107,8 +107,10 @@ public static class LiveSession
     /// <summary>
     /// Moves to <paramref name="position"/>: the slide shows unblanked, and a question shows its stored phase. Moving to
     /// the slide already shown only unblanks it, and never closes its question. Returns whether anything changed.
+    /// <paramref name="leavingAnswered"/> says whether anyone answered the question being left: with automatic opening,
+    /// one passed through without answers (and not revealed) is forgotten, so it opens fresh when shown again.
     /// </summary>
-    public static bool GoTo(PresentationSession s, int position, DateTimeOffset now)
+    public static bool GoTo(PresentationSession s, int position, DateTimeOffset now, bool leavingAnswered = true)
     {
         var slides = Slides(s);
         if (position < 0 || position >= slides.Count)
@@ -125,7 +127,7 @@ public static class LiveSession
             return true;
         }
         var phases = Phases(s);
-        Remember(s, slides[s.Position], phases, now);
+        Remember(s, slides[s.Position], phases, now, leavingAnswered);
 
         s.Position = position;
         s.MaxPosition = Math.Max(s.MaxPosition, position);
@@ -302,11 +304,20 @@ public static class LiveSession
         return new NextSlideView(next.SlideId, next.Kind, SlideKinds.IsQuestion(next.Kind) ? null : PresentationEndpoints.ImageUrl(next.SlideId), next.Question);
     }
 
-    /// <summary>Stores the phase of the question being left; one still answering locks now (or at its passed deadline).</summary>
-    private static void Remember(PresentationSession s, SnapshotSlide leaving, Dictionary<Guid, QuestionPhase> phases, DateTimeOffset now)
+    /// <summary>
+    /// Stores the phase of the question being left; one still answering locks now (or at its passed deadline). With
+    /// automatic opening, a question left with no answers and not revealed is not stored: flipping past it (an extra
+    /// Next, a peek back) never uses it up, and it opens fresh, a quiz with a fresh timer, when shown again.
+    /// </summary>
+    private static void Remember(PresentationSession s, SnapshotSlide leaving, Dictionary<Guid, QuestionPhase> phases, DateTimeOffset now, bool answered)
     {
         if (!SlideKinds.IsQuestion(leaving.Kind) || s.Phase == SessionPhases.Idle)
         {
+            return;
+        }
+        if (s.AutoOpen && !answered && s.Phase is SessionPhases.Answering or SessionPhases.Locked)
+        {
+            phases.Remove(leaving.SlideId);
             return;
         }
         if (s.Phase == SessionPhases.Answering)

@@ -176,6 +176,11 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
     options: [{ id: 'a', text: ar ? 'كسكس' : 'Couscous' }, { id: 'b', text: ar ? 'سوشي' : 'Sushi' }],
   })
 
+  // The editor shows the automatic-opening setting, on by default (#170).
+  await page.goto(`/app/presentations/${deckId}`)
+  await expect(page.locator('.deck-setting .switch').first()).toHaveAttribute('aria-checked', 'true')
+  await axe(page)
+
   const circle = await createCircle(page, locale)
   const amina = await join(browser, circle.code, ar ? 'أمينة' : 'Amina', 'robot', locale)
   const kenji = await join(browser, circle.code, ar ? 'كنزي' : 'Kenji', 'fox', locale)

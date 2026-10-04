@@ -62,4 +62,55 @@ public sealed partial class PresentingHubTests
         Assert.False(detail!.AutoOpen);
         Assert.False(await DbAsync(db => db.Presentations.Where(p => p.Id == deckId).Select(p => p.AutoOpen).SingleAsync()));
     }
+
+    [Fact]
+    public async Task A_deck_starting_on_a_quiz_locks_it_on_the_server_deadline()
+    {
+        Inbox<PresentationStateView>? states = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g => states = new Inbox<PresentationStateView>(g, "PresentationState"));
+        var deck = new Presentation { OwnerUserId = room.AnimatorUserId, Name = "Warm-up", SourceFileName = "w.pptx", Status = PresentationStatus.Ready, AutoOpen = true };
+        await DbAsync(async db =>
+        {
+            db.Presentations.Add(deck);
+            db.Slides.Add(new Slide
+            {
+                PresentationId = deck.Id, Kind = SlideKinds.Quiz, Position = 0, Question = "7 × 8?", CorrectOption = "b", TimerSeconds = 15,
+                Options = [new SlideOption { Id = "a", Text = "54" }, new SlideOption { Id = "b", Text = "56" }],
+            });
+            return await db.SaveChangesAsync();
+        });
+        await room.Animator.InvokeAsync("StartPresentation", deck.Id);
+        Assert.Equal(SessionPhases.Answering, (await states!.NextAsync()).Phase);
+        _factory.Clock.Advance(TimeSpan.FromSeconds(15));
+        Assert.Equal(SessionPhases.Locked, (await states.NextAsync(s => s.Phase == SessionPhases.Locked)).Phase);
+    }
+
+    [Fact]
+    public async Task Flipping_past_a_question_nobody_answered_leaves_it_ready_for_later()
+    {
+        Inbox<PresentationStateView>? states = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g => states = new Inbox<PresentationStateView>(g, "PresentationState"));
+        await room.Animator.InvokeAsync("StartPresentation", await QuestionDeckAsync(room.AnimatorUserId, autoOpen: true));
+        var poll = await states!.NextAsync();
+        await room.Animator.InvokeAsync("GoToSlide", 1);
+        await room.Animator.InvokeAsync("GoToSlide", 0);
+        var back = await states.NextAsync(s => s.Position == 0 && s.Version > poll.Version);
+        Assert.Equal(SessionPhases.Answering, back.Phase);
+        await room.Guest.InvokeAsync<MyAnswerView>("Answer", poll.Slide.SlideId, new[] { "a" });
+    }
+
+    [Fact]
+    public async Task A_patch_without_the_setting_leaves_it_as_it_was()
+    {
+        await using var room = await RoomAsync();
+        var deckId = await QuestionDeckAsync(room.AnimatorUserId, autoOpen: true);
+        var version = await DbAsync(db => db.Presentations.Where(p => p.Id == deckId).Select(p => p.Version).SingleAsync());
+        var res = await room.AnimatorHttp.SendAsync(new HttpRequestMessage(HttpMethod.Patch, $"/api/presentations/{deckId}")
+        {
+            Content = System.Net.Http.Json.JsonContent.Create(new { name = "Quiz night (v2)", version }),
+            Headers = { { "X-XSRF-TOKEN", room.AnimatorCsrf } },
+        });
+        res.EnsureSuccessStatusCode();
+        Assert.True(await DbAsync(db => db.Presentations.Where(p => p.Id == deckId).Select(p => p.AutoOpen).SingleAsync()));
+    }
 }

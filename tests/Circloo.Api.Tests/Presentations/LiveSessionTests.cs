@@ -282,4 +282,67 @@ public sealed class LiveSessionTests
         Assert.Null(ResultsBuilder.Reveal(slides[1], [Row(1, ghost, "a", 1)], T0, members).First);
         Assert.Null(ResultsBuilder.Reveal(slides[1] with { ShowFirst = false }, [Row(1, amina, "a", 1)], T0, members).First);
     }
+
+    /// <summary>The same deck with answers opening automatically (#170).</summary>
+    private static PresentationSession RunningAuto() =>
+        LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Running().Slides, showPodium: true, T0, autoOpen: true);
+
+    [Fact]
+    public void With_automatic_opening_a_question_opens_when_shown_and_a_deck_slide_stays_idle()
+    {
+        var s = RunningAuto();
+        Assert.Equal(SessionPhases.Idle, s.Phase);
+        LiveSession.SetBlank(s, true);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(1));
+        Assert.Equal((false, SessionPhases.Answering, T0.AddSeconds(1)), (s.Blank, s.Phase, s.OpenedAt));
+        Assert.False(LiveSession.GoTo(s, 1, T0.AddSeconds(2)));
+        LiveSession.GoTo(s, 2, T0.AddSeconds(3));
+        Assert.Equal(SessionPhases.Idle, s.Phase);
+        LiveSession.GoTo(s, 3, T0.AddSeconds(4));
+        Assert.Equal((SessionPhases.Answering, T0.AddSeconds(24)), (s.Phase, s.Deadline));
+    }
+
+    [Fact]
+    public void A_presentation_starting_on_a_quiz_opens_it_with_its_deadline()
+    {
+        var snapshot = LiveSession.BuildSnapshot([Quiz(0), Deck(1)]);
+        var s = LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), snapshot, showPodium: true, T0, autoOpen: true);
+        Assert.Equal((SessionPhases.Answering, T0, T0.AddSeconds(20)), (s.Phase, s.OpenedAt, s.Deadline));
+        var manual = LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), snapshot, showPodium: true, T0);
+        Assert.Equal(SessionPhases.Idle, manual.Phase);
+    }
+
+    [Fact]
+    public void Passing_through_an_unanswered_question_never_uses_it_up_but_an_answered_one_stays_locked()
+    {
+        var s = RunningAuto();
+        LiveSession.GoTo(s, 1, T0);
+        // An extra Next: nobody answered, so the poll is forgotten and opens fresh on the way back.
+        LiveSession.GoTo(s, 2, T0.AddSeconds(2), leavingAnswered: false);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(5));
+        Assert.Equal((SessionPhases.Answering, T0.AddSeconds(5)), (s.Phase, s.OpenedAt));
+
+        // Answered this time: leaving locks it, and coming back never reopens it.
+        LiveSession.GoTo(s, 2, T0.AddSeconds(9), leavingAnswered: true);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(12));
+        Assert.Equal(SessionPhases.Locked, s.Phase);
+
+        // A question revealed (even with no answers) keeps its results.
+        LiveSession.GoTo(s, 3, T0.AddSeconds(13));
+        LiveSession.Reveal(s, T0.AddSeconds(14));
+        LiveSession.GoTo(s, 2, T0.AddSeconds(15), leavingAnswered: false);
+        LiveSession.GoTo(s, 3, T0.AddSeconds(16));
+        Assert.Equal(SessionPhases.Revealed, s.Phase);
+    }
+
+    [Fact]
+    public void Without_automatic_opening_passing_through_keeps_the_old_rule()
+    {
+        var (s, _) = Running();
+        LiveSession.GoTo(s, 1, T0);
+        LiveSession.Open(s, T0);
+        LiveSession.GoTo(s, 2, T0.AddSeconds(2), leavingAnswered: false);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(3));
+        Assert.Equal(SessionPhases.Locked, s.Phase);
+    }
 }

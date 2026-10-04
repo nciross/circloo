@@ -380,7 +380,17 @@
 .deck-settings {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-4);
+  gap: var(--s-4) var(--s-6);
+}
+/* One setting: its switch, then its explanation and any error, stacked. */
+.deck-setting {
+  display: grid;
+  gap: var(--s-1);
+  align-content: start;
+  max-inline-size: 28rem;
+}
+.deck-setting .field__help {
+  margin: 0;
 }
 .slide-preview__heading {
   font-size: var(--fs-lg);

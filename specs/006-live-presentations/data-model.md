@@ -17,6 +17,7 @@ high-volume rows.
 | SlideCount | int | slides found in the file (≤ 100) |
 | ProcessedSlides | int | progress, 0…SlideCount |
 | ShowPodium | bool | default true (FR-606) |
+| AutoOpen | bool | default true; answers open as soon as a question is shown (#170) |
 | CreatedAt, UpdatedAt, LastUsedAt | DateTimeOffset | LastUsedAt drives the 12-month clean-up (FR-604a) |
 | Version | int | concurrency token, bumped on every edit |
 | ConvertingBy | string? | replica id holding the conversion lease |
@@ -57,6 +58,7 @@ cannot carry question fields; at most 100 deck slides and 50 question slides per
 | StartedByMemberId | Guid | animator member |
 | Snapshot | jsonb | frozen visible slides at start: `[{ slideId, kind, question, options, correct, multiple, timer, showFirst, showLive, hasNotes }]` (notes are read live from Slide for the animator only) |
 | ShowPodium | bool | copied at start |
+| AutoOpen | bool | copied at start; sessions running before #170 keep false |
 | Position | int | index into Snapshot |
 | MaxPosition | int | furthest position shown so far; slide images up to it are viewable by members (REST contract) |
 | Blank | bool | |
@@ -77,6 +79,8 @@ question:    idle --open--> answering --lock|deadline--> locked --reveal--> reve
 moving away from a question in answering locks it first (LockedAt = now); moving to another slide sets Phase to idle
 for deck slides; returning to a question shows its stored phase: locked (can be revealed, never reopened), revealed or
 podium with stored results; quiz timers never restart
+with AutoOpen (#170): showing a question with no stored phase does idle --open--> answering at once (also at start);
+leaving it while answering or locked with no answers stores nothing, so it opens fresh when shown again
 ```
 
 ## SessionAnswer

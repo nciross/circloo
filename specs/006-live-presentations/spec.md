@@ -264,8 +264,9 @@ option and the first correct answerer are shown; the podium after the second qui
 - **FR-608**: While presenting, the current slide, blank state, open question and its phase (answering, locked,
   revealed, podium) MUST be the same for everyone in the circle, reach every participant within 1 second, and be
   restored for anyone who joins or reloads.
-- **FR-609**: Only the animator MUST be able to change slides, blank the screen, open, lock and reveal questions, show
-  the podium and end the presentation; speaker notes and the next slide MUST be visible to the animator only.
+- **FR-609**: Only the animator MUST be able to change slides, blank the screen, open (or let questions open as they
+  are shown, #170), lock and reveal questions, show the podium and end the presentation; speaker notes and the next
+  slide MUST be visible to the animator only.
 - **FR-609a**: The animator MUST be able to open an **audience screen** for the running presentation: a full-screen,
   control-free view for a projector or TV that mirrors the shared state (slide, blank, question, countdown, answer
   count, results, spotlight, podium) and shows the circle's join code and QR code between questions. Only the

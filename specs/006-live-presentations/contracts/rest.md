@@ -12,7 +12,7 @@ user (`RequireAuthorization()`), except slide images (see below). New endpoint f
 | `GET /presentations` | – | `200 PresentationSummary[]` (owner's, newest first) | – |
 | `POST /presentations` | `multipart/form-data`: `file` (.pptx ≤ 50 MB) | `202 PresentationSummary` (`status: processing`) | `400 not-pptx \| encrypted \| macros \| too-many-slides`, `413 too-large`, `429` (rate limit `PresentationUpload`: 10 per user per hour) |
 | `GET /presentations/{id}` | – | `200 PresentationDetail` (bumps `LastUsedAt`) | `404 presentation-not-found` (also when not the owner) |
-| `PATCH /presentations/{id}` | `{ name?, showPodium?, version }` | `200 PresentationDetail` | `400` validation, `409 stale` |
+| `PATCH /presentations/{id}` | `{ name?, showPodium?, autoOpen?, version }` | `200 PresentationDetail` | `400` validation, `409 stale` |
 | `DELETE /presentations/{id}` | – | `204` | `404`; if a session uses it, the session ends (hub `PresentationEnded`) |
 
 ## Slides and questions
@@ -32,7 +32,7 @@ type PresentationSummary = {
   lastUsedAt: string; deletesInDays?: number   // set when idle > 335 days
 }
 type PresentationDetail = PresentationSummary & {
-  showPodium: boolean; version: number
+  showPodium: boolean; autoOpen: boolean; version: number
   slides: Array<
     | { id: string; kind: 'deck'; position: number; hidden: boolean; notes?: string; image: string; thumbnail: string }
     | ({ id: string; kind: 'poll' | 'quiz'; position: number } & QuestionInput)

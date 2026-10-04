@@ -81,10 +81,10 @@ function PodiumSetting({ deck }: { deck: PresentationDetail }) {
   const update = useUpdatePresentation(deck.id)
   const on = update.isPending ? (update.variables?.showPodium ?? deck.showPodium) : deck.showPodium
   return (
-    <>
+    <div className="deck-setting">
       <Switch on={on} busy={update.isPending} onChange={(v) => update.mutate({ showPodium: v })}>{t('presentations.showPodium')}</Switch>
       {update.isError ? <p className="field__error" role="alert">{t(editErrorKey(update.error))}</p> : null}
-    </>
+    </div>
   )
 }
 
@@ -93,12 +93,13 @@ function AutoOpenSetting({ deck }: { deck: PresentationDetail }) {
   const { t } = useTranslation()
   const update = useUpdatePresentation(deck.id)
   const on = update.isPending ? (update.variables?.autoOpen ?? deck.autoOpen) : deck.autoOpen
+  const help = useId()
   return (
-    <>
-      <Switch on={on} busy={update.isPending} onChange={(v) => update.mutate({ autoOpen: v })}>{t('presentations.autoOpen')}</Switch>
-      <p className="field__help">{t(on ? 'presentations.autoOpenOn' : 'presentations.autoOpenOff')}</p>
+    <div className="deck-setting">
+      <Switch on={on} busy={update.isPending} describedBy={help} onChange={(v) => update.mutate({ autoOpen: v })}>{t('presentations.autoOpen')}</Switch>
+      <p id={help} className="field__help">{t(on ? 'presentations.autoOpenOn' : 'presentations.autoOpenOff')}</p>
       {update.isError ? <p className="field__error" role="alert">{t(editErrorKey(update.error))}</p> : null}
-    </>
+    </div>
   )
 }
 
