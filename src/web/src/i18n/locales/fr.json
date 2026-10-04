@@ -702,7 +702,16 @@
       "session-conflict": "Une présentation vient d’être lancée depuis une autre fenêtre.",
       "no-session": "Aucune présentation en cours.",
       "out-of-range": "Il n’y a pas de diapositive à cet endroit.",
-      "busy": "Plusieurs changements en même temps. Réessaie."
+      "busy": "Plusieurs changements en même temps. Réessaie.",
+      "answers-closed": "Les réponses à cette question sont fermées.",
+      "not-current-question": "L’animateur est passé à une autre diapositive.",
+      "invalid-options": "Cette réponse ne fait pas partie des choix.",
+      "quiz-final": "Ta réponse à ce quiz est déjà enregistrée.",
+      "animator-cannot-answer": "En tant qu’animateur, tu ouvres et fermes les réponses, mais tu ne réponds pas.",
+      "slow-down": "Doucement, puis réessaie.",
+      "not-a-question": "Cette diapositive n’est pas une question.",
+      "already-open": "Les réponses sont déjà ouvertes sur cette question.",
+      "not-answering": "Les réponses ne sont pas ouvertes sur cette question."
     }
   },
   "boards": {
@@ -1113,6 +1122,29 @@
     "offline": "Cet écran est hors ligne. Recharge-le pour suivre à nouveau.",
     "converting": "Conversion…",
     "listFailed": "Impossible de charger tes présentations.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "openAnswers": "Ouvrir les réponses",
+    "closeAnswers": "Fermer les réponses",
+    "answersClosed": "Réponses fermées",
+    "answersTitle": "Réponses",
+    "answered": "{{answered}} sur {{of}} ont répondu",
+    "stillToAnswer": "Pas encore répondu",
+    "andMore": "+{{count}}",
+    "secondsLeft_one": "Encore {{count}} seconde",
+    "secondsLeft_other": "Encore {{count}} secondes",
+    "timeUp": "Temps écoulé",
+    "share": "{{percent}} % · {{count}}",
+    "answer": {
+      "wait": "L’animateur ouvre les réponses dans un instant.",
+      "tap": "Touche ta réponse. Tu peux la changer jusqu’à la fermeture.",
+      "tapFinal": "Touche ta réponse. Elle compte dès que tu touches.",
+      "pickMany": "Choisis une ou plusieurs réponses, puis envoie.",
+      "inChange": "Ta réponse est enregistrée. Tu peux encore la changer.",
+      "inFinal": "Ta réponse est enregistrée.",
+      "closed": "Les réponses sont fermées.",
+      "closedCounted": "Les réponses sont fermées. Ta réponse compte.",
+      "send": "Envoyer ma réponse",
+      "update": "Modifier ma réponse"
+    }
   }
 }

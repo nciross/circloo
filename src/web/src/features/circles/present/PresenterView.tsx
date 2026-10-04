@@ -1,11 +1,49 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, EyeOff, Eye, MonitorUp, Square, StickyNote, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, EyeOff, Eye, Lock, MonitorUp, Play, Square, StickyNote, Users } from 'lucide-react'
 import { Button } from '../../../components/Button'
 import { useRoom } from '../room'
 import { keyAction } from './keys'
 import { prefetch, useLive, type PresentationState } from './presentation'
 import { SlideStage } from './SlideStage'
+import { Countdown } from './Countdown'
+import { AnswerProgress } from './AnswerProgress'
+
+/** Opens and closes answering on a question slide; a quiz shows its countdown while open (spec 006 US4). */
+function QuestionControls({ state }: { state: PresentationState }) {
+  const { t } = useTranslation()
+  const [busy, setBusy] = useState(false)
+  if (state.slide.kind === 'deck') return null
+  const act = async (call: () => Promise<void>) => {
+    setBusy(true)
+    useRoom.getState().clearError()
+    try {
+      await call()
+    } catch {
+      // The view shows the error code.
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="presenter__question">
+      {state.phase === 'idle' ? (
+        <Button variant="primary" className="presenter__open" icon={<Play size={16} />} busy={busy} onClick={() => act(useRoom.getState().openQuestion)}>
+          {t('present.openAnswers')}
+        </Button>
+      ) : state.phase === 'answering' ? (
+        <>
+          {state.slide.kind === 'quiz' && state.deadline ? <Countdown deadline={state.deadline} total={state.slide.timerSeconds ?? 20} className="presenter__countdown" /> : null}
+          <Button variant="default" className="presenter__lock" icon={<Lock size={16} />} busy={busy} onClick={() => act(useRoom.getState().lockQuestion)}>
+            {t('present.closeAnswers')}
+          </Button>
+        </>
+      ) : (
+        <p className="presenter__closed" role="status"><Lock size={14} aria-hidden="true" /> {t('present.answersClosed')}</p>
+      )}
+    </div>
+  )
+}
 
 /**
  * The animator's view while presenting (spec 006 US3): the current slide large, the next one and the notes beside it,
@@ -16,6 +54,7 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
   const { t, i18n } = useTranslation()
   const notes = useLive((s) => s.notes)
   const online = useRoom((s) => s.online)
+  const members = useRoom((s) => s.members)
   const meId = useRoom((s) => s.me?.id)
   const error = useRoom((s) => s.error)
   const [confirming, setConfirming] = useState(false)
@@ -87,6 +126,7 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
       <h2 id="presenter-title" className="visually-hidden">{t('present.presenterTitle', { name: state.presentationName })}</h2>
       <div className="presenter__main">
         <SlideStage state={state} className="presenter__stage" />
+        <QuestionControls state={state} />
         <div className="presenter__bar">
           <Button variant="default" className="presenter__prev" icon={<ChevronLeft size={18} className="flip-rtl" />} aria-label={t('present.prev')}
             aria-disabled={first || undefined} onClick={() => go(-1)} />
@@ -113,6 +153,7 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
       </div>
       <aside className="presenter__side" aria-busy={!notesReady || undefined}>
         <p className="presenter__followers" data-count={followers}><Users size={16} aria-hidden="true" /> {t('present.following', { count: followers })}</p>
+        <AnswerProgress state={state} members={members} />
         <section className="presenter__next-slide" aria-labelledby="present-next">
           <h3 id="present-next" className="presenter__label">{t('present.upNext')}</h3>
           {!notesReady ? null : upcoming ? (
