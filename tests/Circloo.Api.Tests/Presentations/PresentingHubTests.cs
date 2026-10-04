@@ -16,7 +16,7 @@ namespace Circloo.Api.Tests.Presentations;
 
 /// <summary>Issue #106: presenting in a circle over the hub (spec 006 US3, contracts/hub.md).</summary>
 [Collection(ApiCollection.Name)]
-public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
+public sealed partial class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
 {
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(10);
     private readonly AzuriteContainer _azurite = new AzuriteBuilder("mcr.microsoft.com/azure-storage/azurite:3.35.0")
@@ -92,6 +92,7 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
         public required HubConnection Guest { get; init; }
         public required Guid AnimatorUserId { get; init; }
         public required HttpClient GuestHttp { get; init; }
+        public required CookieContainerHandler GuestCookies { get; init; }
 
         public async ValueTask DisposeAsync()
         {
@@ -126,7 +127,7 @@ public sealed class PresentingHubTests(PostgresFixture pg) : IAsyncLifetime
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
         var userId = await db.CircleMembers.Where(m => m.CircleId == id && m.Role == Roles.Animator).Select(m => m.UserId!.Value).SingleAsync();
-        return new Room { CircleId = id, JoinCode = joinCode, Animator = animatorHub, AnimatorHttp = http, AnimatorCsrf = csrf, AnimatorCookies = cookies, Guest = guestHub, AnimatorUserId = userId, GuestHttp = guest };
+        return new Room { CircleId = id, JoinCode = joinCode, Animator = animatorHub, AnimatorHttp = http, AnimatorCsrf = csrf, AnimatorCookies = cookies, Guest = guestHub, AnimatorUserId = userId, GuestHttp = guest, GuestCookies = guestCookies };
     }
 
     /// <summary>Joins as a guest; each one picks a character of their own (characters are unique in a circle).</summary>

@@ -15,7 +15,7 @@ membership (`CurrentAsync`) and refuses with `HubException` codes, as boards do.
 | `RevealResults()` | animator | Locks if needed; `Phase = revealed`; broadcasts `Results` | `not-open` |
 | `ShowPodium()` | animator | Quiz slide in `revealed`, presentation `ShowPodium`; `Phase = podium`; broadcasts `Podium` | `podium-off`, `not-revealed` |
 | `EndPresentation()` | animator | `EndedAt = now`; activity cleared; broadcasts `PresentationEnded` | `no-session` |
-| `Answer(Guid slideId, string[] options)` | participant | Upsert under the rules of data-model.md; replies to the caller with `MyAnswer`; sends `AnswerCount` to animator + audience (and `Results` live for `showLive` polls) | `answers-closed`, `not-current-question`, `invalid-options`, `quiz-final`, `animator-cannot-answer` |
+| `Answer(Guid slideId, string[] options)` → `MyAnswer` | participant | Upsert under the rules of data-model.md, in one statement while the session row is share-locked (so `LockQuestion` waits for answers in flight); sends `MyAnswer` to all of the member's connections; sends `AnswerCount` to animator + audience (and `Results` live for `showLive` polls). At most 10 answers a second per connection | `answers-closed`, `not-current-question`, `invalid-options`, `quiz-final`, `animator-cannot-answer`, `slow-down` |
 | `EnterAudience(Guid circleId)` | animator (user session) | Joins `circle:{id}` and `audience:{id}` groups without presence; returns the current `PresentationState`, or null when nothing is presented. The connection only listens: `Enter` is refused (`audience-read-only`) and every action answers `not-entered` | `animator-only` |
 
 `Enter(circleId)` (existing) additionally pushes the current `PresentationState` to the caller (and `PresenterNotes` to an
@@ -45,14 +45,14 @@ type Results = {
   first?: { memberId: string; name: string; character: string; ms: number }   // only when showFirst
 }
 type Podium = { places: { rank: number; memberId: string; name: string; character: string; points: number }[] }
-type AnswerCount = { answered: number; of: number; pending: string[] }        // member ids, animator/audience only
+type AnswerCount = { slideId: string; answered: number; of: number; pending: string[] }   // member ids, animator/audience only
 type MyAnswer = { slideId: string; options: string[]; correct?: boolean; points?: number; rank?: number }
 ```
 
 | Event | To | When |
 |---|---|---|
 | `PresentationState(state)` | circle group | every change of slide, blank, phase, results, podium |
-| `AnswerCount(count)` | animator connections + `audience:{id}` | after each answer, throttled to 4/s |
+| `AnswerCount(count)` | animator connections + `audience:{id}` | after each answer and when someone enters or leaves the room, throttled to 4/s |
 | `MyAnswer(answer)` | the answering connection(s) of that member | after their answer; after reveal (correct, points); after podium (rank) |
 | `PresenterNotes(slideId, notes?, next?)` | animator connections only | on every move: notes of the current slide and a preview of the next one |
 | `PresentationEnded(sessionId)` | circle group | session ended, replaced, its activity switched, its presentation deleted or purged, or the circle closed; screens ignore it unless it names the session they show |

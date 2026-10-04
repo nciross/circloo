@@ -39,6 +39,10 @@ public interface ICircleClient
     Task PresenterNotes(Guid slideId, string? notes, NextSlideView? upcoming);
     /// <summary>The session ended; screens still showing it leave the presentation (a late event about another one is ignored).</summary>
     Task PresentationEnded(Guid sessionId);
+    /// <summary>"n of N answered" and who is still to answer: animator connections and the audience screen only.</summary>
+    Task AnswerCount(AnswerCountView count);
+    /// <summary>A participant's own answer to the current question, to all of their connections.</summary>
+    Task MyAnswer(MyAnswerView answer);
     /// <summary>A poll was created, edited, opened or closed (drafts reach the animator only, spec 007).</summary>
     Task PollChanged(PollView poll);
     /// <summary>Aggregated results: to everyone when the poll shows them, otherwise to the animator only.</summary>
@@ -68,7 +72,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, LiveThrottle throttle) : Hub<ICircleClient>
+    Polls polls, LiveThrottle throttle, QuizClock quizClock) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -122,7 +126,8 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         var online = presence.Online(circleId);
         await Clients.Group(Group(circleId)).Presence(online);
         // Reloads and late joiners land on the current slide (spec 006 FR-608).
-        await SendPresentationAsync(circleId, Clients.Caller, notes: me.Role == Roles.Animator);
+        await SendPresentationAsync(circleId, Clients.Caller, me);
+        RequestAnswerCount(circleId);
         return online;
     }
 
@@ -412,6 +417,8 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         if (presence.Remove(Context.ConnectionId) is { } left)
         {
             await Clients.Group(Group(left.Circle)).Presence(presence.Online(left.Circle));
+            // "n of N answered" counts the people in the room.
+            RequestAnswerCount(left.Circle);
         }
         await base.OnDisconnectedAsync(exception);
     }

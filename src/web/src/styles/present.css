@@ -227,6 +227,8 @@
   border-radius: 0;
 }
 .follow__full {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
   position: absolute;
   inset-block-end: var(--s-2);
   inset-inline-end: var(--s-2);
@@ -300,6 +302,11 @@
   --audience-bg: #0b0f14;
   --audience-text: #eef2f6;
   --audience-subtle: #aab4c0;
+  --audience-card: #131a22;
+  --audience-line: rgb(255 255 255 / 0.18);
+  --audience-track: rgb(255 255 255 / 0.14);
+  --audience-bar: rgb(34 184 204 / 0.45);
+  --audience-danger: #ff9b8a;
   position: fixed;
   inset: 0;
   display: grid;
@@ -424,6 +431,330 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .audience__full {
+    transition: none;
+  }
+}
+
+/* ---------- Answering (spec 006 US4) ---------- */
+
+/* An option's share: a bar behind the option and its figures at the end of the line. Bars grow from the inline start,
+   so they follow the reading direction. */
+.stage-slide__options.has-results li,
+.answer-pad__options.has-results .answer-pad__option {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.stage-slide__text {
+  flex: 1;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+/* With results, narrow options put their figures on a line of their own instead of squeezing the text. */
+.has-results li,
+.has-results .answer-pad__option {
+  flex-wrap: wrap;
+}
+.has-results .stage-slide__text {
+  flex: 1 1 8rem;
+}
+.share__figures {
+  margin-inline-start: auto;
+}
+.share {
+  display: contents;
+}
+.share__bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: -1;
+  inline-size: var(--share, 0%);
+  border-radius: inherit;
+  background: var(--primary-subtle);
+  transition: inline-size 400ms var(--ease-out, ease-out);
+}
+.share__figures {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+/* The participant's pad: the question card with big, thumb-sized answers. */
+.answer-pad {
+  aspect-ratio: auto;
+  min-block-size: 0;
+}
+.answer-pad .stage-slide__question {
+  padding: clamp(var(--s-4), 5cqi, var(--s-8));
+  /* Room for the full-screen button in the corner. */
+  padding-block-end: calc(var(--s-4) + 2.75rem);
+}
+/* Full screen: the pad fills the screen and scrolls when its answers need more room. */
+.follow__frame:fullscreen .answer-pad,
+.follow__frame.is-filled .answer-pad {
+  inline-size: 100%;
+  min-block-size: 100dvh;
+  max-block-size: 100dvh;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+}
+.follow__frame:fullscreen .answer-pad .stage-slide__question,
+.follow__frame.is-filled .answer-pad .stage-slide__question {
+  align-content: end;
+}
+.answer-pad__status {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: var(--fs-md);
+}
+.answer-pad__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s-2) var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.answer-pad__option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  inline-size: 100%;
+  min-block-size: 3.25rem;
+  padding: var(--s-3) var(--s-4);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(var(--fs-md), 2.4cqi, 1.75rem);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, transform 120ms ease-out;
+}
+@media (hover: hover) {
+  .answer-pad.is-open .answer-pad__option:not([aria-disabled='true']):hover {
+    border-color: var(--primary);
+  }
+}
+.answer-pad__option:active:not([aria-disabled='true']) {
+  transform: scale(0.98);
+}
+.answer-pad__option:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.answer-pad__option[aria-disabled='true'] {
+  cursor: default;
+}
+.answer-pad__option.is-on {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+.answer-pad__option.is-on .share__bar {
+  background: var(--primary-subtle-hover);
+  border-inline-end: 3px solid var(--primary);
+}
+.answer-pad__option.is-on .stage-slide__letter {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.answer-pad__option.is-sending {
+  opacity: 0.7;
+}
+.answer-pad:not(.is-open) .answer-pad__option:not(.is-on) {
+  color: var(--text-subtle);
+}
+.answer-pad__send {
+  justify-self: start;
+}
+
+/* A quiz countdown: large seconds and a bar that empties toward the inline start. */
+.countdown {
+  display: grid;
+  grid-template-columns: auto minmax(6rem, 1fr);
+  align-items: center;
+  gap: var(--s-3);
+}
+.countdown__time {
+  min-inline-size: 2ch;
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.countdown__bar {
+  position: relative;
+  block-size: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+}
+.countdown__bar::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--left, 100%);
+  border-radius: inherit;
+  background: var(--primary);
+  transition: inline-size 200ms linear;
+}
+.countdown.is-ending .countdown__time {
+  color: var(--danger-text);
+}
+.countdown.is-ending .countdown__bar::after {
+  background: var(--brand-coral);
+}
+
+/* Presenter: open or close answers above the slide controls. */
+.presenter__question {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+.presenter__countdown {
+  flex: 1;
+  max-inline-size: 24rem;
+}
+.presenter__closed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+/* "n of N answered" with the characters still to answer. */
+.answer-progress {
+  display: grid;
+  gap: var(--s-2);
+}
+.answer-progress__count {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.answer-progress__bar {
+  position: relative;
+  block-size: 0.375rem;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+}
+.answer-progress__bar::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--done, 0%);
+  border-radius: inherit;
+  background: var(--success);
+  transition: inline-size 300ms ease-out;
+}
+.answer-progress__label {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+}
+.answer-progress__pending {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.answer-progress__char {
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+.answer-progress__more {
+  align-self: center;
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+}
+
+/* Audience screen: countdown and progress under the question, in the projector's dark palette. */
+.audience__screen {
+  align-content: center;
+  gap: var(--s-4);
+}
+.audience__answers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4) var(--s-6);
+  inline-size: 100%;
+  font-size: clamp(var(--fs-md), 2vmin, var(--fs-2xl));
+}
+.audience__countdown {
+  flex: 1;
+  max-inline-size: 40rem;
+}
+.audience__countdown .countdown__time {
+  font-size: clamp(var(--fs-2xl), 5vmin, 4rem);
+}
+.audience .countdown__bar,
+.audience .answer-progress__bar {
+  background: var(--audience-track);
+}
+.audience .countdown__bar::after {
+  background: var(--brand-aqua);
+}
+.audience .stage-slide.is-question {
+  border: 1px solid var(--audience-line);
+  background: var(--audience-card);
+  color: var(--audience-text);
+}
+.audience .stage-slide__kind,
+.audience .stage-slide__letter {
+  color: var(--audience-subtle);
+}
+.audience .stage-slide__letter {
+  background: var(--audience-track);
+}
+.audience .stage-slide__options li {
+  border-color: var(--audience-line);
+}
+.audience .share__bar {
+  background: var(--audience-bar);
+  border-inline-end: 4px solid var(--brand-aqua);
+}
+.audience .share__figures {
+  color: var(--audience-text);
+  font-size: 1.1em;
+}
+/* While a question is up, the card leaves room under it for the countdown and the count. */
+.audience.has-answers .audience__stage.is-question {
+  inline-size: min(100%, calc((100dvh - 5vmin - 7rem) * 16 / 9));
+}
+.audience .answer-progress__label,
+.audience .answer-progress__more {
+  color: var(--audience-subtle);
+}
+.audience .countdown.is-ending .countdown__time {
+  color: var(--audience-danger);
+}
+.audience__progress {
+  min-inline-size: 14rem;
+}
+.audience__progress .answer-progress__char {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share__bar,
+  .countdown__bar::after,
+  .answer-progress__bar::after,
+  .answer-pad__option {
     transition: none;
   }
 }

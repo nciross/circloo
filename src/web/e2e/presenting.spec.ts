@@ -130,3 +130,91 @@ test('presenting: everyone follows the animator live, a late joiner lands in pla
 
   for (const p of [amina, kenji, lucia]) await p.context().close()
 })
+
+/** Adds a question after the deck's first slide through the API, as the animator's editor does. */
+async function addQuestion(page: Page, presentationId: string, question: Record<string, unknown>) {
+  await page.evaluate(async ({ id, body }) => {
+    await fetch('/api/auth/csrf', { credentials: 'same-origin' })
+    const token = decodeURIComponent(document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))!.slice('XSRF-TOKEN='.length))
+    const deck = (await (await fetch(`/api/presentations/${id}`, { credentials: 'same-origin' })).json()) as { version: number; slides: { id: string }[] }
+    const res = await fetch(`/api/presentations/${id}/questions`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
+      body: JSON.stringify({ ...body, version: deck.version, afterSlideId: deck.slides[0].id }),
+    })
+    if (!res.ok) throw new Error(`question: ${res.status}`)
+  }, { id: presentationId, body: question })
+}
+
+test('answering: phones answer polls and a server-timed quiz, the animator sees who is left (spec 006 US4)', async ({ page, browser }, info) => {
+  test.setTimeout(240_000)
+  const locale = localeOf(info)
+  const ar = locale === 'ar'
+  await signIn(page, locale, 'e2e-answer')
+
+  await page.goto('/app/presentations')
+  await page.locator('.deck-drop input[type=file]').setInputFiles(fixture('circloo-demo.pptx'))
+  await expect(page.locator('.deck-card .deck-card__thumb img').first()).toBeVisible({ timeout: 120_000 })
+  const deckId = (await page.locator('.deck-card a').first().getAttribute('href'))!.split('/').pop()!
+  // After slide 1: a poll, then a 10-second quiz (each lands right after slide 1, so the poll comes first).
+  await addQuestion(page, deckId, {
+    kind: 'quiz', question: ar ? 'كم يساوي ٧ × ٨؟' : 'What is 7 × 8?', timerSeconds: 10, correctOption: 'b',
+    options: [{ id: 'a', text: '54' }, { id: 'b', text: '56' }, { id: 'c', text: '58' }],
+  })
+  await addQuestion(page, deckId, {
+    kind: 'poll', question: ar ? 'ماذا نأكل اليوم؟' : 'Lunch today?',
+    options: [{ id: 'a', text: ar ? 'كسكس' : 'Couscous' }, { id: 'b', text: ar ? 'سوشي' : 'Sushi' }],
+  })
+
+  const circle = await createCircle(page, locale)
+  const amina = await join(browser, circle.code, ar ? 'أمينة' : 'Amina', 'robot', locale)
+  const kenji = await join(browser, circle.code, ar ? 'كنزي' : 'Kenji', 'fox', locale)
+
+  await page.goto(`/app/circles/${circle.id}`)
+  await page.locator('.activity[data-activity="presentation"] .btn').click()
+  await page.locator('.picker__present').click()
+  await expect(page.locator('.presenter .stage-slide[data-position="0"]')).toBeVisible()
+
+  // The poll: nobody can answer until the animator opens it.
+  await page.locator('.presenter__next').click()
+  await expect(amina.locator('.answer-pad')).toBeVisible()
+  await expect(amina.locator('.answer-pad__option').first()).toHaveAttribute('aria-disabled', 'true')
+  await axe(amina)
+  await page.locator('.presenter__open').click()
+  await expect(page.locator('.answer-progress__count')).toContainText(ar ? 'لم يُجب أحد من 2' : '0 of 2 answered')
+  await expect(page.locator('.answer-progress__pending li')).toHaveCount(2)
+
+  // Amina answers, then changes her mind; one answer counts.
+  await amina.locator('.answer-pad__option').nth(0).click()
+  await expect(amina.locator('.answer-pad__option').nth(0)).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.answer-progress__count')).toContainText(ar ? 'أجاب واحد من 2' : '1 of 2 answered')
+  await amina.locator('.answer-pad__option').nth(1).click()
+  await expect(amina.locator('.answer-pad__option').nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await expect(amina.locator('.answer-pad__option').nth(0)).toHaveAttribute('aria-pressed', 'false')
+  await expect(page.locator('.answer-progress__pending li')).toHaveCount(1)
+  // Participants never see counts before the reveal.
+  await expect(kenji.locator('.answer-progress, .share')).toHaveCount(0)
+  await axe(page)
+
+  // Closing answers: the pad says so and nothing more can be sent.
+  await page.locator('.presenter__lock').click()
+  await expect(page.locator('.presenter__closed')).toBeVisible()
+  await expect(kenji.locator('.answer-pad__option').first()).toHaveAttribute('aria-disabled', 'true')
+  await expect(amina.locator('.answer-pad__status')).toContainText(ar ? 'احتُسبت' : 'Your answer counted')
+
+  // The quiz: a server countdown, one final answer, and it locks itself when time is up.
+  await page.locator('.presenter__next').click()
+  await page.locator('.presenter__open').click()
+  await expect(kenji.locator('.answer-pad__countdown')).toBeVisible()
+  await expect(page.locator('.presenter__countdown')).toBeVisible()
+  await kenji.locator('.answer-pad__option').nth(1).click()
+  await expect(kenji.locator('.answer-pad__option').nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await expect(kenji.locator('.answer-pad__option').nth(0)).toHaveAttribute('aria-disabled', 'true')
+  await expect(page.locator('.answer-progress__count')).toContainText(ar ? 'أجاب واحد من 2' : '1 of 2 answered')
+  await axe(kenji)
+  await expect(page.locator('.presenter__closed')).toBeVisible({ timeout: 15_000 })
+  await expect(amina.locator('.answer-pad__status')).toContainText(ar ? 'مغلقة' : 'Answers are closed.')
+
+  for (const p of [amina, kenji]) await p.context().close()
+})

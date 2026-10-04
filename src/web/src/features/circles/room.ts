@@ -57,6 +57,10 @@ interface RoomState {
   goToSlide: (position: number) => Promise<void>
   setBlank: (blank: boolean) => Promise<void>
   endPresentation: () => Promise<void>
+  openQuestion: () => Promise<void>
+  lockQuestion: () => Promise<void>
+  /** A participant answers the current question (spec 006 US4); the server confirms with MyAnswer. */
+  answer: (slideId: string, options: string[]) => Promise<void>
   clearError: () => void
 }
 
@@ -174,6 +178,9 @@ export const useRoom = create<RoomState>()((set) => ({
   goToSlide: (position) => invoke('GoToSlide', position),
   setBlank: (blank) => invoke('SetBlank', blank),
   endPresentation: () => invoke('EndPresentation'),
+  openQuestion: () => invoke('OpenQuestion'),
+  lockQuestion: () => invoke('LockQuestion'),
+  answer: (slideId, options) => invoke('Answer', slideId, options),
   clearError: () => set({ error: null }),
 }))
 

@@ -46,7 +46,8 @@ public sealed record PresentationStateView(
     DateTimeOffset? OpenedAt,
     DateTimeOffset? Deadline,
     DateTimeOffset ServerNow,
-    int Version);
+    int Version,
+    ResultsView? Results = null);
 
 /// <summary>The animator's view of the next slide, beside their notes.</summary>
 public sealed record NextSlideView(Guid SlideId, string Kind, string? Image, string? Question);
@@ -203,6 +204,47 @@ public static class LiveSession
 
     public static SnapshotSlide Current(PresentationSession s) => Slides(s)[s.Position];
 
+    /// <summary>Whether the current slide is a question people are answering or have answered.</summary>
+    public static bool AsksNow(PresentationSession s) => SlideKinds.IsQuestion(Current(s).Kind) && s.Phase != SessionPhases.Idle;
+
+    /// <summary>Results everyone may see before the reveal: only polls that show them live, once answering has opened.</summary>
+    public static bool ShowsLiveResults(PresentationSession s) =>
+        Current(s) is { Kind: SlideKinds.Poll, ShowLive: true } && s.Phase is SessionPhases.Answering or SessionPhases.Locked;
+
+    /// <summary>
+    /// Whether an answer to <paramref name="slideId"/> is accepted now: the current question, answering open, and for a
+    /// quiz before its deadline. Returns the refusal code, or null.
+    /// </summary>
+    public static string? AnswerRefusal(PresentationSession s, Guid slideId, DateTimeOffset now)
+    {
+        var slide = Current(s);
+        if (slide.SlideId != slideId || !SlideKinds.IsQuestion(slide.Kind))
+        {
+            return "not-current-question";
+        }
+        if (s.Phase != SessionPhases.Answering || (s.Deadline is { } deadline && now >= deadline))
+        {
+            return "answers-closed";
+        }
+        return null;
+    }
+
+    /// <summary>Checks the chosen options: known, distinct, one unless the poll takes several. Returns them cleaned, or null.</summary>
+    public static string[]? CleanOptions(SnapshotSlide slide, IReadOnlyList<string>? chosen)
+    {
+        if (chosen is null || chosen.Count == 0)
+        {
+            return null;
+        }
+        var known = (slide.Options ?? []).Select(o => o.Id).ToHashSet(StringComparer.Ordinal);
+        var distinct = chosen.Distinct(StringComparer.Ordinal).ToArray();
+        if (distinct.Length != chosen.Count || distinct.Any(o => !known.Contains(o)) || (distinct.Length > 1 && !slide.Multiple))
+        {
+            return null;
+        }
+        return [.. distinct.OrderBy(o => o, StringComparer.Ordinal)];
+    }
+
     /// <summary>Whether a member may load this slide's picture: it is in the session and has been shown.</summary>
     public static bool HasShown(PresentationSession s, Guid slideId)
     {
@@ -217,7 +259,7 @@ public static class LiveSession
         return false;
     }
 
-    public static PresentationStateView View(PresentationSession s, string presentationName, DateTimeOffset now)
+    public static PresentationStateView View(PresentationSession s, string presentationName, DateTimeOffset now, ResultsView? results = null)
     {
         var slides = Slides(s);
         var slide = slides[s.Position];
@@ -225,7 +267,7 @@ public static class LiveSession
             ? new SlideStateView(slide.Kind, slide.SlideId, Question: slide.Question, Options: slide.Options ?? [], MultipleChoice: slide.Multiple,
                 TimerSeconds: slide.Timer, ShowFirst: slide.ShowFirst, ShowLive: slide.ShowLive)
             : new SlideStateView(slide.Kind, slide.SlideId, Image: PresentationEndpoints.ImageUrl(slide.SlideId));
-        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now, s.Version);
+        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now, s.Version, results);
     }
 
     public static NextSlideView? Next(PresentationSession s)

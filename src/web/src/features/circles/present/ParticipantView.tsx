@@ -5,11 +5,12 @@ import { Button } from '../../../components/Button'
 import { Panda } from '../../../components/Panda'
 import { useLive } from './presentation'
 import { SlideStage } from './SlideStage'
+import { AnswerPad } from './AnswerPad'
 
 /**
- * What participants see (spec 006 US3 #5): the current slide fitted to the screen, following the animator. No way to
- * move or to see notes; a full-screen button for phones and laptops alike. Where the browser has no full-screen API
- * (iPhone Safari), the slide fills the window instead.
+ * What participants see (spec 006 US3 #5, US4): the current slide fitted to the screen, following the animator, and on
+ * a question the answer pad. No way to move or to see notes; a full-screen button for phones and laptops alike. Where
+ * the browser has no full-screen API (iPhone Safari), the slide fills the window instead.
  */
 export function ParticipantView() {
   const { t } = useTranslation()
@@ -60,7 +61,11 @@ export function ParticipantView() {
     <section className="follow" aria-labelledby="follow-title">
       <h2 id="follow-title" className="visually-hidden" dir="auto">{state.presentationName}</h2>
       <div ref={frame} className={['follow__frame', filled ? 'is-filled' : ''].filter(Boolean).join(' ')}>
-        <SlideStage state={state} className="follow__stage" />
+        {state.slide.kind !== 'deck' && !state.blank ? (
+          <AnswerPad key={state.slide.slideId} state={state} slide={state.slide} />
+        ) : (
+          <SlideStage state={state} className="follow__stage" />
+        )}
         <Button size="sm" variant="subtle" className="follow__full" icon={full ? <Minimize size={16} /> : <Maximize size={16} />}
           aria-label={full ? t('present.exitFullscreen') : t('present.fullscreen')} onClick={toggleFull} />
       </div>
