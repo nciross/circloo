@@ -44,7 +44,7 @@ public static class ResultsBuilder
     /// </summary>
     public static ResultsView Reveal(SnapshotSlide slide, IReadOnlyList<AnswerRow> answers, DateTimeOffset? openedAt, IReadOnlyDictionary<Guid, (string Name, string Character)> members)
     {
-        var counted = Build(slide, [.. answers.Select(a => a.Options)]);
+        var counted = Build(slide, [.. answers.Select(a => a.Options)], winners: true);
         var quiz = slide.Kind == SlideKinds.Quiz;
         var options = quiz ? [.. counted.Options.Select(o => o with { Correct = o.Id == slide.Correct })] : counted.Options;
         FirstAnswer? first = null;
