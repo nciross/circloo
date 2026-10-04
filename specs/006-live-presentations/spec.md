@@ -155,12 +155,15 @@ appear one by one; a participant who taps twice still counts once.
    character), but no option counts until the reveal, unless the poll has "Show results live" on, in which case
    everyone sees the bars move as answers arrive and Reveal locks answers and marks the winner.
 7. **Given** the animator moves away from a question while answering is open, **Then** answering locks; coming back
-   shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts.
+   shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts (see 9 for a
+   question nobody answered when answers open automatically).
 8. **Given** the interface is in Arabic, **Then** answer buttons, the countdown and "n of N answered" are mirrored and
    numbers stay readable.
 9. **Given** a question slide is shown for the first time, **Then** answering opens at once (a quiz starts its
    countdown), unless the animator turned "Open answers as soon as a question shows" off for the presentation, in
-   which case they open answers themselves (#170, founder feedback 2026-10-04).
+   which case they open answers themselves (#170, founder feedback 2026-10-04). With automatic opening, a question left
+   before anyone answered and not revealed is not kept: shown again, it opens fresh (a quiz with a new countdown), so an
+   extra Next or a peek back never uses it up.
 
 ---
 
