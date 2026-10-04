@@ -1123,24 +1123,29 @@
     "closeAnswers": "Close answers",
     "answersClosed": "Answers closed",
     "answersTitle": "Answers",
-    "answered": "{{answered}} of {{of}} answered",
     "stillToAnswer": "Still to answer",
     "andMore": "+{{count}}",
     "secondsLeft_one": "{{count}} second left",
     "secondsLeft_other": "{{count}} seconds left",
     "timeUp": "Time is up",
-    "share": "{{percent}}% · {{count}}",
     "answer": {
       "wait": "The animator opens answers in a moment.",
       "tap": "Tap your answer. You can change it until answers close.",
       "tapFinal": "Tap your answer. It counts as soon as you tap.",
       "pickMany": "Pick one or more answers, then send.",
       "inChange": "Your answer is in. You can still change it.",
-      "inFinal": "Your answer is in.",
+      "inFinal": "Your answer is in. Fingers crossed!",
       "closed": "Answers are closed.",
       "closedCounted": "Answers are closed. Your answer counted.",
       "send": "Send my answer",
-      "update": "Update my answer"
-    }
+      "update": "Update my answer",
+      "unsent": "Not sent yet: send it to count."
+    },
+    "answered_one": "{{count}} of {{of}} answered",
+    "answered_other": "{{count}} of {{of}} answered",
+    "share_one": "{{percent}}% · {{count}} vote",
+    "share_other": "{{percent}}% · {{count}} votes",
+    "andMoreLabel_one": "and {{count}} more person",
+    "andMoreLabel_other": "and {{count}} more people"
   }
 }

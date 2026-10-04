@@ -246,14 +246,17 @@ public sealed class LiveSessionTests
     }
 
     [Fact]
-    public void Results_count_each_option_add_up_to_100_and_crown_every_tie()
+    public void Results_count_each_option_add_up_to_100_and_the_reveal_crowns_every_tie()
     {
         var (_, slides) = Running();
-        var results = ResultsBuilder.Build(slides[1], [["a"], ["a", "b"], ["b"]]);
+        var results = ResultsBuilder.Build(slides[1], [["a"], ["a", "b"], ["b"]], winners: true);
         Assert.Equal(3, results.Total);
         Assert.Equal([(2, 50, true), (2, 50, true)], results.Options.Select(o => (o.Count, o.Percent, o.Winner)));
 
-        var none = ResultsBuilder.Build(slides[1], []);
+        // Live results move the bars but crown nobody before the reveal.
+        Assert.All(ResultsBuilder.Build(slides[1], [["a"], ["a"], ["b"]]).Options, o => Assert.False(o.Winner));
+
+        var none = ResultsBuilder.Build(slides[1], [], winners: true);
         Assert.All(none.Options, o => Assert.Equal((0, 0, false), (o.Count, o.Percent, o.Winner)));
     }
 }

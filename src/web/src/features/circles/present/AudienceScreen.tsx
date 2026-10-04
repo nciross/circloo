@@ -117,7 +117,8 @@ export default function AudienceScreen() {
   }
 
   return (
-    <main ref={root} className={['audience', join ? 'has-join' : '', idle ? 'is-idle' : ''].filter(Boolean).join(' ')} data-status={status}>
+    <main ref={root} className={['audience', join ? 'has-join' : '', idle ? 'is-idle' : '', state && state.slide.kind !== 'deck' && !state.blank ? 'has-answers' : ''].filter(Boolean).join(' ')}
+      data-status={status}>
       <h1 className="visually-hidden">{t('present.audienceTitle')}</h1>
       <div className="audience__screen">
         {status === 'refused' ? (
@@ -130,7 +131,7 @@ export default function AudienceScreen() {
                 {state.slide.kind === 'quiz' && state.phase === 'answering' && state.deadline ? (
                   <Countdown deadline={state.deadline} total={state.slide.timerSeconds ?? 20} className="audience__countdown" />
                 ) : null}
-                <AnswerProgress state={state} members={circle.data?.members ?? []} className="audience__progress" />
+                <AnswerProgress state={state} members={circle.data?.members ?? []} showPending={false} className="audience__progress" />
               </div>
             ) : null}
           </>

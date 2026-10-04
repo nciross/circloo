@@ -21,11 +21,15 @@ public sealed partial class QuizClock(IServiceScopeFactory scopes, TimeProvider 
     /// <summary>Locks the session's quiz at <paramref name="deadline"/> (at once when it has passed). Replaces an earlier timer.</summary>
     public void Schedule(Guid sessionId, DateTimeOffset deadline)
     {
+        // Stored before it is started, so even a deadline already passed (due at once) finds its own entry to remove.
+        var timer = clock.CreateTimer(_ => _ = FireAsync(sessionId, deadline), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _timers.AddOrUpdate(sessionId, (timer, deadline), (_, previous) =>
+        {
+            previous.Timer.Dispose();
+            return (timer, deadline);
+        });
         var due = deadline - clock.GetUtcNow();
-        var timer = clock.CreateTimer(_ => _ = FireAsync(sessionId, deadline), null, due > TimeSpan.Zero ? due : TimeSpan.Zero, Timeout.InfiniteTimeSpan);
-        var previous = _timers.GetValueOrDefault(sessionId);
-        _timers[sessionId] = (timer, deadline);
-        previous.Timer?.Dispose();
+        timer.Change(due > TimeSpan.Zero ? due : TimeSpan.Zero, Timeout.InfiniteTimeSpan);
     }
 
     /// <summary>

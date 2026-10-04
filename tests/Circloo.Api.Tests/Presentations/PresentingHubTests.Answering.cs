@@ -199,4 +199,118 @@ public sealed partial class PresentingHubTests
         await reloaded.InvokeAsync<Guid[]>("Enter", room.CircleId);
         Assert.Equal(["a", "b"], (await mine.NextAsync()).Options);
     }
+
+    [Fact]
+    public async Task Answers_racing_the_lock_are_either_counted_or_refused_never_half_way()
+    {
+        Inbox<PresentationStateView>? states = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g => states = new Inbox<PresentationStateView>(g, "PresentationState"));
+        var guests = new List<HubConnection> { room.Guest };
+        foreach (var (name, character) in new[] { ("Lucía", "fox"), ("Youssef", "owl"), ("Théo", "cat"), ("Mei", "bear"), ("Sami", "frog") })
+        {
+            var (_, cookies) = await GuestAsync(room.JoinCode, name, character);
+            var hub = Hub(cookies);
+            await hub.StartAsync();
+            await hub.InvokeAsync<Guid[]>("Enter", room.CircleId);
+            guests.Add(hub);
+        }
+        try
+        {
+            await room.Animator.InvokeAsync("StartPresentation", await QuestionDeckAsync(room.AnimatorUserId));
+            await room.Animator.InvokeAsync("OpenQuestion");
+            var poll = (await states!.NextAsync(s => s.Phase == SessionPhases.Answering)).Slide.SlideId;
+
+            var answers = guests.Select(async g =>
+            {
+                try
+                {
+                    await g.InvokeAsync<MyAnswerView>("Answer", poll, new[] { "a" });
+                    return true;
+                }
+                catch (Microsoft.AspNetCore.SignalR.HubException e) when (e.Message.Contains("answers-closed", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }).ToList();
+            var locking = room.Animator.InvokeAsync("LockQuestion");
+            var accepted = (await Task.WhenAll(answers)).Count(ok => ok);
+            await locking;
+
+            // Every answer the server accepted is stored, and nothing else.
+            Assert.Equal(accepted, (await AnswersAsync(room.CircleId)).Count);
+        }
+        finally
+        {
+            foreach (var g in guests.Skip(1))
+            {
+                await g.DisposeAsync();
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Participants_learn_no_results_or_correctness_before_the_reveal()
+    {
+        Inbox<PresentationStateView>? states = null;
+        Inbox<MyAnswerView>? mine = null;
+        await using var room = await RoomAsync(beforeGuestEnters: g =>
+        {
+            states = new Inbox<PresentationStateView>(g, "PresentationState");
+            mine = new Inbox<MyAnswerView>(g, "MyAnswer");
+        });
+        await room.Animator.InvokeAsync("StartPresentation", await QuestionDeckAsync(room.AnimatorUserId));
+
+        // A poll without "show live": no results while answering or once locked.
+        await room.Animator.InvokeAsync("OpenQuestion");
+        var poll = await states!.NextAsync(s => s.Phase == SessionPhases.Answering);
+        Assert.Null(poll.Results);
+        await room.Guest.InvokeAsync<MyAnswerView>("Answer", poll.Slide.SlideId, new[] { "a" });
+        await room.Animator.InvokeAsync("LockQuestion");
+        Assert.Null((await states.NextAsync(s => s.Phase == SessionPhases.Locked)).Results);
+
+        // A quiz: neither results nor whether the answer was right.
+        await room.Animator.InvokeAsync("GoToSlide", 1);
+        await room.Animator.InvokeAsync("OpenQuestion");
+        var quiz = await states.NextAsync(s => s.Phase == SessionPhases.Answering && s.Position == 1);
+        Assert.Null(quiz.Results);
+        var reply = await room.Guest.InvokeAsync<MyAnswerView>("Answer", quiz.Slide.SlideId, new[] { "b" });
+        var pushed = await mine!.NextAsync(m => m.SlideId == quiz.Slide.SlideId);
+        Assert.Equal((null, null, null), (reply.Correct, reply.Points, reply.Rank));
+        Assert.Equal((null, null, null), (pushed.Correct, pushed.Points, pushed.Rank));
+        await room.Animator.InvokeAsync("LockQuestion");
+        Assert.Null((await states.NextAsync(s => s.Phase == SessionPhases.Locked && s.Position == 1)).Results);
+    }
+
+    [Fact]
+    public async Task After_a_restart_the_quiz_clock_still_locks_quizzes_left_answering()
+    {
+        await using var room = await RoomAsync();
+        var deckId = await QuestionDeckAsync(room.AnimatorUserId);
+        await room.Animator.InvokeAsync("StartPresentation", deckId);
+        await room.Animator.InvokeAsync("GoToSlide", 1);
+        // As if the server stopped right after a quiz opened: the session row is answering, no timer runs anywhere.
+        var deadline = _factory.Clock.GetUtcNow().AddSeconds(5);
+        await DbAsync(db => db.PresentationSessions.Where(s => s.CircleId == room.CircleId).ExecuteUpdateAsync(s => s
+            .SetProperty(x => x.Phase, SessionPhases.Answering)
+            .SetProperty(x => x.OpenedAt, deadline.AddSeconds(-20))
+            .SetProperty(x => x.Deadline, deadline)));
+
+        using var restarted = new QuizClock(_factory.Services.GetRequiredService<IServiceScopeFactory>(), _factory.Clock,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<QuizClock>.Instance);
+        await restarted.StartAsync(CancellationToken.None);
+        await (restarted.ExecuteTask ?? Task.CompletedTask);
+        _factory.Clock.Advance(TimeSpan.FromSeconds(5));
+
+        var locked = false;
+        for (var i = 0; i < 50 && !locked; i++)
+        {
+            locked = (await DbAsync(db => db.PresentationSessions.SingleAsync(s => s.CircleId == room.CircleId))).Phase == SessionPhases.Locked;
+            if (!locked)
+            {
+                await Task.Delay(100);
+            }
+        }
+        Assert.True(locked);
+        await restarted.StopAsync(CancellationToken.None);
+    }
 }

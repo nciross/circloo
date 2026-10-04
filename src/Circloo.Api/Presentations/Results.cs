@@ -22,14 +22,15 @@ public static class ResultsBuilder
 {
     /// <summary>
     /// Counts each option over the answers given (one per person; several options each for multiple choice), with
-    /// percentages that add up to 100. The most chosen options are winners, ties included; nobody wins without answers.
+    /// percentages that add up to 100. With <paramref name="winners"/> (the reveal), the most chosen options are
+    /// winners, ties included; nobody wins without answers. Live results crown nobody.
     /// </summary>
-    public static ResultsView Build(SnapshotSlide slide, IReadOnlyCollection<IReadOnlyList<string>> answers)
+    public static ResultsView Build(SnapshotSlide slide, IReadOnlyCollection<IReadOnlyList<string>> answers, bool winners = false)
     {
         var options = slide.Options ?? [];
         var counts = options.Select(o => answers.Count(a => a.Contains(o.Id))).ToArray();
         var percents = Percentages.Of(counts);
         var max = counts.Length == 0 ? 0 : counts.Max();
-        return new ResultsView(answers.Count, [.. options.Select((o, i) => new OptionResult(o.Id, counts[i], percents[i], max > 0 && counts[i] == max))]);
+        return new ResultsView(answers.Count, [.. options.Select((o, i) => new OptionResult(o.Id, counts[i], percents[i], winners && max > 0 && counts[i] == max))]);
     }
 }

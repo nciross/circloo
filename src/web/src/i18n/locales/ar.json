@@ -1183,7 +1183,6 @@
     "closeAnswers": "إغلاق الإجابات",
     "answersClosed": "الإجابات مغلقة",
     "answersTitle": "الإجابات",
-    "answered": "أجاب {{answered}} من {{of}}",
     "stillToAnswer": "لم يجيبوا بعد",
     "andMore": "+{{count}}",
     "secondsLeft_zero": "انتهى الوقت",
@@ -1193,18 +1192,36 @@
     "secondsLeft_many": "بقيت {{count}} ثانية",
     "secondsLeft_other": "بقيت {{count}} ثانية",
     "timeUp": "انتهى الوقت",
-    "share": "{{percent}}٪ · {{count}}",
     "answer": {
       "wait": "سيفتح المنشّط الإجابات بعد قليل.",
       "tap": "اضغط على إجابتك. يمكنك تغييرها حتى تُغلق الإجابات.",
       "tapFinal": "اضغط على إجابتك. تُحتسب فور الضغط.",
       "pickMany": "اختر إجابة أو أكثر، ثم أرسل.",
       "inChange": "وصلت إجابتك. ما زال بإمكانك تغييرها.",
-      "inFinal": "وصلت إجابتك.",
+      "inFinal": "وصلت إجابتك. بالتوفيق!",
       "closed": "الإجابات مغلقة.",
       "closedCounted": "الإجابات مغلقة. احتُسبت إجابتك.",
       "send": "أرسل إجابتي",
-      "update": "عدّل إجابتي"
-    }
+      "update": "عدّل إجابتي",
+      "unsent": "لم تُرسل بعد: أرسلها لتُحتسب."
+    },
+    "answered_zero": "لم يُجب أحد من {{of}}",
+    "answered_one": "أجاب واحد من {{of}}",
+    "answered_two": "أجاب اثنان من {{of}}",
+    "answered_few": "أجاب {{count}} من {{of}}",
+    "answered_many": "أجاب {{count}} من {{of}}",
+    "answered_other": "أجاب {{count}} من {{of}}",
+    "share_zero": "{{percent}}٪ · لا أصوات",
+    "share_one": "{{percent}}٪ · صوت واحد",
+    "share_two": "{{percent}}٪ · صوتان",
+    "share_few": "{{percent}}٪ · {{count}} أصوات",
+    "share_many": "{{percent}}٪ · {{count}} صوتًا",
+    "share_other": "{{percent}}٪ · {{count}} صوت",
+    "andMoreLabel_zero": "ولا أحد غيرهم",
+    "andMoreLabel_one": "وشخص آخر",
+    "andMoreLabel_two": "وشخصان آخران",
+    "andMoreLabel_few": "و{{count}} أشخاص آخرين",
+    "andMoreLabel_many": "و{{count}} شخصًا آخر",
+    "andMoreLabel_other": "و{{count}} شخص آخر"
   }
 }

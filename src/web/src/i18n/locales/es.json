@@ -1127,24 +1127,29 @@
     "closeAnswers": "Cerrar respuestas",
     "answersClosed": "Respuestas cerradas",
     "answersTitle": "Respuestas",
-    "answered": "{{answered}} de {{of}} han respondido",
     "stillToAnswer": "Faltan por responder",
     "andMore": "+{{count}}",
     "secondsLeft_one": "Queda {{count}} segundo",
     "secondsLeft_other": "Quedan {{count}} segundos",
     "timeUp": "Se acabó el tiempo",
-    "share": "{{percent}} % · {{count}}",
     "answer": {
       "wait": "El animador abrirá las respuestas en un momento.",
       "tap": "Toca tu respuesta. Puedes cambiarla hasta que se cierren.",
       "tapFinal": "Toca tu respuesta. Cuenta en cuanto la tocas.",
       "pickMany": "Elige una o varias respuestas y envíalas.",
       "inChange": "Tu respuesta está enviada. Aún puedes cambiarla.",
-      "inFinal": "Tu respuesta está enviada.",
+      "inFinal": "¡Respuesta enviada! Cruza los dedos.",
       "closed": "Las respuestas están cerradas.",
-      "closedCounted": "Las respuestas están cerradas. Tu respuesta cuenta.",
+      "closedCounted": "Las respuestas están cerradas. Tu respuesta se ha contado.",
       "send": "Enviar mi respuesta",
-      "update": "Cambiar mi respuesta"
-    }
+      "update": "Cambiar mi respuesta",
+      "unsent": "Aún no enviada: envíala para que cuente."
+    },
+    "answered_one": "{{count}} de {{of}} ha respondido",
+    "answered_other": "{{count}} de {{of}} han respondido",
+    "share_one": "{{percent}} % · {{count}} voto",
+    "share_other": "{{percent}} % · {{count}} votos",
+    "andMoreLabel_one": "y {{count}} persona más",
+    "andMoreLabel_other": "y {{count}} personas más"
   }
 }

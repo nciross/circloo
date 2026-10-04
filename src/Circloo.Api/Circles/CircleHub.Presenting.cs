@@ -74,7 +74,7 @@ public sealed partial class CircleHub
         var started = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"start:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(ActivityCatalog.Presentation, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
-        await live.BroadcastAsync(session, deck.Name, Context.ConnectionAborted);
+        await live.BroadcastAsync(session, deck.Name, CancellationToken.None);
     }
 
     public async Task GoToSlide(int position)
@@ -93,15 +93,19 @@ public sealed partial class CircleHub
     public async Task OpenQuestion()
     {
         var circleId = await AnimatorCircleAsync();
-        var session = await ActAsync(circleId, (s, now) =>
+        // The quiz clock is set as soon as the opening is saved, before any screen hears of it: even if the animator's
+        // connection drops right then, the quiz still locks on time (FR-611).
+        await ActAsync(circleId, (s, now) =>
         {
             LiveSession.Open(s, now);
             return true;
-        });
-        if (session?.Deadline is { } deadline)
+        }, saved: s =>
         {
-            quizClock.Schedule(session.Id, deadline);
-        }
+            if (s.Deadline is { } deadline)
+            {
+                quizClock.Schedule(s.Id, deadline);
+            }
+        });
     }
 
     public async Task LockQuestion()
@@ -216,9 +220,10 @@ public sealed partial class CircleHub
     /// <summary>
     /// Applies an animator action to the active session and broadcasts the result to every screen. An action that
     /// changes nothing (moving to the slide already shown) is not saved or sent, so it can never close a question.
-    /// Returns the saved session, or null when nothing changed.
+    /// Once saved, the change reaches every screen even if the animator's connection drops meanwhile. Returns the saved
+    /// session, or null when nothing changed.
     /// </summary>
-    private async Task<PresentationSession?> ActAsync(Guid circleId, Func<PresentationSession, DateTimeOffset, bool> act)
+    private async Task<PresentationSession?> ActAsync(Guid circleId, Func<PresentationSession, DateTimeOffset, bool> act, Action<PresentationSession>? saved = null)
     {
         for (var attempt = 1; ; attempt++)
         {
@@ -252,7 +257,8 @@ public sealed partial class CircleHub
                 }
                 throw new HubException("busy");
             }
-            await live.BroadcastAsync(session, ct: Context.ConnectionAborted);
+            saved?.Invoke(session);
+            await live.BroadcastAsync(session, ct: CancellationToken.None);
             return session;
         }
     }

@@ -227,6 +227,8 @@
   border-radius: 0;
 }
 .follow__full {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
   position: absolute;
   inset-block-end: var(--s-2);
   inset-inline-end: var(--s-2);
@@ -300,6 +302,11 @@
   --audience-bg: #0b0f14;
   --audience-text: #eef2f6;
   --audience-subtle: #aab4c0;
+  --audience-card: #131a22;
+  --audience-line: rgb(255 255 255 / 0.18);
+  --audience-track: rgb(255 255 255 / 0.14);
+  --audience-bar: rgb(34 184 204 / 0.45);
+  --audience-danger: #ff9b8a;
   position: fixed;
   inset: 0;
   display: grid;
@@ -436,6 +443,7 @@
 .answer-pad__options.has-results .answer-pad__option {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
 }
 .stage-slide__text {
   flex: 1;
@@ -475,10 +483,15 @@
 .follow__frame:fullscreen .answer-pad,
 .follow__frame.is-filled .answer-pad {
   inline-size: 100%;
+  min-block-size: 100dvh;
   max-block-size: 100dvh;
   overflow-y: auto;
   border: 0;
   border-radius: 0;
+}
+.follow__frame:fullscreen .answer-pad .stage-slide__question,
+.follow__frame.is-filled .answer-pad .stage-slide__question {
+  align-content: end;
 }
 .answer-pad__status {
   margin: 0;
@@ -510,8 +523,10 @@
   cursor: pointer;
   transition: border-color 120ms ease-out, background-color 120ms ease-out, transform 120ms ease-out;
 }
-.answer-pad.is-open .answer-pad__option:not([aria-disabled='true']):hover {
-  border-color: var(--primary);
+@media (hover: hover) {
+  .answer-pad.is-open .answer-pad__option:not([aria-disabled='true']):hover {
+    border-color: var(--primary);
+  }
 }
 .answer-pad__option:active:not([aria-disabled='true']) {
   transform: scale(0.98);
@@ -526,6 +541,10 @@
 .answer-pad__option.is-on {
   border-color: var(--primary);
   background: var(--primary-subtle);
+}
+.answer-pad__option.is-on .share__bar {
+  background: var(--primary-subtle-hover);
+  border-inline-end: 3px solid var(--primary);
 }
 .answer-pad__option.is-on .stage-slide__letter {
   background: var(--primary);
@@ -569,7 +588,7 @@
   inset-inline-start: 0;
   inline-size: var(--left, 100%);
   border-radius: inherit;
-  background: var(--brand-aqua);
+  background: var(--primary);
   transition: inline-size 200ms linear;
 }
 .countdown.is-ending .countdown__time {
@@ -672,14 +691,44 @@
 }
 .audience .countdown__bar,
 .audience .answer-progress__bar {
-  background: rgb(255 255 255 / 0.14);
+  background: var(--audience-track);
+}
+.audience .countdown__bar::after {
+  background: var(--brand-aqua);
+}
+.audience .stage-slide.is-question {
+  border: 1px solid var(--audience-line);
+  background: var(--audience-card);
+  color: var(--audience-text);
+}
+.audience .stage-slide__kind,
+.audience .stage-slide__letter {
+  color: var(--audience-subtle);
+}
+.audience .stage-slide__letter {
+  background: var(--audience-track);
+}
+.audience .stage-slide__options li {
+  border-color: var(--audience-line);
+}
+.audience .share__bar {
+  background: var(--audience-bar);
+  border-inline-end: 4px solid var(--brand-aqua);
+}
+.audience .share__figures {
+  color: var(--audience-text);
+  font-size: 1.1em;
+}
+/* While a question is up, the card leaves room under it for the countdown and the count. */
+.audience.has-answers .audience__stage.is-question {
+  inline-size: min(100%, calc((100dvh - 5vmin - 7rem) * 16 / 9));
 }
 .audience .answer-progress__label,
 .audience .answer-progress__more {
   color: var(--audience-subtle);
 }
 .audience .countdown.is-ending .countdown__time {
-  color: #ff9b8a;
+  color: var(--audience-danger);
 }
 .audience__progress {
   min-inline-size: 14rem;

@@ -104,10 +104,13 @@ export function receive(state: PresentationState | null) {
     useLive.getState().reset()
     return
   }
-  if (!isNewer(state, useLive.getState().state)) return
+  const shown = useLive.getState().state
+  if (!isNewer(state, shown)) return
   const receivedAt = Date.now()
   const skew = Date.parse(state.serverNow) - receivedAt
-  useLive.setState({ state, receivedAt, skew: Number.isFinite(skew) ? skew : 0 })
+  // Another session (the same deck presented again reuses its slide ids): answers and counts start over.
+  const fresh = shown && shown.sessionId !== state.sessionId ? { mine: {}, count: null } : {}
+  useLive.setState({ state, receivedAt, skew: Number.isFinite(skew) ? skew : 0, ...fresh })
 }
 
 /**
