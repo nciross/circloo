@@ -68,6 +68,8 @@ builder.Services.AddSingleton<IntegrationSender>();
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
 builder.Services.AddScoped<LiveSessions>();
+builder.Services.AddSingleton<QuizClock>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<QuizClock>());
 builder.Services.AddScoped<Circloo.Api.Decide.Polls>();
 builder.Services.AddSingleton<Circloo.Api.Decide.LiveThrottle>();
 builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();

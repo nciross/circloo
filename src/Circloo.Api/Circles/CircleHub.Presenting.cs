@@ -74,7 +74,7 @@ public sealed partial class CircleHub
         var started = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"start:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(ActivityCatalog.Presentation, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
-        await BroadcastAsync(circleId, session, deck.Name);
+        await live.BroadcastAsync(session, deck.Name, Context.ConnectionAborted);
     }
 
     public async Task GoToSlide(int position)
@@ -87,6 +87,92 @@ public sealed partial class CircleHub
     {
         var circleId = await AnimatorCircleAsync();
         await ActAsync(circleId, (s, _) => LiveSession.SetBlank(s, blank));
+    }
+
+    /// <summary>Opens answering on the current question; a quiz locks itself at its deadline (<see cref="QuizClock"/>).</summary>
+    public async Task OpenQuestion()
+    {
+        var circleId = await AnimatorCircleAsync();
+        var session = await ActAsync(circleId, (s, now) =>
+        {
+            LiveSession.Open(s, now);
+            return true;
+        });
+        if (session?.Deadline is { } deadline)
+        {
+            quizClock.Schedule(session.Id, deadline);
+        }
+    }
+
+    public async Task LockQuestion()
+    {
+        var circleId = await AnimatorCircleAsync();
+        await ActAsync(circleId, (s, now) =>
+        {
+            LiveSession.Lock(s, now);
+            return true;
+        });
+    }
+
+    /// <summary>
+    /// A participant answers the current question (spec 006 US4): one answer per person, which a poll may change while
+    /// answering is open and a quiz never may. The session row is read under a share lock, so the animator's lock waits
+    /// for an answer in flight and no answer lands after it.
+    /// </summary>
+    public async Task<MyAnswerView> Answer(Guid slideId, string[] options)
+    {
+        ThrottleVotes();
+        var (circleId, me) = await CurrentAsync();
+        if (me.Role == Roles.Animator)
+        {
+            throw new HubException("animator-cannot-answer");
+        }
+        // One unit the retrying strategy can replay: the share lock lives as long as the transaction.
+        var chosen = await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            await using var tx = await db.Database.BeginTransactionAsync();
+            var session = await db.PresentationSessions
+                .FromSql($"""SELECT * FROM "PresentationSessions" WHERE "CircleId" = {circleId} AND "EndedAt" IS NULL FOR SHARE""")
+                .AsNoTracking().FirstOrDefaultAsync() ?? throw new HubException("not-current-question");
+            var now = clock.GetUtcNow();
+            if (LiveSession.AnswerRefusal(session, slideId, now) is { } refusal)
+            {
+                throw new HubException(refusal);
+            }
+            var slide = LiveSession.Current(session);
+            var clean = LiveSession.CleanOptions(slide, options) ?? throw new HubException("invalid-options");
+            int saved;
+            if (slide.Kind == SlideKinds.Quiz)
+            {
+                // A quiz answer is final: the first one in stands, whatever the tabs or devices.
+                bool correct = clean[0] == slide.Correct;
+                saved = await db.Database.ExecuteSqlAsync($"""
+                    INSERT INTO "SessionAnswers" ("SessionId", "SlideId", "MemberId", "Options", "FirstReceivedAt", "ReceivedAt", "Correct", "Points")
+                    VALUES ({session.Id}, {slideId}, {me.Id}, {clean}, {now}, {now}, {correct}, 0)
+                    ON CONFLICT ("SessionId", "SlideId", "MemberId") DO NOTHING
+                    """);
+            }
+            else
+            {
+                // A poll answer may change; it keeps when it first came in.
+                saved = await db.Database.ExecuteSqlAsync($"""
+                    INSERT INTO "SessionAnswers" ("SessionId", "SlideId", "MemberId", "Options", "FirstReceivedAt", "ReceivedAt", "Points")
+                    VALUES ({session.Id}, {slideId}, {me.Id}, {clean}, {now}, {now}, 0)
+                    ON CONFLICT ("SessionId", "SlideId", "MemberId") DO UPDATE SET "Options" = EXCLUDED."Options", "ReceivedAt" = EXCLUDED."ReceivedAt"
+                    """);
+            }
+            if (saved == 0)
+            {
+                throw new HubException("quiz-final");
+            }
+            await tx.CommitAsync();
+            return clean;
+        });
+        // Correct and points stay on the server until the reveal (FR-612).
+        var mine = new MyAnswerView(slideId, chosen);
+        await Clients.Group(MemberGroup(me.Id)).MyAnswer(mine);
+        RequestAnswerCount(circleId);
+        return mine;
     }
 
     public async Task EndPresentation()
@@ -116,8 +202,13 @@ public sealed partial class CircleHub
         Context.Items[AudienceKey] = circleId;
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
-        var active = await ActiveSessionAsync(circleId);
-        return active is null ? null : LiveSession.View(active.Value.Session, active.Value.Name, clock.GetUtcNow());
+        if (await ActiveSessionAsync(circleId) is not { } active)
+        {
+            return null;
+        }
+        RequestAnswerCount(circleId);
+        var results = LiveSession.ShowsLiveResults(active.Session) ? await live.ResultsAsync(active.Session) : null;
+        return LiveSession.View(active.Session, active.Name, clock.GetUtcNow(), results);
     }
 
     private async Task<Guid> AnimatorCircleAsync() => (await CurrentAsync(animatorOnly: true)).CircleId;
@@ -125,8 +216,9 @@ public sealed partial class CircleHub
     /// <summary>
     /// Applies an animator action to the active session and broadcasts the result to every screen. An action that
     /// changes nothing (moving to the slide already shown) is not saved or sent, so it can never close a question.
+    /// Returns the saved session, or null when nothing changed.
     /// </summary>
-    private async Task ActAsync(Guid circleId, Func<PresentationSession, DateTimeOffset, bool> act)
+    private async Task<PresentationSession?> ActAsync(Guid circleId, Func<PresentationSession, DateTimeOffset, bool> act)
     {
         for (var attempt = 1; ; attempt++)
         {
@@ -143,7 +235,7 @@ public sealed partial class CircleHub
             }
             if (!changed)
             {
-                return;
+                return null;
             }
             session.Version++;
             try
@@ -152,7 +244,7 @@ public sealed partial class CircleHub
             }
             catch (DbUpdateConcurrencyException)
             {
-                // Another animator tab acted first: apply this action on top of its result.
+                // Another animator tab (or the quiz clock) acted first: apply this action on top of its result.
                 db.ChangeTracker.Clear();
                 if (attempt < ActAttempts)
                 {
@@ -160,37 +252,42 @@ public sealed partial class CircleHub
                 }
                 throw new HubException("busy");
             }
-            var name = await db.Presentations.Where(p => p.Id == session.PresentationId).Select(p => p.Name).FirstOrDefaultAsync() ?? "";
-            await BroadcastAsync(circleId, session, name);
-            return;
+            await live.BroadcastAsync(session, ct: Context.ConnectionAborted);
+            return session;
         }
     }
 
-    private async Task BroadcastAsync(Guid circleId, PresentationSession session, string name)
-    {
-        await Clients.Group(Group(circleId)).PresentationState(LiveSession.View(session, name, clock.GetUtcNow()));
-        await SendNotesAsync(Clients.Group(AnimatorGroup(circleId)), session);
-    }
-
-    private async Task SendPresentationAsync(Guid circleId, ICircleClient to, bool notes)
+    /// <summary>
+    /// What a screen entering the room needs to land in place: the state (with live poll results), the notes for the
+    /// animator, and a participant's own answer to the open question.
+    /// </summary>
+    private async Task SendPresentationAsync(Guid circleId, ICircleClient to, CircleMember me)
     {
         if (await ActiveSessionAsync(circleId) is not { } active)
         {
             return;
         }
-        await to.PresentationState(LiveSession.View(active.Session, active.Name, clock.GetUtcNow()));
-        if (notes)
+        var session = active.Session;
+        var results = LiveSession.ShowsLiveResults(session) ? await live.ResultsAsync(session) : null;
+        await to.PresentationState(LiveSession.View(session, active.Name, clock.GetUtcNow(), results));
+        if (me.Role == Roles.Animator)
         {
-            await SendNotesAsync(to, active.Session);
+            await live.SendNotesAsync(to, session);
+            return;
+        }
+        var slideId = LiveSession.Current(session).SlideId;
+        var mine = await db.SessionAnswers.AsNoTracking()
+            .Where(a => a.SessionId == session.Id && a.SlideId == slideId && a.MemberId == me.Id)
+            .Select(a => a.Options).FirstOrDefaultAsync();
+        if (mine is not null)
+        {
+            await to.MyAnswer(new MyAnswerView(slideId, mine));
         }
     }
 
-    private async Task SendNotesAsync(ICircleClient to, PresentationSession session)
-    {
-        var slide = LiveSession.Current(session);
-        var notes = slide.HasNotes ? await db.Slides.Where(s => s.Id == slide.SlideId).Select(s => s.Notes).FirstOrDefaultAsync() : null;
-        await to.PresenterNotes(slide.SlideId, notes, LiveSession.Next(session));
-    }
+    /// <summary>Recounts "n of N answered" for the animator and the audience screen, at most 4 times a second.</summary>
+    private void RequestAnswerCount(Guid circleId) =>
+        throttle.Request($"answers:{circleId}", services => services.GetRequiredService<LiveSessions>().SendAnswersAsync(circleId));
 
     private async Task<(PresentationSession Session, string Name)?> ActiveSessionAsync(Guid circleId)
     {

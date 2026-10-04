@@ -193,4 +193,67 @@ public sealed class LiveSessionTests
         Assert.False(s.Blank);
         Assert.Equal(SessionPhases.Answering, s.Phase);
     }
+
+    [Fact]
+    public void Answers_are_taken_only_on_the_current_open_question_and_a_quiz_only_before_its_deadline()
+    {
+        var (s, slides) = Running();
+        Assert.Equal("not-current-question", LiveSession.AnswerRefusal(s, slides[0].SlideId, T0));
+        LiveSession.GoTo(s, 1, T0);
+        Assert.Equal("answers-closed", LiveSession.AnswerRefusal(s, slides[1].SlideId, T0));
+        LiveSession.Open(s, T0);
+        Assert.Null(LiveSession.AnswerRefusal(s, slides[1].SlideId, T0.AddMinutes(5)));
+        Assert.Equal("not-current-question", LiveSession.AnswerRefusal(s, slides[3].SlideId, T0));
+
+        LiveSession.GoTo(s, 3, T0);
+        LiveSession.Open(s, T0);
+        Assert.Null(LiveSession.AnswerRefusal(s, slides[3].SlideId, T0.AddSeconds(19.9)));
+        // At the deadline the server refuses, even before the quiz clock has locked it.
+        Assert.Equal("answers-closed", LiveSession.AnswerRefusal(s, slides[3].SlideId, T0.AddSeconds(20)));
+    }
+
+    [Fact]
+    public void Chosen_options_must_be_known_distinct_and_single_unless_the_poll_takes_several()
+    {
+        var (_, slides) = Running();
+        var poll = slides[1];
+        var quiz = slides[3];
+        Assert.Equal(["a", "b"], LiveSession.CleanOptions(poll, ["b", "a"])!);
+        Assert.Null(LiveSession.CleanOptions(poll, ["a", "a"]));
+        Assert.Null(LiveSession.CleanOptions(poll, ["c"]));
+        Assert.Null(LiveSession.CleanOptions(poll, []));
+        Assert.Null(LiveSession.CleanOptions(poll, null));
+        // The quiz keeps one answer even though its slide had "multiple" switched on.
+        Assert.Equal(["b"], LiveSession.CleanOptions(quiz, ["b"])!);
+        Assert.Null(LiveSession.CleanOptions(quiz, ["a", "b"]));
+    }
+
+    [Fact]
+    public void Live_results_show_only_for_polls_that_ask_for_them_once_answering_opened()
+    {
+        var (s, _) = Running();
+        LiveSession.GoTo(s, 1, T0);
+        Assert.False(LiveSession.ShowsLiveResults(s));
+        LiveSession.Open(s, T0);
+        Assert.True(LiveSession.ShowsLiveResults(s));
+        LiveSession.Lock(s, T0);
+        Assert.True(LiveSession.ShowsLiveResults(s));
+
+        // A quiz never shows its results before the reveal, whatever its slide said.
+        LiveSession.GoTo(s, 3, T0);
+        LiveSession.Open(s, T0);
+        Assert.False(LiveSession.ShowsLiveResults(s));
+    }
+
+    [Fact]
+    public void Results_count_each_option_add_up_to_100_and_crown_every_tie()
+    {
+        var (_, slides) = Running();
+        var results = ResultsBuilder.Build(slides[1], [["a"], ["a", "b"], ["b"]]);
+        Assert.Equal(3, results.Total);
+        Assert.Equal([(2, 50, true), (2, 50, true)], results.Options.Select(o => (o.Count, o.Percent, o.Winner)));
+
+        var none = ResultsBuilder.Build(slides[1], []);
+        Assert.All(none.Options, o => Assert.Equal((0, 0, false), (o.Count, o.Percent, o.Winner)));
+    }
 }
