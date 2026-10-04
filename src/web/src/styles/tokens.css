@@ -38,6 +38,7 @@
 
   /* Status */
   --success: #1c7c52;
+  --on-success: #ffffff;
   --success-subtle: #dcf5e8;
   --success-text: #145c3b;
   --danger: #c9372c; /* white text 5.2:1 */
@@ -128,6 +129,7 @@
   --ai-text: #c0b4f8;
   --on-ai: #0c141b;
   --success: #4bce97;
+  --on-success: #0c141b;
   --success-subtle: #133528;
   --success-text: #7ee2b8;
   --danger: #f87168;
@@ -176,6 +178,7 @@
     --ai-text: #c0b4f8;
   --on-ai: #0c141b;
     --success: #4bce97;
+    --on-success: #0c141b;
     --success-subtle: #133528;
     --success-text: #7ee2b8;
     --danger: #f87168;

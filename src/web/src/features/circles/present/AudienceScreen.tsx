@@ -7,7 +7,7 @@ import { Maximize, Minimize } from 'lucide-react'
 import { useCircle } from '../../../api/circles'
 import { useDocumentTitle } from '../../../app/locale'
 import { Panda } from '../../../components/Panda'
-import { bindPresentation, receive, useLive, type PresentationState } from './presentation'
+import { bindPresentation, isRevealed, receive, useLive, type PresentationState } from './presentation'
 import { SlideStage } from './SlideStage'
 import { Countdown } from './Countdown'
 import { AnswerProgress } from './AnswerProgress'
@@ -117,7 +117,7 @@ export default function AudienceScreen() {
   }
 
   return (
-    <main ref={root} className={['audience', join ? 'has-join' : '', idle ? 'is-idle' : '', state && state.slide.kind !== 'deck' && !state.blank ? 'has-answers' : ''].filter(Boolean).join(' ')}
+    <main ref={root} className={['audience', join ? 'has-join' : '', idle ? 'is-idle' : '', state && state.slide.kind !== 'deck' && !state.blank && !isRevealed(state) ? 'has-answers' : ''].filter(Boolean).join(' ')}
       data-status={status}>
       <h1 className="visually-hidden">{t('present.audienceTitle')}</h1>
       <div className="audience__screen">
@@ -126,7 +126,7 @@ export default function AudienceScreen() {
         ) : state ? (
           <>
             <SlideStage state={state} className="audience__stage" />
-            {state.slide.kind !== 'deck' && !state.blank ? (
+            {state.slide.kind !== 'deck' && !state.blank && !isRevealed(state) ? (
               <div className="audience__answers">
                 {state.slide.kind === 'quiz' && state.phase === 'answering' && state.deadline ? (
                   <Countdown deadline={state.deadline} total={state.slide.timerSeconds ?? 20} className="audience__countdown" />

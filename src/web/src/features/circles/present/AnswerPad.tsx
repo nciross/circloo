@@ -5,8 +5,9 @@ import { Button } from '../../../components/Button'
 import { useRoom } from '../room'
 import { Countdown } from './Countdown'
 import { useSecondsLeft } from './useSecondsLeft'
-import { useLive, type PresentationState, type QuestionSlide } from './presentation'
+import { isRevealed, useLive, type PresentationState, type QuestionSlide } from './presentation'
 import { QuestionHead, Share } from './SlideStage'
+import { Reveal } from './Reveal'
 
 const EMPTY: string[] = []
 
@@ -19,6 +20,7 @@ const EMPTY: string[] = []
 export function AnswerPad({ state, slide }: { state: PresentationState; slide: QuestionSlide }) {
   const { t } = useTranslation()
   const confirmed = useLive((s) => s.mine[slide.slideId]) ?? EMPTY
+  const animate = useLive((s) => s.revealedLive === slide.slideId)
   const [draft, setDraft] = useState<string[] | null>(null)
   const [sending, setSending] = useState<string[] | null>(null)
   const [failed, setFailed] = useState<string | null>(null)
@@ -58,8 +60,12 @@ export function AnswerPad({ state, slide }: { state: PresentationState; slide: Q
     }
   }
 
+  const revealed = isRevealed(state)
+  // Once revealed, a quiz tells each phone whether it was right (US6 #1).
+  const right = revealed && quiz && answered && slide.options.some((o) => confirmed.includes(o.id) && state.results?.options.find((r) => r.id === o.id)?.correct)
   const status =
-    state.phase === 'idle' ? t('present.answer.wait')
+    revealed ? t(!quiz ? 'present.answer.resultsIn' : !answered ? 'present.answer.noAnswer' : right ? 'present.answer.right' : 'present.answer.wrong')
+    : state.phase === 'idle' ? t('present.answer.wait')
     : !open ? t(answered ? 'present.answer.closedCounted' : 'present.answer.closed')
     : unsent ? t('present.answer.unsent')
     : answered ? t(quiz ? 'present.answer.inFinal' : 'present.answer.inChange')
@@ -77,24 +83,29 @@ export function AnswerPad({ state, slide }: { state: PresentationState; slide: Q
         {failed ? (
           <p className="answer-pad__status field__error" role="alert">{t(`circles.errors.${failed}`, { defaultValue: t('circles.errors.failed') })}</p>
         ) : (
-          <p className="answer-pad__status" role="status">{status}</p>
+          // Once revealed, the results make the one announcement; this line stays quiet.
+          <p className={['answer-pad__status', right ? 'is-right' : ''].filter(Boolean).join(' ')} role={revealed ? undefined : 'status'}>{status}</p>
         )}
-        <ul className={['answer-pad__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
-          {slide.options.map((o, i) => {
-            const on = marked.includes(o.id)
-            const busy = sending?.includes(o.id) ?? false
-            return (
-              <li key={o.id}>
-                <button type="button" className={['answer-pad__option', on ? 'is-on' : '', busy ? 'is-sending' : ''].filter(Boolean).join(' ')}
-                  aria-pressed={on} aria-disabled={!canPick || undefined} aria-busy={busy || undefined} onClick={() => pick(o.id)}>
-                  <span className="stage-slide__letter" aria-hidden="true">{on ? <Check size={16} /> : i + 1}</span>
-                  <span className="stage-slide__text" dir="auto">{o.text}</span>
-                  <Share results={state.results} id={o.id} />
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        {isRevealed(state) && state.results ? (
+          <Reveal slide={slide} results={state.results} mine={confirmed} animate={animate} />
+        ) : (
+          <ul className={['answer-pad__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
+            {slide.options.map((o, i) => {
+              const on = marked.includes(o.id)
+              const busy = sending?.includes(o.id) ?? false
+              return (
+                <li key={o.id}>
+                  <button type="button" className={['answer-pad__option', on ? 'is-on' : '', busy ? 'is-sending' : ''].filter(Boolean).join(' ')}
+                    aria-pressed={on} aria-disabled={!canPick || undefined} aria-busy={busy || undefined} onClick={() => pick(o.id)}>
+                    <span className="stage-slide__letter" aria-hidden="true">{on ? <Check size={16} /> : i + 1}</span>
+                    <span className="stage-slide__text" dir="auto">{o.text}</span>
+                    <Share results={state.results} id={o.id} />
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
         {multiple && open ? (
           <Button className="answer-pad__send" icon={<Send size={16} className="flip-rtl" />} busy={sending !== null}
             aria-disabled={!unsent || (draft?.length ?? 0) === 0 || undefined}

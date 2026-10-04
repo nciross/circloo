@@ -711,7 +711,8 @@
       "slow-down": "Doucement, puis réessaie.",
       "not-a-question": "Cette diapositive n’est pas une question.",
       "already-open": "Les réponses sont déjà ouvertes sur cette question.",
-      "not-answering": "Les réponses ne sont pas ouvertes sur cette question."
+      "not-answering": "Les réponses ne sont pas ouvertes sur cette question.",
+      "not-open": "Ouvre les réponses à cette question avant d’afficher ses résultats."
     }
   },
   "boards": {
@@ -1143,13 +1144,39 @@
       "closedCounted": "Les réponses sont fermées. Ta réponse a bien été prise en compte.",
       "send": "Envoyer ma réponse",
       "update": "Modifier ma réponse",
-      "unsent": "Pas encore envoyée : envoie-la pour qu’elle compte."
+      "unsent": "Pas encore envoyée : envoie-la pour qu’elle compte.",
+      "resultsIn": "Les résultats sont là !",
+      "right": "Bien joué, c’est ça !",
+      "wrong": "Pas cette fois. À la prochaine !",
+      "noAnswer": "Pas de réponse de ta part cette fois."
     },
     "answered_one": "{{count}} sur {{of}} a répondu",
     "answered_other": "{{count}} sur {{of}} ont répondu",
     "share_one": "{{percent}} % · {{count}} vote",
     "share_other": "{{percent}} % · {{count}} votes",
     "andMoreLabel_one": "et {{count}} autre personne",
-    "andMoreLabel_other": "et {{count}} autres personnes"
+    "andMoreLabel_other": "et {{count}} autres personnes",
+    "reveal": {
+      "show": "Afficher les résultats",
+      "shown": "Résultats affichés",
+      "title": "Résultats",
+      "option": "Réponse",
+      "count": "Votes",
+      "percent": "Part",
+      "row": "{{option}} : {{count}}, {{percent}} %",
+      "announce": "Résultats : {{summary}}",
+      "noAnswers": "Aucune réponse cette fois. Peut-être à la prochaine !",
+      "mostChosen": "La plus choisie",
+      "correct": "Bonne réponse",
+      "yours": "Ta réponse",
+      "fastest": "Réponse la plus rapide",
+      "firstRight": "Première bonne réponse",
+      "nobodyRight": "Personne n’a trouvé cette fois. À la suivante !",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} réponse",
+      "answers_other": "{{count}} réponses"
+    }
   }
 }

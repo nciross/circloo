@@ -711,7 +711,8 @@
       "slow-down": "Slow down a little, then try again.",
       "not-a-question": "This slide is not a question.",
       "already-open": "Answers are already open on this question.",
-      "not-answering": "Answers are not open on this question."
+      "not-answering": "Answers are not open on this question.",
+      "not-open": "Open answers on this question before showing its results."
     }
   },
   "boards": {
@@ -1139,13 +1140,39 @@
       "closedCounted": "Answers are closed. Your answer counted.",
       "send": "Send my answer",
       "update": "Update my answer",
-      "unsent": "Not sent yet: send it to count."
+      "unsent": "Not sent yet: send it to count.",
+      "resultsIn": "Results are in!",
+      "right": "You got it!",
+      "wrong": "Not this time. Next one!",
+      "noAnswer": "No answer from you this time."
     },
     "answered_one": "{{count}} of {{of}} answered",
     "answered_other": "{{count}} of {{of}} answered",
     "share_one": "{{percent}}% · {{count}} vote",
     "share_other": "{{percent}}% · {{count}} votes",
     "andMoreLabel_one": "and {{count}} more person",
-    "andMoreLabel_other": "and {{count}} more people"
+    "andMoreLabel_other": "and {{count}} more people",
+    "reveal": {
+      "show": "Show results",
+      "shown": "Results shown",
+      "title": "Results",
+      "option": "Answer",
+      "count": "Votes",
+      "percent": "Share",
+      "row": "{{option}}: {{count}}, {{percent}}%",
+      "announce": "Results: {{summary}}",
+      "noAnswers": "No answers this time. Maybe next question!",
+      "mostChosen": "Most chosen",
+      "correct": "Right answer",
+      "yours": "Your answer",
+      "fastest": "Fastest answer",
+      "firstRight": "First right answer",
+      "nobodyRight": "Nobody found it this time. Next one!",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} answer",
+      "answers_other": "{{count}} answers"
+    }
   }
 }

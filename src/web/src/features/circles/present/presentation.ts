@@ -19,6 +19,8 @@ export type Phase = 'idle' | 'answering' | 'locked' | 'revealed' | 'podium'
 export interface Results {
   total: number
   options: { id: string; count: number; percent: number; winner: boolean; correct?: boolean | null }[]
+  /** Who answered first (for a quiz, first correct), set at the reveal when the question shows it. */
+  first?: { memberId: string; name: string; character: string; ms: number } | null
 }
 
 /** "n of N answered" and who is still to answer: the animator and the audience screen only. */
@@ -67,6 +69,11 @@ interface PresentationStore {
   /** Server time minus this device's time (ms), so countdowns follow the server's deadline, not a wrong phone clock. */
   skew: number
   count: AnswerCount | null
+  /**
+   * The question this page saw being revealed (a revealed state following a not-yet-revealed one). Only that reveal
+   * plays its animation, confetti and announcement; coming back, unblanking or reloading shows the stored results still.
+   */
+  revealedLive: string | null
   /** Your answers by question, as the server confirmed them. */
   mine: Record<string, string[]>
   reset: () => void
@@ -78,10 +85,14 @@ export const useLive = create<PresentationStore>()((set) => ({
   notes: null,
   receivedAt: 0,
   skew: 0,
+  revealedLive: null,
   count: null,
   mine: {},
-  reset: () => set({ state: null, notes: null, receivedAt: 0, skew: 0, count: null, mine: {} }),
+  reset: () => set({ state: null, notes: null, receivedAt: 0, skew: 0, count: null, mine: {}, revealedLive: null }),
 }))
+
+/** Whether a question's results have been revealed (they stay on screen through the podium). */
+export const isRevealed = (state: PresentationState) => state.slide.kind !== 'deck' && (state.phase === 'revealed' || state.phase === 'podium')
 
 /** This device's clock, corrected to the server's. */
 export const serverNow = () => Date.now() + useLive.getState().skew
@@ -109,8 +120,12 @@ export function receive(state: PresentationState | null) {
   const receivedAt = Date.now()
   const skew = Date.parse(state.serverNow) - receivedAt
   // Another session (the same deck presented again reuses its slide ids): answers and counts start over.
-  const fresh = shown && shown.sessionId !== state.sessionId ? { mine: {}, count: null } : {}
-  useLive.setState({ state, receivedAt, skew: Number.isFinite(skew) ? skew : 0, ...fresh })
+  const fresh = shown && shown.sessionId !== state.sessionId ? { mine: {}, count: null, revealedLive: null } : {}
+  const live =
+    isRevealed(state) && shown && shown.sessionId === state.sessionId && shown.slide.slideId === state.slide.slideId && !isRevealed(shown)
+      ? { revealedLive: state.slide.slideId }
+      : {}
+  useLive.setState({ state, receivedAt, skew: Number.isFinite(skew) ? skew : 0, ...fresh, ...live })
 }
 
 /**

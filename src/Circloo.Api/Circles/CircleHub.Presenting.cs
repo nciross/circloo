@@ -108,6 +108,24 @@ public sealed partial class CircleHub
         });
     }
 
+    /// <summary>
+    /// Reveals the current question's results to every screen; answering locks first (spec 006 US5). Revealing a
+    /// question already revealed (another animator tab) changes nothing and sends nothing.
+    /// </summary>
+    public async Task RevealResults()
+    {
+        var circleId = await AnimatorCircleAsync();
+        await ActAsync(circleId, (s, now) =>
+        {
+            if (LiveSession.Revealed(s))
+            {
+                return false;
+            }
+            LiveSession.Reveal(s, now);
+            return true;
+        });
+    }
+
     public async Task LockQuestion()
     {
         var circleId = await AnimatorCircleAsync();
@@ -211,7 +229,7 @@ public sealed partial class CircleHub
             return null;
         }
         RequestAnswerCount(circleId);
-        var results = LiveSession.ShowsLiveResults(active.Session) ? await live.ResultsAsync(active.Session) : null;
+        var results = LiveSession.ShowsResults(active.Session) ? await live.ResultsAsync(active.Session) : null;
         return LiveSession.View(active.Session, active.Name, clock.GetUtcNow(), results);
     }
 
@@ -274,7 +292,7 @@ public sealed partial class CircleHub
             return;
         }
         var session = active.Session;
-        var results = LiveSession.ShowsLiveResults(session) ? await live.ResultsAsync(session) : null;
+        var results = LiveSession.ShowsResults(session) ? await live.ResultsAsync(session) : null;
         await to.PresentationState(LiveSession.View(session, active.Name, clock.GetUtcNow(), results));
         if (me.Role == Roles.Animator)
         {
