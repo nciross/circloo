@@ -1076,7 +1076,10 @@
       "pollAdded": "Poll added as slide {{number}}.",
       "quizAdded": "Quiz added as slide {{number}}."
     },
-    "movedTo": "Slide moved to place {{number}} of {{count}}."
+    "movedTo": "Slide moved to place {{number}} of {{count}}.",
+    "autoOpen": "Open answers as soon as a question shows",
+    "autoOpenOn": "Participants can answer the moment you reach a question.",
+    "autoOpenOff": "You open answers yourself on each question."
   },
   "present": {
     "pickTitle": "Pick a presentation",

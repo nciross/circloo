@@ -210,6 +210,8 @@ public sealed class Presentation
     public int SlideCount { get; set; }
     public int ProcessedSlides { get; set; }
     public bool ShowPodium { get; set; } = true;
+    /// <summary>Answers open as soon as a question slide is shown (#170); off, the animator opens them.</summary>
+    public bool AutoOpen { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     /// <summary>Opened in the editor or presented; drives the 12-month idle clean-up (FR-604a).</summary>
@@ -261,6 +263,8 @@ public sealed class PresentationSession
     /// <summary>The visible slides and questions frozen at start (JSON), so edits never change a running session.</summary>
     public required string Snapshot { get; set; }
     public bool ShowPodium { get; set; }
+    /// <summary>Copied from the presentation at start: questions open when shown (#170).</summary>
+    public bool AutoOpen { get; set; }
     public int Position { get; set; }
     /// <summary>The furthest slide shown so far: members may load pictures up to here.</summary>
     public int MaxPosition { get; set; }

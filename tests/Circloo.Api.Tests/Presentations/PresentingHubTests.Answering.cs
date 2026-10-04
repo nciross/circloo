@@ -10,9 +10,9 @@ namespace Circloo.Api.Tests.Presentations;
 public sealed partial class PresentingHubTests
 {
     /// <summary>A deck of two questions: a poll (showing results live when asked) then a 20-second quiz whose answer is "b".</summary>
-    private async Task<Guid> QuestionDeckAsync(Guid ownerUserId, bool showLive = false, bool multiple = false)
+    private async Task<Guid> QuestionDeckAsync(Guid ownerUserId, bool showLive = false, bool multiple = false, bool autoOpen = false)
     {
-        var deck = new Presentation { OwnerUserId = ownerUserId, Name = "Quiz night", SourceFileName = "quiz.pptx", Status = PresentationStatus.Ready, SlideCount = 0 };
+        var deck = new Presentation { OwnerUserId = ownerUserId, Name = "Quiz night", SourceFileName = "quiz.pptx", Status = PresentationStatus.Ready, SlideCount = 0, AutoOpen = autoOpen };
         Slide[] slides =
         [
             new()

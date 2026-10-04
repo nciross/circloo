@@ -141,7 +141,7 @@ public sealed partial class PresentingHubTests(PostgresFixture pg) : IAsyncLifet
     /// <summary>A ready deck: slide 1 with notes, a hidden slide, a poll, a last slide.</summary>
     private async Task<(Guid Id, Slide[] Slides)> DeckAsync(Guid ownerUserId, string status = PresentationStatus.Ready, bool allHidden = false)
     {
-        var deck = new Presentation { OwnerUserId = ownerUserId, Name = "Team kickoff", SourceFileName = "kickoff.pptx", Status = status, SlideCount = 3 };
+        var deck = new Presentation { OwnerUserId = ownerUserId, Name = "Team kickoff", SourceFileName = "kickoff.pptx", Status = status, SlideCount = 3, AutoOpen = false };
         Slide[] slides =
         [
             new() { PresentationId = deck.Id, Kind = SlideKinds.Deck, Position = 0, SourceIndex = 0, Notes = "Welcome everyone", Hidden = allHidden },

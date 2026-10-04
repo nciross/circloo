@@ -48,7 +48,7 @@ public sealed partial class CircleHub
         PresentationSession session;
         try
         {
-            session = LiveSession.Start(circleId, deck.Id, me.Id, LiveSession.BuildSnapshot(deck.Slides), deck.ShowPodium, now);
+            session = LiveSession.Start(circleId, deck.Id, me.Id, LiveSession.BuildSnapshot(deck.Slides), deck.ShowPodium, now, deck.AutoOpen);
         }
         catch (LiveSessionException e)
         {
@@ -68,6 +68,8 @@ public sealed partial class CircleHub
             // Another tab started one at the same moment; that one runs.
             throw new HubException("session-conflict");
         }
+        // A deck starting on a quiz has its clock set as soon as the session is saved (FR-611).
+        ScheduleQuiz(session);
         await db.Presentations.Where(p => p.Id == deck.Id).ExecuteUpdateAsync(s => s.SetProperty(p => p.LastUsedAt, now));
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, ActivityCatalog.Presentation));
 
@@ -80,7 +82,12 @@ public sealed partial class CircleHub
     public async Task GoToSlide(int position)
     {
         var circleId = await AnimatorCircleAsync();
-        await ActAsync(circleId, (s, now) => LiveSession.GoTo(s, position, now));
+        // Arriving on a question may open it (#170): a quiz starts its timer on the server clock. Whether the question
+        // being left has answers decides if passing through it used it up.
+        var active = await db.PresentationSessions.AsNoTracking().FirstOrDefaultAsync(s => s.CircleId == circleId && s.EndedAt == null);
+        var leavingAnswered = active is null || !SlideKinds.IsQuestion(LiveSession.Current(active).Kind)
+            || await db.SessionAnswers.AnyAsync(a => a.SessionId == active.Id && a.SlideId == LiveSession.Current(active).SlideId);
+        await ActAsync(circleId, (s, now) => LiveSession.GoTo(s, position, now, leavingAnswered), saved: ScheduleQuiz);
     }
 
     public async Task SetBlank(bool blank)
@@ -99,13 +106,7 @@ public sealed partial class CircleHub
         {
             LiveSession.Open(s, now);
             return true;
-        }, saved: s =>
-        {
-            if (s.Deadline is { } deadline)
-            {
-                quizClock.Schedule(s.Id, deadline);
-            }
-        });
+        }, saved: ScheduleQuiz);
     }
 
     /// <summary>
@@ -234,6 +235,15 @@ public sealed partial class CircleHub
     }
 
     private async Task<Guid> AnimatorCircleAsync() => (await CurrentAsync(animatorOnly: true)).CircleId;
+
+    /// <summary>A quiz answering on the server clock locks itself at its deadline, even if the animator's connection drops.</summary>
+    private void ScheduleQuiz(PresentationSession s)
+    {
+        if (s.Phase == SessionPhases.Answering && s.Deadline is { } deadline)
+        {
+            quizClock.Schedule(s.Id, deadline);
+        }
+    }
 
     /// <summary>
     /// Applies an animator action to the active session and broadcasts the result to every screen. An action that

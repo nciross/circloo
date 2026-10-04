@@ -176,6 +176,11 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
     options: [{ id: 'a', text: ar ? 'كسكس' : 'Couscous' }, { id: 'b', text: ar ? 'سوشي' : 'Sushi' }],
   })
 
+  // The editor shows the automatic-opening setting, on by default (#170).
+  await page.goto(`/app/presentations/${deckId}`)
+  await expect(page.locator('.deck-setting .switch').first()).toHaveAttribute('aria-checked', 'true')
+  await axe(page)
+
   const circle = await createCircle(page, locale)
   const amina = await join(browser, circle.code, ar ? 'أمينة' : 'Amina', 'robot', locale)
   const kenji = await join(browser, circle.code, ar ? 'كنزي' : 'Kenji', 'fox', locale)
@@ -187,12 +192,11 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
   const [audience] = await Promise.all([page.waitForEvent('popup'), page.locator('.presenter__audience').click()])
   await expect(onSlide(audience, 0, '.audience')).toBeVisible({ timeout: 15_000 })
 
-  // The poll: nobody can answer until the animator opens it.
+  // The poll: answers open as soon as it shows (#170), with nothing for the animator to press.
   await page.locator('.presenter__next').click()
-  await expect(amina.locator('.answer-pad')).toBeVisible()
-  await expect(amina.locator('.answer-pad__option').first()).toHaveAttribute('aria-disabled', 'true')
+  await expect(amina.locator('.answer-pad.is-open')).toBeVisible()
+  await expect(page.locator('.presenter__open')).toHaveCount(0)
   await axe(amina)
-  await page.locator('.presenter__open').click()
   await expect(page.locator('.answer-progress__count')).toContainText(ar ? 'لم يُجب أحد من 2' : '0 of 2 answered')
   await expect(page.locator('.answer-progress__pending li')).toHaveCount(2)
 
@@ -216,7 +220,6 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
 
   // The quiz: a server countdown, one final answer, and it locks itself when time is up.
   await page.locator('.presenter__next').click()
-  await page.locator('.presenter__open').click()
   await expect(kenji.locator('.answer-pad__countdown')).toBeVisible()
   await expect(page.locator('.presenter__countdown')).toBeVisible()
   await kenji.locator('.answer-pad__option').nth(1).click()
@@ -254,7 +257,6 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
   // A poll without the spotlight: results, but no name anywhere.
   await page.locator('.presenter__next').click()
   await page.locator('.presenter__next').click()
-  await page.locator('.presenter__open').click()
   await kenji.locator('.answer-pad__option').nth(0).click()
   await expect(page.locator('.answer-progress__count')).toContainText(ar ? 'أجاب واحد من 2' : '1 of 2 answered')
   await page.locator('.presenter__reveal').click()
@@ -265,7 +267,6 @@ test('answering and reveal: phones answer polls and a server-timed quiz, then ev
 
   // A poll nobody answered: a friendly line instead of empty bars.
   await page.locator('.presenter__next').click()
-  await page.locator('.presenter__open').click()
   await page.locator('.presenter__reveal').click()
   for (const screen of [page, amina, kenji, audience]) await expect(screen.locator('.reveal__empty')).toBeVisible()
 

@@ -10,9 +10,9 @@ import { Segmented } from '../../components/Segmented'
 
 type Errors = Record<string, string>
 
-export function Switch({ on, onChange, busy, children }: { on: boolean; onChange: (v: boolean) => void; busy?: boolean; children: string }) {
+export function Switch({ on, onChange, busy, describedBy, children }: { on: boolean; onChange: (v: boolean) => void; busy?: boolean; describedBy?: string; children: string }) {
   return (
-    <button type="button" role="switch" className="switch" aria-checked={on} aria-busy={busy || undefined} onClick={() => onChange(!on)}>
+    <button type="button" role="switch" className="switch" aria-checked={on} aria-busy={busy || undefined} aria-describedby={describedBy} onClick={() => onChange(!on)}>
       <span className="switch__track" aria-hidden="true"><span className="switch__knob" /></span>
       {children}
     </button>
