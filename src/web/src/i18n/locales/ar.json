@@ -1222,6 +1222,30 @@
     "andMoreLabel_two": "وشخصان آخران",
     "andMoreLabel_few": "و{{count}} أشخاص آخرين",
     "andMoreLabel_many": "و{{count}} شخصًا آخر",
-    "andMoreLabel_other": "و{{count}} شخص آخر"
+    "andMoreLabel_other": "و{{count}} شخص آخر",
+    "reveal": {
+      "show": "عرض النتائج",
+      "shown": "النتائج معروضة",
+      "title": "النتائج",
+      "option": "الإجابة",
+      "count": "الأصوات",
+      "percent": "النسبة",
+      "row": "{{option}}: {{count}}، {{percent}}٪",
+      "announce": "النتائج: {{summary}}",
+      "noAnswers": "لا إجابات هذه المرة. ربما في السؤال القادم!",
+      "mostChosen": "الأكثر اختيارًا",
+      "correct": "الإجابة الصحيحة",
+      "yours": "إجابتك",
+      "fastest": "أسرع إجابة",
+      "firstRight": "أول إجابة صحيحة",
+      "nobodyRight": "لم يجدها أحد هذه المرة. إلى السؤال التالي!",
+      "votes_zero": "لا أصوات",
+      "votes_one": "صوت واحد",
+      "votes_two": "صوتان",
+      "votes_few": "{{count}} أصوات",
+      "votes_many": "{{count}} صوتًا",
+      "votes_other": "{{count}} صوت",
+      "who": "{{name}}، {{time}}"
+    }
   }
 }

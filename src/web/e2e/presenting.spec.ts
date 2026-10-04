@@ -147,7 +147,7 @@ async function addQuestion(page: Page, presentationId: string, question: Record<
   }, { id: presentationId, body: question })
 }
 
-test('answering: phones answer polls and a server-timed quiz, the animator sees who is left (spec 006 US4)', async ({ page, browser }, info) => {
+test('answering and reveal: phones answer polls and a server-timed quiz, then everyone sees the results and who was first (spec 006 US4, US5)', async ({ page, browser }, info) => {
   test.setTimeout(240_000)
   const locale = localeOf(info)
   const ar = locale === 'ar'
@@ -215,6 +215,28 @@ test('answering: phones answer polls and a server-timed quiz, the animator sees 
   await axe(kenji)
   await expect(page.locator('.presenter__closed')).toBeVisible({ timeout: 15_000 })
   await expect(amina.locator('.answer-pad__status')).toContainText(ar ? 'مغلقة' : 'Answers are closed.')
+
+  // Reveal (US5): every screen shows the same results; the quiz marks its right answer and the first right answerer.
+  await page.locator('.presenter__reveal').click()
+  for (const screen of [page, amina, kenji]) {
+    await expect(screen.locator('.reveal__option.is-correct')).toHaveCount(1)
+    await expect(screen.locator('.reveal__option').nth(1)).toHaveClass(/is-correct/)
+    await expect(screen.locator('.reveal__spotlight-who')).toContainText(ar ? 'كنزي' : 'Kenji')
+  }
+  await expect(kenji.locator('.reveal__option.is-mine')).toHaveCount(1)
+  await expect(page.locator('.presenter__closed')).toContainText(ar ? 'النتائج معروضة' : 'Results shown')
+  await axe(kenji)
+
+  // Back to the poll, revealed on a phone set to reduced motion: final figures at once, no confetti.
+  await amina.emulateMedia({ reducedMotion: 'reduce' })
+  await page.locator('.presenter__prev').click()
+  await page.locator('.presenter__reveal').click()
+  await expect(amina.locator('.reveal')).toHaveClass(/is-still/)
+  await expect(amina.locator('.reveal__percent').nth(1)).toHaveText('100%')
+  await expect(amina.locator('.reveal__confetti')).toHaveCount(0)
+  await expect(amina.locator('.reveal__option.is-winner .reveal__mark.is-winner')).toHaveCount(1)
+  await expect(page.locator('.reveal__spotlight-who')).toContainText(ar ? 'أمينة' : 'Amina')
+  await axe(page)
 
   for (const p of [amina, kenji]) await p.context().close()
 })

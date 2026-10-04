@@ -1150,6 +1150,26 @@
     "share_one": "{{percent}} % · {{count}} voto",
     "share_other": "{{percent}} % · {{count}} votos",
     "andMoreLabel_one": "y {{count}} persona más",
-    "andMoreLabel_other": "y {{count}} personas más"
+    "andMoreLabel_other": "y {{count}} personas más",
+    "reveal": {
+      "show": "Mostrar resultados",
+      "shown": "Resultados mostrados",
+      "title": "Resultados",
+      "option": "Respuesta",
+      "count": "Votos",
+      "percent": "Porcentaje",
+      "row": "{{option}}: {{count}}, {{percent}} %",
+      "announce": "Resultados: {{summary}}",
+      "noAnswers": "Nadie respondió esta vez. ¡Quizá en la próxima!",
+      "mostChosen": "La más elegida",
+      "correct": "Respuesta correcta",
+      "yours": "Tu respuesta",
+      "fastest": "Respuesta más rápida",
+      "firstRight": "Primera respuesta correcta",
+      "nobodyRight": "Nadie la acertó esta vez. ¡A por la siguiente!",
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos",
+      "who": "{{name}}, {{time}}"
+    }
   }
 }

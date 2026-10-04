@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, EyeOff, Eye, Lock, MonitorUp, Play, Square, StickyNote, Users } from 'lucide-react'
+import { BarChart3, ChevronLeft, ChevronRight, EyeOff, Eye, Lock, MonitorUp, Play, Square, StickyNote, Users } from 'lucide-react'
 import { Button } from '../../../components/Button'
 import { useRoom } from '../room'
 import { keyAction } from './keys'
@@ -9,7 +9,7 @@ import { SlideStage } from './SlideStage'
 import { Countdown } from './Countdown'
 import { AnswerProgress } from './AnswerProgress'
 
-/** Opens and closes answering on a question slide; a quiz shows its countdown while open (spec 006 US4). */
+/** Opens and closes answering on a question slide, then reveals its results (spec 006 US4, US5); a quiz shows its countdown while open. */
 function QuestionControls({ state }: { state: PresentationState }) {
   const { t } = useTranslation()
   const [busy, setBusy] = useState(false)
@@ -37,9 +37,19 @@ function QuestionControls({ state }: { state: PresentationState }) {
           <Button variant="default" className="presenter__lock" icon={<Lock size={16} />} busy={busy} onClick={() => act(useRoom.getState().lockQuestion)}>
             {t('present.closeAnswers')}
           </Button>
+          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy} onClick={() => act(useRoom.getState().revealResults)}>
+            {t('present.reveal.show')}
+          </Button>
+        </>
+      ) : state.phase === 'locked' ? (
+        <>
+          <p className="presenter__closed" role="status"><Lock size={14} aria-hidden="true" /> {t('present.answersClosed')}</p>
+          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy} onClick={() => act(useRoom.getState().revealResults)}>
+            {t('present.reveal.show')}
+          </Button>
         </>
       ) : (
-        <p className="presenter__closed" role="status"><Lock size={14} aria-hidden="true" /> {t('present.answersClosed')}</p>
+        <p className="presenter__closed" role="status"><BarChart3 size={14} aria-hidden="true" /> {t('present.reveal.shown')}</p>
       )}
     </div>
   )

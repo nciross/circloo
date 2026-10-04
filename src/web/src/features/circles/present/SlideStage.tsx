@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ListChecks, Vote } from 'lucide-react'
-import type { PresentationState, QuestionSlide, Results } from './presentation'
+import { isRevealed, type PresentationState, type QuestionSlide, type Results } from './presentation'
+import { Reveal } from './Reveal'
 
 /** An option's share as a bar behind it, with count and percent at the end of the line. */
 export function Share({ results, id }: { results: Results | null | undefined; id: string }) {
@@ -52,15 +53,19 @@ export function SlideStage({ state, className, children }: { state: Presentation
       ) : (
         <section className="stage-slide__question" aria-label={label}>
           <QuestionHead slide={slide} />
-          <ol className={['stage-slide__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
-            {slide.options.map((o, i) => (
-              <li key={o.id}>
-                <span className="stage-slide__letter" aria-hidden="true">{i + 1}</span>
-                <span className="stage-slide__text" dir="auto">{o.text}</span>
-                <Share results={state.results} id={o.id} />
-              </li>
-            ))}
-          </ol>
+          {isRevealed(state) && state.results ? (
+            <Reveal key={slide.slideId} slide={slide} results={state.results} />
+          ) : (
+            <ol className={['stage-slide__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
+              {slide.options.map((o, i) => (
+                <li key={o.id}>
+                  <span className="stage-slide__letter" aria-hidden="true">{i + 1}</span>
+                  <span className="stage-slide__text" dir="auto">{o.text}</span>
+                  <Share results={state.results} id={o.id} />
+                </li>
+              ))}
+            </ol>
+          )}
         </section>
       )}
       {children}

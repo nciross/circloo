@@ -1146,6 +1146,26 @@
     "share_one": "{{percent}}% · {{count}} vote",
     "share_other": "{{percent}}% · {{count}} votes",
     "andMoreLabel_one": "and {{count}} more person",
-    "andMoreLabel_other": "and {{count}} more people"
+    "andMoreLabel_other": "and {{count}} more people",
+    "reveal": {
+      "show": "Show results",
+      "shown": "Results shown",
+      "title": "Results",
+      "option": "Answer",
+      "count": "Votes",
+      "percent": "Share",
+      "row": "{{option}}: {{count}}, {{percent}}%",
+      "announce": "Results: {{summary}}",
+      "noAnswers": "No answers this time. Maybe next question!",
+      "mostChosen": "Most chosen",
+      "correct": "Right answer",
+      "yours": "Your answer",
+      "fastest": "Fastest answer",
+      "firstRight": "First right answer",
+      "nobodyRight": "Nobody found it this time. Next one!",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "who": "{{name}}, {{time}}"
+    }
   }
 }

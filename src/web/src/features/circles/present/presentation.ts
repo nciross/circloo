@@ -19,6 +19,8 @@ export type Phase = 'idle' | 'answering' | 'locked' | 'revealed' | 'podium'
 export interface Results {
   total: number
   options: { id: string; count: number; percent: number; winner: boolean; correct?: boolean | null }[]
+  /** Who answered first (for a quiz, first correct), set at the reveal when the question shows it. */
+  first?: { memberId: string; name: string; character: string; ms: number } | null
 }
 
 /** "n of N answered" and who is still to answer: the animator and the audience screen only. */
@@ -82,6 +84,9 @@ export const useLive = create<PresentationStore>()((set) => ({
   mine: {},
   reset: () => set({ state: null, notes: null, receivedAt: 0, skew: 0, count: null, mine: {} }),
 }))
+
+/** Whether a question's results have been revealed (they stay on screen through the podium). */
+export const isRevealed = (state: PresentationState) => state.slide.kind !== 'deck' && (state.phase === 'revealed' || state.phase === 'podium')
 
 /** This device's clock, corrected to the server's. */
 export const serverNow = () => Date.now() + useLive.getState().skew

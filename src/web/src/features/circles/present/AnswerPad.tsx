@@ -5,8 +5,9 @@ import { Button } from '../../../components/Button'
 import { useRoom } from '../room'
 import { Countdown } from './Countdown'
 import { useSecondsLeft } from './useSecondsLeft'
-import { useLive, type PresentationState, type QuestionSlide } from './presentation'
+import { isRevealed, useLive, type PresentationState, type QuestionSlide } from './presentation'
 import { QuestionHead, Share } from './SlideStage'
+import { Reveal } from './Reveal'
 
 const EMPTY: string[] = []
 
@@ -79,22 +80,26 @@ export function AnswerPad({ state, slide }: { state: PresentationState; slide: Q
         ) : (
           <p className="answer-pad__status" role="status">{status}</p>
         )}
-        <ul className={['answer-pad__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
-          {slide.options.map((o, i) => {
-            const on = marked.includes(o.id)
-            const busy = sending?.includes(o.id) ?? false
-            return (
-              <li key={o.id}>
-                <button type="button" className={['answer-pad__option', on ? 'is-on' : '', busy ? 'is-sending' : ''].filter(Boolean).join(' ')}
-                  aria-pressed={on} aria-disabled={!canPick || undefined} aria-busy={busy || undefined} onClick={() => pick(o.id)}>
-                  <span className="stage-slide__letter" aria-hidden="true">{on ? <Check size={16} /> : i + 1}</span>
-                  <span className="stage-slide__text" dir="auto">{o.text}</span>
-                  <Share results={state.results} id={o.id} />
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        {isRevealed(state) && state.results ? (
+          <Reveal slide={slide} results={state.results} mine={confirmed} />
+        ) : (
+          <ul className={['answer-pad__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
+            {slide.options.map((o, i) => {
+              const on = marked.includes(o.id)
+              const busy = sending?.includes(o.id) ?? false
+              return (
+                <li key={o.id}>
+                  <button type="button" className={['answer-pad__option', on ? 'is-on' : '', busy ? 'is-sending' : ''].filter(Boolean).join(' ')}
+                    aria-pressed={on} aria-disabled={!canPick || undefined} aria-busy={busy || undefined} onClick={() => pick(o.id)}>
+                    <span className="stage-slide__letter" aria-hidden="true">{on ? <Check size={16} /> : i + 1}</span>
+                    <span className="stage-slide__text" dir="auto">{o.text}</span>
+                    <Share results={state.results} id={o.id} />
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
         {multiple && open ? (
           <Button className="answer-pad__send" icon={<Send size={16} className="flip-rtl" />} busy={sending !== null}
             aria-disabled={!unsent || (draft?.length ?? 0) === 0 || undefined}
