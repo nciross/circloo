@@ -448,6 +448,18 @@
 .stage-slide__text {
   flex: 1;
   min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+/* With results, narrow options put their figures on a line of their own instead of squeezing the text. */
+.has-results li,
+.has-results .answer-pad__option {
+  flex-wrap: wrap;
+}
+.has-results .stage-slide__text {
+  flex: 1 1 8rem;
+}
+.share__figures {
+  margin-inline-start: auto;
 }
 .share {
   display: contents;
