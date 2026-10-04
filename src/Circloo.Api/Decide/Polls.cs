@@ -62,18 +62,44 @@ public sealed class Polls(CirclooDbContext db, IHubContext<CircleHub, ICircleCli
     }
 
     /// <summary>Closes the circle's open poll, if any (the animator switched or ended the activity), keeping its votes.</summary>
-    public async Task CloseOpenAsync(Guid circleId, Guid? userId, CancellationToken ct = default)
+    public Task<Poll?> CloseOpenAsync(Guid circleId, Guid? userId, CancellationToken ct = default) =>
+        CloseAsync(circleId, null, userId, ct);
+
+    /// <summary>
+    /// Closes an open poll (<paramref name="pollId"/>, or the circle's open one) exactly once, then broadcasts it. The row
+    /// is locked first: votes in flight (they hold it <c>FOR SHARE</c>) finish before <c>ClosedAt</c> is stamped and later
+    /// votes see it closed, so results announced as final never change. Null when nothing was open (another tab won).
+    /// </summary>
+    public async Task<Poll?> CloseAsync(Guid circleId, Guid? pollId, Guid? userId, CancellationToken ct = default)
     {
-        var open = await db.Polls.FirstOrDefaultAsync(p => p.CircleId == circleId && p.OpenedAt != null && p.ClosedAt == null, ct);
-        if (open is null)
+        FormattableString open = pollId is { } id
+            ? (FormattableString)$"""SELECT "Id" AS "Value" FROM "Polls" WHERE "Id" = {id} AND "CircleId" = {circleId} AND "OpenedAt" IS NOT NULL AND "ClosedAt" IS NULL FOR UPDATE"""
+            : $"""SELECT "Id" AS "Value" FROM "Polls" WHERE "CircleId" = {circleId} AND "OpenedAt" IS NOT NULL AND "ClosedAt" IS NULL FOR UPDATE""";
+        // The retrying execution strategy only accepts a transaction it can replay as a whole.
+        var closed = await db.Database.CreateExecutionStrategy().ExecuteAsync(async token =>
         {
-            return;
+            await using var tx = await db.Database.BeginTransactionAsync(token);
+            var ids = await db.Database.SqlQuery<Guid>(open).ToListAsync(token);
+            if (ids.Count == 0)
+            {
+                return (Guid?)null;
+            }
+            var closedId = ids[0];
+            var now = clock.GetUtcNow();
+            await db.Polls.Where(p => p.Id == closedId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.ClosedAt, now).SetProperty(p => p.Version, p => p.Version + 1), token);
+            audit.Add(AuditTypes.PollClosed, userId, detail: new { circleId, pollId = closedId });
+            await db.SaveChangesAsync(token);
+            await tx.CommitAsync(token);
+            return closedId;
+        }, ct);
+        if (closed is null)
+        {
+            return null;
         }
-        open.ClosedAt = clock.GetUtcNow();
-        open.Version++;
-        audit.Add(AuditTypes.PollClosed, userId, detail: new { circleId, pollId = open.Id });
-        await db.SaveChangesAsync(ct);
-        await BroadcastAsync(open, ct);
+        var poll = await db.Polls.AsNoTracking().FirstAsync(p => p.Id == closed, ct);
+        await BroadcastAsync(poll, ct);
+        return poll;
     }
 
     /// <summary>
@@ -114,41 +140,77 @@ public sealed class Polls(CirclooDbContext db, IHubContext<CircleHub, ICircleCli
 
 /// <summary>
 /// Coalesces live updates per key (a poll, a question, a form) to at most one send every 250 ms, always sending the
-/// latest state last (trailing edge), so a burst of votes costs a few broadcasts. Per replica, like hub groups.
+/// latest state last (trailing edge), so a burst of votes costs a few broadcasts. Sends for one key never overlap: a
+/// request while one runs waits for it and the window, so an older state can't arrive after a newer one. A key is
+/// dropped once a window passes with nothing to send. Per replica, like hub groups.
 /// </summary>
 public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<LiveThrottle> log)
 {
     public static readonly TimeSpan Window = TimeSpan.FromMilliseconds(250);
-    private readonly ConcurrentDictionary<string, long> _lastSent = new();
-    private readonly ConcurrentDictionary<string, byte> _scheduled = new();
+    private readonly ConcurrentDictionary<string, Slot> _slots = new();
+
+    /// <summary>One key's latest pending send; in <see cref="_slots"/> while its send loop runs.</summary>
+    private sealed class Slot
+    {
+        public Func<IServiceProvider, Task>? Pending;
+        public bool Running;
+        public bool Removed;
+    }
 
     public void Request(string key, Func<IServiceProvider, Task> send)
     {
-        if (!_scheduled.TryAdd(key, 0))
+        while (true)
         {
-            return; // a send is already on its way and will carry the latest state
+            var slot = _slots.GetOrAdd(key, _ => new Slot());
+            lock (slot)
+            {
+                if (slot.Removed)
+                {
+                    continue; // its loop just ended: take a fresh slot
+                }
+                slot.Pending = send; // the latest request wins
+                if (slot.Running)
+                {
+                    return; // the running loop sends it after the current send and the window
+                }
+                slot.Running = true;
+            }
+            _ = Task.Run(() => RunAsync(key, slot));
+            return;
         }
-        var now = Environment.TickCount64;
-        var wait = _lastSent.TryGetValue(key, out var last) ? Math.Max(0, last + (long)Window.TotalMilliseconds - now) : 0;
-        _ = Task.Run(async () =>
+    }
+
+    private async Task RunAsync(string key, Slot slot)
+    {
+        while (true)
         {
+            Func<IServiceProvider, Task>? send;
+            lock (slot)
+            {
+                (send, slot.Pending) = (slot.Pending, null);
+                if (send is null)
+                {
+                    slot.Removed = true;
+                    _slots.TryRemove(new KeyValuePair<string, Slot>(key, slot));
+                    return;
+                }
+            }
+            var started = Environment.TickCount64;
             try
             {
-                if (wait > 0)
-                {
-                    await Task.Delay(TimeSpan.FromMilliseconds(wait));
-                }
-                _scheduled.TryRemove(key, out _);
-                _lastSent[key] = Environment.TickCount64;
                 await using var scope = scopes.CreateAsyncScope();
                 await send(scope.ServiceProvider);
             }
             catch (Exception e)
             {
-                _scheduled.TryRemove(key, out _);
                 UpdateFailed(e, key);
             }
-        });
+            var rest = (long)Window.TotalMilliseconds - (Environment.TickCount64 - started);
+            if (rest > 0)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(rest));
+            }
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Live update for {Key} failed")]

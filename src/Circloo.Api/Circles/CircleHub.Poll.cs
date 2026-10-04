@@ -53,7 +53,7 @@ public sealed partial class CircleHub
         }
         (poll.Question, poll.Options, poll.MultipleChoice, poll.ResultsLive) = (valid.Question, valid.Options, valid.MultipleChoice, valid.ResultsLive);
         poll.Version++;
-        await db.SaveChangesAsync();
+        await SaveDraftChangeAsync(poll.Id);
         await polls.BroadcastAsync(poll);
         return Polls.View(poll);
     }
@@ -71,30 +71,40 @@ public sealed partial class CircleHub
         poll.OpenedAt = clock.GetUtcNow();
         poll.Version++;
         audit.Add(AuditTypes.PollOpened, me.UserId, detail: new { circleId, pollId });
-        try
-        {
-            await db.SaveChangesAsync();
-        }
-        catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-        {
-            throw new HubException("poll-conflict");
-        }
+        await SaveDraftChangeAsync(poll.Id);
         await polls.BroadcastAsync(poll);
     }
 
     public async Task ClosePoll(Guid pollId)
     {
         var (circleId, me) = await PollAnimatorAsync();
-        var poll = await PollAsync(circleId, pollId);
-        if (poll.OpenedAt is null || poll.ClosedAt is not null)
+        await PollAsync(circleId, pollId);
+        // Closes once even when two animator tabs race: the loser finds nothing open.
+        if (await polls.CloseAsync(circleId, pollId, me.UserId) is null)
         {
             throw new HubException("poll-not-open");
         }
-        poll.ClosedAt = clock.GetUtcNow();
-        poll.Version++;
-        audit.Add(AuditTypes.PollClosed, me.UserId, detail: new { circleId, pollId });
-        await db.SaveChangesAsync();
-        await polls.BroadcastAsync(poll);
+    }
+
+    /// <summary>
+    /// Saves an edit or the opening of a draft. Another tab got there first when the version moved (opened it:
+    /// <c>poll-not-draft</c>; edited it: <c>poll-conflict</c>) or when another poll opened at the same moment (<c>poll-conflict</c>).
+    /// </summary>
+    private async Task SaveDraftChangeAsync(Guid pollId)
+    {
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            var opened = await db.Polls.AsNoTracking().AnyAsync(p => p.Id == pollId && p.OpenedAt != null);
+            throw new HubException(opened ? "poll-not-draft" : "poll-conflict");
+        }
+        catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        {
+            throw new HubException("poll-conflict");
+        }
     }
 
     /// <summary>A participant's vote: one per poll, replaced (never added) until the poll closes.</summary>
@@ -106,6 +116,7 @@ public sealed partial class CircleHub
         {
             throw new HubException("animator-cannot-answer");
         }
+        // Unknown and draft polls answer alike, so members can't probe for the animator's drafts.
         var poll = await db.Polls.AsNoTracking().FirstOrDefaultAsync(p => p.Id == pollId && p.CircleId == circleId)
             ?? throw new HubException("poll-not-open");
         if (poll.OpenedAt is null || poll.ClosedAt is not null)
@@ -113,8 +124,10 @@ public sealed partial class CircleHub
             throw new HubException("poll-not-open");
         }
         var chosen = CleanVote(poll, options) ?? throw new HubException("invalid-options");
-        var now = clock.GetUtcNow();
-        await UpsertVoteAsync(pollId, me.Id, chosen, now);
+        if (!await UpsertVoteAsync(pollId, me.Id, chosen, clock.GetUtcNow()))
+        {
+            throw new HubException("poll-not-open"); // it closed while this vote was on its way
+        }
         await Clients.Group(MemberGroup(me.Id)).MyVote(pollId, chosen);
         throttle.Request($"poll:{pollId}", async services =>
         {
@@ -144,31 +157,19 @@ public sealed partial class CircleHub
         return [.. distinct.Order(StringComparer.Ordinal)];
     }
 
-    /// <summary>Insert or replace the member's vote; two tabs voting at once still leave one row (unique index).</summary>
-    private async Task UpsertVoteAsync(Guid pollId, Guid memberId, string[] chosen, DateTimeOffset now)
-    {
-        for (var attempt = 0; attempt < 2; attempt++)
-        {
-            var updated = await db.PollVotes.Where(v => v.PollId == pollId && v.MemberId == memberId)
-                .ExecuteUpdateAsync(s => s.SetProperty(v => v.Options, chosen).SetProperty(v => v.UpdatedAt, now));
-            if (updated > 0)
-            {
-                return;
-            }
-            db.PollVotes.Add(new PollVote { PollId = pollId, MemberId = memberId, Options = chosen, CreatedAt = now, UpdatedAt = now });
-            try
-            {
-                await db.SaveChangesAsync();
-                return;
-            }
-            catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-            {
-                // Another tab inserted first: replace that row instead.
-                db.ChangeTracker.Clear();
-            }
-        }
-        throw new HubException("busy");
-    }
+    /// <summary>
+    /// Inserts or replaces the member's vote in one statement, only while the poll is open. <c>FOR SHARE</c> holds the
+    /// poll row until the vote commits, so a close waits for it; a vote arriving after the close commits re-reads the
+    /// row, finds it closed and writes nothing (false). Two tabs at once still leave one row (unique index).
+    /// </summary>
+    private async Task<bool> UpsertVoteAsync(Guid pollId, Guid memberId, string[] chosen, DateTimeOffset now) =>
+        await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO "PollVotes" ("PollId", "MemberId", "Options", "CreatedAt", "UpdatedAt")
+            (SELECT p."Id", {memberId}, {chosen}, {now}, {now} FROM "Polls" AS p
+             WHERE p."Id" = {pollId} AND p."OpenedAt" IS NOT NULL AND p."ClosedAt" IS NULL
+             FOR SHARE)
+            ON CONFLICT ("PollId", "MemberId") DO UPDATE SET "Options" = EXCLUDED."Options", "UpdatedAt" = EXCLUDED."UpdatedAt"
+            """) > 0;
 
     private void ThrottleVotes()
     {
@@ -198,7 +199,7 @@ public sealed partial class CircleHub
     }
 
     private async Task<Poll> PollAsync(Guid circleId, Guid pollId) =>
-        await db.Polls.FirstOrDefaultAsync(p => p.Id == pollId && p.CircleId == circleId) ?? throw new HubException("poll-invalid");
+        await db.Polls.FirstOrDefaultAsync(p => p.Id == pollId && p.CircleId == circleId) ?? throw new HubException("poll-not-found");
 
     /// <summary>The first field code, as "field:code" so the editor can point at the field (e.g. "options[1]:option-length").</summary>
     private static string PollError(Dictionary<string, string[]> errors)
