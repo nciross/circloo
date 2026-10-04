@@ -137,6 +137,9 @@ export interface FormView {
 
 export interface DecideView {
   poll: PollView | null
+  /** Only when this member may see them (live, closed, or the animator). */
+  pollResults: PollResultsView | null
+  pollVotes: number | null
   polls: { id: string; question: string; closedAt: string; results: PollResultsView }[]
   qa: { allowAnonymous: boolean; questions: QaQuestionView[] }
   form: FormView | null

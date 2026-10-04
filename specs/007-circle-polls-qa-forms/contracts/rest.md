@@ -24,7 +24,9 @@ Validation codes: `name-length`, `title-length`, `questions-count` (1–10), `la
 
 ```ts
 decide: {
-  poll?: PollView & { results?: PollResults; votes?: number }   // members: only when open or closed (drafts are the animator's); results only when live or closed (or for the animator)
+  poll?: PollView                 // the open poll (or, for the animator, the latest draft), with myVote
+  pollResults?: PollResults       // only when live or closed, or for the animator
+  pollVotes?: number              // how many voted on the current poll
   polls: { id: string; question: string; closedAt: string; results: PollResults }[]   // finished polls, newest first
   qa: { allowAnonymous: boolean; questions: QaQuestionView[] }   // hidden ones only for the animator
   form?: FormView & { myResponse?: Record<string, unknown>; summary?: FormSummaryView }   // members: only when open or closed; summary: animator, or shared

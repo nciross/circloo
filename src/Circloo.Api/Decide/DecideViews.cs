@@ -41,8 +41,11 @@ public sealed record FormQuestionView(string Id, string Type, string Label, bool
     public static FormQuestionView From(FormQuestion q) => new(q.Id, q.Type, q.Label, q.Required, q.Look, q.LongText, [.. q.Options.Select(ChoiceView.From)]);
 }
 
-/// <summary>The circle's polls, Q&A and form, for late joiners and reloads (contracts/rest.md <c>decide</c>, FR-722).</summary>
-public sealed record DecideView(PollView? Poll, IReadOnlyList<FinishedPollView> Polls, QaView Qa, FormView? Form)
+/// <summary>
+/// The circle's polls, Q&A and form, for late joiners and reloads (contracts/rest.md <c>decide</c>, FR-722).
+/// <c>PollResults</c> only when the member may see them; <c>PollVotes</c> is how many voted on the current poll.
+/// </summary>
+public sealed record DecideView(PollView? Poll, PollResultsView? PollResults, int? PollVotes, IReadOnlyList<FinishedPollView> Polls, QaView Qa, FormView? Form)
 {
-    public static DecideView Empty(Circle circle) => new(null, [], new QaView(circle.QaAllowAnonymous, []), null);
+    public static DecideView Empty(Circle circle) => new(null, null, null, [], new QaView(circle.QaAllowAnonymous, []), null);
 }
