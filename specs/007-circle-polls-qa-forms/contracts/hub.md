@@ -11,12 +11,18 @@ participants refuse the animator with `animator-cannot-answer`. Any text is clea
 | Method | Who | Effect | Errors |
 |---|---|---|---|
 | `CreatePoll(PollInput)` | animator | Draft poll; returns `PollView` | `poll-invalid:<field>:<code>` (e.g. `poll-invalid:options[1]:option-length`), `activity-invalid` (Poll is not the running activity) |
-| `UpdatePoll(Guid pollId, PollInput)` | animator | Edit a draft | `poll-not-draft` |
-| `OpenPoll(Guid pollId)` | animator | Opens it; closes any other open poll | `poll-not-draft` |
-| `ClosePoll(Guid pollId)` | animator | Closes it; final results to everyone | `poll-not-open` |
-| `VotePoll(Guid pollId, string[] options)` (named apart from the board's `Vote`) | participant | Upsert own vote | `poll-not-open`, `invalid-options` |
+| `UpdatePoll(Guid pollId, PollInput)` | animator | Edit a draft | `poll-invalid:<field>:<code>`, `poll-not-draft`, `poll-not-found`, `poll-conflict` |
+| `OpenPoll(Guid pollId)` | animator | Opens it; closes any other open poll | `poll-not-draft`, `poll-not-found`, `poll-conflict` |
+| `ClosePoll(Guid pollId)` | animator | Closes it; final results to everyone | `poll-not-open`, `poll-not-found` |
+| `VotePoll(Guid pollId, string[] options)` (named apart from the board's `Vote`) | participant | Upsert own vote | `poll-not-open` (also for an unknown or draft poll), `invalid-options`, `slow-down` (10/s) |
 
 `PollInput = { question, options: string[], multipleChoice, resultsLive }` (2–6 options; ids assigned by the server).
+
+Every animator method also answers `activity-invalid` when Poll is not the running activity. `poll-not-found`: no
+such poll in this circle. `poll-conflict`: another tab changed the same draft, or opened another poll, at the same
+moment; reload and retry. When two tabs close the same poll, the second gets `poll-not-open`. A vote and a close are
+serialised on the poll row: a vote either lands before the close (and counts in the final results) or is refused with
+`poll-not-open`.
 
 Events:
 
