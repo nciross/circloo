@@ -680,6 +680,9 @@ namespace Circloo.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AutoOpen")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("ConvertingBy")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -747,6 +750,9 @@ namespace Circloo.Api.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("AutoOpen")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("Blank")
                         .HasColumnType("boolean");

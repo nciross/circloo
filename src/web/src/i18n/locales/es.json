@@ -1080,7 +1080,10 @@
       "pollAdded": "Encuesta añadida como diapositiva {{number}}.",
       "quizAdded": "Cuestionario añadido como diapositiva {{number}}."
     },
-    "movedTo": "Diapositiva movida al puesto {{number}} de {{count}}."
+    "movedTo": "Diapositiva movida al puesto {{number}} de {{count}}.",
+    "autoOpen": "Abrir las respuestas en cuanto aparece una pregunta",
+    "autoOpenOn": "Los participantes pueden responder en cuanto llegas a una pregunta.",
+    "autoOpenOff": "Tú abres las respuestas en cada pregunta."
   },
   "present": {
     "pickTitle": "Elige una presentación",

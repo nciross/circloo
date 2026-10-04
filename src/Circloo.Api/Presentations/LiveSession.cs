@@ -72,22 +72,30 @@ public static class LiveSession
                     s.Kind == SlideKinds.Quiz ? s.TimerSeconds ?? PresentationRules.TimerDefault : null, s.ShowFirst, s.Kind == SlideKinds.Poll && s.ShowLive)
                 : new SnapshotSlide(s.Id, s.Kind, HasNotes: !string.IsNullOrWhiteSpace(s.Notes)))];
 
-    public static PresentationSession Start(Guid circleId, Guid presentationId, Guid animatorMemberId, IReadOnlyList<SnapshotSlide> snapshot, bool showPodium, DateTimeOffset now)
+    public static PresentationSession Start(Guid circleId, Guid presentationId, Guid animatorMemberId, IReadOnlyList<SnapshotSlide> snapshot, bool showPodium, DateTimeOffset now,
+        bool autoOpen = false)
     {
         if (snapshot.Count == 0)
         {
             throw new LiveSessionException("presentation-empty");
         }
-        return new PresentationSession
+        var session = new PresentationSession
         {
             CircleId = circleId,
             PresentationId = presentationId,
             StartedByMemberId = animatorMemberId,
             Snapshot = JsonSerializer.Serialize(snapshot, Json),
             ShowPodium = showPodium,
+            AutoOpen = autoOpen,
             Phase = SessionPhases.Idle,
             StartedAt = now,
         };
+        // A presentation that starts on a question opens it at once when answers open automatically (#170).
+        if (autoOpen && SlideKinds.IsQuestion(snapshot[0].Kind))
+        {
+            Open(session, now);
+        }
+        return session;
     }
 
     public static IReadOnlyList<SnapshotSlide> Slides(PresentationSession s) =>
@@ -130,6 +138,12 @@ public static class LiveSession
         else
         {
             (s.Phase, s.OpenedAt, s.Deadline, s.LockedAt) = (SessionPhases.Idle, null, null, null);
+            // A question shown for the first time opens at once when answers open automatically (#170); one already
+            // opened keeps its stored phase above, so it is never reopened and a quiz timer never restarts.
+            if (s.AutoOpen && SlideKinds.IsQuestion(target.Kind))
+            {
+                Open(s, now);
+            }
         }
         s.QuestionPhases = JsonSerializer.Serialize(phases, Json);
         return true;

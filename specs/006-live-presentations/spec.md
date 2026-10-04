@@ -158,6 +158,9 @@ appear one by one; a participant who taps twice still counts once.
    shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts.
 8. **Given** the interface is in Arabic, **Then** answer buttons, the countdown and "n of N answered" are mirrored and
    numbers stay readable.
+9. **Given** a question slide is shown for the first time, **Then** answering opens at once (a quiz starts its
+   countdown), unless the animator turned "Open answers as soon as a question shows" off for the presentation, in
+   which case they open answers themselves (#170, founder feedback 2026-10-04).
 
 ---
 

@@ -88,6 +88,20 @@ function PodiumSetting({ deck }: { deck: PresentationDetail }) {
   )
 }
 
+/** Presentation-wide: answers open as soon as a question is shown (#170). Shown once there is a question; flips at once. */
+function AutoOpenSetting({ deck }: { deck: PresentationDetail }) {
+  const { t } = useTranslation()
+  const update = useUpdatePresentation(deck.id)
+  const on = update.isPending ? (update.variables?.autoOpen ?? deck.autoOpen) : deck.autoOpen
+  return (
+    <>
+      <Switch on={on} busy={update.isPending} onChange={(v) => update.mutate({ autoOpen: v })}>{t('presentations.autoOpen')}</Switch>
+      <p className="field__help">{t(on ? 'presentations.autoOpenOn' : 'presentations.autoOpenOff')}</p>
+      {update.isError ? <p className="field__error" role="alert">{t(editErrorKey(update.error))}</p> : null}
+    </>
+  )
+}
+
 function SlideThumb({ slide, number, selected, onSelect }: { slide: SlideView; number: number; selected: boolean; onSelect: () => void }) {
   const { t } = useTranslation()
   const question = slide.kind !== 'deck'
@@ -293,6 +307,7 @@ export default function Editor() {
   const current = slides.find((s) => s.id === selected) ?? slides[0]
   const crumbs = [{ to: '/app', label: t('common.nav.home') }, { to: '/app/presentations', label: t('presentations.title') }]
   const hasQuiz = slides.some((s) => s.kind === 'quiz')
+  const hasQuestion = slides.some((s) => s.kind !== 'deck')
 
   const actions: EditorActions = {
     guard: (action) => (dirty.current ? setPending(() => action) : action()),
@@ -327,7 +342,12 @@ export default function Editor() {
         </div>
       ) : null}
       {deck.status === 'failed' ? <p className="field__error" role="alert">{t(errorKey(deck.error))}</p> : null}
-      {deck.status === 'ready' && hasQuiz ? <div className="deck-settings"><PodiumSetting deck={deck} /></div> : null}
+      {deck.status === 'ready' && hasQuestion ? (
+        <div className="deck-settings">
+          <AutoOpenSetting deck={deck} />
+          {hasQuiz ? <PodiumSetting deck={deck} /> : null}
+        </div>
+      ) : null}
       {deck.status === 'ready' && showNote ? (
         <div className="deck-note" role="note">
           <Info size={16} aria-hidden="true" />

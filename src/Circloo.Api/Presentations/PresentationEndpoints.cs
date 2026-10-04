@@ -20,9 +20,9 @@ public sealed record OptionDto(string Id, string Text);
 
 public sealed record PresentationDetail(
     Guid Id, string Name, string Status, string? Error, int SlideCount, int ProcessedSlides, int QuestionCount,
-    string? Thumbnail, DateTimeOffset LastUsedAt, int? DeletesInDays, bool ShowPodium, int Version, IReadOnlyList<SlideDto> Slides);
+    string? Thumbnail, DateTimeOffset LastUsedAt, int? DeletesInDays, bool ShowPodium, int Version, IReadOnlyList<SlideDto> Slides, bool AutoOpen = true);
 
-public sealed record UpdatePresentation(string? Name, bool? ShowPodium, int Version);
+public sealed record UpdatePresentation(string? Name, bool? ShowPodium, int Version, bool? AutoOpen = null);
 
 /// <summary>Edits a slide: <c>hidden</c> for deck slides, the question fields for poll/quiz slides (contracts/rest.md).</summary>
 public sealed record SlideUpdate(
@@ -165,6 +165,10 @@ public static class PresentationEndpoints
             if (body.ShowPodium is { } podium)
             {
                 presentation.ShowPodium = podium;
+            }
+            if (body.AutoOpen is { } autoOpen)
+            {
+                presentation.AutoOpen = autoOpen;
             }
             return await SaveAsync(db, presentation, clock, ct);
         });
@@ -364,7 +368,7 @@ public static class PresentationEndpoints
         var first = slides.FirstOrDefault(s => s.Kind == SlideKinds.Deck && !s.Hidden)?.Id;
         var summary = Summary(p, slides.Count(s => s.Kind != SlideKinds.Deck), first, now);
         return new PresentationDetail(summary.Id, summary.Name, summary.Status, summary.Error, summary.SlideCount, summary.ProcessedSlides,
-            summary.QuestionCount, summary.Thumbnail, summary.LastUsedAt, summary.DeletesInDays, p.ShowPodium, p.Version, slides);
+            summary.QuestionCount, summary.Thumbnail, summary.LastUsedAt, summary.DeletesInDays, p.ShowPodium, p.Version, slides, p.AutoOpen);
     }
 
     /// <summary>Positions stay dense, in the given order (data-model.md).</summary>
