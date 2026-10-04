@@ -108,12 +108,19 @@ public sealed partial class CircleHub
         });
     }
 
-    /// <summary>Reveals the current question's results to every screen; answering locks first (spec 006 US5).</summary>
+    /// <summary>
+    /// Reveals the current question's results to every screen; answering locks first (spec 006 US5). Revealing a
+    /// question already revealed (another animator tab) changes nothing and sends nothing.
+    /// </summary>
     public async Task RevealResults()
     {
         var circleId = await AnimatorCircleAsync();
         await ActAsync(circleId, (s, now) =>
         {
+            if (LiveSession.Revealed(s))
+            {
+                return false;
+            }
             LiveSession.Reveal(s, now);
             return true;
         });

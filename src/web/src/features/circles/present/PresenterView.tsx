@@ -12,44 +12,46 @@ import { AnswerProgress } from './AnswerProgress'
 /** Opens and closes answering on a question slide, then reveals its results (spec 006 US4, US5); a quiz shows its countdown while open. */
 function QuestionControls({ state }: { state: PresentationState }) {
   const { t } = useTranslation()
-  const [busy, setBusy] = useState(false)
+  // Which action is on its way: only that button spins, and none can start meanwhile.
+  const [busy, setBusy] = useState<string | null>(null)
   if (state.slide.kind === 'deck') return null
-  const act = async (call: () => Promise<void>) => {
-    setBusy(true)
+  const act = async (name: string, call: () => Promise<void>) => {
+    if (busy) return
+    setBusy(name)
     useRoom.getState().clearError()
     try {
       await call()
     } catch {
       // The view shows the error code.
     } finally {
-      setBusy(false)
+      setBusy(null)
     }
   }
   return (
     <div className="presenter__question">
       {state.phase === 'idle' ? (
-        <Button variant="primary" className="presenter__open" icon={<Play size={16} />} busy={busy} onClick={() => act(useRoom.getState().openQuestion)}>
+        <Button variant="primary" className="presenter__open" icon={<Play size={16} />} busy={busy === 'open'} onClick={() => act('open', useRoom.getState().openQuestion)}>
           {t('present.openAnswers')}
         </Button>
       ) : state.phase === 'answering' ? (
         <>
           {state.slide.kind === 'quiz' && state.deadline ? <Countdown deadline={state.deadline} total={state.slide.timerSeconds ?? 20} className="presenter__countdown" /> : null}
-          <Button variant="default" className="presenter__lock" icon={<Lock size={16} />} busy={busy} onClick={() => act(useRoom.getState().lockQuestion)}>
+          <Button variant="default" className="presenter__lock" icon={<Lock size={16} />} busy={busy === 'lock'} onClick={() => act('lock', useRoom.getState().lockQuestion)}>
             {t('present.closeAnswers')}
           </Button>
-          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy} onClick={() => act(useRoom.getState().revealResults)}>
+          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy === 'reveal'} onClick={() => act('reveal', useRoom.getState().revealResults)}>
             {t('present.reveal.show')}
           </Button>
         </>
       ) : state.phase === 'locked' ? (
         <>
           <p className="presenter__closed" role="status"><Lock size={14} aria-hidden="true" /> {t('present.answersClosed')}</p>
-          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy} onClick={() => act(useRoom.getState().revealResults)}>
+          <Button variant="primary" className="presenter__reveal" icon={<BarChart3 size={16} />} busy={busy === 'reveal'} onClick={() => act('reveal', useRoom.getState().revealResults)}>
             {t('present.reveal.show')}
           </Button>
         </>
       ) : (
-        <p className="presenter__closed" role="status"><BarChart3 size={14} aria-hidden="true" /> {t('present.reveal.shown')}</p>
+        <p className="presenter__closed"><BarChart3 size={14} aria-hidden="true" /> {t('present.reveal.shown')}</p>
       )}
     </div>
   )

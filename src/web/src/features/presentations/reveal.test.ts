@@ -1,4 +1,4 @@
-import { confetti, countUp, formatSeconds, MAX_PARTICLES, REVEAL_MS, seeded } from './reveal'
+import { confetti, countUp, formatPercent, formatSeconds, MAX_PARTICLES, REVEAL_MS, seeded } from './reveal'
 
 describe('countUp', () => {
   it('starts at zero, ends on the target and never overshoots', () => {
@@ -38,5 +38,19 @@ describe('confetti', () => {
   })
   it('replays the same burst from the same seed', () => {
     expect(confetti(10, ['#000'], seeded(3))).toEqual(confetti(10, ['#000'], seeded(3)))
+  })
+})
+
+describe('formatPercent', () => {
+  it('writes percentages as each language does', () => {
+    expect(formatPercent(42, 'en')).toBe('42%')
+    expect(formatPercent(42, 'fr')).toMatch(/^42\s%$/)
+    expect(formatPercent(0, 'es')).toMatch(/^0\s%$/)
+  })
+})
+
+describe('countUp before its turn', () => {
+  it('stays at zero until the option’s stagger has passed', () => {
+    expect(countUp(60, -80)).toBe(0)
   })
 })

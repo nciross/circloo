@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ListChecks, Vote } from 'lucide-react'
-import { isRevealed, type PresentationState, type QuestionSlide, type Results } from './presentation'
+import { isRevealed, useLive, type PresentationState, type QuestionSlide, type Results } from './presentation'
 import { Reveal } from './Reveal'
 
 /** An option's share as a bar behind it, with count and percent at the end of the line. */
@@ -40,6 +40,7 @@ export function SlideStage({ state, className, children }: { state: Presentation
   const { t } = useTranslation()
   const label = t('present.slideAlt', { n: state.position + 1, total: state.count })
   const slide = state.slide
+  const revealedLive = useLive((s) => s.revealedLive)
   const question = slide.kind !== 'deck'
   return (
     <div className={['stage-slide', state.blank ? 'is-blank' : '', question && !state.blank ? 'is-question' : '', className].filter(Boolean).join(' ')}
@@ -54,7 +55,7 @@ export function SlideStage({ state, className, children }: { state: Presentation
         <section className="stage-slide__question" aria-label={label}>
           <QuestionHead slide={slide} />
           {isRevealed(state) && state.results ? (
-            <Reveal key={slide.slideId} slide={slide} results={state.results} />
+            <Reveal key={slide.slideId} slide={slide} results={state.results} animate={revealedLive === slide.slideId} />
           ) : (
             <ol className={['stage-slide__options', state.results ? 'has-results' : ''].filter(Boolean).join(' ')}>
               {slide.options.map((o, i) => (

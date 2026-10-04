@@ -46,3 +46,23 @@ describe('receive', () => {
     expect(useLive.getState()).toMatchObject({ state: null, mine: {}, count: null })
   })
 })
+
+describe('revealedLive', () => {
+  afterEach(() => useLive.getState().reset())
+  const question = (version: number, phase: PresentationState['phase']): PresentationState => ({
+    ...state('a', version, 1),
+    phase,
+    slide: { kind: 'poll', slideId: 'q', question: 'Lunch?', options: [], multipleChoice: false, showFirst: true, showLive: false },
+  })
+
+  it('marks a reveal this page saw happen, so only that one plays', () => {
+    receive(question(1, 'locked'))
+    receive(question(2, 'revealed'))
+    expect(useLive.getState().revealedLive).toBe('q')
+  })
+
+  it('does not replay results already revealed when landing on them', () => {
+    receive(question(5, 'revealed'))
+    expect(useLive.getState().revealedLive).toBeNull()
+  })
+})

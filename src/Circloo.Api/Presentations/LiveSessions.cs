@@ -98,7 +98,7 @@ public sealed class LiveSessions(CirclooDbContext db, IHubContext<CircleHub, ICi
             return ResultsBuilder.Build(slide, [.. answers.Select(a => a.Options)]);
         }
         var ids = answers.Select(a => a.MemberId).ToList();
-        var members = await db.CircleMembers.AsNoTracking().Where(m => ids.Contains(m.Id))
+        var members = await db.CircleMembers.AsNoTracking().Where(m => m.CircleId == session.CircleId && ids.Contains(m.Id))
             .ToDictionaryAsync(m => m.Id, m => (m.Name, m.Character), ct);
         return ResultsBuilder.Reveal(slide, answers, session.OpenedAt, members);
     }

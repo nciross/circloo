@@ -711,7 +711,8 @@
       "slow-down": "Más despacio y vuelve a intentarlo.",
       "not-a-question": "Esta diapositiva no es una pregunta.",
       "already-open": "Las respuestas ya están abiertas en esta pregunta.",
-      "not-answering": "Las respuestas no están abiertas en esta pregunta."
+      "not-answering": "Las respuestas no están abiertas en esta pregunta.",
+      "not-open": "Abre las respuestas de esta pregunta antes de mostrar sus resultados."
     }
   },
   "boards": {
@@ -1143,7 +1144,11 @@
       "closedCounted": "Las respuestas están cerradas. Tu respuesta se ha contado.",
       "send": "Enviar mi respuesta",
       "update": "Cambiar mi respuesta",
-      "unsent": "Aún no enviada: envíala para que cuente."
+      "unsent": "Aún no enviada: envíala para que cuente.",
+      "resultsIn": "¡Ya están los resultados!",
+      "right": "¡La acertaste!",
+      "wrong": "Esta vez no. ¡A por la siguiente!",
+      "noAnswer": "Esta vez no respondiste."
     },
     "answered_one": "{{count}} de {{of}} ha respondido",
     "answered_other": "{{count}} de {{of}} han respondido",
@@ -1169,7 +1174,9 @@
       "nobodyRight": "Nadie la acertó esta vez. ¡A por la siguiente!",
       "votes_one": "{{count}} voto",
       "votes_other": "{{count}} votos",
-      "who": "{{name}}, {{time}}"
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} respuesta",
+      "answers_other": "{{count}} respuestas"
     }
   }
 }

@@ -6,13 +6,21 @@
 /** How long bars grow and numbers count up, in milliseconds. */
 export const REVEAL_MS = 900
 
+/** Each option starts this much after the one before; the bars (CSS) and the figures use the same stagger and curve. */
+export const STAGGER_MS = 80
+
 /** Ease-out cubic: fast at first, settling gently on the final value. */
 export const easeOut = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3)
 
-/** The value shown `elapsed` ms into a count-up to `target` (whole numbers, never past the target). */
+/** The value shown `elapsed` ms into a count-up to `target` (whole numbers, never past the target; 0 before it starts). */
 export function countUp(target: number, elapsed: number, duration = REVEAL_MS): number {
   if (duration <= 0 || elapsed >= duration) return target
   return Math.min(target, Math.round(target * easeOut(elapsed / duration)))
+}
+
+/** A whole percentage the way the reader writes it: "42%", "42 %", "٤٢٪" follow the language. */
+export function formatPercent(percent: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(percent / 100)
 }
 
 /** "2.4 s" in the reader's language: one decimal under a minute, whole seconds above. */

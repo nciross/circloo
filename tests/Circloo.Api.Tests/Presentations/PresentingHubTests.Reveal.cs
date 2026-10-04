@@ -51,6 +51,10 @@ public sealed partial class PresentingHubTests
         Assert.Equal(("Kenji", "axolotl", 2400L), (results.First!.Name, results.First.Character, results.First.Ms));
         Assert.All(results.Options, o => Assert.Null(o.Correct));
         Assert.Contains("answers-closed", await RefusedAsync(() => lucia.InvokeAsync<MyAnswerView>("Answer", poll, new[] { "a" })));
+        // A second reveal (another animator tab) changes nothing.
+        var version = revealed.Version;
+        await room.Animator.InvokeAsync("RevealResults");
+        Assert.Equal(version, (await DbAsync(db => db.PresentationSessions.SingleAsync(s => s.CircleId == room.CircleId))).Version);
         Assert.Equal(opensAt.AddSeconds(4.4), (await DbAsync(db => db.PresentationSessions.SingleAsync(s => s.CircleId == room.CircleId))).LockedAt);
 
         // Going on and coming back shows the stored results; a reload lands on them too.
