@@ -51,6 +51,14 @@ public interface ICircleClient
     Task PollCount(Guid pollId, int votes);
     /// <summary>The member's own vote, to all of their connections.</summary>
     Task MyVote(Guid pollId, string[] options);
+    /// <summary>A Q&A question changed (asked, answered, reopened, upvotes); hidden ones reach the animator only.</summary>
+    Task QaChanged(QaQuestionView question);
+    /// <summary>A question was hidden: members drop it.</summary>
+    Task QaRemoved(long questionId);
+    /// <summary>Whether members may ask anonymously.</summary>
+    Task QaSettings(bool allowAnonymous);
+    /// <summary>The member's own upvote on a question, to all of their connections.</summary>
+    Task MyUpvote(long questionId, bool upvoted);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -72,7 +80,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, LiveThrottle throttle, QuizClock quizClock) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 

@@ -28,6 +28,7 @@ public static class AuditTypes
     public const string SessionEnded = "session.ended";
     public const string PollOpened = "poll.opened";
     public const string PollClosed = "poll.closed";
+    public const string QaHidden = "qa.hidden";
     public const string PresentationPurged = "presentation.purged";
 }
 

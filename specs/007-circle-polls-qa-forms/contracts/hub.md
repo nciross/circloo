@@ -45,8 +45,8 @@ type PollResults = { pollId: string; votes: number
 | Method | Who | Effect | Errors |
 |---|---|---|---|
 | `SetQaAnonymous(bool allow)` | animator | Allows anonymous questions from now on | |
-| `Ask(string text, bool anonymous)` | participant | New question | `anonymous-off`, `slow-down` (5/min) |
-| `Upvote(long questionId)` | participant | Toggles own upvote | `own-question`, `question-closed` (hidden) |
+| `Ask(string text, bool anonymous)` | participant | New question; returns `QaQuestionView` (`mine: true`) | `anonymous-off`, `text-length`, `message-unsafe`, `slow-down` (5/min), `animator-cannot-answer`, `activity-invalid` (Q&A is not the running activity) |
+| `Upvote(long questionId)` | participant | Toggles own upvote; the count is recomputed from the upvote rows | `own-question`, `question-closed` (hidden), `slow-down` (10/s) |
 | `AnswerQuestion(long questionId, string? answer)` | animator | Marks answered, optional answer ≤ 500 | `question-invalid` |
 | `ReopenQuestion(long questionId)` | animator | Back to open | |
 | `HideQuestion(long questionId, bool hidden)` | animator | Hide/unhide | |

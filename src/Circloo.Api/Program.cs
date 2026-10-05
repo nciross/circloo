@@ -74,6 +74,7 @@ builder.Services.AddScoped<LiveSessions>();
 builder.Services.AddSingleton<QuizClock>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<QuizClock>());
 builder.Services.AddScoped<Circloo.Api.Decide.Polls>();
+builder.Services.AddScoped<Circloo.Api.Decide.Qa>();
 builder.Services.AddSingleton<Circloo.Api.Decide.LiveThrottle>();
 builder.Services.AddSingleton<IDeckConverter, GotenbergConverter>();
 builder.Services.AddSingleton<ConversionBacklog>();
