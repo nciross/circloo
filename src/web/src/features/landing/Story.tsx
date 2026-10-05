@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pause, Play } from 'lucide-react'
 import { useUiStore } from '../../stores/ui'
+import { useLandingMotion } from './motion'
 
 /** The story, in order. Each step has a silent clip per language, rendered with Remotion (video/render-clips.mjs). */
 const STORY = ['circle', 'chat', 'canvas', 'board', 'send', 'pirikoo'] as const
@@ -11,11 +12,9 @@ const WORDLESS: ReadonlySet<StepId> = new Set(['circle', 'send'])
 
 interface StepCopy { label: string; title: string; body: string; video: string }
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /**
  * One story clip. It downloads nothing until it gets close to the screen, then plays muted while at least half of
- * it is visible and pauses once it leaves. Under reduced motion it stays on its poster until someone presses play.
+ * it is visible and pauses once it leaves. While motion is off it stays on its poster until someone presses play.
  * The button pauses it for good: scrolling back never restarts a clip someone stopped.
  */
 function StoryClip({ step, label, description }: { step: StepId; label: string; description: string }) {
@@ -28,7 +27,10 @@ function StoryClip({ step, label, description }: { step: StepId; label: string; 
   // Which language's <video> is playing: a language switch remounts it, and the new element starts paused.
   const [playingIn, setPlayingIn] = useState<string | null>(null)
   const playing = playingIn === locale
-  const [stopped, setStopped] = useState(() => reducedMotion())
+  const { on } = useLandingMotion()
+  // A press overrides the page default (still while motion is off) until motion turns on or off again.
+  const [choice, setChoice] = useState<{ on: boolean; stopped: boolean } | null>(null)
+  const stopped = choice && choice.on === on ? choice.stopped : !on
 
   // Load the poster and the video once the clip is about a screen away. A language switch remounts the <video>,
   // so the watch moves to the new element.
@@ -62,10 +64,10 @@ function StoryClip({ step, label, description }: { step: StepId; label: string; 
     const video = ref.current
     if (!video) return
     if (video.paused) {
-      setStopped(false)
+      setChoice({ on, stopped: false })
       void video.play().catch(() => undefined)
     } else {
-      setStopped(true)
+      setChoice({ on, stopped: true })
       video.pause()
     }
   }

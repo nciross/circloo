@@ -4,6 +4,7 @@ import { FaceMark } from '../../components/Brand'
 import { Character } from '../../components/Character'
 import type { CharacterId } from '../../components/characters'
 import type { Mood } from '../../components/MoodIcon'
+import { useLandingMotion } from './motion'
 
 const SEATS: { id: CharacterId; name: string }[] = [
   { id: 'panda', name: 'Amina' },
@@ -27,8 +28,10 @@ type Trick = (typeof TRICKS)[number]
  */
 export function CircleStage() {
   const { t } = useTranslation()
-  const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  const [joined, setJoined] = useState(still ? SEATS.length : 0)
+  const { on } = useLandingMotion()
+  const still = !on
+  const [arrived, setArrived] = useState(0)
+  const joined = still ? SEATS.length : arrived
   const [trick, setTrick] = useState<{ seat: number; kind: Trick; n: number } | null>(null)
   const last = useRef(-1)
   const count = useRef(0)
@@ -37,7 +40,7 @@ export function CircleStage() {
   // People arrive one by one.
   useEffect(() => {
     if (still) return
-    const id = window.setInterval(() => setJoined((n) => (n >= SEATS.length ? n : n + 1)), 650)
+    const id = window.setInterval(() => setArrived((n) => (n >= SEATS.length ? n : n + 1)), 650)
     return () => window.clearInterval(id)
   }, [still])
 

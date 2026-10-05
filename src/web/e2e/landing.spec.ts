@@ -25,7 +25,9 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await expect(question).toHaveAttribute('lang', locale)
 
   // Looping motion has one visible pause for the whole page (WCAG 2.2.2, #207).
-  const pause = page.locator('.hero__motion')
+  const pause = page.locator('.hero__motion .motion-toggle')
+  await expect(pause).toHaveCount(1) // the opt-in below is only offered when the system asks for reduced motion
+  await expect(page.locator('.site')).toHaveAttribute('data-motion', 'on')
   await pause.click()
   await expect(pause).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.site')).toHaveClass(/is-still/)
@@ -101,4 +103,36 @@ test('story clips follow a language switch without a reload, shared clips includ
     await clip.scrollIntoViewIfNeeded()
     await expect(clip).toHaveAttribute('src', `/video/story/${id}.mp4`)
   }
+})
+
+// A system set to reduce motion keeps the landing still, and offers a way to play it (#234).
+test.describe('reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' })
+
+  test('the landing stays still, can be played, and remembers the choice', async ({ page }) => {
+    await page.goto('/')
+    const site = page.locator('.site')
+    await expect(site).toHaveAttribute('data-motion', 'off')
+    await expect(page.locator('.marquee__track')).toHaveCSS('animation-name', 'none')
+
+    // One control, whose label says what a press does; the pause control joins it once motion runs.
+    const play = page.locator('.hero__motion .motion-optin')
+    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(1)
+    await expect(play).toHaveText(/Play animations/)
+    await play.click()
+    await expect(site).toHaveAttribute('data-motion', 'on')
+    await expect(play).toHaveText(/Respect my system setting/)
+    await expect(play).toBeFocused()
+    await expect(page.getByRole('status').filter({ hasText: 'Animations are playing.' })).toHaveCount(1)
+    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(2)
+    await expect(page.locator('.marquee__track')).not.toHaveCSS('animation-name', 'none')
+    const running = await page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))
+    expect(running).toBe(true)
+
+    // The choice survives a reload, and going back to the system setting stills the page again.
+    await page.reload()
+    await expect(site).toHaveAttribute('data-motion', 'on')
+    await play.click()
+    await expect(site).toHaveAttribute('data-motion', 'off')
+  })
 })

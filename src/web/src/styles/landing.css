@@ -303,7 +303,7 @@
     transform: translate(var(--hx, 0), -3.2rem) scale(1.15);
   }
 }
-@media (prefers-reduced-motion: reduce) {
+:where(.site[data-motion='off']) {
   .stage__orbit,
   .seat__body,
   .seat__char,
@@ -813,7 +813,7 @@
 
 /* ---------- Scroll reveal (progressive: only where scroll timelines exist) ---------- */
 @supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  :where(.site[data-motion='on']) {
     .reveal {
       animation: reveal var(--ease-out) both;
       animation-timeline: view();
@@ -1157,7 +1157,7 @@
 
 /* Scroll-driven entrances where the browser has view timelines; elsewhere everything is simply there */
 @supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  :where(.site[data-motion='on']) {
     .chapter__media {
       animation: chapter-media-in var(--ease-out) both;
       animation-timeline: view();
@@ -1179,7 +1179,7 @@
 
 /* The hero circle drifts down a little slower than the page as you leave it */
 @supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
+  :where(.site[data-motion='on']) {
     .hero .stage {
       animation: stage-drift var(--ease-out) both;
       animation-timeline: scroll(root block);
@@ -1258,7 +1258,7 @@
 }
 
 /* ---------- Motion (issue #199): restrained, never decoration only, off under reduced motion ---------- */
-@media (prefers-reduced-motion: no-preference) {
+:where(.site[data-motion='on']) {
   /* The hero arrives in order: title, lead, buttons, facts. */
   .hero__copy > * {
     animation: rise 700ms var(--ease-out) both;
@@ -1271,25 +1271,25 @@
   }
 
   /* Buttons and rows answer the pointer. */
-  .site .btn {
+  & .btn {
     transition:
       background-color 150ms,
       transform 180ms var(--ease-out),
       box-shadow 180ms;
   }
-  .site .btn:hover {
+  & .btn:hover {
     transform: translateY(-1px);
   }
-  .site .btn:active {
+  & .btn:active {
     transform: translateY(0);
   }
-  .site .btn .btn__icon svg {
+  & .btn .btn__icon svg {
     transition: transform 200ms var(--ease-out);
   }
-  .site .btn:hover .btn__icon svg {
+  & .btn:hover .btn__icon svg {
     translate: 3px 0;
   }
-  :dir(rtl) .site .btn:hover .btn__icon svg {
+  :dir(rtl) & .btn:hover .btn__icon svg {
     translate: -3px 0;
   }
   .integration,
