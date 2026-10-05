@@ -9,9 +9,18 @@ public static class Roles
     public const string Participant = "participant";
 }
 
-/// <summary>The twelve characters participants pick from (spec 003 US2). Ids match the web cast.</summary>
+/// <summary>The characters participants pick from (spec 003 US2, 24 since #94). Ids match the web cast.</summary>
 public static class Characters
 {
+    /// <summary>
+    /// How many people may share one character, each with their own ring (spec 008). Until joining assigns rings
+    /// (T802, #176), every member has ring 0, so each character is still one person.
+    /// </summary>
+    public const int RingsInUse = 1;
+
+    /// <summary>The most people a circle can hold: the configured maximum, never more than character/ring pairs.</summary>
+    public static int Capacity(int maxPeople) => Math.Min(maxPeople, All.Length * RingsInUse);
+
     public static readonly string[] All =
     [
         "panda", "fox", "frog", "cat", "owl", "octopus", "bear", "bunny", "robot", "ghost", "chick", "dino",
@@ -111,8 +120,9 @@ public sealed record MemberDto(Guid Id, string Role, string Name, string Charact
 public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At,
     int Likes = 0, bool Liked = false, bool Hidden = false)
 {
-    public static MessageDto From(CircleMessage m, bool liked = false) =>
-        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, m.Likes, liked, m.HiddenAt is not null);
+    /// <param name="likes">Counted from the likes when read, so a deleted account never leaves a stale count.</param>
+    public static MessageDto From(CircleMessage m, int likes = 0, bool liked = false) =>
+        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, likes, liked, m.HiddenAt is not null);
 }
 
 /// <summary>The live room's switches (spec 008, contracts/hub.md <c>RoomSettings</c>).</summary>
@@ -132,6 +142,9 @@ public sealed record HandsView(IReadOnlyList<HandView> Queue, Guid? Floor)
 {
     public static readonly HandsView Empty = new([], null);
 }
+
+/// <summary>A grouped burst of reactions, by kind, never who sent them (spec 008, contracts/hub.md ReactionBurst).</summary>
+public sealed record ReactionBurst(IReadOnlyDictionary<string, int> Counts);
 
 /// <summary>The emoji reactions a room can send (spec 008 FR-815).</summary>
 public static class ReactionKinds

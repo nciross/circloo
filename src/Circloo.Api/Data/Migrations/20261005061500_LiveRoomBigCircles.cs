@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -52,13 +52,6 @@ namespace Circloo.Api.Data.Migrations
                 table: "CircleMessages",
                 type: "timestamp with time zone",
                 nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "Likes",
-                table: "CircleMessages",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "Ring",
@@ -185,13 +178,11 @@ namespace Circloo.Api.Data.Migrations
                 table: "CircleMessages");
 
             migrationBuilder.DropColumn(
-                name: "Likes",
-                table: "CircleMessages");
-
-            migrationBuilder.DropColumn(
                 name: "Ring",
                 table: "CircleMembers");
 
+            // Going back only works while no character is shared: two active members on one character would break this
+            // unique index. Free the extra copies (set LeftAt) before rolling back.
             migrationBuilder.CreateIndex(
                 name: "IX_CircleMembers_CircleId_Character",
                 table: "CircleMembers",

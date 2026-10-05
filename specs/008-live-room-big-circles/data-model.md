@@ -21,7 +21,7 @@ Changes to existing entities and the new ones. EF Core migration `LiveRoomBigCir
 | ReactionsOn | bool | **new**, default true |
 | PirikooQuiet | bool | **new**, default false |
 
-They are reset to the defaults when an activity starts or ends and when a presentation starts (FR-811, FR-818, FR-824). Only the animator changes them.
+They are reset to the defaults when an activity starts or ends and when a presentation starts or ends (FR-811, FR-818, FR-824). Only the animator changes them.
 
 ## CircleMessage (existing): chat
 
@@ -29,7 +29,7 @@ They are reset to the defaults when an activity starts or ends and when a presen
 |---|---|---|
 | Text | string | 1–280 characters, passes the safety filter (stricter in kids-safe circles) |
 | HiddenAt | DateTimeOffset? | **new**; set by the animator; hidden messages never reach members |
-| Likes | int | **new**, a denormalised count recomputed from `MessageLike` on every toggle |
+| (likes) | — | not stored: counted from `MessageLike` when read, so a deleted account never leaves a stale count |
 
 Sending rules for participants (the animator is exempt):
 - at most 5 messages per 10 s per member, across all their tabs (in-memory window);
@@ -41,7 +41,7 @@ Sending rules for participants (the animator is exempt):
 | Field | Type | Rules |
 |---|---|---|
 | MessageId | long | FK → CircleMessage, cascade |
-| MemberId | Guid | FK → CircleMember, no action; never the message's author |
+| MemberId | Guid | FK → CircleMember, cascade (deleting an account removes its likes); never the message's author |
 | At | DateTimeOffset | |
 
 Unique `(MessageId, MemberId)`. A toggle removes the like or adds it. Liking a hidden message is refused (`message-hidden`).
@@ -58,9 +58,9 @@ Unique `(MessageId, MemberId)`. A toggle removes the like or adds it. Liking a h
 
 Lifecycle:
 - `RaiseHand` inserts a row (if the member already has one, nothing changes).
-- `LowerHand` and leaving the circle delete the row. So does the member's last connection closing.
+- `LowerHand` and leaving the circle delete the row. So does the member's last connection closing, after a 30 s grace period without coming back.
 - `GiveFloor(m)` clears every other `HasFloor` in the circle and marks `m`'s row. The person who had the floor has their row deleted.
-- Changing activity deletes every row of the circle.
+- Changing activity, or ending a presentation, deletes every row of the circle.
 
 ## PresentationSession (existing, spec 006): reaction totals
 
@@ -80,6 +80,6 @@ Each reaction flush adds its counts with a single SQL update. Totals are never l
 
 | Key | Default | Meaning |
 |---|---|---|
-| `Circles:MaxPeople` | 100 | active members per circle, animators included (2–500) |
+| `Circles:MaxPeople` | 100 | active members per circle, animators included (2–144 = 24 characters × 6 rings) |
 | `RateLimits:CircleJoinsPerIpPer10Min` | 300 | was 60 (R4) |
 | `RateLimits:CircleJoinsPerIpAndCodePer10Min` | MaxPeople + 20 | new (R4) |

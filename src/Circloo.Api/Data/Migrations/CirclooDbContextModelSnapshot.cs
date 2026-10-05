@@ -382,9 +382,6 @@ namespace Circloo.Api.Data.Migrations
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
 
-                    b.Property<int>("Likes")
-                        .HasColumnType("integer");
-
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 

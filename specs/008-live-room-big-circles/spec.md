@@ -1,6 +1,6 @@
 # Feature Specification: Live room for big circles: sidebar, chat, reactions, raised hands and 100 people
 
-**Feature Branch**: `feat/166-live-room`
+**Feature Branch**: `feat/175-live-room-foundation` (spec, plan and T801; later tasks on their own branches)
 
 **Created**: 2026-10-05
 
@@ -33,7 +33,7 @@ A trainer shares the circle's link with a class of 60. Everyone joins from their
 3. **Given** several people use the same character, **Then** each copy has a distinct colour ring from a fixed set, and wherever a character appears for a person (people list, chat, answer progress, spotlight, raised hands), their name appears with it.
 4. **Given** the join screen, **When** I choose a character, **Then** I see how many people already use it. The ring is assigned for me, and I can change it to another free ring of that character.
 5. **Given** a person leaves the circle, **Then** their character and ring become free for the next person.
-6. **Given** the operator of the service sets a different maximum (for example 50 or 150) in configuration, **Then** circles follow that maximum without any code change.
+6. **Given** the operator of the service sets a different maximum (for example 50 or 120, at most 144: 24 characters × 6 rings) in configuration, **Then** circles follow that maximum without any code change.
 7. **Given** the interface is in Arabic, **Then** the join screen, the character counts and the rings are mirrored and readable.
 
 ---
@@ -163,9 +163,9 @@ With 100 people connected from phones on the current single server, the presenta
 - The animator switches the chat off while a message is being sent: a message that arrives after the switch is refused with "The animator paused the chat". One that arrived before stays.
 - Slow mode turned on while someone's message is in flight: the in-flight message counts as their message for the slow-mode window.
 - Someone likes a message that the animator hides at the same moment: the like is dropped.
-- A participant with a raised hand is given the floor while they lower it themselves: the floor goes to the next person in the queue.
+- A participant with a raised hand is given the floor while they lower it themselves: the animator is told that hand is already down, and can give the floor to the next person.
 - The animator has two tabs or the audience screen open: Pirikoo bubbles and the hands queue appear on the animator's tabs. The projector shows reactions and "n hands up" only, never names in the queue.
-- A guest with very slow network: missed chat messages and the current hands queue arrive when they reconnect. Missed reactions are not replayed.
+- A guest with very slow network: missed chat messages and the current hands queue arrive when they reconnect, and a raised hand keeps its place for 30 seconds after the connection drops. Missed reactions are not replayed.
 - 100 people react in the same second: the screen shows a few floating emoji and a grouped count. The projector never becomes a wall of emoji.
 - The presentation ends: the chat stays in the circle as the circle's conversation. Hands are lowered, and only the reaction totals per kind remain.
 - Kids-safe circle: the chat safety filter is stricter, as in the rest of circloo, and reactions are unaffected.
@@ -178,7 +178,7 @@ With 100 people connected from phones on the current single server, the presenta
 **Big circles**
 - **FR-801**: A circle MUST accept up to a configured maximum number of people (animators and participants together, default 100). The maximum MUST be set by configuration for the whole service, never by customer-specific code.
 - **FR-802**: The system MUST refuse a join beyond the maximum with a kind "This circle is full", even when several people join at the same moment.
-- **FR-803**: Several active members of a circle MUST be able to use the same character. Each use MUST carry a distinct colour ring from a fixed set of at least 6 rings, chosen so that each ring meets WCAG 2.2 AA non-text contrast (3:1) against the backgrounds where characters appear. Two active members of a circle MUST NOT have the same character with the same ring.
+- **FR-803**: Several active members of a circle MUST be able to use the same character. Each use MUST carry a distinct ring from a fixed set of 6: the first copy has no visible ring (so small circles look as before), and each of the other rings meets WCAG 2.2 AA non-text contrast (3:1) against the backgrounds where characters appear. Two active members of a circle MUST NOT have the same character with the same ring.
 - **FR-804**: Wherever a person's character is shown, their name MUST be shown or announced with it, so two identical characters are never confused.
 - **FR-805**: The join screen MUST show how many people use each character. It MUST assign a free ring automatically, let the person pick another free ring, and show a character as unavailable when all its rings are taken.
 

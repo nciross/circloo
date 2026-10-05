@@ -17,7 +17,7 @@ public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, strin
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
     MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide,
-    RoomSettings? Settings = null, HandsView? Hands = null);
+    RoomSettings Settings, HandsView Hands);
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn);
 
 public static class CircleAccess
@@ -119,9 +119,13 @@ public static class CircleEndpoints
             var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id && (animator || m.HiddenAt == null))
                 .OrderByDescending(m => m.Id).Take(200).ToListAsync(ct);
             var messageIds = messages.Select(m => m.Id).ToList();
-            var liked = (await db.MessageLikes.AsNoTracking().Where(l => l.MemberId == me.Id && messageIds.Contains(l.MessageId))
-                .Select(l => l.MessageId).ToListAsync(ct)).ToHashSet();
-            var hands = await db.RaisedHands.AsNoTracking().Where(h => h.CircleId == id).OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToListAsync(ct);
+            var likes = await db.MessageLikes.AsNoTracking().Where(l => messageIds.Contains(l.MessageId))
+                .GroupBy(l => l.MessageId).Select(g => new { Id = g.Key, Count = g.Count(), Mine = g.Any(l => l.MemberId == me.Id) })
+                .ToDictionaryAsync(x => x.Id, ct);
+            // Only hands of people still in the circle.
+            var hands = await db.RaisedHands.AsNoTracking()
+                .Where(h => h.CircleId == id && db.CircleMembers.Any(m => m.Id == h.MemberId && m.LeftAt == null))
+                .OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToListAsync(ct);
             var notes = await db.BoardNotes.AsNoTracking().Include(n => n.Votes).Where(n => n.CircleId == id)
                 .OrderBy(n => n.Id).Take(ActivityCatalog.MaxNotes * 4).ToListAsync(ct);
             var canvas = await db.CanvasNotes.AsNoTracking().Where(n => n.CircleId == id)
@@ -130,7 +134,7 @@ public static class CircleEndpoints
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
-                [.. messages.OrderBy(m => m.Id).Select(m => MessageDto.From(m, liked.Contains(m.Id)))], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
+                [.. messages.OrderBy(m => m.Id).Select(m => likes.TryGetValue(m.Id, out var l) ? MessageDto.From(m, l.Count, l.Mine) : MessageDto.From(m))], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
                 // Q&A and forms are filled in by their tasks (spec 007 T704, T707).
                 DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished },
                 RoomSettings.Of(c), Hands.View(hands)));
@@ -166,7 +170,7 @@ public static class CircleEndpoints
             var animator = members.First(m => m.Role == Roles.Animator);
             var mine = await CircleAccess.ResolveAsync(db, ctx.User, circle.Id, ct);
             return Results.Ok(new JoinInfo(circle.Id, circle.Name, animator.Name, animator.Character,
-                [.. members.Select(m => m.Character)], members.Count >= circles.Value.MaxPeople, mine is not null));
+                [.. members.Select(m => m.Character)], members.Count >= Characters.Capacity(circles.Value.MaxPeople), mine is not null));
         });
 
         join.MapPost("/{code}", async (string code, JoinCircle body, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
@@ -198,7 +202,7 @@ public static class CircleEndpoints
                 return Results.ValidationProblem(errors);
             }
             var active = await db.CircleMembers.Where(m => m.CircleId == circle.Id && m.LeftAt == null).Select(m => m.Character).ToListAsync(ct);
-            if (active.Count >= circles.Value.MaxPeople)
+            if (active.Count >= Characters.Capacity(circles.Value.MaxPeople))
             {
                 return Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "circle-full", title: "This circle is full.");
             }

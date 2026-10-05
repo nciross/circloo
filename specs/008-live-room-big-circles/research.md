@@ -4,7 +4,7 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 
 ## R1. Circle size cap as configuration
 
-- **Decision**: replace `CircleAccess.MaxPeople = 12` with `Circles:MaxPeople` (options class `CircleOptions`, default 100, bounded to 2–500 at start-up). The join endpoint and the circle view's `full` flag read it.
+- **Decision**: replace `CircleAccess.MaxPeople = 12` with `Circles:MaxPeople` (options class `CircleOptions`, default 100, bounded to 2–144 at start-up: never more people than the 24 × 6 character/ring pairs). The join endpoint and the circle view's `full` flag read it.
 - **Rationale**: FR-801 requires the cap to be configuration, and enterprise behaviour must never be customer code (constitution V). An app-wide option is enough, since no per-circle cap was asked for.
 - **Alternatives**: a per-circle cap column (no use case yet); keeping a constant (fails FR-801).
 
@@ -59,7 +59,7 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 - **Decision**: a `RaisedHand` table: `CircleId`, `MemberId` unique, `RaisedAt`, `HasFloor`.
   - **Hub methods**: `RaiseHand`, `LowerHand(memberId?)` (yourself, or anyone for the animator), `LowerAllHands`, `GiveFloor(memberId)`.
   - **Broadcast**: `Hands(HandsView)` goes to the circle group. It holds the queue ordered by `RaisedAt` (member ids only; names come from the member list) and who has the floor.
-  - **Clean-up**: a hand is lowered when its member leaves the circle or when the last connection of that member disconnects (presence). All hands clear on activity change.
+  - **Clean-up**: a hand is lowered when its member leaves the circle, or 30 s after the last connection of that member closed if they have not come back (a grace period, so a network blip keeps their place). All hands clear when an activity starts or ends and when a presentation ends.
 - **Rationale**: the queue must survive reloads and a second animator tab, so it lives in the database. Sending member ids only keeps the payload small. Names come from the member list every client already has, and the projector shows only the count (FR-820).
 - **Alternatives**: an in-memory queue (lost on restart); using circle messages (wrong shape).
 

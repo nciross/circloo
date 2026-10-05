@@ -166,10 +166,8 @@ public sealed class CircleMessage
     public required string Kind { get; set; }
     public required string Text { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
-    /// <summary>Hidden by the animator: never sent to members again (spec 008 FR-813).</summary>
+    /// <summary>Hidden by the animator: never sent to members again, nor to the circloo coach (spec 008 FR-813).</summary>
     public DateTimeOffset? HiddenAt { get; set; }
-    /// <summary>How many members like it, recounted from <see cref="MessageLike"/> on every toggle.</summary>
-    public int Likes { get; set; }
 }
 
 /// <summary>One member's like on one chat message (spec 008 FR-810).</summary>

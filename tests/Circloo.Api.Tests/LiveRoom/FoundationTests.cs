@@ -58,6 +58,25 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
         }));
         Assert.True(IsUnique(clash));
 
+        // Two people grabbing the same ring at the same moment: one of them wins, the other is refused.
+        var race = await Task.WhenAll(Enumerable.Range(0, 2).Select(async i =>
+        {
+            try
+            {
+                await _host.DbAsync(async db =>
+                {
+                    db.CircleMembers.Add(Fox($"Racer {i}", 2));
+                    return await db.SaveChangesAsync();
+                });
+                return true;
+            }
+            catch (DbUpdateException e) when (IsUnique(e))
+            {
+                return false;
+            }
+        }));
+        Assert.Equal(1, race.Count(won => won));
+
         // Someone who left frees their ring.
         await _host.DbAsync(db => db.CircleMembers.Where(m => m.CircleId == circle.Id && m.Name == "Lucía")
             .ExecuteUpdateAsync(s => s.SetProperty(m => m.LeftAt, now)));
@@ -66,7 +85,7 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
             db.CircleMembers.Add(Fox("Théo", 1));
             return await db.SaveChangesAsync();
         });
-        Assert.Equal(2, (await _host.MembersAsync(circle.Id)).Count(m => m.Character == "fox"));
+        Assert.Equal(3, (await _host.MembersAsync(circle.Id)).Count(m => m.Character == "fox"));
     }
 
     [Fact]
@@ -122,7 +141,7 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
         var kenji = (await _host.MembersAsync(circle.Id)).Single(m => m.Name == "Kenji");
         var (shown, hidden) = await _host.DbAsync(async db =>
         {
-            var a = new CircleMessage { CircleId = circle.Id, Kind = "member", Text = "Bonjour", CreatedAt = now, Likes = 1 };
+            var a = new CircleMessage { CircleId = circle.Id, Kind = "member", Text = "Bonjour", CreatedAt = now };
             var b = new CircleMessage { CircleId = circle.Id, Kind = "member", Text = "rude", CreatedAt = now, HiddenAt = now };
             db.CircleMessages.AddRange(a, b);
             await db.SaveChangesAsync();
@@ -139,6 +158,28 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
         var animatorView = await circle.Http.GetFromJsonAsync<CircleView>($"/api/circles/{circle.Id}");
         Assert.True(animatorView!.Messages.Single(m => m.Id == hidden).Hidden);
         Assert.False(animatorView.Messages.Single(m => m.Id == shown).Liked);
+    }
+
+    [Fact]
+    public void The_upgrade_gives_existing_rows_an_open_chat_reactions_on_ring_0_and_no_reactions()
+    {
+        var up = new Circloo.Api.Data.Migrations.LiveRoomBigCircles().UpOperations
+            .OfType<Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation>()
+            .ToDictionary(o => $"{o.Table}.{o.Name}");
+        Assert.Equal("open", up["Circles.ChatMode"].DefaultValue);
+        Assert.Equal(true, up["Circles.ReactionsOn"].DefaultValue);
+        Assert.Equal(false, up["Circles.PirikooQuiet"].DefaultValue);
+        Assert.Equal(0, up["CircleMembers.Ring"].DefaultValue);
+        Assert.Equal("'{}'::jsonb", up["PresentationSessions.ReactionTotals"].DefaultValueSql);
+        Assert.False(up.ContainsKey("CircleMessages.Likes"));
+    }
+
+    [Fact]
+    public void A_circle_holds_its_configured_maximum_but_never_more_people_than_characters_allow()
+    {
+        Assert.Equal(12, Characters.Capacity(12));
+        // Until rings are assigned at join (T802), one person per character.
+        Assert.Equal(Characters.All.Length * Characters.RingsInUse, Characters.Capacity(100));
     }
 
     [Fact]
@@ -188,13 +229,16 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
         try
         {
             var before = Volatile.Read(ref received);
+            var started = System.Diagnostics.Stopwatch.StartNew();
             await Task.WhenAll(guests.Select(g => g.InvokeAsync<Guid[]>("Enter", circle.Id)));
             // The latest list always arrives, with everyone in it.
             var full = await presence.NextAsync(online => online.Length == characters.Length + 1);
             Assert.Equal(characters.Length + 1, full.Length);
             await Task.Delay(600);
             var updates = Volatile.Read(ref received) - before;
-            Assert.True(updates < characters.Length / 2, $"{updates} presence updates for {characters.Length} arrivals");
+            // At most one list per 250 ms window while people arrive (plus the leading and trailing sends), never one each.
+            var bound = (int)(started.Elapsed.TotalMilliseconds / 250) + 2;
+            Assert.True(updates <= bound && updates < characters.Length, $"{updates} presence updates for {characters.Length} arrivals in {started.ElapsedMilliseconds} ms");
         }
         finally
         {

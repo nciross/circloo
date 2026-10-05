@@ -20,9 +20,15 @@ public sealed class RoomLimits(TimeProvider clock)
             Sweep(TimeSpan.FromMinutes(10));
         }
         var now = clock.GetUtcNow();
-        var queue = _windows.GetOrAdd((memberId, kind), _ => new Queue<DateTimeOffset>());
+        var key = (memberId, kind);
+        var queue = _windows.GetOrAdd(key, _ => new Queue<DateTimeOffset>());
         lock (queue)
         {
+            // A sweep removed this queue meanwhile: start again on the one now in the dictionary.
+            if (!_windows.TryGetValue(key, out var current) || !ReferenceEquals(current, queue))
+            {
+                return TryTake(memberId, kind, max, window);
+            }
             while (queue.Count > 0 && now - queue.Peek() >= window)
             {
                 queue.Dequeue();
@@ -36,21 +42,23 @@ public sealed class RoomLimits(TimeProvider clock)
         }
     }
 
-    /// <summary>Forgets windows idle for longer than <paramref name="idle"/>, so memory stays bounded.</summary>
+    /// <summary>
+    /// Forgets windows idle for longer than <paramref name="idle"/>, so memory stays bounded. <paramref name="idle"/>
+    /// must stay longer than the longest window in use.
+    /// </summary>
     public int Sweep(TimeSpan idle)
     {
         var now = clock.GetUtcNow();
         var removed = 0;
         foreach (var (key, queue) in _windows)
         {
-            bool stale;
             lock (queue)
             {
-                stale = queue.Count == 0 || now - queue.Last() >= idle;
-            }
-            if (stale && _windows.TryRemove(new KeyValuePair<(Guid, string), Queue<DateTimeOffset>>(key, queue)))
-            {
-                removed++;
+                if ((queue.Count == 0 || now - queue.Last() >= idle)
+                    && _windows.TryRemove(new KeyValuePair<(Guid, string), Queue<DateTimeOffset>>(key, queue)))
+                {
+                    removed++;
+                }
             }
         }
         return removed;

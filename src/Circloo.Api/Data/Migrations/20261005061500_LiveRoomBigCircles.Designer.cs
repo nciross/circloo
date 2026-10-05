@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Circloo.Api.Data.Migrations
 {
     [DbContext(typeof(CirclooDbContext))]
-    [Migration("20261005055210_LiveRoomBigCircles")]
+    [Migration("20261005061500_LiveRoomBigCircles")]
     partial class LiveRoomBigCircles
     {
         /// <inheritdoc />
@@ -384,9 +384,6 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
-
-                    b.Property<int>("Likes")
-                        .HasColumnType("integer");
 
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");

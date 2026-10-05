@@ -30,7 +30,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Purpose**: the data, records and room plumbing that every story builds on.
 
-- [x] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`: (#175)
+- [ ] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`: (#175)
   - `CircleMember.Ring` "int, 0–5; 0 for every existing member". The unique index `(CircleId, Character)` filtered on `LeftAt IS NULL` is replaced by a unique `(CircleId, Character, Ring)` with the same filter.
   - `Circle.ChatMode` "`open` \| `slow` \| `paused`, default `open`", `ReactionsOn` "default true" and `PirikooQuiet` "default false".
   - `CircleMessage.HiddenAt` (nullable) and `Likes` (int).
@@ -39,7 +39,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
   - `PresentationSession.ReactionTotals` "jsonb, default `{}`".
 
   **Records and options.**
-  - `src/Circloo.Api/Circles/CircleOptions.cs` (`Circles:MaxPeople`, default 100, validated 2–500 at start-up), replacing `CircleAccess.MaxPeople = 12`.
+  - `src/Circloo.Api/Circles/CircleOptions.cs` (`Circles:MaxPeople`, default 100, validated 2–144 at start-up; the effective capacity never exceeds the character/ring pairs in use), replacing `CircleAccess.MaxPeople = 12`.
   - Records `RoomSettings`, `HandsView` and `ReactionBurst` in `src/Circloo.Api/Circles/CircleRules.cs`. `MemberDto` gains `Ring`; `MessageDto` gains `Likes`, `Liked` and `Hidden`.
   - `src/Circloo.Api/Circles/RoomLimits.cs`: a singleton with per-member sliding windows, `TryTake(memberId, kind, max, window)`.
 
@@ -123,21 +123,22 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - `ChatMode = paused` refuses with `chat-paused`;
     - the animator is exempt.
   - New partial `src/Circloo.Api/Circles/CircleHub.Room.cs`:
-    - `LikeMessage` (toggle; `own-message`, `message-hidden`; recount `Likes`; `MessageLikes` coalesced 250 ms per message; `MyLike` to the member group);
-    - `HideMessage(id, hidden)` (animator; `MessageHidden` to members, `Message` with `hidden` to the animator group);
+    - `LikeMessage` (toggle; `own-message`, `message-hidden`; count the likes; `MessageLikes` coalesced 250 ms per message; `MyLike` to the member group);
+    - `HideMessage(id, hidden)` (animator; `MessageHidden` to the circle group, which animator clients ignore, and `Message` with `hidden` to the animator group); hidden messages are also left out of the coach's AI context and the report (done in T801);
     - `SetRoomSettings` (animator; `settings-invalid`; broadcast `RoomSettings`).
-  - Settings reset to the defaults (open, reactions on, not quiet) on `StartActivity`, `EndActivity` and `StartPresentation`, with a `RoomSettings` broadcast. `Enter` pushes `RoomSettings`.
+  - Settings reset to the defaults (open, reactions on, not quiet) on `StartActivity`, `EndActivity`, `StartPresentation` and `EndPresentation`, with a `RoomSettings` broadcast. Slow mode also takes `RoomLimits.TryTake(member, "slow", 1, 10 s)`, so two tabs sending at once cannot both pass. `Enter` pushes `RoomSettings`.
   - Circle view: messages with `likes`, `liked` and `hidden` (hidden ones only for the animator), plus `settings`.
   - Audit `chat.paused`, `chat.slow` and `message.hidden`, with ids only.
   - Tests in `tests/Circloo.Api.Tests/LiveRoom/ChatTests.cs`:
     - the limit across two tabs of one member;
     - slow mode survives a reload (a new connection);
     - pause refuses participants, not the animator;
-    - an unsafe message is refused (kids-safe stricter);
+    - unsafe messages are refused in en, fr, ar and es (the safety filter's test set, SC-808; kids-safe stricter);
+    - a connection that is not a member of the circle is refused on `Say`, `LikeMessage`, `HideMessage` and `SetRoomSettings` (FR-830);
     - parallel likes from one member leave one row and a correct count;
     - own-message refused;
     - hidden messages never reach a member through events or the view;
-    - settings reset on activity change.
+    - settings reset on activity change and when a presentation ends.
 
   Depends on T801.
 - [ ] T806 [US3] **Chat UI.** (#180)
@@ -149,7 +150,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - no scroll jump while reading older messages, with a "New messages" button;
     - batched polite announcements ("3 new messages") from `src/web/src/features/circles/room/grouping.ts` with `grouping.test.ts`.
   - `src/web/src/features/circles/room/RoomSettings.tsx`: animator controls for the chat (open / slow / paused) and reactions on/off, in the presenter view and the room.
-  - Hub events and actions in `src/web/src/features/circles/room.ts`. Strings `circles.chat.*` in all four locales.
+  - Hub events and actions in `src/web/src/features/circles/room.ts`; the message handler becomes an upsert by id that keeps id order, so hide/unhide and like updates replace the message instead of being dropped. Strings `circles.chat.*` in all four locales.
   - Impeccable shape plus audit/critique (or the ux-designer review).
   - e2e "chat": send with emoji, like, pause, slow mode, hide, unsafe refused. en + ar with axe.
 
@@ -167,7 +168,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
   - `React(kind)` in `src/Circloo.Api/Circles/CircleHub.Room.cs`:
     - kinds "`clap heart laugh wow like party`" (`reaction-invalid` otherwise);
     - silently dropped when reactions are off or the member is over 5 per 10 s (`RoomLimits`).
-  - `src/Circloo.Api/Circles/ReactionBuffer.cs`: per-circle counts, flushed every 400 ms through `LiveThrottle` (`reactions:{circleId}`). Each flush sends a `Reactions(burst)` to the circle group (the audience screen included) and adds the burst to the running session's `ReactionTotals` with a single SQL update.
+  - `src/Circloo.Api/Circles/ReactionBuffer.cs`: per-circle counts, flushed every 400 ms through `LiveThrottle` (`reactions:{circleId}`; `LiveThrottle` gains an optional per-key window, since its 250 ms default is fixed). Each flush sends a `Reactions(burst)` to the circle group (the audience screen included) and adds the burst to the running session's `ReactionTotals` with a single SQL update.
   - `reactionTotals` of the latest session in the circle view.
   - One "Reactions: 👏 42 · ❤️ 18 …" line per presentation in `src/Circloo.Api/Integrations/CircleReport.cs`, rendered by `Senders.cs`, with no names.
   - Tests in `tests/Circloo.Api.Tests/LiveRoom/ReactionTests.cs`:
@@ -175,7 +176,8 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - the per-member limit;
     - reactions off;
     - the totals are persisted and appear in the report;
-    - no member id in any payload.
+    - no member id in any payload;
+    - a connection that is not a member of the circle is refused (FR-830).
 
   Depends on T801.
 - [ ] T808 [US4] **Reactions UI.** (#182)
@@ -204,7 +206,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 - [ ] T809 [P] [US5] **Hands hub.** (#183)
   - `RaiseHand` (participants; `animator-cannot-raise`), `LowerHand(memberId?)` (yourself, or anyone for the animator; `animator-only`), `LowerAllHands`, `GiveFloor(memberId)` (`hand-invalid`) in `src/Circloo.Api/Circles/CircleHub.Room.cs`.
   - The `Hands(view)` event goes to the circle group, ordered by `RaisedAt` then `Id`, with `floor`.
-  - Clean-up: lower on leaving the circle and when the member's last connection closes (presence); clear all on `StartActivity` and `EndActivity`.
+  - Clean-up: lower on leaving the circle, and 30 s after the member's last connection closed unless they came back (grace period); clear all on `StartActivity`, `EndActivity` and `EndPresentation`. `GiveFloor` deletes the previous floor row and marks the new one in one transaction, mapping a unique violation (two animator tabs) to a retry.
   - `Enter` pushes `Hands`; `hands` in the circle view.
   - Audit `hands.cleared`.
   - Tests in `tests/Circloo.Api.Tests/LiveRoom/HandsTests.cs`:
@@ -212,8 +214,9 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - the order is kept;
     - giving the floor lowers the speaker's hand and moves the floor;
     - giving the floor to someone who lowered their hand gets `hand-invalid`;
-    - a disconnect lowers the hand;
-    - an activity change clears;
+    - a disconnect lowers the hand after the grace period, and a reconnect within it keeps the place;
+    - a connection that is not a member of the circle is refused on every hands method (FR-830);
+    - an activity change and the end of a presentation clear the hands;
     - only the animator lowers others.
 
   Depends on T801.
@@ -278,7 +281,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     3. Join `--participants` guests (default 100) over HTTP and connect them over WebSockets.
     4. Start the presentation, do `--slides` moves (default 10), open and answer the poll and the quiz, send 2 chat messages each, and send reaction bursts.
   - **Measurement:**
-    - the per-client receipt time of each `PresentationState`, `Message` and `Reactions`;
+    - the per-client receipt time of each `PresentationState`, `Message`, `Reactions`, `Hands` (on the animator, SC-807) and `AnswerCount` / revealed results (FR-826);
     - the median, p95 and max per kind;
     - the answer count reaching 100;
     - API CPU and memory sampled from the process.
@@ -299,6 +302,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
   - **Design review:** `/impeccable audit` and `/impeccable critique` on the sidebar, sheet, chat, reactions, hands and Pirikoo, with findings fixed or justified. While the plugin is unavailable, the ux-designer review is recorded instead (#126).
   - **Docs:** update `PRODUCT.md` (circles up to 100, shared characters), `docs/product/prd.md` and `docs/architecture/overview.md` (cap, rings, single replica, load-test results).
   - **Quickstart:** run `quickstart.md` end to end and tick `checklists/requirements.md`.
+  - **SC-805:** run one recorded test session with about 40 people (or validate it after release) and note the result in the PR.
   - **Ideas:** comment progress on #166 and #174.
 
   Depends on T803, T806, T808, T810, T811, T813.

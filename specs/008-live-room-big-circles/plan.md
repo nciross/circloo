@@ -1,6 +1,6 @@
 # Implementation Plan: Live room for big circles: sidebar, chat, reactions, raised hands and 100 people
 
-**Branch**: `feat/166-live-room` (spec and plan); code on `feat/<task-issue>-*` | **Date**: 2026-10-05 |
+**Branch**: `feat/175-live-room-foundation` (spec, plan and T801); other tasks on `feat/<task-issue>-*` | **Date**: 2026-10-05 |
 **Spec**: [spec.md](spec.md) | **Parent ideas**: #166, #174
 
 **Input**: Feature specification from `specs/008-live-room-big-circles/spec.md`
@@ -38,7 +38,7 @@ Circles grow from 12 to 100 people, configurable (`Circles:MaxPeople`).
 
 **Constraints**: zero-cost development (the load test runs locally); single replica (in-memory presence, throttles, rate windows and reaction buffer); WCAG 2.2 AA; four locales with RTL; reduced motion; safety filter on chat (kids-safe stricter); the projector never shows chat or names
 
-**Scale/Scope**: ≤ 100 people per circle by default (configurable 2–500, tested at 100); 6 reaction kinds; 6 rings × 24 characters; the latest 200 messages in the circle view
+**Scale/Scope**: ≤ 100 people per circle by default (configurable 2–144, the number of character/ring pairs; tested at 100); 6 reaction kinds; 6 rings × 24 characters; the latest 200 messages in the circle view
 
 ## Constitution Check
 
@@ -142,3 +142,5 @@ infra/modules/app.bicep, infra/main.bicep   # webMinReplicas (prod 1) (R12)
 | In-memory per-member rate windows and reaction buffer | Must react within milliseconds for 100 people without a database write per tap | Database counters add a write per reaction and per message attempt. The single-replica limit is already accepted in spec 006 and documented in R12. |
 | Always-on production replica (cost) | FR-831: no 20–40 s wake-up for the first person at an event | Scale to zero was rejected by the founder (clarification 1). |
 | Separate load-test console project | SC-802/803 need 100 real protocol clients | 100 Playwright browsers don't fit one machine, and k6 would add a new toolchain. |
+| UI audit by the ux-designer agent instead of Impeccable (constitution IV) | The Impeccable plugin is not installed in this environment (#126 tracks a real run) | Blocking every UI task on the plugin would stop the feature; the manual review uses the same rules and is recorded on each PR, as for specs 006 and 007. |
+| One replica with in-memory live state instead of Azure SignalR / Web PubSub (constitution tech constraints) | 100 people per circle fit one replica (proven by T813); presence, throttles, the quiz clock and the reaction buffer are in memory | A backplane adds cost and moving parts not needed at this size; R12 records the move for when circles or traffic outgrow one replica. |

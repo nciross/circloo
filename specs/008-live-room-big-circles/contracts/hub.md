@@ -7,7 +7,7 @@ Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`). Every me
 | Method | Who | Effect | Errors |
 |---|---|---|---|
 | `Say(string text)` (existing) | member | 1–280 characters, safety filter. Participants are limited to 5 per 10 s across their tabs. In `slow` mode a participant can send one message per 10 s (counted from their last stored message). In `paused` mode participants can't send. The animator is never limited. Broadcasts `Message` | `message-invalid`, `message-unsafe`, `chat-paused`, `slow-mode:<secondsLeft>`, `slow-down` |
-| `LikeMessage(long messageId)` | member | Toggles the caller's like. Refused on their own message or a hidden one. Recounts and coalesces `MessageLikes` (250 ms). Sends `MyLike` to the caller's connections | `message-invalid`, `own-message`, `message-hidden` |
+| `LikeMessage(long messageId)` | member | Toggles the caller's like. Refused on their own message or a hidden one. Counts the likes and coalesces `MessageLikes` (250 ms). Sends `MyLike` to the caller's connections | `message-invalid`, `own-message`, `message-hidden` |
 | `HideMessage(long messageId, bool hidden)` | animator | Sets or clears `HiddenAt`. Hiding sends `MessageHidden(id)` to members and `Message` (with `hidden: true`) to the animator group. Unhiding sends `Message` to everyone | `animator-only`, `message-invalid` |
 | `SetRoomSettings(RoomSettings settings)` | animator | Stores chat mode, reactions and Pirikoo quiet on the circle. Broadcasts `RoomSettings` | `animator-only`, `settings-invalid` |
 | `React(string kind)` | member | `kind` ∈ `clap heart laugh wow like party`. Ignored silently when reactions are off or the caller is over 5 per 10 s. Otherwise added to the circle's reaction buffer, which is flushed every 400 ms as `Reactions` and added to the running presentation's totals | `reaction-invalid` (unknown kind only) |
@@ -34,7 +34,7 @@ type ReactionBurst = Partial<Record<'clap' | 'heart' | 'laugh' | 'wow' | 'like' 
 | `Presence(online: string[])` (existing) | circle group | at most every 250 ms per circle, latest list last (coalesced) |
 | `MemberJoined(member)` (existing) | circle group | a new member joined; `member.ring` included |
 | `Message(message)` (existing) | circle group (hidden messages: animator group only) | sent, unhidden; `message.likes` and `message.hidden` included |
-| `MessageHidden(id)` | circle group except the animator group | the animator hid a message |
+| `MessageHidden(id)` | circle group (animator clients ignore it: they keep the message, marked hidden) | the animator hid a message |
 | `MessageLikes(id, count)` | circle group | like count changed, coalesced per message (250 ms) |
 | `MyLike(id, liked)` | the member's connections | after the member's own toggle |
 | `RoomSettings(settings)` | circle group | settings changed or reset (activity change, presentation start) |

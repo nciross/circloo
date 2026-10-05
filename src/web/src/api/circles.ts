@@ -99,6 +99,8 @@ export interface CircleView {
   decide: DecideView
   settings: RoomSettings
   hands: HandsView
+  /** Reactions per kind in the latest presentation of the circle, for its results (spec 008). */
+  reactionTotals?: Partial<Record<'clap' | 'heart' | 'laugh' | 'wow' | 'like' | 'party', number>>
 }
 
 export interface ChoiceView {

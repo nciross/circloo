@@ -216,9 +216,13 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState((s) => (s.messages.some((x) => x.id === m.id) ? s : { messages: [...s.messages, m], draft: m.kind === 'ai' ? '' : s.draft }))
     }
 
-    connection.on('Presence', (online: string[]) =>
+    // Presence updates are grouped on the server (spec 008): one that arrives before Enter returns is the fresher list.
+    let presenceSeen = false
+    connection.on('Presence', (online: string[]) => {
+      presenceSeen = true
       // Someone who left takes their cursor with them.
-      useRoom.setState((s) => ({ online, cursors: Object.fromEntries(Object.entries(s.cursors).filter(([id]) => online.includes(id))) })))
+      useRoom.setState((s) => ({ online, cursors: Object.fromEntries(Object.entries(s.cursors).filter(([id]) => online.includes(id))) }))
+    })
     connection.on('MemberJoined', (m: Member) => {
       useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m], arrivals: [...s.arrivals, m.id], announcement: m.name }))
       window.setTimeout(() => useRoom.setState((s) => ({ arrivals: s.arrivals.filter((x) => x !== m.id) })), 1600)
@@ -261,7 +265,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       .start()
       .then(() => (cancelled ? undefined : connection.invoke<string[]>('Enter', id)))
       .then((online) => {
-        if (!cancelled && online) useRoom.setState({ online, status: 'live' })
+        if (!cancelled && online) useRoom.setState(presenceSeen ? { status: 'live' } : { online, status: 'live' })
         return cancelled ? undefined : resync(id)
       })
       .catch(() => {
