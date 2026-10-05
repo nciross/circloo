@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, MessagesSquare, Search } from 'lucide-react'
+import { Link } from 'react-router'
+import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, MessagesSquare, Pause, Play, Search } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
 import { Wordmark } from '../../components/Brand'
@@ -12,7 +13,7 @@ import { CircleStage } from './CircleStage'
 import { Story } from './Story'
 import { AudienceTabs, Compare, Drifters, Facts, Faq, FloatingCards, HeroForm, Jobs, LogoStrip, PlatformStrip, Principles } from './Sections'
 import { INTEGRATIONS } from './integrations'
-import { useScrollProgress, useScrollReveal } from './useMotion'
+import { useScrollProgress, useScrollReveal, useStillMotion } from './useMotion'
 import '../../styles/landing.css'
 import '../../styles/landing-motion.css'
 
@@ -73,11 +74,12 @@ export function Landing() {
   useScrollReveal()
   const progress = useRef<HTMLDivElement>(null)
   useScrollProgress(progress)
+  const motion = useStillMotion()
   const steps = t('landing.how.steps', { returnObjects: true }) as Step[]
   const cols = t('landing2.footer.cols', { returnObjects: true }) as { title: string; links: { label: string; href: string }[] }[]
 
   return (
-    <div className="site">
+    <div className={`site${motion.still ? ' is-still' : ''}`}>
       <div ref={progress} className="scrollbar" aria-hidden="true"><span /></div>
       <SiteHeader
         links={
@@ -97,13 +99,18 @@ export function Landing() {
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
-            <HeroForm />
+            <HeroForm still={motion.still} />
             <h1 id="hero-title" className="hero__title">{t('landing.headline')}</h1>
             <p className="hero__lead">{t('landing.sub')}</p>
             <ul className="hero__facts">
               <li><Check size={16} aria-hidden="true" /> {t('landing.languagesLine')}</li>
               <li><Check size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
             </ul>
+            {motion.offered ? (
+              <button type="button" className="motion-toggle hero__motion" aria-pressed={motion.still} onClick={motion.toggle}>
+                {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing2.motion.pause')}
+              </button>
+            ) : null}
           </div>
           <div className="hero__art">
             <CircleStage />
@@ -117,7 +124,7 @@ export function Landing() {
 
         <AudienceTabs />
 
-        <Jobs soon={t('common.soon')} />
+        <Jobs soon={t('common.soon')} still={motion.still} />
 
         <PlatformStrip />
 
@@ -218,11 +225,11 @@ export function Landing() {
             <Wordmark />
             <p>{t('landing.footer.made')}</p>
           </div>
-          <nav className="footer__cols" aria-label={t('landing.nav.label')}>
+          <nav className="footer__cols" aria-label={t('landing2.footer.label')}>
             {cols.map((c) => (
               <div key={c.title}>
                 <h3 className="eyebrow">{c.title}</h3>
-                <ul>{c.links.map((l) => <li key={l.label}><a href={l.href}>{l.label}</a></li>)}</ul>
+                <ul>{c.links.map((l) => <li key={l.label}>{l.href.startsWith('/') ? <Link to={l.href} viewTransition>{l.label}</Link> : <a href={l.href}>{l.label}</a>}</li>)}</ul>
               </div>
             ))}
           </nav>

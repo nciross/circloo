@@ -1355,10 +1355,10 @@
           "id": "team",
           "tab": "Équipe",
           "title": "Des rituels d'équipe sans outil lourd de plus",
-          "body": "Ouvrez la semaine avec l'humeur du jour, animez la rétro sur un tableau en direct et branchez votre propre authentification unique par configuration.",
+          "body": "Ouvrez la semaine avec l'humeur du jour et animez la rétro sur un tableau en direct. L'authentification unique avec votre propre fournisseur arrive bientôt.",
           "bullets": [
             "Tableaux de rétro et de brainstorm avec votes",
-            "Votre propre SSO : Entra ID, Google, Okta",
+            "Votre propre SSO : Entra ID, Google, Okta (bientôt)",
             "Résultats envoyés vers Teams, Jira ou Notion"
           ],
           "cta": "Créer un cercle d'équipe"
@@ -1406,7 +1406,8 @@
             "Jamais traduits par une machine"
           ]
         }
-      ]
+      ],
+      "pause": "Arrêter le défilement"
     },
     "platform": {
       "title": "Se branche sur votre semaine",
@@ -1416,7 +1417,7 @@
         "Confluence",
         "Notion",
         "Salesforce (bientôt)",
-        "Votre propre SSO"
+        "Votre propre SSO (bientôt)"
       ]
     },
     "facts": {
@@ -1533,7 +1534,8 @@
             true
           ]
         }
-      ]
+      ],
+      "feature": "Fonction"
     },
     "pricing": {
       "status": "Accès anticipé",
@@ -1558,7 +1560,7 @@
         },
         {
           "q": "Mon entreprise peut-elle utiliser sa propre connexion ?",
-          "a": "Oui. L'authentification unique avec Entra ID, Google Workspace, Okta ou tout fournisseur OIDC ou SAML se règle par configuration, sans code sur mesure."
+          "a": "Pas encore : aujourd'hui, chacun se connecte avec un code reçu par e-mail. L'authentification unique avec Entra ID, Google Workspace, Okta ou tout fournisseur OIDC ou SAML est prévue, et elle se réglera par configuration, sans code sur mesure."
         },
         {
           "q": "Quelles langues parle-t-il ?",
@@ -1623,7 +1625,11 @@
             }
           ]
         }
-      ]
+      ],
+      "label": "Pied de page"
+    },
+    "motion": {
+      "pause": "Mettre les animations en pause"
     }
   }
 }

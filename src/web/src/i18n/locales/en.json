@@ -1351,10 +1351,10 @@
           "id": "team",
           "tab": "Team",
           "title": "Team rituals without another heavy tool",
-          "body": "Open the week with a mood check-in, run the retro on a live board and plug in your own single sign-on through configuration.",
+          "body": "Open the week with a mood check-in and run the retro on a live board. Single sign-on with your own provider is on the way.",
           "bullets": [
             "Retro and brainstorm boards with votes",
-            "Your own SSO: Entra ID, Google, Okta",
+            "Your own SSO: Entra ID, Google, Okta (coming soon)",
             "Results sent to Teams, Jira or Notion"
           ],
           "cta": "Start a team circle"
@@ -1402,7 +1402,8 @@
             "Never translated by a machine"
           ]
         }
-      ]
+      ],
+      "pause": "Stop auto-play"
     },
     "platform": {
       "title": "Plugs into your week",
@@ -1412,7 +1413,7 @@
         "Confluence",
         "Notion",
         "Salesforce (coming soon)",
-        "Your own SSO"
+        "Your own SSO (coming soon)"
       ]
     },
     "facts": {
@@ -1529,7 +1530,8 @@
             true
           ]
         }
-      ]
+      ],
+      "feature": "Feature"
     },
     "pricing": {
       "status": "Early access",
@@ -1554,7 +1556,7 @@
         },
         {
           "q": "Can my company use its own login?",
-          "a": "Yes. Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is set up through configuration, not custom code."
+          "a": "Not yet: today everyone signs in with a code sent by email. Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is planned, and it will be set up through configuration, not custom code."
         },
         {
           "q": "Which languages does it speak?",
@@ -1619,7 +1621,11 @@
             }
           ]
         }
-      ]
+      ],
+      "label": "Footer"
+    },
+    "motion": {
+      "pause": "Pause animations"
     }
   }
 }

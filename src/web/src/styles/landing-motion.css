@@ -1,4 +1,13 @@
 /* Landing: structure and motion for the sections of issue #207. Same blue theme as landing.css. */
+/* Navy panels stay navy in both themes (--brand-ink turns near-white in dark mode), with a focus ring that shows on them. */
+.site {
+  --navy: #0f2537;
+}
+.cta,
+.plan,
+.compare .is-us {
+  --focus: #85b8ff;
+}
 .eyebrow {
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -91,12 +100,48 @@
 .hero__facts { order: 6; }
 .rotator__stage {
   display: inline-grid;
-  min-inline-size: 5.5ch;
   overflow: hidden;
+}
+/* Every word sits in the same cell, so the pill is as wide as the longest one in this language. */
+.rotator__ghost,
+.rotator__word {
+  grid-area: 1 / 1;
+}
+.rotator__ghost {
+  visibility: hidden;
 }
 .rotator__word {
   display: inline-block;
   animation: word-in 420ms var(--ease-out) both;
+}
+/* One pause for every looping animation on the page (WCAG 2.2.2). */
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-block-size: 1.75rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-subtle);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.motion-toggle:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.motion-toggle[aria-pressed='true'] {
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+.hero__motion {
+  order: 7;
+}
+.site.is-still :is(.float, .float-cursor, .marquee__track, .drifter, .demo-cursor) {
+  animation-play-state: paused !important;
 }
 @keyframes word-in {
   from {
@@ -135,7 +180,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.45rem 0.8rem 0.45rem 0.5rem;
+  padding-block: 0.45rem;
+  padding-inline: 0.5rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: var(--r-pill);
   background: var(--surface);
@@ -154,6 +200,10 @@
   display: flex;
   align-items: flex-start;
   --cursor: #0b5bd3;
+  --dx: 1;
+}
+:dir(rtl) .float-cursor {
+  --dx: -1;
 }
 .float-cursor svg,
 .demo-cursor svg {
@@ -187,8 +237,8 @@
 }
 @keyframes float-drift {
   0% { transform: translate(0, 0); }
-  50% { transform: translate(-3.5rem, 2.5rem); }
-  100% { transform: translate(-1rem, 5rem); }
+  50% { transform: translate(calc(-3.5rem * var(--dx, 1)), 2.5rem); }
+  100% { transform: translate(calc(-1rem * var(--dx, 1)), 5rem); }
 }
 
 /* ---------- Logo strip and marquee ---------- */
@@ -223,11 +273,14 @@
   font-weight: 600;
   color: var(--text-subtle);
   white-space: nowrap;
+}
+/* Only the logos go grey: the names keep full contrast. */
+.marquee__item img {
   filter: grayscale(1);
   opacity: 0.8;
   transition: filter 200ms, opacity 200ms;
 }
-.marquee:hover .marquee__item {
+.marquee:hover .marquee__item img {
   filter: none;
   opacity: 1;
 }
@@ -235,7 +288,9 @@
   .marquee__track {
     animation: marquee 32s linear infinite;
   }
-  .marquee:hover .marquee__track {
+  .marquee:hover .marquee__track,
+  .marquee:active .marquee__track,
+  .logos:focus-within .marquee__track {
     animation-play-state: paused;
   }
   :dir(rtl) .marquee__track {
@@ -246,6 +301,17 @@
   .marquee {
     overflow-x: auto;
   }
+  /* The second set only exists to loop the animation. */
+  .marquee__set + .marquee__set {
+    display: none;
+  }
+}
+.marquee__soon {
+  padding: 0 0.45rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  font-weight: 500;
 }
 @keyframes marquee {
   to { transform: translateX(-50%); }
@@ -388,7 +454,7 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .jobtab__bar > span.is-running {
-    animation: fill 7s linear forwards;
+    animation: fill 7s linear forwards; /* duration set inline from AUTO_MS */
   }
 }
 @keyframes fill {
@@ -397,6 +463,15 @@
 .jobpanel {
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   padding: var(--s-6);
+}
+.jobs__side {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: start;
+  min-inline-size: 0;
+}
+.jobs__list {
+  justify-self: stretch;
 }
 
 /* ---------- Board demo: notes land, a pointer drags one across ---------- */
@@ -585,17 +660,32 @@
   display: flex;
   gap: var(--s-2);
 }
+.carousel__dots {
+  gap: 0;
+}
+/* 24px target (WCAG 2.5.8); the visible dot is the pseudo-element. */
 .carousel__dot {
-  inline-size: 0.6rem;
-  block-size: 0.6rem;
+  display: grid;
+  place-items: center;
+  min-inline-size: 1.5rem;
+  block-size: 1.5rem;
   padding: 0;
   border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.carousel__dot::before {
+  content: '';
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
   border-radius: var(--r-pill);
   background: var(--border-strong);
-  cursor: pointer;
   transition: inline-size 250ms var(--ease-out), background-color 150ms;
 }
 .carousel__dot[aria-current='true'] {
+  min-inline-size: 2rem;
+}
+.carousel__dot[aria-current='true']::before {
   inline-size: 1.6rem;
   background: var(--primary);
 }
@@ -635,8 +725,11 @@
 .compare tr:last-child td {
   border-block-end: 0;
 }
+.tablewrap:focus-visible {
+  outline-offset: 2px;
+}
 .compare .is-us {
-  background: var(--brand-ink);
+  background: var(--navy);
   color: #fff;
   font-weight: 600;
 }
@@ -666,8 +759,11 @@
   font-weight: 600;
 }
 .plan {
-  background: var(--brand-ink);
-  border-color: var(--brand-ink);
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.plan .plan__name {
   color: #fff;
 }
 .plan .plan__period,
@@ -683,7 +779,7 @@
   padding: 0.1rem 0.6rem;
   border-radius: var(--r-pill);
   background: #fff;
-  color: var(--brand-ink);
+  color: var(--navy);
   font-size: var(--fs-xs);
   font-weight: 600;
 }
@@ -691,7 +787,7 @@
   --btn-bg: #fff;
   --btn-bg-hover: #e8f0fe;
   --btn-bg-active: #d6e4fd;
-  --btn-fg: var(--brand-ink);
+  --btn-fg: var(--navy);
 }
 
 /* ---------- FAQ ---------- */
@@ -774,7 +870,8 @@
   font-size: var(--fs-sm);
   color: #9fb3c6;
 }
-.btn--outline-inverse {
+/* Scoped like `.cta .btn` so its white fill does not win over the outline. */
+.cta .btn--outline-inverse {
   border: 1px solid #5d7a94;
   background: transparent;
   color: #fff;
@@ -869,6 +966,10 @@
   .float--b { inset-inline-end: 0; }
 }
 @media (max-width: 40rem) {
+  /* No room beside the centred text: the characters would sit behind it. */
+  .drifters {
+    display: none;
+  }
   .facts,
   .quote,
   .footer__inner,

@@ -24,6 +24,12 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await expect(question).not.toHaveText(first ?? '')
   await expect(question).toHaveAttribute('lang', locale)
 
+  // Looping motion has one visible pause for the whole page (WCAG 2.2.2, #207).
+  const pause = page.locator('.hero__motion')
+  await pause.click()
+  await expect(pause).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.site')).toHaveClass(/is-still/)
+
   // The choice survives a reload (US1-2).
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('lang', locale)

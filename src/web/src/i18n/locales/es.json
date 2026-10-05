@@ -1355,10 +1355,10 @@
           "id": "team",
           "tab": "Equipo",
           "title": "Rituales de equipo sin otra herramienta pesada",
-          "body": "Abre la semana con un estado de ánimo, haz la retro en un tablero en vivo y conecta tu propio inicio de sesión único por configuración.",
+          "body": "Abre la semana con un estado de ánimo y haz la retro en un tablero en vivo. El inicio de sesión único con tu propio proveedor llegará pronto.",
           "bullets": [
             "Tableros de retro y lluvia de ideas con votos",
-            "Tu propio SSO: Entra ID, Google, Okta",
+            "Tu propio SSO: Entra ID, Google, Okta (próximamente)",
             "Resultados a Teams, Jira o Notion"
           ],
           "cta": "Crear un círculo de equipo"
@@ -1406,7 +1406,8 @@
             "Nunca traducidos por una máquina"
           ]
         }
-      ]
+      ],
+      "pause": "Detener el avance automático"
     },
     "platform": {
       "title": "Se conecta con tu semana",
@@ -1416,7 +1417,7 @@
         "Confluence",
         "Notion",
         "Salesforce (próximamente)",
-        "Tu propio SSO"
+        "Tu propio SSO (próximamente)"
       ]
     },
     "facts": {
@@ -1533,7 +1534,8 @@
             true
           ]
         }
-      ]
+      ],
+      "feature": "Función"
     },
     "pricing": {
       "status": "Acceso anticipado",
@@ -1558,7 +1560,7 @@
         },
         {
           "q": "¿Puede mi empresa usar su propio inicio de sesión?",
-          "a": "Sí. El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML se configura, sin código a medida."
+          "a": "Todavía no: hoy todo el mundo entra con un código que recibe por correo. El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML está previsto, y se configurará sin código a medida."
         },
         {
           "q": "¿Qué idiomas habla?",
@@ -1623,7 +1625,11 @@
             }
           ]
         }
-      ]
+      ],
+      "label": "Pie de página"
+    },
+    "motion": {
+      "pause": "Pausar las animaciones"
     }
   }
 }

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react'
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Minus, Pause, Plus } from 'lucide-react'
 import { ButtonLink } from '../../components/Button'
 import { Segmented } from '../../components/Segmented'
 import { Avatar } from '../../components/Avatar'
@@ -9,7 +9,7 @@ import { Character } from '../../components/Character'
 import { MoodIcon, type Mood } from '../../components/MoodIcon'
 import { useSignInStore } from '../../stores/signIn'
 import { MoodDemo } from './MoodDemo'
-import { useCycle } from './useMotion'
+import { tabKey, useCycle } from './useMotion'
 import { INTEGRATIONS } from './integrations'
 
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -35,12 +35,12 @@ const CHECKIN_MOODS: Mood[] = [5, 3, 4, 2]
 /* ---------------------------------------------------------------- Hero form */
 
 /** Who it is for, then an email: the choice swaps the word in the line above and the email starts the sign-up. */
-export function HeroForm() {
+export function HeroForm({ still = false }: { still?: boolean }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const kinds = t('landing2.hero.kinds', { returnObjects: true }) as { id: string; label: string; word: string }[]
-  const auto = useCycle(kinds.length, 2600)
   const [picked, setPicked] = useState<string | null>(null)
+  const auto = useCycle(kinds.length, 2600, still || picked !== null)
   const current = kinds.find((k) => k.id === picked) ?? kinds[auto]!
   const [email, setEmail] = useState('')
   return (
@@ -48,13 +48,20 @@ export function HeroForm() {
       className="heroform"
       onSubmit={(e) => {
         e.preventDefault()
-        if (email.trim()) useSignInStore.setState({ email: email.trim() })
+        if (email.trim()) {
+          // A new address starts a fresh sign-in, never a half-finished one waiting for another address's code.
+          useSignInStore.getState().reset()
+          useSignInStore.setState({ email: email.trim() })
+        }
         void navigate('/signin', { viewTransition: true })
       }}
     >
       <p className="rotator">
         <span>{t('landing2.hero.madeFor')}</span>{' '}
-        <span className="rotator__stage" aria-hidden="true"><span key={current.id} className="rotator__word">{current.word}</span></span>
+        <span className="rotator__stage" aria-hidden="true">
+          {kinds.map((k) => <span key={k.id} className="rotator__ghost">{k.word}</span>)}
+          <span key={current.id} className="rotator__word">{current.word}</span>
+        </span>
         <span className="visually-hidden">{kinds.map((k) => k.word).join(', ')}</span>
       </p>
       <Segmented
@@ -105,12 +112,15 @@ export function LogoStrip() {
                 <li key={p.id} className="marquee__item">
                   {p.logos.map((l) => <img key={l} src={`/brands/${l}.svg`} alt="" width="28" height="28" />)}
                   <span lang="en" dir="ltr">{p.name}</span>
+                  {p.id === 'salesforce' ? <span className="marquee__soon">{t('common.soon')}</span> : null}
                 </li>
               ))}
             </ul>
           ))}
         </div>
-        <p className="visually-hidden" lang="en">{INTEGRATIONS.map((p) => p.name).join(', ')}</p>
+        <ul className="visually-hidden">
+          {INTEGRATIONS.map((p) => <li key={p.id}><span lang="en">{p.name}</span>{p.id === 'salesforce' ? ` (${t('common.soon')})` : null}</li>)}
+        </ul>
       </div>
     </section>
   )
@@ -194,15 +204,13 @@ export function AudienceTabs() {
           <p>{t('landing2.audience.lead')}</p>
         </div>
         <div className="pilltabs" role="tablist" aria-label={t('landing2.audience.eyebrow')}>
-          {items.map((x) => (
+          {items.map((x, k) => (
             <button key={x.id} id={`aud-tab-${x.id}`} type="button" role="tab" className="pilltab" aria-selected={x.id === id} aria-controls="aud-panel" tabIndex={x.id === id ? 0 : -1}
               onClick={() => setId(x.id)}
               onKeyDown={(e) => {
-                const i = items.findIndex((y) => y.id === id)
-                const next = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null
+                const next = tabKey(e, k, items.length)
                 if (next === null) return
-                e.preventDefault()
-                const n = items[(next + items.length) % items.length]!
+                const n = items[next]!
                 setId(n.id)
                 document.getElementById(`aud-tab-${n.id}`)?.focus()
               }}>
@@ -210,7 +218,7 @@ export function AudienceTabs() {
             </button>
           ))}
         </div>
-        <div key={id} id="aud-panel" role="tabpanel" aria-labelledby={`aud-tab-${id}`} className="audcard">
+        <div key={id} id="aud-panel" role="tabpanel" tabIndex={0} aria-labelledby={`aud-tab-${id}`} className="audcard">
           <div className="audcard__copy">
             <h3 className="audcard__title">{a.title}</h3>
             <p>{a.body}</p>
@@ -231,18 +239,27 @@ export function AudienceTabs() {
 interface Job { id: 'feel' | 'work' | 'fun'; label: string; status: string; title: string; body: string; bullets: string[] }
 const AUTO_MS = 7000
 
-/** A list on the left, a feature panel on the right. It advances by itself until someone takes over. */
-export function Jobs({ soon }: { soon: string }) {
+/**
+ * A list on the left, a feature panel on the right. It advances by itself until someone takes over: picking a tab,
+ * the visible pause button or the page-wide pause stops it for good; hover and focus only hold it (WCAG 2.2.2).
+ */
+export function Jobs({ soon, still = false }: { soon: string; still?: boolean }) {
   const { t } = useTranslation()
   const jobs = t('landing2.jobs.items', { returnObjects: true }) as Job[]
   const [i, setI] = useState(0)
   const [manual, setManual] = useState(false)
   const [paused, setPaused] = useState(false)
+  const [motion] = useState(() => !reduced())
+  const auto = motion && !manual && !still
   useEffect(() => {
-    if (manual || paused || reduced()) return
+    if (!auto || paused) return
     const id = window.setTimeout(() => setI((n) => (n + 1) % jobs.length), AUTO_MS)
     return () => window.clearTimeout(id)
-  }, [i, manual, paused, jobs.length])
+  }, [i, auto, paused, jobs.length])
+  const pick = (k: number) => {
+    setManual(true)
+    setI(k)
+  }
   const job = jobs[i]!
   return (
     <section id="product" className="band" aria-labelledby="jobs-title">
@@ -253,16 +270,35 @@ export function Jobs({ soon }: { soon: string }) {
           <p>{t('landing2.jobs.lead')}</p>
         </div>
         <div className="jobs" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-          <div className="jobs__list" role="tablist" aria-orientation="vertical" aria-label={t('landing2.jobs.eyebrow')}>
-            {jobs.map((j, k) => (
-              <button key={j.id} type="button" role="tab" id={`job-tab-${j.id}`} aria-selected={k === i} aria-controls="job-panel" className="jobtab"
-                onClick={() => { setManual(true); setI(k) }}>
-                <span className="jobtab__label">{j.label}</span>
-                <span className="jobtab__bar" aria-hidden="true"><span key={`${i}-${manual}-${paused}`} className={k === i && !manual ? 'is-running' : ''} /></span>
+          <div className="jobs__side">
+            <div className="jobs__list" role="tablist" aria-orientation="vertical" aria-label={t('landing2.jobs.eyebrow')}>
+              {jobs.map((j, k) => (
+                <button key={j.id} type="button" role="tab" id={`job-tab-${j.id}`} aria-selected={k === i} aria-controls="job-panel" className="jobtab" tabIndex={k === i ? 0 : -1}
+                  onClick={() => pick(k)}
+                  onKeyDown={(e) => {
+                    const next = tabKey(e, k, jobs.length, true)
+                    if (next === null) return
+                    pick(next)
+                    document.getElementById(`job-tab-${jobs[next]!.id}`)?.focus()
+                  }}>
+                  <span className="jobtab__label">{j.label}</span>
+                  <span className="jobtab__bar" aria-hidden="true">
+                    <span key={`${i}-${auto}-${paused}`} className={k === i && auto ? 'is-running' : ''} style={{ animationDuration: `${AUTO_MS}ms` }} />
+                  </span>
+                </button>
+              ))}
+            </div>
+            {auto ? (
+              <button type="button" className="motion-toggle" onClick={() => {
+                // The button goes away once auto-play stops: keep focus in the list, on the current tab.
+                setManual(true)
+                document.getElementById(`job-tab-${job.id}`)?.focus()
+              }}>
+                <Pause size={14} aria-hidden="true" /> {t('landing2.jobs.pause')}
               </button>
-            ))}
+            ) : null}
           </div>
-          <div key={job.id} id="job-panel" role="tabpanel" aria-labelledby={`job-tab-${job.id}`} className="jobpanel">
+          <div key={job.id} id="job-panel" role="tabpanel" tabIndex={0} aria-labelledby={`job-tab-${job.id}`} className="jobpanel">
             <div className="jobpanel__copy">
               <span className={`lozenge ${job.id === 'fun' ? 'lozenge--success' : 'lozenge--neutral'}`}>{job.status}</span>
               <h3 className="jobpanel__title">{job.title} {job.id !== 'fun' ? <span className="lozenge lozenge--neutral">{soon}</span> : null}</h3>
@@ -296,12 +332,14 @@ export function PlatformStrip() {
 
 /* ---------------------------------------------------------------- Facts */
 
+/** Counts up to `to` once it is on screen. The real number is what assistive tech reads, the moving one is hidden. */
 function CountUp({ to }: { to: number }) {
   const ref = useRef<HTMLSpanElement>(null)
-  useEffect(() => {
+  const [shown, setShown] = useState(to)
+  useLayoutEffect(() => {
     const el = ref.current
-    if (!el || reduced() || !('IntersectionObserver' in window)) return
-    el.textContent = '0'
+    if (!el || to === 0 || reduced() || !('IntersectionObserver' in window)) return
+    setShown(0)
     let raf = 0
     const io = new IntersectionObserver(([e]) => {
       if (!e?.isIntersecting) return
@@ -309,15 +347,24 @@ function CountUp({ to }: { to: number }) {
       const start = performance.now()
       const tick = (now: number) => {
         const p = Math.min(1, (now - start) / 1300)
-        el.textContent = String(Math.round(to * (1 - Math.pow(1 - p, 3))))
+        setShown(Math.round(to * (1 - Math.pow(1 - p, 3))))
         if (p < 1) raf = requestAnimationFrame(tick)
       }
       raf = requestAnimationFrame(tick)
     }, { threshold: 0.6 })
     io.observe(el)
-    return () => { io.disconnect(); cancelAnimationFrame(raf) }
+    return () => {
+      io.disconnect()
+      cancelAnimationFrame(raf)
+      setShown(to)
+    }
   }, [to])
-  return <span ref={ref}>{to}</span>
+  return (
+    <>
+      <span ref={ref} aria-hidden="true">{shown}</span>
+      <span className="visually-hidden">{to}</span>
+    </>
+  )
 }
 
 export function Facts({ children }: { children?: ReactNode }) {
@@ -367,11 +414,13 @@ export function Principles() {
             <p className="quote__who">{t('landing2.principles.who')}</p>
             <p className="quote__count" aria-hidden="true">{i + 1} / {items.length}</p>
           </div>
-          <blockquote key={i} className="quote__main" aria-live="polite">
-            <span className="quote__mark" aria-hidden="true">“</span>
-            <p className="quote__title">{p.title}</p>
-            <p>{p.body}</p>
-          </blockquote>
+          <div aria-live="polite" aria-atomic="true">
+            <blockquote key={i} className="quote__main">
+              <span className="quote__mark" aria-hidden="true">“</span>
+              <p className="quote__title">{p.title}</p>
+              <p>{p.body}</p>
+            </blockquote>
+          </div>
         </figure>
         <div className="carousel">
           <button type="button" className="icon-btn" aria-label={t('landing2.principles.prev')} onClick={() => go(i - 1)}><ChevronLeft className="flip-rtl" size={18} aria-hidden="true" /></button>
@@ -399,12 +448,12 @@ export function Compare() {
           <h2 id="cmp-title" className="section-title">{t('landing2.compare.title')}</h2>
           <p>{t('landing2.compare.lead')}</p>
         </div>
-        <div className="tablewrap">
+        <div className="tablewrap" role="region" tabIndex={0} aria-labelledby="cmp-title">
           <table className="compare">
             <caption className="visually-hidden">{t('landing2.compare.title')}</caption>
             <thead>
               <tr>
-                <td />
+                <th scope="col"><span className="visually-hidden">{t('landing2.compare.feature')}</span></th>
                 {cols.map((c, i) => <th key={c} scope="col" className={i === cols.length - 1 ? 'is-us' : ''}>{c}</th>)}
               </tr>
             </thead>
