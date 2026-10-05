@@ -26,7 +26,7 @@ Circles grow from 12 to 100 people, configurable (`Circles:MaxPeople`).
 
 **Primary Dependencies**: existing ASP.NET Core minimal APIs, SignalR circle hub (`CircleHub` partials), `LiveThrottle`, `SafetyPolicy`, EF Core (Npgsql), Zustand, TanStack Query, i18next; new console project using `Microsoft.AspNetCore.SignalR.Client` for the load test
 
-**Storage**: PostgreSQL. `CircleMember.Ring`; `Circle.ChatMode/ReactionsOn/PirikooQuiet`; `CircleMessage.HiddenAt/Likes`; new `MessageLike`, `RaisedHand`; `PresentationSession.ReactionTotals` (jsonb). Migration `LiveRoomBigCircles`.
+**Storage**: PostgreSQL. `CircleMember.Ring`; `Circle.ChatMode/ReactionsOn/PirikooQuiet`; `CircleMessage.HiddenAt` (likes counted from `MessageLike`); new `MessageLike`, `RaisedHand`; `PresentationSession.ReactionTotals` (jsonb). Migration `LiveRoomBigCircles`.
 
 **Testing**: xUnit + Testcontainers (hub and endpoint tests), Vitest (grouping, rate-window and layout logic), Playwright `e2e/live-room.spec.ts` (en desktop + ar phone, axe), and the load test `tests/Circloo.LoadTest` (manual or pre-release, results recorded)
 
