@@ -11,7 +11,7 @@ import { Button, ButtonLink } from '../../components/Button'
 import { Character } from '../../components/Character'
 import { Loading } from '../../components/Loading'
 import type { CharacterId } from '../../components/characters'
-import { CharacterPicker } from './parts'
+import { CharacterPicker, RingPicker } from './parts'
 import '../../styles/app.css'
 import '../../styles/circles.css'
 
@@ -28,8 +28,10 @@ export default function JoinCircle() {
   const join = useJoin(code)
   const [name, setName] = useState<string | null>(null)
   const [character, setCharacter] = useState<CharacterId | null>(null)
+  // The ring picked among the free ones of that character; null means "the lowest free one".
+  const [ring, setRing] = useState<number | null>(null)
   const [errors, setErrors] = useState<{ name?: string; character?: string; form?: string }>({})
-  const [taken, setTaken] = useState<string[] | null>(null)
+
   const nameId = useId()
   const nameErr = useId()
   const charErr = useId()
@@ -62,6 +64,10 @@ export default function JoinCircle() {
     )
   }
 
+  const use = character ? circle.characters?.find((u) => u.id === character) : undefined
+  const freeRings = use?.freeRings ?? [0]
+  const chosenRing = ring !== null && freeRings.includes(ring) ? ring : (freeRings[0] ?? 0)
+
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const next: typeof errors = {}
@@ -70,16 +76,20 @@ export default function JoinCircle() {
     setErrors(next)
     if (Object.keys(next).length > 0) return
     try {
-      await join.mutateAsync({ name: value.trim(), character: character! })
+      // The server may give another free ring if someone took this one a moment ago; the room shows the one given.
+      await join.mutateAsync({ name: value.trim(), character: character!, ...(chosenRing > 0 ? { ring: chosenRing } : {}) })
       goIn()
     } catch (err) {
       // Every copy of that character is taken now (spec 008): show what is free.
       if (err instanceof ApiError && err.type === 'character-full') {
-        const fresh = await info.refetch()
-        setTaken(fresh.data?.taken ?? [...(taken ?? circle.taken), character!])
+        await info.refetch()
         setCharacter(null)
+        setRing(null)
         setErrors({ character: t('circles.join.errors.taken') })
-      } else if (err instanceof ApiError && err.type === 'circle-full') setErrors({ form: t('circles.join.errors.full') })
+      } else if (err instanceof ApiError && err.type === 'circle-full') {
+        await info.refetch()
+        setErrors({ form: t('circles.join.errors.full') })
+      }
       else if (err instanceof ApiError && err.status === 404) setErrors({ form: t('circles.join.closedBody') })
       else if (err instanceof ApiError && err.status === 429) setErrors({ form: t('circles.errors.slowDown') })
       else setErrors({ form: t('common.errorGeneric') })
@@ -119,12 +129,16 @@ export default function JoinCircle() {
         <CharacterPicker
           legend={t('circles.join.character')}
           value={character}
-          onChange={(c) => { setCharacter(c); setErrors((x) => ({ ...x, character: undefined })) }}
-          taken={taken ?? circle.taken}
+          onChange={(c) => { setCharacter(c); setRing(null); setErrors((x) => ({ ...x, character: undefined })) }}
+          taken={circle.taken}
+          uses={circle.characters}
           describedBy={errors.character ? charErr : undefined}
           invalid={!!errors.character}
         />
         {errors.character ? <p id={charErr} className="field__error" role="alert">{errors.character}</p> : null}
+        {character && use && use.used > 0 && freeRings.length > 0 ? (
+          <RingPicker character={character} freeRings={freeRings} value={chosenRing} onChange={setRing} />
+        ) : null}
         {errors.form ? <p className="field__error" role="alert">{errors.form}</p> : null}
 
         <Button type="submit" size="lg" busy={join.isPending} aria-disabled={circle.full || undefined} icon={<ArrowRight className="flip-rtl" size={18} />}>

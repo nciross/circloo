@@ -55,7 +55,7 @@ function NoteCard({ note, columns }: { note: BoardNote; columns: string[] }) {
       )}
       <div className="note-card__foot">
         <span className="note-card__author">
-          {author ? <Character id={author.character} className="note-card__char" /> : null}
+          {author ? <Character id={author.character} ring={author.ring} className="note-card__char" /> : null}
           <bdi>{author?.name ?? ''}</bdi>
         </span>
         <button

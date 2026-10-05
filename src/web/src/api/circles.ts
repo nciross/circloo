@@ -213,8 +213,8 @@ export const useJoinInfo = (code: string) =>
 
 export function useJoin(code: string) {
   return useMutation({
-    mutationFn: (body: { name: string; character: CharacterId }) =>
-      api<{ circleId: string; memberId: string }>(`/api/join/${encodeURIComponent(code)}`, { method: 'POST', body }),
+    mutationFn: (body: { name: string; character: CharacterId; ring?: number }) =>
+      api<{ circleId: string; memberId: string; ring: number }>(`/api/join/${encodeURIComponent(code)}`, { method: 'POST', body }),
     // A guest has a new identity now: the CSRF token must be bound to it.
     onSuccess: () => refreshCsrf(),
   })

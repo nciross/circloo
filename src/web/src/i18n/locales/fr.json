@@ -635,9 +635,15 @@
       "errors": {
         "name": "Écris le prénom que les autres verront.",
         "character": "Choisis un personnage pour rejoindre.",
-        "taken": "Quelqu'un vient de prendre ce personnage. Choisis-en un autre.",
+        "taken": "Toutes les copies de ce personnage sont prises. Choisis-en un autre.",
         "full": "Ce cercle est complet."
-      }
+      },
+      "used_one": "{{count}} déjà",
+      "used_other": "{{count}} déjà",
+      "characterFull": "Complet",
+      "ringLegend": "Ton anneau de couleur",
+      "ringHelp": "D’autres ont aussi choisi ce personnage. Ton anneau te distingue, et ton nom s’affiche toujours avec.",
+      "ringOption": "Anneau {{n}}"
     },
     "room": {
       "title": "Cercle",

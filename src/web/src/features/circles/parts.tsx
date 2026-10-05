@@ -8,13 +8,25 @@ import { Segmented } from '../../components/Segmented'
 import { joinLink, type Member } from '../../api/circles'
 import { ACTIVITIES, CATEGORIES, type Category } from './catalog'
 
-/** Twelve characters as a native radio group: arrow keys move, taken ones are disabled and say so. */
+/** How many people use a character in a circle and which of its rings are free (spec 008). */
+export interface CharacterUse {
+  id: CharacterId
+  used: number
+  freeRings: number[]
+}
+
+/**
+ * The characters as a native radio group: arrow keys move; a character with no free ring left is disabled and says so.
+ * With `uses` (joining a circle), characters already picked by others show how many people use them: they can be
+ * shared, each person with their own ring (spec 008).
+ */
 export function CharacterPicker({
-  value, onChange, taken = [], legend, describedBy, invalid,
+  value, onChange, taken = [], uses, legend, describedBy, invalid,
 }: {
   value: CharacterId | null
   onChange: (c: CharacterId) => void
   taken?: string[]
+  uses?: CharacterUse[]
   legend: string
   describedBy?: string
   invalid?: boolean
@@ -25,16 +37,47 @@ export function CharacterPicker({
       <legend className="field__label">{legend}</legend>
       <div className="pick__grid">
         {CHARACTERS.map((c) => {
-          const isTaken = taken.includes(c) && c !== value
+          const use = uses?.find((u) => u.id === c)
+          const isTaken = (use ? use.freeRings.length === 0 : taken.includes(c)) && c !== value
+          const shared = !isTaken && (use?.used ?? 0) > 0
           return (
             <label key={c} className={`pick__item${value === c ? ' is-picked' : ''}${isTaken ? ' is-taken' : ''}`}>
               <input type="radio" name="character" value={c} checked={value === c} disabled={isTaken} onChange={() => onChange(c)} />
               <Character id={c} className="pick__char" />
               <span className="pick__name">{t(`characters.${c}`)}</span>
-              {isTaken ? <span className="pick__taken">{t('circles.taken')}</span> : null}
+              {isTaken ? <span className="pick__taken">{t(uses ? 'circles.join.characterFull' : 'circles.taken')}</span> : null}
+              {shared ? <span className="pick__used">{t('circles.join.used', { count: use!.used })}</span> : null}
             </label>
           )
         })}
+      </div>
+    </fieldset>
+  )
+}
+
+/**
+ * Which copy of a character to be, when others already use it (spec 008): each free ring as the character wearing
+ * it, numbered, so the choice never rests on colour alone. The lowest free ring is chosen until the person picks.
+ */
+export function RingPicker({ character, freeRings, value, onChange }: {
+  character: CharacterId
+  freeRings: number[]
+  value: number
+  onChange: (ring: number) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <fieldset className="rings">
+      <legend className="field__label">{t('circles.join.ringLegend')}</legend>
+      <p className="field__help rings__help">{t('circles.join.ringHelp')}</p>
+      <div className="rings__grid">
+        {freeRings.map((r) => (
+          <label key={r} className={`rings__item${value === r ? ' is-picked' : ''}`}>
+            <input type="radio" name="ring" value={r} checked={value === r} onChange={() => onChange(r)} />
+            <Character id={character} ring={r} className="rings__char" />
+            <span className="rings__name">{t('circles.join.ringOption', { n: r + 1 })}</span>
+          </label>
+        ))}
       </div>
     </fieldset>
   )
@@ -66,7 +109,7 @@ export function PeopleRing({ members, online, meId, arrivals = [] }: { members: 
                     ))}
                   </span>
                 ) : null}
-                <Character id={m.character} className="ring__char" />
+                <Character id={m.character} ring={m.ring} className="ring__char" />
                 <span className="ring__name">
                   {m.role === 'animator' ? <Crown size={12} aria-hidden="true" /> : null}
                   <bdi>{m.name}</bdi>

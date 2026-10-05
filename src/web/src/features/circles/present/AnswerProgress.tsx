@@ -30,7 +30,7 @@ export function AnswerProgress({ state, members, showPending = true, className }
           <ul className="answer-progress__pending">
             {waiting.slice(0, SHOWN).map((m) => (
               <li key={m.id} title={m.name}>
-                <Character id={m.character} className="answer-progress__char" />
+                <Character id={m.character} ring={m.ring} className="answer-progress__char" />
                 <span className="visually-hidden">{m.name}</span>
               </li>
             ))}

@@ -91,6 +91,70 @@
   font-weight: 700;
   text-transform: uppercase;
 }
+/* "2 here": others use this character too; it can still be picked (spec 008). */
+.pick__used {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 4px;
+  padding: 0 0.3rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Ring picker: which copy of a shared character (spec 008) ---------- */
+.rings {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+.rings__help {
+  margin: 0 0 var(--s-2);
+}
+.rings__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.rings__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-1);
+  min-inline-size: 4.5rem;
+  padding: var(--s-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  cursor: pointer;
+}
+.rings__item input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+.rings__item:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.rings__item.is-picked {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.rings__char {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+.rings__name {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
 .pick[aria-invalid='true'] .pick__item:not(.is-taken) {
   border-color: var(--danger);
 }

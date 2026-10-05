@@ -309,18 +309,32 @@ const ART: Record<CharacterId, ReactNode> = {
   ),
 }
 
-/** One character. Decorative unless `title` is given (then it is an image with that name). */
-export function Character({ id, className, title }: { id: CharacterId; className?: string; title?: string }) {
+/**
+ * One character. Decorative unless `title` is given (then it is an image with that name).
+ *
+ * `ring` tells apart people sharing a character (spec 008): ring 0 draws nothing, so a small circle looks as before;
+ * rings 1–5 draw a coloured outline behind the art and a numbered dot, so the difference never rests on colour alone.
+ * The person's name always goes with it wherever it is shown.
+ */
+export function Character({ id, className, title, ring = 0 }: { id: CharacterId; className?: string; title?: string; ring?: number }) {
+  const ringed = ring > 0 && ring <= 5
   return (
     <svg
-      className={['char', `char--${id}`, className].filter(Boolean).join(' ')}
+      className={['char', `char--${id}`, ringed ? `char--ring char--ring-${ring}` : '', className].filter(Boolean).join(' ')}
       viewBox="0 0 64 64"
       role={title ? 'img' : undefined}
       aria-label={title}
       aria-hidden={title ? undefined : 'true'}
       focusable="false"
     >
+      {ringed ? <circle className="char__ring" cx="32" cy="32" r="30.5" fill="none" strokeWidth="3" /> : null}
       {ART[id]}
+      {ringed ? (
+        <g className="char__ring-dot">
+          <circle cx="53" cy="53" r="8.5" strokeWidth="2" stroke="#fff" />
+          <text x="53" y="56.6" textAnchor="middle" fontSize="10" fontWeight="700">{ring + 1}</text>
+        </g>
+      ) : null}
     </svg>
   )
 }
