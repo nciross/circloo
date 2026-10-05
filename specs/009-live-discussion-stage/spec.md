@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-05
 
-**Status**: Draft
+**Status**: Planned (plan, research, data model, contracts, quickstart and tasks written; see `plan.md`)
 
 **Parent idea**: #212 (type:idea, area:spaces) Epic: E4 (shared live activities) with E2 (circles and roles). Related: #96 (earlier audio/video/ask-to-speak scope, see Assumptions), #166 and spec 008 (sidebar, chat, raised hands), #174 (big circles), #126 (Impeccable runs), spec 006 (presenting).
 
@@ -24,6 +24,10 @@
 - Q: What consent applies to recording? -> A: A clear notice when the animator starts, an always-visible recording indicator for the whole session (late joiners see it on entry), and the freedom to leave. No explicit accept step.
 - Q: What happens to #96? -> A: Closed as superseded by #212. Its fun filters and local camera recording conflict with "no media stored".
 - Q: Stage size and relay? -> A: Up to 8 people on camera or microphone at once (peer mesh). STUN only at launch; a TURN relay is a later, separate task if people on strict networks cannot connect.
+- Q: Watching limit (plan D1)? -> A: Watching the stage is opt-in and capped at 8 viewers (configurable); everyone else in a big circle uses chat and raise hand. A 100-person live audience is out of scope (it would need a media server).
+- Q: Strict networks (plan D2)? -> A: Public STUN only at launch; people behind strict firewalls see "Can't connect, chat and hands still work". A TURN relay is a later, separate task after an azure-infra check.
+- Q: Keeping minors off camera (plan D3)? -> A: A per-circle animator switch "Allow cameras", default on; off means audio and chat only. No new kids-safe flag.
+- Q: STUN provider (plan D4)? -> A: Cloudflare public STUN (`stun:stun.cloudflare.com:3478`), configurable through `Discussion__IceServers`; the permission primer discloses that it sees public IP addresses.
 - Open questions 4 to 7, 8 (reuse the circle chat with replies), 10 to 12 and 14 are decided in `/speckit-plan` with the stated proposals as defaults: one animator controls the stage and recording, 60 s then 5 min animator-away rule, a muted person stays muted until the animator allows, stage size is a configuration value defaulting to 8, kids-safe circles allow audio and chat only, the projector shows only the recording indicator and the number of raised hands, a 4 h recording maximum with a warning, and Playwright with fake media devices plus hub tests stand in for a test skill.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -80,7 +84,7 @@ Théo gives Amina the floor. She joins the stage: she can now switch on her micr
 3. **Given** I am the animator, **When** I mute someone, lower a hand or remove someone from the stage, **Then** it takes effect for everyone within 1 second and the person is told what happened in kind words.
 4. **Given** I am on the stage, **When** I tap Leave stage, **Then** my audio and video stop at once and I return to the audience.
 5. **Given** a participant is muted by the animator, **Then** they can unmute themselves only after the animator allows it again, or by leaving and being given the floor again (decision in open questions).
-6. **Given** the stage holds its maximum number of people (about 8, to be confirmed in the plan), **When** the animator tries to add one more, **Then** they are told the stage is full and can remove someone first.
+6. **Given** the stage holds its maximum number of people (default 8, a configuration value `Discussion:StageMax`, decided in the plan), **When** the animator tries to add one more, **Then** they are told the stage is full and can remove someone first.
 7. **Given** people in the audience (not on stage), **Then** they can watch and listen to the stage and use the chat and raise hand, but never send audio or video.
 8. **Given** the interface is in Arabic, **Then** the stage, its controls and its order mirror, and names of mixed direction stay readable.
 
@@ -178,7 +182,7 @@ A participant using a screen reader hears when hands go up, when the floor chang
 - **A participant rejoins the stage after being removed**: allowed only when given the floor again.
 - **Recording is running when a participant leaves**: their earlier messages stay in the transcript. Leaving the circle does not erase them (retention and erasure on request are open questions).
 - **A very long session**: the recording has a maximum length (proposal: 4 hours), after which it stops and says so.
-- **The audience screen (projector)**: it shows the stage's speaker names only if the animator chooses, never video of audience members, and always shows the recording indicator.
+- **The audience screen (projector)**: it shows only the recording indicator and the number of raised hands (decided in the plan, research R17), never video, and always shows the recording indicator. Showing speaker names would be a later setting.
 - **A kids-safe circle**: the animator must switch Live discussion on explicitly. Open question: whether video from children is allowed at all.
 - **Two animators start or stop the recording at the same time**: exactly one recording results.
 - **A circle left on with nobody present**: nothing runs and nothing is recorded.
