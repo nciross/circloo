@@ -1,4 +1,4 @@
-import { isAvatarCode, type AvatarCode } from './avatar'
+import { isAvatarCode, type AvatarCode } from './avatarCode'
 
 /** The cast: every participant in a circle picks one. Ids are stored server side; keep them stable. */
 export const CHARACTERS = [
