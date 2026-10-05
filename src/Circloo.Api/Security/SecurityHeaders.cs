@@ -35,6 +35,8 @@ public static class SecurityHeaders
     public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app, IWebHostEnvironment env) =>
         app.Use(async (ctx, next) =>
         {
+            // Read before the SPA fallback rewrites the path to /index.html: the policy follows the URL the browser asked for.
+            var path = ctx.Request.Path;
             ctx.Response.OnStarting(() =>
             {
                 var h = ctx.Response.Headers;
@@ -42,14 +44,14 @@ public static class SecurityHeaders
                 h.XContentTypeOptions = "nosniff";
                 h.XFrameOptions = "DENY";
                 h["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                h["Permissions-Policy"] = IsRoomRoute(ctx.Request.Path) ? RoomPermissionsPolicy : PermissionsPolicy;
+                h["Permissions-Policy"] = IsRoomRoute(path) ? RoomPermissionsPolicy : PermissionsPolicy;
                 h["Cross-Origin-Opener-Policy"] = "same-origin";
                 if (!env.IsDevelopment())
                 {
                     h.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
                 }
                 // API answers are never cached unless an endpoint chose otherwise (slide pictures: private, spec 006).
-                if (ctx.Request.Path.StartsWithSegments("/api") && string.IsNullOrEmpty(h.CacheControl))
+                if (path.StartsWithSegments("/api") && string.IsNullOrEmpty(h.CacheControl))
                 {
                     h.CacheControl = "no-store";
                 }
