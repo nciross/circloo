@@ -1256,3 +1256,127 @@
     min-inline-size: 0;
   }
 }
+
+/* ---------- Motion (issue #199): restrained, never decoration only, off under reduced motion ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  /* The hero arrives in order: title, lead, buttons, facts. */
+  .hero__copy > * {
+    animation: rise 700ms var(--ease-out) both;
+  }
+  .hero__copy > :nth-child(2) { animation-delay: 90ms; }
+  .hero__copy > :nth-child(3) { animation-delay: 180ms; }
+  .hero__copy > :nth-child(4) { animation-delay: 270ms; }
+  .stage {
+    animation: stage-in 900ms var(--ease-out) 150ms both;
+  }
+
+  /* Buttons and rows answer the pointer. */
+  .site .btn {
+    transition:
+      background-color 150ms,
+      transform 180ms var(--ease-out),
+      box-shadow 180ms;
+  }
+  .site .btn:hover {
+    transform: translateY(-1px);
+  }
+  .site .btn:active {
+    transform: translateY(0);
+  }
+  .site .btn .btn__icon svg {
+    transition: transform 200ms var(--ease-out);
+  }
+  .site .btn:hover .btn__icon svg {
+    translate: 3px 0;
+  }
+  :dir(rtl) .site .btn:hover .btn__icon svg {
+    translate: -3px 0;
+  }
+  .integration,
+  .joke,
+  .step,
+  .demo-note {
+    transition:
+      transform 220ms var(--ease-out),
+      box-shadow 220ms,
+      background-color 150ms;
+  }
+  .integration:hover,
+  .joke:hover,
+  .step:hover {
+    transform: translateY(-3px);
+  }
+  .demo-note:hover {
+    transform: rotate(-1deg) translateY(-2px);
+  }
+  .feature__show {
+    transition: box-shadow 260ms var(--ease-out);
+  }
+  .feature__show:hover {
+    box-shadow: var(--shadow-overlay);
+  }
+
+  /* Votes drop onto the notes one after another when the board scrolls in. */
+  .demo-vote {
+    animation: vote-drop 520ms var(--ease-out) both;
+    animation-delay: 250ms;
+  }
+  .demo-vote:nth-child(2) { animation-delay: 320ms; }
+  .demo-vote:nth-child(3) { animation-delay: 390ms; }
+  .demo-vote:nth-child(4) { animation-delay: 460ms; }
+  .demo-vote:nth-child(n + 5) { animation-delay: 530ms; }
+  .moods .mood:hover {
+    transform: translateY(-3px) scale(1.04);
+  }
+  .moods .mood {
+    transition: transform 180ms var(--ease-out);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-head,
+    .section-title,
+    .steps .step,
+    .jokes .joke,
+    .demo-board__col,
+    .plan,
+    .cta__inner,
+    .preview {
+      animation: reveal var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+    .steps .step:nth-child(2),
+    .jokes .joke:nth-child(2),
+    .demo-board__col:nth-child(2) { animation-range: entry 6% entry 50%; }
+    .steps .step:nth-child(3),
+    .jokes .joke:nth-child(3),
+    .demo-board__col:nth-child(3) { animation-range: entry 12% entry 55%; }
+    .jokes .joke:nth-child(4) { animation-range: entry 18% entry 60%; }
+    .integrations .integration {
+      animation: reveal var(--ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+    }
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes vote-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.6);
+  }
+}

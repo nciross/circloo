@@ -79,7 +79,7 @@ public sealed class CircleTests(PostgresFixture pg) : IAsyncLifetime
     [Fact]
     public async Task Creating_a_circle_validates_name_activities_character_and_locale()
     {
-        var bad = await _animator.Http.PostJsonAsync("/api/circles", new { name = " ", activities = new[] { "nope" }, character = "unicorn", locale = "de" }, _animatorCsrf);
+        var bad = await _animator.Http.PostJsonAsync("/api/circles", new { name = " ", activities = new[] { "nope" }, character = "not-a-character", locale = "de" }, _animatorCsrf);
         Assert.Equal(HttpStatusCode.BadRequest, bad.StatusCode);
         var errors = (await bad.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("errors");
         foreach (var field in new[] { "name", "activities", "character", "locale" })

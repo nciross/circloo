@@ -9,7 +9,7 @@ public static class Roles
     public const string Participant = "participant";
 }
 
-/// <summary>The characters participants pick from (spec 003 US2, 24 since #94). Ids match the web cast.</summary>
+/// <summary>The characters participants pick from (spec 003 US2, 48 since #201). Ids match the web cast.</summary>
 public static class Characters
 {
     /// <summary>How many people may share one character, each with their own ring 0–5 (spec 008 FR-803).</summary>
@@ -22,6 +22,12 @@ public static class Characters
     [
         "panda", "fox", "frog", "cat", "owl", "octopus", "bear", "bunny", "robot", "ghost", "chick", "dino",
         "penguin", "lion", "koala", "hamster", "whale", "hedgehog", "monkey", "bee", "cactus", "axolotl", "raccoon", "llama",
+        // Heroes
+        "superhero", "ninja", "knight", "wizard", "pirate", "astronaut", "viking", "detective",
+        // Plants
+        "sunflower", "mushroom", "tulip", "sprout", "pumpkin", "cherry", "pineapple", "tree",
+        // Other friends
+        "alien", "unicorn", "dragon", "snowman", "cloud", "sun", "moon", "star",
     ];
     public static bool IsKnown(string? id) => id is not null && All.Contains(id);
 }
