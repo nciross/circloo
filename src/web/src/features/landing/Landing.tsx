@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, Lock, MessagesSquare, Search } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
@@ -10,6 +11,7 @@ import { IcebreakerCard } from './IcebreakerCard'
 import { MoodDemo } from './MoodDemo'
 import { CircleStage } from './CircleStage'
 import { Story } from './Story'
+import { useCycle, useScrollProgress, useScrollReveal } from './useMotion'
 import '../../styles/landing.css'
 
 interface CheckinItem { name: string; mood: string; need: string }
@@ -37,6 +39,47 @@ const INTEGRATIONS = [
   { id: 'confluence', name: 'Confluence', logos: ['confluence'] },
   { id: 'notion', name: 'Notion', logos: ['notion'] },
 ] as const
+
+/** "Made for your family / friends / team": the word swaps, the full list stays readable for assistive tech. */
+function Rotator() {
+  const { t } = useTranslation()
+  const words = t('landing.rotator.words', { returnObjects: true }) as string[]
+  const i = useCycle(words.length, 2400)
+  return (
+    <p className="rotator">
+      <span>{t('landing.rotator.prefix')}</span>{' '}
+      <span className="rotator__stage" aria-hidden="true">
+        <span key={i} className="rotator__word">{words[i]}</span>
+      </span>
+      <span className="visually-hidden">{words.join(', ')}</span>
+    </p>
+  )
+}
+
+/** Small product cards drifting around the circle: decorative, the copy says the same in words. */
+function FloatingCards() {
+  const { t } = useTranslation()
+  return (
+    <div className="floats" aria-hidden="true">
+      <div className="float float--a">
+        <Avatar name="Amina" size="sm" />
+        <span><b>Amina</b> {t('landing.float.checkin')} <MoodIcon mood={5} size={14} /></span>
+      </div>
+      <div className="float float--b">
+        <span className="float__dot" />
+        <span>{t('landing.float.note')}</span>
+      </div>
+      <div className="float float--c">
+        <Avatar name="Théo" size="sm" />
+        <span><b>Théo</b> {t('landing.float.typing')}</span>
+      </div>
+      <div className="float-cursor">
+        <svg viewBox="0 0 16 16"><path d="M1.5 1.5 L14 7.2 L8.4 8.6 L6.3 14.2 Z" /></svg>
+        <span>Lucía</span>
+      </div>
+    </div>
+  )
+}
 
 function Soon() {
   const { t } = useTranslation()
@@ -87,11 +130,15 @@ function ProductPreview() {
 export function Landing() {
   const { t } = useTranslation()
   useDocumentTitle('landing.title')
+  useScrollReveal()
+  const progress = useRef<HTMLDivElement>(null)
+  useScrollProgress(progress)
   const notes = t('landing.work.notes', { returnObjects: true }) as string[]
   const steps = t('landing.how.steps', { returnObjects: true }) as Step[]
 
   return (
     <div className="site">
+      <div ref={progress} className="scrollbar" aria-hidden="true"><span /></div>
       <SiteHeader
         links={
           <nav className="sitebar__links" aria-label={t('landing.nav.label')}>
@@ -108,6 +155,7 @@ export function Landing() {
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
+            <Rotator />
             <h1 id="hero-title" className="hero__title">{t('landing.headline')}</h1>
             <p className="hero__lead">{t('landing.sub')}</p>
             <div className="hero__actions">
@@ -121,7 +169,10 @@ export function Landing() {
               <li><Lock size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
             </ul>
           </div>
-          <CircleStage />
+          <div className="hero__art">
+            <CircleStage />
+            <FloatingCards />
+          </div>
         </section>
 
         <Story />
@@ -160,6 +211,10 @@ export function Landing() {
               </div>
               <div className="feature__show">
                 <div className="demo-board" role="group" aria-label={t('landing.work.title')}>
+                  <span className="demo-cursor" aria-hidden="true">
+                    <svg viewBox="0 0 16 16"><path d="M1.5 1.5 L14 7.2 L8.4 8.6 L6.3 14.2 Z" /></svg>
+                    <span>Lucía</span>
+                  </span>
                   {BOARD.map((c) => (
                     <div key={c.col} className={`demo-board__col demo-board__col--${c.col}`}>
                       <h4 className="demo-board__head">{t(`landing.work.columns.${c.col}`)} <span className="demo-board__count">{c.notes.length}</span></h4>
@@ -244,6 +299,20 @@ export function Landing() {
             <div className="section-head">
               <h2 id="plugs-title" className="section-title">{t('landing.integrations.title')}</h2>
               <p>{t('landing.integrations.body')}</p>
+            </div>
+            <div className="marquee" aria-hidden="true">
+              <div className="marquee__track">
+                {[0, 1].map((k) => (
+                  <ul key={k} className="marquee__set">
+                    {INTEGRATIONS.map((p) => (
+                      <li key={p.id} className="marquee__item">
+                        {p.logos.map((l) => <img key={l} src={`/brands/${l}.svg`} alt="" width="28" height="28" />)}
+                        <span lang="en" dir="ltr">{p.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
             </div>
             <ul className="integrations reveal">
               {INTEGRATIONS.map((p) => (

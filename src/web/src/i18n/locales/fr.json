@@ -241,6 +241,21 @@
           "video": "Vidéo muette. Quelqu’un demande à Pirikoo comment inviter des gens ; la perruche écrit, puis répond étape par étape."
         }
       }
+    },
+    "rotator": {
+      "prefix": "Fait pour votre",
+      "words": [
+        "famille",
+        "bande d'amis",
+        "équipe",
+        "classe",
+        "club"
+      ]
+    },
+    "float": {
+      "checkin": "a pris des nouvelles",
+      "note": "Nouvelle note : stand-ups plus courts",
+      "typing": "écrit…"
     }
   },
   "auth": {

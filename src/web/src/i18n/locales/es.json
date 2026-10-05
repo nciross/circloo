@@ -241,6 +241,21 @@
           "video": "Vídeo sin sonido. Alguien pregunta a Pirikoo cómo invitar a la gente; el periquito escribe y luego responde paso a paso."
         }
       }
+    },
+    "rotator": {
+      "prefix": "Hecho para tu",
+      "words": [
+        "familia",
+        "grupo de amigos",
+        "equipo",
+        "clase",
+        "club"
+      ]
+    },
+    "float": {
+      "checkin": "ha saludado",
+      "note": "Nueva nota: reuniones más cortas",
+      "typing": "está escribiendo…"
     }
   },
   "auth": {

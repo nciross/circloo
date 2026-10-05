@@ -241,6 +241,21 @@
           "video": "Silent video. Someone asks Pirikoo how to invite people; the parakeet writes, then answers step by step."
         }
       }
+    },
+    "rotator": {
+      "prefix": "Made for your",
+      "words": [
+        "family",
+        "friends",
+        "team",
+        "classroom",
+        "club"
+      ]
+    },
+    "float": {
+      "checkin": "checked in",
+      "note": "New note: Shorter stand-ups",
+      "typing": "is writing…"
     }
   },
   "auth": {
