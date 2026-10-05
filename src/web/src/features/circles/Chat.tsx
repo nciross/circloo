@@ -62,7 +62,8 @@ function TypingLine({ people }: { people: Member[] }) {
 }
 
 /** The activity's conversation: everyone talks; the animator also talks to circloo, whose reply streams in. */
-export function Chat({ activityId }: { activityId: string }) {
+/** `hideEnd`: the activity is ended somewhere else (a presentation has its own controls). */
+export function Chat({ activityId, hideEnd = false }: { activityId: string; hideEnd?: boolean }) {
   const { t } = useTranslation()
   const { me, members, messages, thinking, draft, typing, say, ask, end, notifyTyping, error, clearError } = useRoom()
   const isAnimator = me?.role === 'animator'
@@ -118,7 +119,7 @@ export function Chat({ activityId }: { activityId: string }) {
     <section className="panel chat" aria-labelledby="chat-title">
       <div className="panel__head">
         <h2 id="chat-title" className="panel__title">{title}</h2>
-        {isAnimator ? (
+        {isAnimator && !hideEnd ? (
           <button type="button" className="btn btn--subtle btn--sm" onClick={() => void end()}>
             <span className="btn__icon" aria-hidden="true"><Flag size={14} /></span>
             <span className="btn__label">{t('circles.room.end')}</span>

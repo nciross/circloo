@@ -1,0 +1,73 @@
+import type { Member, Message } from '../../../api/circles'
+
+/** Past this many rows the people list renders only the rows in view (spec 008 T804). */
+export const WINDOW_FROM = 50
+/** Rows drawn above and below the visible ones, so scrolling never shows a gap. */
+const OVERSCAN = 6
+export const SIDE_KEY = 'circloo.room.side'
+
+export type PeopleRow =
+  | { kind: 'head'; key: 'here' | 'away'; count: number }
+  | { kind: 'person'; member: Member; here: boolean; index: number }
+
+const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase()
+
+/** Whether a name matches what was typed: case and accents never matter ("lucia" finds "Lucía"). */
+export function matchesName(name: string, query: string): boolean {
+  const q = fold(query.trim())
+  return q === '' || fold(name).includes(q)
+}
+
+/**
+ * Who is shown and in which order: people here first, then away; the animator leads each group, then by name.
+ * You always count as here. Group headings carry the group size; empty groups have none.
+ */
+export function peopleRows(members: Member[], online: string[], meId: string | undefined, query: string, locale?: string): { rows: PeopleRow[]; here: number; away: number; found: number } {
+  const isHere = (m: Member) => m.id === meId || online.includes(m.id)
+  const byName = new Intl.Collator(locale, { sensitivity: 'base' })
+  const order = (a: Member, b: Member) => Number(b.role === 'animator') - Number(a.role === 'animator') || byName.compare(a.name, b.name) || a.id.localeCompare(b.id)
+  const here = members.filter(isHere).sort(order)
+  const away = members.filter((m) => !isHere(m)).sort(order)
+  const keep = (m: Member) => matchesName(m.name, query)
+  const rows: PeopleRow[] = []
+  let index = 0
+  for (const [key, group] of [['here', here], ['away', away]] as const) {
+    const shown = group.filter(keep)
+    if (shown.length === 0) continue
+    rows.push({ kind: 'head', key, count: shown.length })
+    for (const member of shown) rows.push({ kind: 'person', member, here: key === 'here', index: index++ })
+  }
+  return { rows, here: here.length, away: away.length, found: index }
+}
+
+/** The slice of rows to draw for a scroll position, with the space to keep above and below. Everything below WINDOW_FROM. */
+export function windowRows(total: number, rowHeight: number, scrollTop: number, viewHeight: number): { start: number; end: number; before: number; after: number } {
+  if (total <= WINDOW_FROM || rowHeight <= 0) return { start: 0, end: total, before: 0, after: 0 }
+  const first = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN)
+  const last = Math.min(total, Math.ceil((scrollTop + Math.max(viewHeight, rowHeight)) / rowHeight) + OVERSCAN)
+  const start = Math.min(first, Math.max(0, total - 1))
+  const end = Math.max(start, last)
+  return { start, end, before: start * rowHeight, after: (total - end) * rowHeight }
+}
+
+/** The wide-screen choice, kept per device. Open unless the person collapsed it; storage may be blocked. */
+export function loadSideOpen(): boolean {
+  try {
+    return window.localStorage.getItem(SIDE_KEY) !== 'closed'
+  } catch {
+    return true
+  }
+}
+
+export function saveSideOpen(open: boolean) {
+  try {
+    window.localStorage.setItem(SIDE_KEY, open ? 'open' : 'closed')
+  } catch {
+    // Blocked site data: the choice lasts until the page closes.
+  }
+}
+
+/** Messages from others since the chat was last in view (system lines and your own never count). */
+export function unreadCount(messages: Message[], seen: number, meId: string | undefined): number {
+  return messages.slice(seen).filter((m) => m.kind !== 'system' && m.memberId !== meId).length
+}

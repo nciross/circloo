@@ -1,0 +1,417 @@
+/*
+ * The room layout (spec 008 T804): the main area and one side area for every activity, the presenting layout included.
+ * From 960 px the side area is a column on the inline end (320 to 360 px), collapsible to a narrow handle.
+ * Below 960 px it is a bottom sheet; the page keeps the sheet's height free below the content, so the sheet never
+ * covers the answer pad or the presenter controls. Logical properties only, so Arabic mirrors without extra rules.
+ * Slots in the side area: tabs in RoomSidebar.tsx (People today; Chat, Hands as they land). The stage (spec 009)
+ * goes in the main area, above the activity, and the sheet below keeps clear of it the same way.
+ */
+:root {
+  /* On :root because the assistant's corner button (outside the room) rises above the open sheet. */
+  --sheet-half: 50dvh;
+  --sheet-full: 88dvh;
+}
+.room__grid {
+  /* A third of the room at most, so the slide keeps two thirds (spec 008 US2), between 17.5rem and 22.5rem. */
+  --side-w: clamp(17.5rem, calc(100% / 3 - var(--s-5)), 22.5rem);
+  --people-row: 3.25rem;
+}
+
+@media (min-width: 60rem) {
+  .room__grid {
+    grid-template-columns: minmax(0, 1fr) var(--side-w);
+  }
+  .room__grid:has(.room-side.is-closed) {
+    grid-template-columns: minmax(0, 1fr) 3.25rem;
+  }
+  .room-side {
+    position: sticky;
+    inset-block-start: calc(var(--topbar-h) + var(--s-5));
+    display: flex;
+    flex-direction: column;
+    /* Ends above the bottom corner, which belongs to Pirikoo's button (3.75rem plus its offset), so the send button stays clear. */
+    block-size: calc(100dvh - var(--topbar-h) - var(--s-5) - 6rem);
+    min-block-size: 24rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-raised);
+    overflow: clip;
+  }
+  .room-side.is-closed {
+    block-size: auto;
+    min-block-size: 0;
+    align-self: start;
+  }
+  .room-side__handle {
+    flex-direction: column;
+    padding-block: var(--s-3);
+  }
+  .room-side__handle-label {
+    writing-mode: vertical-rl;
+  }
+  .room-side__grip {
+    display: none;
+  }
+}
+/* An arrow that points inline-end flips in right-to-left. */
+[dir='rtl'] .room-side__flip {
+  transform: scaleX(-1);
+}
+
+.room-side__handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-block-size: 2.75rem;
+  min-inline-size: 2.75rem;
+  border: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+.room-side__handle:hover {
+  background: var(--surface-hover);
+}
+.room-side__handle:focus-visible,
+.room-side__tab:focus-visible,
+.people__scroll:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.room-side__handle[hidden],
+.room-side__body[hidden],
+.room-side__panel[hidden] {
+  display: none;
+}
+.room-side__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 0.45rem;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.room-side__count--hand {
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+}
+
+.room-side__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-block-size: 0;
+}
+.room-side__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding-block: var(--s-2);
+  padding-inline: var(--s-3) var(--s-2);
+  border-block-end: 1px solid var(--border);
+}
+.room-side__tabs {
+  display: flex;
+  gap: var(--s-1);
+  min-inline-size: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.room-side__tab {
+  flex: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-block-size: 2.25rem;
+  padding-inline: var(--s-3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-subtle);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+.room-side__tab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.room-side__tab[aria-selected='true'] {
+  background: var(--primary-subtle);
+  color: var(--primary-text);
+}
+.room-side__tab-icon {
+  display: inline-flex;
+  flex: none;
+}
+/* A narrow sidebar drops the tab icons before a label would be cut (French, Arabic). */
+.room-side__body {
+  container: room-side / inline-size;
+}
+@container room-side (max-width: 23rem) {
+  .room-side__tab {
+    gap: var(--s-1);
+    padding-inline: var(--s-2);
+  }
+  .room-side__tab-icon {
+    display: none;
+  }
+}
+.room-side__badge {
+  min-inline-size: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.room-side__tab[aria-controls$='-panel-chat'] .room-side__badge {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.room-side__tools {
+  display: flex;
+  flex: none;
+}
+.room-side__panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--s-3);
+  min-block-size: 0;
+  padding: var(--s-3);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* The chat brings its own panel; inside the sidebar it fills the tab and drops the frame. */
+.room-side__panel > .chat {
+  flex: 1;
+  block-size: auto;
+  min-block-size: 0;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  margin: calc(var(--s-3) * -1);
+}
+/* In the sidebar the tab already names the chat: the activity title is kept for screen readers only, the End button stays. */
+.room-side__panel > .chat > .panel__head {
+  justify-content: flex-end;
+  padding-block: var(--s-2);
+}
+.room-side__panel > .chat > .panel__head > .panel__title,
+.room-side__panel > .chat > .panel__head:not(:has(button)) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.room-side__panel > .invite {
+  flex: none;
+}
+
+/* ---------- People ---------- */
+.people {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--s-2);
+  min-block-size: 18rem;
+}
+.people__summary {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.people__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.people__search svg {
+  position: absolute;
+  inset-inline-start: var(--s-3);
+  color: var(--text-subtlest);
+  pointer-events: none;
+}
+.people__search .input {
+  inline-size: 100%;
+  padding-inline-start: 2.1rem;
+}
+.people__scroll {
+  flex: 1;
+  min-block-size: 12rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--r-sm);
+}
+.people__list {
+  padding-block: var(--before, 0) var(--after, 0);
+}
+.people__head,
+.people__row {
+  block-size: var(--people-row);
+}
+.people__head {
+  display: flex;
+  align-items: flex-end;
+  padding-inline: var(--s-1);
+  padding-block-end: var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+.people__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding-inline: var(--s-1);
+  border-radius: var(--r-sm);
+}
+.people__char {
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+}
+.people__text {
+  display: grid;
+  min-inline-size: 0;
+}
+.people__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+.people__you {
+  font-weight: 400;
+  color: var(--text-subtle);
+}
+.people__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-xs);
+  color: var(--text-subtle);
+}
+.people__role {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 700;
+  color: var(--warning-text);
+}
+/* Away: faded art, a dashed ring and the word, so it is never colour alone. */
+.people__row.is-away .char__art {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+}
+.people__row.is-away .char__ring {
+  stroke-dasharray: 5 4;
+}
+.people__row.is-away .people__name {
+  color: var(--text-subtle);
+}
+.people__row.is-new {
+  background: var(--primary-subtle);
+}
+.people__empty {
+  padding: var(--s-4) var(--s-2);
+}
+
+/* ---------- Bottom sheet (phones) ---------- */
+@media (max-width: 59.99rem) {
+  .room__grid {
+    padding-block-end: 4.5rem;
+  }
+  .room__grid:has(.room-side.is-open) {
+    padding-block-end: calc(var(--sheet-half) + var(--s-4));
+  }
+  .room__grid:has(.room-side.is-open.is-full) {
+    padding-block-end: calc(var(--sheet-full) + var(--s-4));
+  }
+  .room-side {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    block-size: var(--sheet-half);
+    padding-block-end: env(safe-area-inset-bottom);
+    border-start-start-radius: var(--r-lg);
+    border-start-end-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    border-block-end: 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-float);
+  }
+  .room-side.is-full {
+    block-size: var(--sheet-full);
+  }
+  .room-side.is-closed {
+    inset-inline: auto;
+    inset-inline-start: var(--s-4);
+    inset-block-end: calc(var(--s-4) + env(safe-area-inset-bottom));
+    block-size: auto;
+    padding: 0;
+    border-radius: var(--r-pill);
+    border-block-end: 1px solid var(--border);
+    box-shadow: var(--shadow-overlay);
+    overflow: clip;
+  }
+  .room-side__handle {
+    padding-inline: var(--s-4);
+  }
+  .room-side__grip {
+    position: absolute;
+    inset-block-start: 4px;
+    inset-inline-start: 50%;
+    inline-size: 2.25rem;
+    block-size: 4px;
+    margin-inline-start: -1.125rem;
+    border-radius: var(--r-pill);
+    background: var(--border-strong);
+  }
+  .room-side__bar {
+    padding-block-start: var(--s-3);
+  }
+  .room-side__panel > .chat {
+    margin: calc(var(--s-3) * -1);
+  }
+  /* The assistant's corner button rises above an open sheet instead of covering its send button. */
+  body:has(.room-side.is-open) .pkl {
+    inset-block-end: calc(var(--sheet-half) + var(--s-3));
+  }
+  body:has(.room-side.is-open.is-full) .pkl {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .room-side {
+    transition: block-size 200ms var(--ease-out);
+  }
+  .people__row {
+    transition: background-color 600ms ease;
+  }
+}

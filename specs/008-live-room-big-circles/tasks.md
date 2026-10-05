@@ -97,7 +97,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: a laptop presenting to 40 people keeps the slide at ≥ 2/3 width. Search finds Amina, and collapsing widens the slide. On a phone you get a bottom sheet with People and Chat.
 
-- [ ] T804 [US2] **Room layout.** (#178)
+- [x] T804 [US2] **Room layout.** (#178)
   - `src/web/src/features/circles/room/RoomSidebar.tsx`:
     - ≥ 960 px: 320–360 px on the inline end, collapsible, the choice kept in `localStorage`, with a collapsed handle showing unread messages and raised hands;
     - < 960 px: a bottom sheet with People and Chat tabs, half height by default, expandable, closable, and never covering the answer pad or the presenter controls (FR-807).

@@ -83,10 +83,10 @@ test('big circle: people share a character on their own rings, and the 101st is 
 
   // The animator's room tells the three foxes apart by ring, number and name.
   await page.goto(`/app/circles/${circle.id}`)
-  await expect(page.locator('.ring__seat .char--fox')).toHaveCount(3)
-  await expect(page.locator('.ring__seat .char--fox.char--ring-3')).toHaveCount(1)
-  await expect(page.locator('.ring__seat .char--fox.char--ring-1')).toHaveCount(1)
-  await expect(page.locator('.ring__seat').filter({ hasText: ar ? 'أمينة' : 'Amina' })).toHaveCount(1)
+  await expect(page.locator('.people__row .char--fox')).toHaveCount(3)
+  await expect(page.locator('.people__row .char--fox.char--ring-3')).toHaveCount(1)
+  await expect(page.locator('.people__row .char--fox.char--ring-1')).toHaveCount(1)
+  await expect(page.locator('.people__row').filter({ hasText: ar ? 'أمينة' : 'Amina' })).toHaveCount(1)
   await axe(page)
 
   // Fill the circle to 100 (the animator and three foxes are in), then a newcomer is told it is full.

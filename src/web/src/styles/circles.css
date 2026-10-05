@@ -308,15 +308,10 @@
   align-items: start;
   gap: var(--s-5);
 }
-.room__main,
-.room__side {
+.room__main {
   display: grid;
   gap: var(--s-5);
   min-inline-size: 0;
-}
-.room__side {
-  position: sticky;
-  inset-block-start: calc(var(--topbar-h) + var(--s-5));
 }
 .room__wait .panel__body,
 .room__ended .panel__body {
@@ -329,13 +324,9 @@
   inline-size: 6rem;
   color: var(--text);
 }
-@media (max-width: 64rem) {
+@media (max-width: 59.99rem) {
   .room__grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .room__side {
-    position: static;
-    order: -1;
   }
 }
 
@@ -771,9 +762,6 @@
 }
 
 /* ---------- Live board (spec 004) ---------- */
-.room__pane {
-  justify-self: start;
-}
 .board__tools {
   display: flex;
   flex-wrap: wrap;
