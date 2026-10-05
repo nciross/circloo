@@ -7,7 +7,7 @@ import { useCreateCircle } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
 import { PageHeader } from '../../components/PageHeader'
 import { Button } from '../../components/Button'
-import type { CharacterId } from '../../components/characters'
+import type { AnyCharacter } from '../../components/characters'
 import { useUiStore } from '../../stores/ui'
 import { ActivityGrid, CharacterPicker } from './parts'
 import { MAX_ACTIVITIES } from './catalog'
@@ -23,7 +23,7 @@ export default function CreateCircle() {
   const locale = useUiStore((s) => s.locale)
   const create = useCreateCircle()
   const [name, setName] = useState('')
-  const [character, setCharacter] = useState<CharacterId | null>('panda')
+  const [character, setCharacter] = useState<AnyCharacter | null>('panda')
   const [activities, setActivities] = useState<string[]>(['quick-question'])
   const [errors, setErrors] = useState<{ name?: string; activities?: string; character?: string; form?: string }>({})
   const nameId = useId()

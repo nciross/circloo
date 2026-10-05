@@ -503,7 +503,8 @@
     "cloud": "Nuage",
     "sun": "Soleil",
     "moon": "Lune",
-    "star": "Étoile"
+    "star": "Étoile",
+    "anonymous": "Anonyme"
   },
   "activities": {
     "category": "Catégorie",
@@ -659,9 +660,16 @@
       "errors": {
         "name": "Écris le prénom que les autres verront.",
         "character": "Choisis un personnage pour rejoindre.",
-        "taken": "Quelqu'un vient de prendre ce personnage. Choisis-en un autre.",
+        "taken": "Ce personnage est complet maintenant. Choisis-en un autre.",
         "full": "Ce cercle est complet."
-      }
+      },
+      "used_one": "{{count}} ici",
+      "used_other": "{{count}} ici",
+      "characterFull": "Complet",
+      "ringLegend": "Ton anneau de couleur",
+      "ringHelp": "D’autres ont aussi choisi ce personnage. Tu porteras l’anneau {{n}}, et ton nom s’affiche toujours avec. Change-le ici si tu veux.",
+      "ringOption": "Anneau {{n}}",
+      "ringNone": "Sans anneau"
     },
     "room": {
       "title": "Cercle",
@@ -1209,5 +1217,63 @@
       "answers_one": "{{count}} réponse",
       "answers_other": "{{count}} réponses"
     }
+  },
+  "avatar": {
+    "surprise": "Surprends-moi",
+    "colour": "Couleur {{n}}",
+    "fields": {
+      "face": "Visage",
+      "skin": "Peau",
+      "hair": "Cheveux",
+      "hairColor": "Couleur des cheveux",
+      "beard": "Barbe",
+      "glasses": "Lunettes",
+      "outfit": "Tenue",
+      "mouth": "Bouche"
+    },
+    "options": {
+      "face": [
+        "Rond",
+        "Ovale",
+        "Carré",
+        "Cœur"
+      ],
+      "hair": [
+        "Chauve",
+        "Courts",
+        "Rasés",
+        "Raie sur le côté",
+        "Longs",
+        "Chignon",
+        "Bouclés",
+        "Afro",
+        "Crête"
+      ],
+      "beard": [
+        "Aucune",
+        "Mal rasée",
+        "Courte",
+        "Pleine",
+        "Moustache"
+      ],
+      "glasses": [
+        "Aucune",
+        "Rondes",
+        "Carrées",
+        "Solaires"
+      ],
+      "mouth": [
+        "Sourire",
+        "Grand sourire",
+        "Calme",
+        "Surpris"
+      ]
+    },
+    "tabs": {
+      "friends": "Amis ({{count}})",
+      "people": "Personnes ({{count}})",
+      "build": "Créer le mien"
+    },
+    "person": "Personne {{n}}"
   }
 }

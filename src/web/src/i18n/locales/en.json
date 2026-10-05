@@ -503,7 +503,8 @@
     "cloud": "Cloud",
     "sun": "Sun",
     "moon": "Moon",
-    "star": "Star"
+    "star": "Star",
+    "anonymous": "Anonymous"
   },
   "activities": {
     "category": "Category",
@@ -659,9 +660,16 @@
       "errors": {
         "name": "Write the name people will see.",
         "character": "Pick a character to join.",
-        "taken": "Someone just picked this character. Choose another one.",
+        "taken": "This character is full now. Pick another one.",
         "full": "This circle is full."
-      }
+      },
+      "used_one": "{{count}} here",
+      "used_other": "{{count}} here",
+      "characterFull": "Full",
+      "ringLegend": "Your colour ring",
+      "ringHelp": "Others picked this character too. You will wear ring {{n}}, and your name always shows with it. Change it here if you like.",
+      "ringOption": "Ring {{n}}",
+      "ringNone": "No ring"
     },
     "room": {
       "title": "Circle",
@@ -1205,5 +1213,63 @@
       "answers_one": "{{count}} answer",
       "answers_other": "{{count}} answers"
     }
+  },
+  "avatar": {
+    "surprise": "Surprise me",
+    "colour": "Colour {{n}}",
+    "fields": {
+      "face": "Face",
+      "skin": "Skin",
+      "hair": "Hair",
+      "hairColor": "Hair colour",
+      "beard": "Beard",
+      "glasses": "Glasses",
+      "outfit": "Outfit",
+      "mouth": "Mouth"
+    },
+    "options": {
+      "face": [
+        "Round",
+        "Oval",
+        "Square",
+        "Heart"
+      ],
+      "hair": [
+        "Bald",
+        "Short",
+        "Buzz",
+        "Side part",
+        "Long",
+        "Bun",
+        "Curly",
+        "Afro",
+        "Mohawk"
+      ],
+      "beard": [
+        "None",
+        "Stubble",
+        "Short",
+        "Full",
+        "Moustache"
+      ],
+      "glasses": [
+        "None",
+        "Round",
+        "Square",
+        "Shades"
+      ],
+      "mouth": [
+        "Smile",
+        "Grin",
+        "Calm",
+        "Surprised"
+      ]
+    },
+    "tabs": {
+      "friends": "Friends ({{count}})",
+      "people": "People ({{count}})",
+      "build": "Make your own"
+    },
+    "person": "Person {{n}}"
   }
 }

@@ -958,3 +958,30 @@
   font-size: var(--fs-sm);
   color: var(--text-subtle);
 }
+
+/* ---------- Character rings (spec 008: people sharing a character) ---------- */
+.char__ring {
+  stroke: var(--ring, currentColor);
+}
+.char__ring-dot circle {
+  fill: var(--ring, currentColor);
+  stroke: var(--surface);
+}
+.char--ring-1 {
+  --ring: var(--ring-1);
+}
+.char--ring-2 {
+  --ring: var(--ring-2);
+}
+.char--ring-3 {
+  --ring: var(--ring-3);
+}
+.char--ring-4 {
+  --ring: var(--ring-4);
+}
+.char--ring-5 {
+  --ring: var(--ring-5);
+}
+.char__ring-dot text {
+  fill: var(--on-ring, #fff);
+}
