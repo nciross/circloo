@@ -33,6 +33,9 @@ public static class AuditTypes
     public const string DiscussionOn = "discussion.on";
     public const string DiscussionOff = "discussion.off";
     public const string DiscussionRefused = "discussion.refused";
+    public const string ChatPaused = "chat.paused";
+    public const string ChatSlow = "chat.slow";
+    public const string MessageHidden = "message.hidden";
 }
 
 /// <summary>Writes security events. Emails and IPs are stored as keyed hashes only.</summary>
