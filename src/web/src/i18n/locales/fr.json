@@ -972,7 +972,7 @@
     "listTitle_other": "{{count}} notes sur la toile",
     "find": "Montrer",
     "label": "Toile",
-    "hint": "Double-clique pour poser une note, fais glisser les notes pour les déplacer, fais glisser le fond ou défile pour te déplacer, Ctrl + molette pour zoomer. Clavier : flèches pour déplacer, N ajoute une note, E modifie.",
+    "hint": "Double-cliquez pour poser une note, glissez les notes pour les déplacer, glissez le fond ou faites défiler pour explorer, Ctrl + molette pour zoomer. Clavier : les flèches déplacent, N ajoute une note, E ou Entrée modifie, Suppr efface, Échap relâche, F affiche tout.",
     "empty": "Une toile vide ! Double-clique n’importe où pour poser la première note.",
     "newNote": "Nouvelle note",
     "editNote": "Modifier la note",
@@ -1007,7 +1007,11 @@
       "green": "Vert",
       "violet": "Violet",
       "white": "Blanc"
-    }
+    },
+    "presence": "Qui est là",
+    "hereCount": "{{here}} sur {{total}} ici",
+    "jumpTo": "Aller au pointeur de {{name}}",
+    "fit": "Tout afficher"
   },
   "presentations": {
     "title": "Présentations",
