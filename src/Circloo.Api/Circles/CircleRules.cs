@@ -36,7 +36,7 @@ public static class Characters
 
 /// <summary>
 /// Build-your-own characters (#205): "me:" and one digit per option (face, skin, hair, hair colour, beard, glasses, outfit,
-/// mouth). Ids are short so they fit the Character column; keep the counts in step with the web (components/avatar.ts).
+/// mouth). Ids are short so they fit the Character column; keep the counts in step with the web (components/avatarCode.ts).
 /// </summary>
 public static class Avatars
 {
