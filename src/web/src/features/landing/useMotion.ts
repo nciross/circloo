@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 
 /** What reveals as it scrolls into view. Staggers by position inside the parent. */
-const REVEAL = '.section-head, .section-title, .feature, .steps, .jokes .joke, .demo-board, .integrations, .plan, .cta__inner, .preview, .story__head, .band .reveal'
+const REVEAL = '.band .section-head, .band .section-title, .steps .step, .facts .fact, .platform, .faqrow, .quote, .compare, .integrations .integration, .plan, .cta__inner, .preview, .story__head, .logos, .pilltabs'
 
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 

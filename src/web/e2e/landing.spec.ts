@@ -10,7 +10,7 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
   await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(8)
+  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(12)
 
   // Integrations are honest: every one carries a "coming soon" lozenge (US1-4).
   await expect(page.locator('.integration')).toHaveCount(5)
@@ -44,7 +44,7 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
 
   // The call to action leads to sign-in.
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.locator('.hero__actions .btn').click()
+  await page.locator('.heroform__row .btn').click()
   await expect(page).toHaveURL(/\/signin$/)
 })
 
