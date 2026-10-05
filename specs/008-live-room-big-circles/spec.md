@@ -67,7 +67,7 @@ While the animator presents, everyone can chat in the sidebar: short messages wi
 
 **Acceptance Scenarios**:
 
-1. **Given** a presentation has started, **Then** the chat is on by default and every member can send messages of 1–300 characters, emoji included, which appear for everyone in order within a second.
+1. **Given** a presentation has started, **Then** the chat is on by default and every member can send messages of 1–280 characters, emoji included, which appear for everyone in order within a second.
 2. **Given** a message from someone else, **When** I like it, **Then** its like count rises by one for everyone. Liking again removes my like, and I cannot like my own message.
 3. **Given** I am the animator, **When** I switch the chat off, **Then** participants can still read earlier messages, cannot send new ones, and see "The animator paused the chat". Switching it back on lets them write again. The animator can always write.
 4. **Given** the animator turns on slow mode, **Then** each participant can send at most one message every 10 seconds, sees the time left before the next one, and the animator is not limited.
@@ -188,7 +188,7 @@ With 100 people connected from phones on the current single server, the presenta
 - **FR-808**: The people list MUST show online people first, then away people, with character, ring, name and an animator mark (icon and label), a "n here · m away" summary, and a search by name.
 
 **Chat**
-- **FR-809**: Members MUST be able to send chat messages of 1–300 characters (emoji included) that every member sees in order within 1 second. Every message MUST pass the safety filter, stricter in kids-safe circles, and unsafe messages MUST be refused and never shown.
+- **FR-809**: Members MUST be able to send chat messages of 1–280 characters (emoji included) that every member sees in order within 1 second. Every message MUST pass the safety filter, stricter in kids-safe circles, and unsafe messages MUST be refused and never shown.
 - **FR-810**: Members MUST be able to like other members' messages, one like per member per message, toggled. The like count MUST be shared live.
 - **FR-811**: During a presentation the chat MUST be on by default. The animator MUST be able to switch it off and on, and to turn slow mode on and off, at any time. With the chat off, participants can read but not send. In slow mode each participant can send at most one message every 10 seconds. The animator is never limited.
 - **FR-812**: Each participant MUST be limited to a reasonable sending rate even without slow mode (at most 5 messages every 10 seconds), with a kind message when they exceed it.
