@@ -8,6 +8,14 @@
 
 **Input**: User description: "Live room for big circles: sidebar chat, emoji reactions, raise hand, Pirikoo, up to 100 people (ideas #166 and #174). (1) The large 'In the circle' panel becomes a right sidebar (mirrored in Arabic) in every activity including presenting, a bottom sheet on phones, showing who is connected and the circle chat, collapsible. (2) Instant chat with emoji during a presentation, on by default, the animator can switch it off or turn on slow mode; messages and likes; rate limits; readable with 100 people; safety filter. (3) Emoji reactions that float over the slide on every screen including the projector, grouped, rate-limited, not stored. (4) Raise hand / ask to speak with a queue the animator manages. (5) Pirikoo announces raised hands and reacts to bursts of reactions, calm, mutable, never covering the slide; its generic chat nudge never appears during a presentation. (6) Up to 100 people per circle (configurable), shared characters with distinct colour rings. (7) With 100 phones on the current single server, a slide change reaches every screen with median < 1 s and p95 < 2 s, proven by a load test."
 
+## Clarifications
+
+### Session 2026-10-05
+
+- Q: Should the live server stay awake all the time, or may it sleep when nobody is using circloo? → A: Always keep one server awake in production (no wake-up delay); development and test environments may still sleep.
+- Q: When people raise their hands, should every participant see the whole queue with names, or only who is speaking, who is next and their own place? → A: Everyone in the room sees the full queue in order, with characters and names (the projector still shows only the number of hands up).
+- Q: After a presentation, should its "Send results" report include how many of each reaction the room sent? → A: Yes. Only the total per reaction kind is kept for each presentation and shown in the circle's results and "Send results"; who reacted is never kept.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A circle holds up to 100 people (Priority: P1)
@@ -87,7 +95,7 @@ During a presentation, a reaction bar under the slide lets everyone tap 👏 ❤
 4. **Given** the animator switches reactions off, **Then** the bar disappears for participants and nothing floats.
 5. **Given** reduced motion is set on a device, **Then** that device shows reactions as a small counter beside the slide, without movement.
 6. **Given** a screen reader, **Then** reactions are announced at most every few seconds as a summary (for example "12 applause, 3 hearts"), never one by one.
-7. **Given** a presentation ends, **Then** no reaction is kept anywhere. Only an aggregate count per kind may appear in the presentation's results.
+7. **Given** a presentation ends, **Then** no individual reaction is kept. The total per reaction kind (for example "👏 42 · ❤️ 18 · 😂 9") appears in the circle's results and in "Send results", and nothing says who reacted.
 
 ---
 
@@ -102,7 +110,7 @@ A participant taps **Raise hand** and their character waves in the sidebar. The 
 **Acceptance Scenarios**:
 
 1. **Given** I am a participant in a room, **When** I tap Raise hand, **Then** my hand is up, my character waves in the people list, and I can lower it myself.
-2. **Given** hands are raised, **Then** the animator sees a queue in arrival order with characters, names and how long each has waited, and everyone else sees their own place ("You are 3rd").
+2. **Given** hands are raised, **Then** everyone in the room sees the queue in arrival order with characters and names. The animator also sees how long each has waited, and each person with a raised hand sees their own place ("You are 3rd").
 3. **Given** I am the animator, **When** I give the floor to someone, **Then** everyone sees who is speaking. Their hand goes down, and the next person in the queue is shown as next.
 4. **Given** I am the animator, **When** I lower one hand or all hands, **Then** those hands go down for everyone.
 5. **Given** someone leaves the room with a hand raised, **Then** their hand is lowered.
@@ -159,7 +167,7 @@ With 100 people connected from phones on the current single server, the presenta
 - The animator has two tabs or the audience screen open: Pirikoo bubbles and the hands queue appear on the animator's tabs. The projector shows reactions and "n hands up" only, never names in the queue.
 - A guest with very slow network: missed chat messages and the current hands queue arrive when they reconnect. Missed reactions are not replayed.
 - 100 people react in the same second: the screen shows a few floating emoji and a grouped count. The projector never becomes a wall of emoji.
-- The presentation ends: the chat stays in the circle as the circle's conversation. Hands are lowered, and reactions are gone.
+- The presentation ends: the chat stays in the circle as the circle's conversation. Hands are lowered, and only the reaction totals per kind remain.
 - Kids-safe circle: the chat safety filter is stricter, as in the rest of circloo, and reactions are unaffected.
 - A circle that was created before this feature with 12 people and unique characters: it keeps working. Existing members keep their characters, which get the first ring.
 
@@ -191,11 +199,11 @@ With 100 people connected from phones on the current single server, the presenta
 - **FR-815**: During a presentation every member MUST be able to send reactions from a fixed set (👏 ❤️ 😂 😮 👍 🎉) that appear briefly over the slide on every screen, the audience screen included, within 1 second.
 - **FR-816**: Reactions MUST be grouped by kind when they arrive close together, with a visible count. The number of reactions moving on screen at once MUST be capped so the slide stays readable.
 - **FR-817**: Each person MUST be limited to 5 reactions every 10 seconds. Extra reactions are ignored without an error.
-- **FR-818**: Individual reactions MUST NOT be stored. Only a count per kind for the presentation MAY be kept for its results. The animator MUST be able to switch reactions off.
+- **FR-818**: Individual reactions and who sent them MUST NOT be stored. The total per reaction kind for each presentation MUST be kept and shown in the circle's results and in "Send results". The animator MUST be able to switch reactions off.
 
 **Raised hands**
 - **FR-819**: Participants MUST be able to raise and lower their hand. The animator MUST see the queue in arrival order with characters, names and waiting time, and MUST be able to give the floor to one person and lower one or all hands.
-- **FR-820**: Everyone MUST see who has the floor and who is next. Each participant with a raised hand MUST see their own place in the queue. The audience screen MUST show only the number of hands up, never the names.
+- **FR-820**: Everyone in the room MUST see who has the floor and the full queue in arrival order, with characters and names. Each participant with a raised hand MUST see their own place in the queue. The audience screen MUST show only the number of hands up, never the names.
 - **FR-821**: A person who leaves the room MUST have their hand lowered, and giving the floor MUST lower the speaker's hand.
 
 **Pirikoo**
@@ -210,6 +218,7 @@ With 100 people connected from phones on the current single server, the presenta
 - **FR-828**: A repeatable load test simulating 100 participants (join, follow slide changes, answer, chat, react) MUST exist, run on a developer machine at no cost, and its results MUST be recorded with the change.
 - **FR-829**: Every new string MUST exist in English, French, Arabic and Spanish. Layouts MUST mirror in Arabic. Chat, reactions, raised hands and Pirikoo bubbles MUST be usable with a keyboard and a screen reader, meeting WCAG 2.2 AA.
 - **FR-830**: Only members of a circle MUST be able to read its chat, see its people, react or raise a hand. Every action re-checks membership, as elsewhere in the room.
+- **FR-831**: In production, at least one server for the live room MUST always be awake, so the first person opening a circle never waits for a wake-up. Development and test environments MAY sleep when idle.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -218,7 +227,8 @@ With 100 people connected from phones on the current single server, the presenta
 - **Like**: one member's like on one message. At most one per member and message.
 - **Room settings** (per circle, while live): chat on/off, slow mode on/off, reactions on/off, Pirikoo moves muted or not. Defaults during a presentation: chat on, slow mode off, reactions on, Pirikoo moves on.
 - **Raised hand**: a member, when they raised it, and whether they currently have the floor. Kept only while the room is live.
-- **Reaction**: a kind and a time, sent live and never stored individually. Only an aggregate count per kind may be kept for a presentation's results.
+- **Reaction**: a kind and a time, sent live and never stored individually.
+- **Reaction totals**: for each presentation session, the number of reactions of each kind. Shown in the circle's results and "Send results"; never linked to people.
 
 ## Success Criteria *(mandatory)*
 
@@ -236,9 +246,9 @@ With 100 people connected from phones on the current single server, the presenta
 
 ## Assumptions
 
-- The current hosting (one server for the live room) stays for this feature. Supporting more than 100 people, or more than one server, is a later decision recorded in the plan.
+- The current hosting (one server for the live room) stays for this feature, now kept awake in production (FR-831). Supporting more than 100 people, or more than one server, is a later decision recorded in the plan.
 - The circle chat that exists today (messages per circle, with the safety filter) is the chat used here. Messages sent during a presentation stay in the circle like any other message.
-- Reactions are not stored per person, to keep data minimal. An aggregate count per kind may be added to the presentation's results export later.
+- Reactions are not stored per person, to keep data minimal. Only the totals per kind for each presentation are kept, for the results (clarified 2026-10-05).
 - Raised hands, room settings (chat off, slow mode, reactions off, Pirikoo muted) and the hands queue live only while the circle is live. They reset when the presentation or activity ends.
 - 6 colour rings per character are enough: 24 characters × 6 rings = 144 combinations, more than the default maximum of 100.
 - The animator of the circle is the only moderator. Co-animators and moderators are out of scope.
