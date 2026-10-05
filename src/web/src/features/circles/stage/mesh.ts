@@ -91,6 +91,11 @@ export class MeshManager {
 
   /** Starts or stops sending a kind on every link. A replaced or removed track is stopped here. */
   setLocalTrack(kind: Kind, track: MediaStreamTrack | null) {
+    // A device that opens after teardown (removed while the prompt was up) is released at once.
+    if (this.closed && track) {
+      track.stop()
+      return
+    }
     const old = this.tracks[kind]
     this.tracks[kind] = track
     for (const l of this.links.values()) l.setTrack(kind, track)
@@ -135,7 +140,9 @@ export class MeshManager {
     for (const [id, link] of [...this.links]) {
       // A viewer's incoming link to a stage member lives until it fails or the viewer closes it.
       const viewerLink = this.mode === 'stage' && !this.seat(id) && link.role !== 'offerer'
-      if (!wanted.includes(id) && !viewerLink) this.closeLink(id)
+      // A failed link this side offered is opened again with a new linkId on the next view.
+      const retry = link.state === 'failed' && link.role === 'offerer'
+      if ((!wanted.includes(id) && !viewerLink) || retry) this.closeLink(id)
     }
     for (const id of wanted) {
       if (this.links.has(id) || this.opening.has(id)) continue
@@ -167,14 +174,15 @@ export class MeshManager {
 
   private make(remoteId: string, role: 'offerer' | 'answerer', linkId: string, config: IceConfig): PeerLink {
     const viewerSide = this.mode === 'viewer'
-    const stagePeer = !!this.seat(remoteId)
     const link = new PeerLink({
       peer: this.o.createPeer({ iceServers: config.iceServers }),
       remoteId,
       role,
       linkId,
       sends: !viewerSide,
-      receives: viewerSide || stagePeer,
+      // Always willing to receive: against a viewer's receive-only offer the answer is send-only anyway, and a stage
+      // member answered before their seat showed up in the view is still heard.
+      receives: true,
       send: (kind, id, payload) => this.o.send(remoteId, kind, id, payload),
       onChange: () => this.linkChanged(remoteId),
     })
@@ -244,8 +252,9 @@ export class MeshManager {
     if (p && p.linkId === linkId && kind === 'ice' && p.ice.length < 100) p.ice.push(payload)
   }
 
-  private canTakeViewer(): boolean {
-    const viewers = [...this.links.values()].filter((l) => l.role === 'answerer' && !this.seat(l.remoteId)).length
+  private canTakeViewer(fromId: string): boolean {
+    // A viewer offering again (new linkId) replaces their own link, so it does not count against them.
+    const viewers = [...this.links.values()].filter((l) => l.role === 'answerer' && !this.seat(l.remoteId) && l.remoteId !== fromId).length
     return viewers < this.o.limits().listenersMax
   }
 
@@ -266,7 +275,7 @@ export class MeshManager {
     if (this.mode !== 'stage' || !this.seat(this.o.selfId)) return
     if (seat) {
       if (!ACTIVE.has(seat.state) || this.isOfferer(id)) return
-    } else if (!this.canTakeViewer()) return // listeners are full: the offer is dropped
+    } else if (!this.canTakeViewer(id)) return // listeners are full: the offer is dropped
     void this.answer(id, p.linkId, p.sdp, p.ice)
   }
 

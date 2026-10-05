@@ -111,7 +111,7 @@ describe('offer, answer and ICE between two browsers', () => {
     expect(b.mesh.snapshot()[0]?.state).toBe('connected')
   })
 
-  it('a stage member answers a viewer with a send-only link', async () => {
+  it('a stage member answers a viewer, and nothing from the viewer plays', async () => {
     const net = network()
     const a = net.node('a')
     const v = net.node('v')
@@ -122,7 +122,9 @@ describe('offer, answer and ICE between two browsers', () => {
     await settle()
     await vi.advanceTimersByTimeAsync(UNKNOWN_OFFER_WAIT_MS)
     expect(a.sent.map((m) => [m.to, m.kind])).toEqual([['v', 'answer']])
-    expect(a.peers[0]?.transceivers.every((t) => t.direction === 'sendonly')).toBe(true)
+    // The viewer offered receive-only, so the browser negotiates the answer to send-only.
+    expect(v.peers[0]?.transceivers.every((t) => t.direction === 'recvonly')).toBe(true)
+    expect(a.mesh.snapshot()).toEqual([{ memberId: 'v', state: 'connecting', receiving: 'none' }])
   })
 
   it('fetches the ICE servers on first use only, with the server list', async () => {
@@ -341,6 +343,34 @@ describe('tracks and teardown', () => {
     a.mesh.apply(view(seat('a'), seat('d')))
     await settle()
     expect(a.peers).toHaveLength(2)
+  })
+
+  it('a device that opens after close() is stopped at once', () => {
+    const net = network()
+    const a = net.node('a', false)
+    a.mesh.setMode('stage')
+    a.mesh.close()
+    const cam = new FakeTrack('video')
+    a.mesh.setLocalTrack('video', asTrack(cam))
+    expect(cam.stopped).toBe(true)
+    expect(a.mesh.hasTrack('video')).toBe(false)
+  })
+
+  it('a failed link this side offered is opened again with a new linkId on the next view', async () => {
+    const net = network()
+    const a = net.node('a', false)
+    a.mesh.setMode('stage')
+    a.mesh.apply(view(seat('a'), seat('b')))
+    await settle()
+    a.peers[0]?.iceState('failed')
+    a.peers[0]?.iceState('failed')
+    expect(a.mesh.snapshot()[0]?.state).toBe('failed')
+    a.mesh.apply(view(seat('a'), seat('b')))
+    await settle()
+    expect(a.peers[0]?.closed).toBe(true)
+    expect(a.peers).toHaveLength(2)
+    const offers = a.sent.filter((m) => m.kind === 'offer' && m.to === 'b').map((m) => m.linkId)
+    expect(new Set(offers).size).toBe(2)
   })
 
   it('reset() closes the links but keeps the devices for a rejoin', async () => {

@@ -1,4 +1,4 @@
-import { PeerLink, RECOVER_SAMPLES, SAMPLE_EVERY_MS, type LinkOptions } from './link'
+import { PeerLink, RECOVER_SAMPLES, RESTART_WAIT_MS, SAMPLE_EVERY_MS, type LinkOptions } from './link'
 import { asPeer, asTrack, FakePeer, FakeTrack } from './fakes'
 
 type Sent = { kind: string; linkId: string; payload: string }
@@ -90,6 +90,15 @@ describe('glare and stale messages', () => {
     expect(await link.receive('answer', 'L1', 'v=0 answer')).toBe(false)
   })
 
+  it('drops an ICE message that is not a candidate object without failing the link', async () => {
+    const { peer, link } = make()
+    await link.offer()
+    for (const bad of ['null', '[1]', '"x"', '42']) expect(await link.receive('ice', 'L1', bad)).toBe(false)
+    expect(await link.receive('bogus' as 'ice', 'L1', '{}')).toBe(false)
+    expect(peer.candidates).toEqual([])
+    expect(link.state).toBe('connecting')
+  })
+
   it('ignores an answer when no offer is waiting', async () => {
     const { link } = make()
     expect(await link.receive('answer', 'L1', 'v=0 answer')).toBe(false)
@@ -158,6 +167,29 @@ describe('ICE restart', () => {
     expect(link.state).toBe('connecting')
     expect(await link.receive('offer', 'L1', 'v=0 restart')).toBe(true)
   })
+
+  it('fails when the restart never connects, so the link does not hold a slot forever', async () => {
+    vi.useFakeTimers()
+    const { peer, link } = make({ role: 'answerer' })
+    await link.receive('offer', 'L1', 'v=0 offer')
+    peer.iceState('connected')
+    peer.iceState('failed')
+    await vi.advanceTimersByTimeAsync(RESTART_WAIT_MS - 1)
+    expect(link.state).toBe('connected')
+    await vi.advanceTimersByTimeAsync(1)
+    expect(link.state).toBe('failed')
+  })
+
+  it('a restart that connects in time keeps the link', async () => {
+    vi.useFakeTimers()
+    const { peer, link } = make()
+    await link.offer()
+    peer.iceState('connected')
+    peer.iceState('failed')
+    peer.iceState('connected')
+    await vi.advanceTimersByTimeAsync(RESTART_WAIT_MS)
+    expect(link.state).toBe('connected')
+  })
 })
 
 describe('weak link', () => {
@@ -187,6 +219,27 @@ describe('weak link', () => {
     expect(peer.video()?.sender.track).toBeNull()
     expect(peer.audio()?.sender.track).toBe(mic)
     expect(cam.stopped).toBe(false)
+  })
+
+  it('uses fractionLost when the browser does not report packetsReceived', async () => {
+    const { peer, link } = await connected()
+    peer.stats = [{ type: 'remote-inbound-rtp', packetsLost: 5, fractionLost: 0.02, roundTripTime: 0.05 }]
+    await tick()
+    peer.stats = [{ type: 'remote-inbound-rtp', packetsLost: 9, fractionLost: 0.03, roundTripTime: 0.05 }]
+    await tick()
+    await tick()
+    expect(link.state).toBe('connected')
+    peer.stats = [{ type: 'remote-inbound-rtp', packetsLost: 90, fractionLost: 0.3 }]
+    await tick()
+    await tick()
+    expect(link.state).toBe('weak')
+  })
+
+  it('stays connected when the browser reports no stats at all', async () => {
+    const { peer, link } = await connected()
+    peer.stats = []
+    for (let i = 0; i < 4; i++) await tick()
+    expect(link.state).toBe('connected')
   })
 
   it('also counts a long round trip as weak', async () => {

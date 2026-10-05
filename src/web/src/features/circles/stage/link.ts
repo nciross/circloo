@@ -36,6 +36,8 @@ export const WEAK_RTT_MS = 800
 export const WEAK_SAMPLES = 2
 /** Ten seconds of good samples bring the video back. */
 export const RECOVER_SAMPLES = Math.ceil(10_000 / SAMPLE_EVERY_MS)
+/** After the first ICE failure, the restart has this long to connect before the link counts as failed. */
+export const RESTART_WAIT_MS = 15_000
 
 type Kind = 'audio' | 'video'
 
@@ -52,6 +54,7 @@ export class PeerLink {
   private pendingIce: RTCIceCandidateInit[] = []
   private failures = 0
   private timer: ReturnType<typeof setInterval> | null = null
+  private restartTimer: ReturnType<typeof setTimeout> | null = null
   private bad = 0
   private good = 0
   private last: { lost: number; received: number } | null = null
@@ -149,10 +152,13 @@ export class PeerLink {
         await this.flushIce()
         return true
       }
+      if (kind !== 'ice') return false
       if (!payload) return true // end of candidates
-      const candidate = JSON.parse(payload) as RTCIceCandidateInit
-      if (this.peer.remoteDescription) await this.peer.addIceCandidate(candidate)
-      else this.pendingIce.push(candidate)
+      const candidate = JSON.parse(payload) as unknown
+      if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return false
+      const init = candidate as RTCIceCandidateInit
+      if (this.peer.remoteDescription) await this.peer.addIceCandidate(init)
+      else if (this.pendingIce.length < 100) this.pendingIce.push(init)
       return true
     } catch {
       this.fail()
@@ -170,18 +176,30 @@ export class PeerLink {
     const s = this.peer.iceConnectionState
     if (this.current === 'closed') return
     if (s === 'connected' || s === 'completed') {
+      this.clearRestart()
       this.setState(this.current === 'weak' ? 'weak' : 'connected')
     } else if (s === 'failed') {
       this.failures += 1
       // One ICE restart, offered by the side that offered first; the other side waits for it.
+      // If it never connects again (the other side left), the link fails instead of hanging on to a slot.
       if (this.failures === 1) {
         if (this.role === 'offerer') void this.negotiate(true)
+        this.restartTimer ??= setTimeout(() => {
+          this.restartTimer = null
+          this.fail()
+        }, RESTART_WAIT_MS)
       } else this.fail()
     }
   }
 
   private fail() {
+    this.clearRestart()
     if (this.current !== 'closed') this.setState('failed')
+  }
+
+  private clearRestart() {
+    if (this.restartTimer) clearTimeout(this.restartTimer)
+    this.restartTimer = null
   }
 
   /** Starts (track) or stops (null) sending a kind. The caller owns the track and stops it. */
@@ -237,6 +255,8 @@ export class PeerLink {
     if (this.current === 'closed' || this.current === 'failed' || !this.opts.sends) return
     let lost = 0
     let received = 0
+    let counted = false
+    let fraction = 0
     let rtt = 0
     try {
       const report = await this.peer.getStats()
@@ -244,11 +264,15 @@ export class PeerLink {
         if (s.type === 'remote-inbound-rtp') {
           lost += Number(s.packetsLost ?? 0)
           if (typeof s.roundTripTime === 'number') rtt = Math.max(rtt, s.roundTripTime * 1000)
+          if (typeof s.fractionLost === 'number') fraction = Math.max(fraction, s.fractionLost)
+          // What the other side reports back is the loss on what we send. Some browsers omit packetsReceived.
+          if (typeof s.packetsReceived === 'number') {
+            received += s.packetsReceived
+            counted = true
+          }
         } else if (s.type === 'candidate-pair' && s.nominated && typeof s.currentRoundTripTime === 'number') {
           rtt = Math.max(rtt, s.currentRoundTripTime * 1000)
         }
-        // What the other side reports back is the loss on what we send.
-        if (s.type === 'remote-inbound-rtp') received += Number(s.packetsReceived ?? 0)
       })
     } catch {
       return
@@ -258,7 +282,8 @@ export class PeerLink {
     const dLost = lost - (prev?.lost ?? 0)
     const dRecv = received - (prev?.received ?? 0)
     const total = dLost + dRecv
-    const loss = prev && total > 0 ? dLost / total : 0
+    // Without packetsReceived the lost count alone says nothing about the share: use fractionLost instead.
+    const loss = !counted ? fraction : prev && total > 0 ? dLost / total : 0
     if (loss > WEAK_LOSS || rtt > WEAK_RTT_MS) {
       this.good = 0
       this.bad += 1
@@ -291,6 +316,7 @@ export class PeerLink {
     if (this.current === 'closed') return
     if (this.timer) clearInterval(this.timer)
     this.timer = null
+    this.clearRestart()
     this.current = 'closed'
     this.peer.onicecandidate = null
     this.peer.oniceconnectionstatechange = null

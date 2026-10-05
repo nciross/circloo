@@ -223,6 +223,12 @@ export const stageSupported = mediaSupported
 /** Notices that end your seat: the media stops at once, whatever the Stage view says next. */
 const SEAT_ENDED = new Set<StageNoticeKind>(['removed', 'floor-taken', 'seat-moved', 'seat-lost', 'discussion-ended'])
 
+const SIGNAL_KINDS = new Set<unknown>(['offer', 'answer', 'ice'])
+/** A forwarded message comes from another browser: only well-formed ones reach the mesh. */
+function isSignal(from: unknown, kind: unknown, linkId: unknown, payload: unknown): kind is SignalKind {
+  return typeof from === 'string' && SIGNAL_KINDS.has(kind) && typeof linkId === 'string' && typeof payload === 'string' && payload.length <= 16_384
+}
+
 /** Hooked to the connection the way `bindPresentation` is; `isCurrent` ignores events from a connection that was replaced. */
 export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () => boolean) {
   connection.on('Discussion', (d: DiscussionState) => {
@@ -251,8 +257,9 @@ export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () =
   connection.on('RecordingWarning', (secondsLeft: number) => {
     if (isCurrent()) useStage.setState({ recordingWarning: secondsLeft })
   })
-  connection.on('Signal', (fromMemberId: string, kind: SignalKind, linkId: string, payload: string) => {
-    if (isCurrent()) void mesh?.receive(fromMemberId, kind, linkId, payload)
+  connection.on('Signal', (fromMemberId: unknown, kind: unknown, linkId: unknown, payload: unknown) => {
+    if (!isCurrent() || !isSignal(fromMemberId, kind, linkId, payload)) return
+    void mesh?.receive(fromMemberId as string, kind, linkId as string, payload as string)
   })
 }
 
