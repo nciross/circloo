@@ -10,6 +10,8 @@ export interface Member {
   role: Role
   name: string
   character: CharacterId
+  /** Which copy of the character (0–5): people sharing a character differ by their ring (spec 008). */
+  ring: number
 }
 
 export interface Message {
@@ -19,6 +21,24 @@ export interface Message {
   kind: 'member' | 'ai' | 'system'
   text: string
   at: string
+  likes: number
+  /** Whether you liked it. */
+  liked: boolean
+  /** Only ever true in the animator's view: members never receive hidden messages. */
+  hidden: boolean
+}
+
+/** The live room's switches (spec 008, contracts/hub.md). */
+export interface RoomSettings {
+  chat: 'open' | 'slow' | 'paused'
+  reactions: boolean
+  pirikooQuiet: boolean
+}
+
+/** Raised hands, oldest first, and who has the floor (member ids; names come from the member list). */
+export interface HandsView {
+  queue: { memberId: string; raisedAt: string }[]
+  floor: string | null
 }
 
 export type NoteColor = 'yellow' | 'pink' | 'blue' | 'green' | 'violet'
@@ -77,6 +97,10 @@ export interface CircleView {
   canvas: CanvasNote[]
   /** Polls, Q&A and the feedback form of the circle (spec 007, contracts/rest.md). */
   decide: DecideView
+  settings: RoomSettings
+  hands: HandsView
+  /** Reactions per kind in the latest presentation of the circle, for its results (spec 008). */
+  reactionTotals?: Partial<Record<'clap' | 'heart' | 'laugh' | 'wow' | 'like' | 'party', number>>
 }
 
 export interface ChoiceView {
@@ -150,9 +174,12 @@ export interface JoinInfo {
   name: string
   animatorName: string
   animatorCharacter: CharacterId
+  /** Characters with no free ring left. */
   taken: CharacterId[]
   full: boolean
   alreadyIn: boolean
+  /** How many people use each character and which of its rings (0–5) are free (spec 008). */
+  characters: { id: CharacterId; used: number; freeRings: number[] }[]
 }
 
 export const circlesKey = ['circles'] as const

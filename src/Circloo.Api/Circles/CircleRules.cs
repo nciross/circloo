@@ -9,13 +9,25 @@ public static class Roles
     public const string Participant = "participant";
 }
 
-/// <summary>The twelve characters participants pick from (spec 003 US2). Ids match the web cast.</summary>
+/// <summary>The characters participants pick from (spec 003 US2, 48 since #201). Ids match the web cast.</summary>
 public static class Characters
 {
+    /// <summary>How many people may share one character, each with their own ring 0–5 (spec 008 FR-803).</summary>
+    public const int RingsInUse = 6;
+
+    /// <summary>The most people a circle can hold: the configured maximum, never more than character/ring pairs.</summary>
+    public static int Capacity(int maxPeople) => Math.Min(maxPeople, All.Length * RingsInUse);
+
     public static readonly string[] All =
     [
         "panda", "fox", "frog", "cat", "owl", "octopus", "bear", "bunny", "robot", "ghost", "chick", "dino",
         "penguin", "lion", "koala", "hamster", "whale", "hedgehog", "monkey", "bee", "cactus", "axolotl", "raccoon", "llama",
+        // Heroes
+        "superhero", "ninja", "knight", "wizard", "pirate", "astronaut", "viking", "detective",
+        // Plants
+        "sunflower", "mushroom", "tulip", "sprout", "pumpkin", "cherry", "pineapple", "tree",
+        // Other friends
+        "alien", "unicorn", "dragon", "snowman", "cloud", "sun", "moon", "star",
     ];
     public static bool IsKnown(string? id) => id is not null && All.Contains(id);
 }
@@ -98,14 +110,51 @@ public static class TextRules
         c is '‎' or '‏' or '؜' || (c >= '‪' && c <= '‮') || (c >= '⁦' && c <= '⁩');
 }
 
-public sealed record MemberDto(Guid Id, string Role, string Name, string Character)
+/// <summary>A person in a circle; <see cref="Ring"/> tells apart people sharing a character (spec 008).</summary>
+public sealed record MemberDto(Guid Id, string Role, string Name, string Character, int Ring = 0)
 {
-    public static MemberDto From(CircleMember m) => new(m.Id, m.Role, m.Name, m.Character);
+    public static MemberDto From(CircleMember m) => new(m.Id, m.Role, m.Name, m.Character, m.Ring);
 }
 
-public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At)
+/// <summary>
+/// A chat message (spec 003), with its likes and whether the reader liked it (spec 008). <see cref="Hidden"/> is only
+/// ever true in the animator's view: members never receive hidden messages.
+/// </summary>
+public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At,
+    int Likes = 0, bool Liked = false, bool Hidden = false)
 {
-    public static MessageDto From(CircleMessage m) => new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt);
+    /// <param name="likes">Counted from the likes when read, so a deleted account never leaves a stale count.</param>
+    public static MessageDto From(CircleMessage m, int likes = 0, bool liked = false) =>
+        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, likes, liked, m.HiddenAt is not null);
+}
+
+/// <summary>The live room's switches (spec 008, contracts/hub.md <c>RoomSettings</c>).</summary>
+public sealed record RoomSettings(string Chat, bool Reactions, bool PirikooQuiet)
+{
+    public static RoomSettings Of(Circle c) => new(c.ChatMode, c.ReactionsOn, c.PirikooQuiet);
+
+    /// <summary>What a room starts with, and goes back to when the activity changes.</summary>
+    public static readonly RoomSettings Default = new(RoomChatModes.Open, true, false);
+}
+
+/// <summary>One raised hand in the queue (member id only: names come from the member list).</summary>
+public sealed record HandView(Guid MemberId, DateTimeOffset RaisedAt);
+
+/// <summary>The raised hands, oldest first, and who has the floor (spec 008, contracts/hub.md <c>HandsView</c>).</summary>
+public sealed record HandsView(IReadOnlyList<HandView> Queue, Guid? Floor)
+{
+    public static readonly HandsView Empty = new([], null);
+}
+
+/// <summary>A grouped burst of reactions, by kind, never who sent them (spec 008, contracts/hub.md ReactionBurst).</summary>
+public sealed record ReactionBurst(IReadOnlyDictionary<string, int> Counts);
+
+/// <summary>The emoji reactions a room can send (spec 008 FR-815).</summary>
+public static class ReactionKinds
+{
+    public static readonly string[] All = ["clap", "heart", "laugh", "wow", "like", "party"];
+
+    public static bool IsValid(string? kind) => kind is not null && All.Contains(kind);
 }
 
 public sealed record CanvasNoteDto(long Id, string ActivityId, string Text, double X, double Y, string Color, string Size, string Shape, string? Sticker, Guid AuthorId)
@@ -117,4 +166,24 @@ public sealed record BoardNoteDto(long Id, string ActivityId, string Column, str
 {
     public static BoardNoteDto From(BoardNote n) =>
         new(n.Id, n.ActivityId, n.Column, n.Text, n.Color, n.AuthorMemberId, [.. n.Votes.Select(v => v.MemberId)]);
+}
+
+/// <summary>Raised hands as everyone sees them: the queue oldest first, and who has the floor (spec 008 US5).</summary>
+public static class Hands
+{
+    public static HandsView View(IEnumerable<RaisedHand> hands)
+    {
+        var all = hands.OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToList();
+        return new HandsView([.. all.Where(h => !h.HasFloor).Select(h => new HandView(h.MemberId, h.RaisedAt))], all.FirstOrDefault(h => h.HasFloor)?.MemberId);
+    }
+}
+
+/// <summary>Which copies of a character are taken and which rings are still free (spec 008 FR-803/805).</summary>
+public static class Rings
+{
+    public static CharacterUse Use(string character, IEnumerable<int> taken)
+    {
+        var used = taken.ToHashSet();
+        return new CharacterUse(character, used.Count, [.. Enumerable.Range(0, Characters.RingsInUse).Where(r => !used.Contains(r))]);
+    }
 }

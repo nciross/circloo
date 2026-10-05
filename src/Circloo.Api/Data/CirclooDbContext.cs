@@ -21,6 +21,8 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<Circle> Circles => Set<Circle>();
     public DbSet<CircleMember> CircleMembers => Set<CircleMember>();
     public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
+    public DbSet<MessageLike> MessageLikes => Set<MessageLike>();
+    public DbSet<RaisedHand> RaisedHands => Set<RaisedHand>();
     public DbSet<BoardNote> BoardNotes => Set<BoardNote>();
     public DbSet<CanvasNote> CanvasNotes => Set<CanvasNote>();
     public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
@@ -129,9 +131,29 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(m => m.Character).HasMaxLength(16);
             e.HasOne(m => m.Circle).WithMany().HasForeignKey(m => m.CircleId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<User>().WithMany().HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
-            // One person per character and one membership per account in a circle, while present.
-            e.HasIndex(m => new { m.CircleId, m.Character }).IsUnique().HasFilter("\"LeftAt\" IS NULL");
+            // Characters can be shared, each copy with its own ring (spec 008); one membership per account while present.
+            e.HasIndex(m => new { m.CircleId, m.Character, m.Ring }).IsUnique().HasFilter("\"LeftAt\" IS NULL");
             e.HasIndex(m => new { m.CircleId, m.UserId }).IsUnique().HasFilter("\"UserId\" IS NOT NULL AND \"LeftAt\" IS NULL");
+        });
+
+        modelBuilder.Entity<Circle>(e => e.Property(c => c.ChatMode).HasMaxLength(8));
+
+        modelBuilder.Entity<MessageLike>(e =>
+        {
+            e.HasKey(l => new { l.MessageId, l.MemberId });
+            e.HasOne<CircleMessage>().WithMany().HasForeignKey(l => l.MessageId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(l => l.MemberId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RaisedHand>(e =>
+        {
+            e.HasKey(h => h.Id);
+            e.Property(h => h.Id).UseIdentityAlwaysColumn();
+            // One hand per member, and at most one person with the floor per circle (spec 008 US5).
+            e.HasIndex(h => new { h.CircleId, h.MemberId }).IsUnique();
+            e.HasIndex(h => h.CircleId, "IX_RaisedHands_CircleId_Floor").IsUnique().HasFilter("\"HasFloor\"");
+            e.HasOne<Circle>().WithMany().HasForeignKey(h => h.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMember>().WithMany().HasForeignKey(h => h.MemberId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<CircleMessage>(e =>
@@ -218,6 +240,7 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
         {
             e.Property(s => s.Snapshot).HasColumnType("jsonb");
             e.Property(s => s.QuestionPhases).HasColumnType("jsonb");
+            e.Property(s => s.ReactionTotals).HasColumnType("jsonb");
             e.Property(s => s.Phase).HasMaxLength(10);
             e.Property(s => s.Version).IsConcurrencyToken();
             // At most one running presentation per circle.

@@ -116,7 +116,7 @@ public sealed partial class CirclooCoach(
         }
 
         var history = await db.CircleMessages.AsNoTracking()
-            .Where(m => m.CircleId == circleId && m.ActivityId == activity.Id && m.Kind != "system")
+            .Where(m => m.CircleId == circleId && m.ActivityId == activity.Id && m.Kind != "system" && m.HiddenAt == null)
             .OrderByDescending(m => m.Id).Take(HistoryLimit).ToListAsync(ct);
         history.Reverse();
         var members = await db.CircleMembers.AsNoTracking().Where(m => m.CircleId == circleId)

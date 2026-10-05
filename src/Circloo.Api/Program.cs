@@ -60,11 +60,14 @@ builder.Services.AddHostedService<EmailOutboxWorker>();
 builder.Services.AddCirclooAi(builder.Configuration);
 builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 8 * 1024);
 builder.Services.AddSingleton<CirclePresence>();
+builder.Services.AddSingleton<RoomLimits>();
+builder.Services.AddSingleton<JoinLimiter>();
 // Outbound calls to Teams, Atlassian and Notion: no redirects (a redirect could aim at an internal host), short timeout.
 builder.Services.AddHttpClient(IntegrationSender.ClientName, c => c.Timeout = TimeSpan.FromSeconds(15))
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
 builder.Services.AddSingleton<IntegrationSender>();
 // The deck converter is internal only; conversions of large decks take up to two minutes (spec 006, R1).
+builder.Services.AddOptions<CircleOptions>().BindConfiguration(CircleOptions.Section).ValidateDataAnnotations().ValidateOnStart();
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
 builder.Services.AddScoped<LiveSessions>();
