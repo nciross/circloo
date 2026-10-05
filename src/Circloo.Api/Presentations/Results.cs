@@ -6,7 +6,7 @@ namespace Circloo.Api.Presentations;
 public sealed record OptionResult(string Id, int Count, int Percent, bool Winner, bool? Correct = null);
 
 /// <summary>Who answered first, and how fast (spotlight, US5). Filled in with the reveal.</summary>
-public sealed record FirstAnswer(Guid MemberId, string Name, string Character, long Ms);
+public sealed record FirstAnswer(Guid MemberId, string Name, string Character, long Ms, int Ring = 0);
 
 /// <summary>The results of a question (contracts/hub.md <c>Results</c>): live for polls that show them, otherwise at reveal.</summary>
 public sealed record ResultsView(int Total, IReadOnlyList<OptionResult> Options, FirstAnswer? First = null);
@@ -42,7 +42,7 @@ public static class ResultsBuilder
     /// first, the spotlight goes to the earliest answer received (for a quiz, the earliest correct one), with the time
     /// since answering opened. Nobody is named when the spotlight is off or nobody qualifies.
     /// </summary>
-    public static ResultsView Reveal(SnapshotSlide slide, IReadOnlyList<AnswerRow> answers, DateTimeOffset? openedAt, IReadOnlyDictionary<Guid, (string Name, string Character)> members)
+    public static ResultsView Reveal(SnapshotSlide slide, IReadOnlyList<AnswerRow> answers, DateTimeOffset? openedAt, IReadOnlyDictionary<Guid, (string Name, string Character, int Ring)> members)
     {
         var counted = Build(slide, [.. answers.Select(a => a.Options)], winners: true);
         var quiz = slide.Kind == SlideKinds.Quiz;
@@ -53,7 +53,7 @@ public static class ResultsBuilder
             && members.TryGetValue(earliest.MemberId, out var who))
         {
             var ms = openedAt is { } opened ? Math.Max(0, (long)Math.Round((earliest.FirstReceivedAt - opened).TotalMilliseconds)) : 0;
-            first = new FirstAnswer(earliest.MemberId, who.Name, who.Character, ms);
+            first = new FirstAnswer(earliest.MemberId, who.Name, who.Character, ms, who.Ring);
         }
         return counted with { Options = options, First = first };
     }

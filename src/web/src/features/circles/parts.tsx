@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Copy, Crown, Play } from 'lucide-react'
 import { Character } from '../../components/Character'
@@ -12,13 +12,27 @@ import { ACTIVITIES, CATEGORIES, type Category } from './catalog'
 
 type PickTab = 'friends' | 'people' | 'build'
 
-/** Three ways to choose, as a native radio group in each:: arrow keys move, taken ones are disabled and say so. */
+/** How many people use a character in a circle and which of its rings are free (spec 008). */
+export interface CharacterUse {
+  id: AnyCharacter
+  used: number
+  freeRings: number[]
+}
+
+/**
+ * Three ways to choose (friends, people, build your own), as a native radio group in each: arrow keys move; a character
+ * with no free ring left is disabled and says so. With `uses` (joining a circle), characters already picked by others
+ * show how many people use them: they can be shared, each person with their own ring (spec 008).
+ */
 export function CharacterPicker({
-  value, onChange, taken = [], legend, describedBy, invalid,
+  value, onChange, taken = [], uses, pickedRing = 0, legend, describedBy, invalid,
 }: {
   value: AnyCharacter | null
   onChange: (c: AnyCharacter) => void
   taken?: string[]
+  uses?: CharacterUse[]
+  /** The ring the picked character will wear, drawn on its tile so a one-tap joiner sees it. */
+  pickedRing?: number
   legend: string
   describedBy?: string
   invalid?: boolean
@@ -26,13 +40,16 @@ export function CharacterPicker({
   const { t } = useTranslation()
   const [tab, setTab] = useState<PickTab>(() => (isAvatarCode(value) ? (GALLERY.includes(value) ? 'people' : 'build') : 'friends'))
   const item = (c: AnyCharacter, name: string, compact = false) => {
-    const isTaken = taken.includes(c) && c !== value
+    const use = uses?.find((u) => u.id === c)
+    const isTaken = (use ? use.freeRings.length === 0 : taken.includes(c)) && c !== value
+    const shared = !isTaken && (use?.used ?? 0) > 0
     return (
       <label key={c} className={`pick__item${compact ? ' pick__item--small' : ''}${value === c ? ' is-picked' : ''}${isTaken ? ' is-taken' : ''}`}>
         <input type="radio" name="character" value={c} checked={value === c} disabled={isTaken} onChange={() => onChange(c)} aria-label={compact ? name : undefined} />
-        <Character id={c} className="pick__char" />
+        <Character id={c} ring={value === c ? pickedRing : 0} tag={!compact} className="pick__char" />
         {compact ? null : <span className="pick__name">{name}</span>}
-        {isTaken ? <span className="pick__taken">{t('circles.taken')}</span> : null}
+        {isTaken ? <span className="pick__taken">{t(uses ? 'circles.join.characterFull' : 'circles.taken')}</span> : null}
+        {shared && !compact ? <span className="pick__used">{t('circles.join.used', { count: use!.used })}</span> : null}
       </label>
     )
   }
@@ -54,6 +71,35 @@ export function CharacterPicker({
       {tab === 'friends' ? <div className="pick__grid">{CHARACTERS.map((c) => item(c, t(`characters.${c}`)))}</div> : null}
       {tab === 'people' ? <div className="pick__grid pick__grid--small">{GALLERY.map((c, i) => item(c, t('avatar.person', { n: i + 1 }), true))}</div> : null}
       {tab === 'build' ? <AvatarBuilder code={isAvatarCode(value) ? value : null} onChange={onChange} /> : null}
+    </fieldset>
+  )
+}
+
+/**
+ * Which copy of a character to be, when others already use it (spec 008): each free ring as the character wearing
+ * it, numbered, so the choice never rests on colour alone. The lowest free ring is chosen until the person picks.
+ */
+export function RingPicker({ character, freeRings, value, onChange }: {
+  character: AnyCharacter
+  freeRings: number[]
+  value: number
+  onChange: (ring: number) => void
+}) {
+  const { t } = useTranslation()
+  const help = useId()
+  return (
+    <fieldset className="rings" aria-describedby={help}>
+      <legend className="field__label">{t('circles.join.ringLegend')}</legend>
+      <p id={help} className="field__help rings__help">{t('circles.join.ringHelp', { n: value + 1 })}</p>
+      <div className="rings__grid">
+        {freeRings.map((r) => (
+          <label key={r} className={`rings__item${value === r ? ' is-picked' : ''}`}>
+            <input type="radio" name="ring" value={r} checked={value === r} onChange={() => onChange(r)} />
+            <Character id={character} ring={r} className="rings__char" />
+            <span className="rings__name">{r === 0 ? t('circles.join.ringNone') : t('circles.join.ringOption', { n: r + 1 })}</span>
+          </label>
+        ))}
+      </div>
     </fieldset>
   )
 }
@@ -84,7 +130,7 @@ export function PeopleRing({ members, online, meId, arrivals = [] }: { members: 
                     ))}
                   </span>
                 ) : null}
-                <Character id={m.character} className="ring__char" />
+                <Character id={m.character} ring={m.ring} className="ring__char" />
                 <span className="ring__name">
                   {m.role === 'animator' ? <Crown size={12} aria-hidden="true" /> : null}
                   <bdi>{m.name}</bdi>

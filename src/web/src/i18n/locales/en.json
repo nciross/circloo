@@ -660,9 +660,16 @@
       "errors": {
         "name": "Write the name people will see.",
         "character": "Pick a character to join.",
-        "taken": "Someone just picked this character. Choose another one.",
+        "taken": "This character is full now. Pick another one.",
         "full": "This circle is full."
-      }
+      },
+      "used_one": "{{count}} here",
+      "used_other": "{{count}} here",
+      "characterFull": "Full",
+      "ringLegend": "Your colour ring",
+      "ringHelp": "Others picked this character too. You will wear ring {{n}}, and your name always shows with it. Change it here if you like.",
+      "ringOption": "Ring {{n}}",
+      "ringNone": "No ring"
     },
     "room": {
       "title": "Circle",

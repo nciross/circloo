@@ -681,19 +681,37 @@ export function AvatarArt({ avatar }: { avatar: Avatar }) {
   )
 }
 
-/** One character. Decorative unless `title` is given (then it is an image with that name). */
-export function Character({ id, className, title }: { id: AnyCharacter; className?: string; title?: string }) {
+/**
+ * One character. Decorative unless `title` is given (then it is an image with that name).
+ *
+ * `ring` tells apart people sharing a character (spec 008): ring 0 draws nothing, so a small circle looks as before;
+ * rings 1–5 draw a coloured outline around the slightly smaller art and a numbered tag on the ring, like a jersey
+ * number, so the difference never rests on colour alone. At small sizes (`tag={false}`) the number would be
+ * unreadable, so it is left out and the person's name is shown beside the character instead.
+ */
+export function Character({ id, className, title, ring = 0, tag = true }: { id: AnyCharacter; className?: string; title?: string; ring?: number; tag?: boolean }) {
+  const ringed = ring > 0 && ring <= 5
   const custom = isAvatarCode(id)
   return (
     <svg
-      className={['char', custom ? 'char--custom' : `char--${id}`, className].filter(Boolean).join(' ')}
+      className={['char', custom ? 'char--custom' : `char--${id}`, ringed ? `char--ring char--ring-${ring}` : '', className].filter(Boolean).join(' ')}
       viewBox="0 0 64 64"
       role={title ? 'img' : undefined}
       aria-label={title}
       aria-hidden={title ? undefined : 'true'}
       focusable="false"
     >
-      {isAvatarCode(id) ? <AvatarArt avatar={decodeAvatar(id)} /> : ART[id]}
+      {ringed ? <circle className="char__ring" cx="32" cy="32" r="30.5" fill="none" strokeWidth="3" /> : null}
+      {/* Inside a ring the art is drawn a little smaller, so ears and hair never cross the ring. */}
+      <g className="char__art" transform={ringed ? 'translate(32 32) scale(0.84) translate(-32 -32)' : undefined}>
+        {custom ? <AvatarArt avatar={decodeAvatar(id)} /> : ART[id]}
+      </g>
+      {ringed && tag ? (
+        <g className="char__ring-dot">
+          <circle cx="32" cy="57" r="9.5" strokeWidth="2" />
+          <text x="32" y="61.2" textAnchor="middle" fontSize="12.5" fontWeight="800">{ring + 1}</text>
+        </g>
+      ) : null}
     </svg>
   )
 }
