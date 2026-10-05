@@ -63,6 +63,14 @@ public interface ICircleClient
     Task MyUpvote(long questionId, bool upvoted);
     /// <summary>The live discussion switch changed, or the caller just entered (spec 009).</summary>
     Task Discussion(DiscussionState state);
+    /// <summary>A message was hidden: members drop it, the animator's clients keep it marked hidden (spec 008).</summary>
+    Task MessageHidden(long id);
+    /// <summary>A message's like count changed (coalesced per message).</summary>
+    Task MessageLikes(long id, int count);
+    /// <summary>The member's own like on a message, to all of their connections.</summary>
+    Task MyLike(long id, bool liked);
+    /// <summary>The room's chat mode and switches changed, were reset, or the caller just entered.</summary>
+    Task RoomSettings(RoomSettings settings);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -136,6 +144,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
         }
         await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
+        await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
         var online = presence.Online(circleId);
         RequestPresence(circleId);
         // Reloads and late joiners land on the current slide (spec 006 FR-608).
@@ -152,6 +161,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         {
             throw new HubException("message-unsafe");
         }
+        await CheckChatLimitsAsync(me);
         var message = await AddMessageAsync(circleId, me.Circle!.CurrentActivity, me.Id, "member", clean);
         await Clients.Group(Group(circleId)).Message(MessageDto.From(message));
         // The next keystroke after a message announces typing again at once.
@@ -184,6 +194,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await EndSessionAsync(circleId, me, "switched");
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
+        await ResetRoomSettingsAsync(circleId);
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
@@ -202,6 +213,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await EndSessionAsync(circleId, me, "ended");
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
+        await ResetRoomSettingsAsync(circleId);
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));
