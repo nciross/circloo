@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, Lock, MessagesSquare, Search } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
-import { Wordmark } from '../../components/Brand'
+import { Brand, Wordmark } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
 import { MoodIcon, type Mood } from '../../components/MoodIcon'
 import { useDocumentTitle } from '../../app/locale'
@@ -10,9 +10,7 @@ import { IcebreakerCard } from './IcebreakerCard'
 import { MoodDemo } from './MoodDemo'
 import { CircleStage } from './CircleStage'
 import { Story } from './Story'
-import { AnnouncementBar, Personas, FeatureGrid, Faq } from './Sections'
 import '../../styles/landing.css'
-import '../../styles/landing-pro.css'
 
 interface CheckinItem { name: string; mood: string; need: string }
 interface Step { title: string; body: string }
@@ -94,13 +92,10 @@ export function Landing() {
 
   return (
     <div className="site">
-      <AnnouncementBar />
       <SiteHeader
         links={
           <nav className="sitebar__links" aria-label={t('landing.nav.label')}>
             <a href="#story">{t('landing.nav.story')}</a>
-            <a href="#personas">{t('landing.nav.personas')}</a>
-            <a href="#features">{t('landing.nav.features')}</a>
             <a href="#pricing">{t('landing.nav.pricing')}</a>
             <a href="#integrations">{t('landing.nav.integrations')}</a>
           </nav>
@@ -113,32 +108,23 @@ export function Landing() {
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
-            <p className="badge">{t('landing.badge')}</p>
-            <h1 id="hero-title" className="hero__title">
-              <span>{t('landing.headlineA')}</span> <span className="hero__muted">{t('landing.headlineB')}</span>
-            </h1>
+            <h1 id="hero-title" className="hero__title">{t('landing.headline')}</h1>
             <p className="hero__lead">{t('landing.sub')}</p>
             <div className="hero__actions">
               <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>
                 {t('landing.cta')}
               </ButtonLink>
-              <a className="btn btn--default btn--lg hero__link" href="#story"><span className="btn__label">{t('landing.ctaSecondary')}</span></a>
+              <a className="hero__link" href="#story">{t('landing.ctaSecondary')}</a>
             </div>
             <ul className="hero__facts">
-              {(t('landing.trust', { returnObjects: true }) as string[]).map((f, i) => (
-                <li key={f}>{i === 0 ? <Lock size={14} aria-hidden="true" /> : <Check size={14} aria-hidden="true" />} {f}</li>
-              ))}
-            </ul>
-            <ul className="hero__fine">
-              {(t('landing.fine', { returnObjects: true }) as string[]).map((f) => <li key={f}>{f}</li>)}
+              <li><Check size={16} aria-hidden="true" /> {t('landing.languagesLine')}</li>
+              <li><Lock size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
             </ul>
           </div>
           <CircleStage />
         </section>
 
         <Story />
-
-        <Personas />
 
         <section className="band band--sunken inside" aria-labelledby="inside-title">
           <div className="band__inner inside__inner">
@@ -211,8 +197,6 @@ export function Landing() {
           </div>
         </section>
 
-        <FeatureGrid soon={t('common.soon')} />
-
         <section id="how" className="band" aria-labelledby="how-title">
           <div className="band__inner">
             <h2 id="how-title" className="section-title">{t('landing.how.title')}</h2>
@@ -278,13 +262,9 @@ export function Landing() {
           </div>
         </section>
 
-        <Faq />
-
         <section className="cta" aria-labelledby="final-title">
           <div className="cta__inner">
-            <h2 id="final-title" className="cta__title">
-              <span>{t('landing.final2.a')}</span> <span className="hero__muted">{t('landing.final2.b')}</span>
-            </h2>
+            <h2 id="final-title" className="cta__title">{t('landing.final.title')}</h2>
             <p>{t('landing.final.body')}</p>
             <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>
               {t('landing.final.cta')}
@@ -295,28 +275,10 @@ export function Landing() {
 
       <footer className="footer">
         <div className="footer__inner">
-          <a className="footer__mail" href={`mailto:${t('landing.footer2.mail')}`} lang="en" dir="ltr">{t('landing.footer2.mail')}</a>
-          <p className="footer__blurb">{t('landing.footer2.blurb')}</p>
-          <nav className="footer__cols" aria-label={t('landing.nav.label')}>
-            <div>
-              <h3 className="eyebrow">{t('landing.footer2.product')}</h3>
-              <ul>
-                <li><a href="#story">{t('landing.footer2.howItWorks')}</a></li>
-                <li><a href="#features">{t('landing.nav.features')}</a></li>
-                <li><a href="#pricing">{t('landing.nav.pricing')}</a></li>
-                <li><a href="#faq">{t('landing.nav.faq')}</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="eyebrow">{t('landing.footer2.company')}</h3>
-              <ul>
-                <li><a href="#integrations">{t('landing.nav.integrations')}</a></li>
-                <li><a href="/signin">{t('common.signIn')}</a></li>
-              </ul>
-            </div>
-          </nav>
-          <p className="footer__word" aria-hidden="true">circloo</p>
-          <p className="footer__legal">{t('landing.footer.made')} {t('landing.footer.trademarks')}</p>
+          <Brand />
+          <p>{t('landing.footer.private')}</p>
+          <p>{t('landing.footer.made')}</p>
+          <p className="footer__legal">{t('landing.footer.trademarks')}</p>
         </div>
       </footer>
     </div>
