@@ -45,7 +45,8 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   const guest = await guestCtx.newPage()
   await guest.goto(link.replace(/^https?:\/\/[^/]+/, ''))
   await expect(guest.locator('.authform__title')).toBeVisible()
-  await expect(guest.locator('.pick__item:has(input[value=owl])')).toHaveClass(/is-taken/)
+  // Characters can be shared (spec 008): the animator's owl is still free for a guest.
+  await expect(guest.locator('.pick__item:has(input[value=owl])')).not.toHaveClass(/is-taken/)
   await guest.locator('input[name=name]').fill(locale === 'ar' ? 'يوسف' : 'Youssef')
   await guest.locator('form button[type=submit]').click()
   await expect(guest.locator('.pick + .field__error, [role=alert]').first()).toBeVisible()

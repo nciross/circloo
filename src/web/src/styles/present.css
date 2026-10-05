@@ -37,9 +37,10 @@
 .stage-slide__blank p {
   margin: 0;
 }
-/* A question keeps 16:9 but grows taller when its answers need the room (phones) instead of cutting them off: with
-   visible overflow, a box with an aspect ratio grows to fit its content. */
 .stage-slide.is-question {
+  /* At least 16:9, and taller when the question, its answers or its results need it (phones), never overflowing onto
+     the controls below. */
+  aspect-ratio: auto;
   overflow: visible;
   place-items: stretch;
   background: var(--surface);
@@ -50,6 +51,7 @@
   align-content: center;
   gap: clamp(var(--s-2), 2.5cqi, var(--s-5));
   inline-size: 100%;
+  min-block-size: 56.25cqi;
   padding: clamp(var(--s-3), 5cqi, var(--s-9));
 }
 .stage-slide__kind {
@@ -227,6 +229,8 @@
   border-radius: 0;
 }
 .follow__full {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
   position: absolute;
   inset-block-end: var(--s-2);
   inset-inline-end: var(--s-2);
@@ -300,6 +304,14 @@
   --audience-bg: #0b0f14;
   --audience-text: #eef2f6;
   --audience-subtle: #aab4c0;
+  --audience-card: #131a22;
+  --audience-line: rgb(255 255 255 / 0.18);
+  --audience-track: rgb(255 255 255 / 0.14);
+  --audience-bar: rgb(34 184 204 / 0.45);
+  --audience-danger: #ff9b8a;
+  --audience-success: #3ddc97;
+  --audience-success-bar: rgb(61 220 151 / 0.35);
+  --audience-bar-strong: rgb(34 184 204 / 0.6);
   position: fixed;
   inset: 0;
   display: grid;
@@ -426,4 +438,635 @@
   .audience__full {
     transition: none;
   }
+}
+
+/* ---------- Answering (spec 006 US4) ---------- */
+
+/* An option's share: a bar behind the option and its figures at the end of the line. Bars grow from the inline start,
+   so they follow the reading direction. */
+.stage-slide__options.has-results li,
+.answer-pad__options.has-results .answer-pad__option {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.stage-slide__text {
+  flex: 1;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+/* With results, narrow options put their figures on a line of their own instead of squeezing the text. */
+.has-results li,
+.has-results .answer-pad__option {
+  flex-wrap: wrap;
+}
+.has-results .stage-slide__text {
+  flex: 1 1 8rem;
+}
+.share__figures {
+  margin-inline-start: auto;
+}
+.share {
+  display: contents;
+}
+.share__bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: -1;
+  inline-size: var(--share, 0%);
+  border-radius: inherit;
+  background: var(--primary-subtle);
+  transition: inline-size 400ms var(--ease-out, ease-out);
+}
+.share__figures {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+/* The participant's pad: the question card with big, thumb-sized answers. */
+.answer-pad {
+  aspect-ratio: auto;
+  min-block-size: 0;
+}
+.answer-pad .stage-slide__question {
+  padding: clamp(var(--s-4), 5cqi, var(--s-8));
+  /* Room for the full-screen button in the corner. */
+  padding-block-end: calc(var(--s-4) + 2.75rem);
+}
+/* Full screen: the pad fills the screen and scrolls when its answers need more room. */
+.follow__frame:fullscreen .answer-pad,
+.follow__frame.is-filled .answer-pad {
+  inline-size: 100%;
+  min-block-size: 100dvh;
+  max-block-size: 100dvh;
+  overflow-y: auto;
+  border: 0;
+  border-radius: 0;
+}
+/* Centred, and larger on big screens (#167); a short landscape phone scrolls instead of cutting answers off. */
+.follow__frame:fullscreen .answer-pad .stage-slide__question,
+.follow__frame.is-filled .answer-pad .stage-slide__question {
+  align-content: center;
+  inline-size: min(100%, 72rem);
+  min-block-size: 100dvh;
+  margin-inline: auto;
+}
+.follow__frame:fullscreen .answer-pad .stage-slide__title,
+.follow__frame.is-filled .answer-pad .stage-slide__title {
+  font-size: clamp(var(--fs-xl), 4.5vmin, 3.5rem);
+}
+.follow__frame:fullscreen .answer-pad__option,
+.follow__frame.is-filled .answer-pad__option {
+  min-block-size: clamp(3.25rem, 9vmin, 6rem);
+  font-size: clamp(var(--fs-md), 3vmin, 2rem);
+}
+.answer-pad__status {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: var(--fs-md);
+}
+.answer-pad__status.is-right {
+  color: var(--success-text);
+  font-weight: 700;
+}
+/* Outside full screen the pad is as tall as its content, not a 16:9 card. */
+.answer-pad .stage-slide__question {
+  min-block-size: 0;
+}
+.answer-pad__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s-2) var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.answer-pad__option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  inline-size: 100%;
+  min-block-size: 3.25rem;
+  padding: var(--s-3) var(--s-4);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: clamp(var(--fs-md), 2.4cqi, 1.75rem);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, transform 120ms ease-out;
+}
+@media (hover: hover) {
+  .answer-pad.is-open .answer-pad__option:not([aria-disabled='true']):hover {
+    border-color: var(--primary);
+  }
+}
+.answer-pad__option:active:not([aria-disabled='true']) {
+  transform: scale(0.98);
+}
+.answer-pad__option:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.answer-pad__option[aria-disabled='true'] {
+  cursor: default;
+}
+.answer-pad__option.is-on {
+  border-color: var(--primary);
+  background: var(--primary-subtle);
+}
+.answer-pad__option.is-on .share__bar {
+  background: var(--primary-subtle-hover);
+  border-inline-end: 3px solid var(--primary);
+}
+.answer-pad__option.is-on .stage-slide__letter {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.answer-pad__option.is-sending {
+  opacity: 0.7;
+}
+.answer-pad:not(.is-open) .answer-pad__option:not(.is-on) {
+  color: var(--text-subtle);
+}
+.answer-pad__send {
+  justify-self: start;
+}
+
+/* A quiz countdown: large seconds and a bar that empties toward the inline start. */
+.countdown {
+  display: grid;
+  grid-template-columns: auto minmax(6rem, 1fr);
+  align-items: center;
+  gap: var(--s-3);
+}
+.countdown__time {
+  min-inline-size: 2ch;
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.countdown__bar {
+  position: relative;
+  block-size: 0.5rem;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+}
+.countdown__bar::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--left, 100%);
+  border-radius: inherit;
+  background: var(--primary);
+  transition: inline-size 200ms linear;
+}
+.countdown.is-ending .countdown__time {
+  color: var(--danger-text);
+}
+.countdown.is-ending .countdown__bar::after {
+  background: var(--brand-coral);
+}
+
+/* Presenter: open or close answers above the slide controls. */
+.presenter__question {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+.presenter__countdown {
+  flex: 1;
+  max-inline-size: 24rem;
+}
+.presenter__closed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+/* "n of N answered" with the characters still to answer. */
+.answer-progress {
+  display: grid;
+  gap: var(--s-2);
+}
+.answer-progress__count {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.answer-progress__bar {
+  position: relative;
+  block-size: 0.375rem;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+}
+.answer-progress__bar::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: var(--done, 0%);
+  border-radius: inherit;
+  background: var(--success);
+  transition: inline-size 300ms ease-out;
+}
+.answer-progress__label {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+}
+.answer-progress__pending {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.answer-progress__char {
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+.answer-progress__more {
+  align-self: center;
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+}
+
+/* Audience screen: countdown and progress under the question, in the projector's dark palette. */
+.audience__screen {
+  align-content: safe center;
+  gap: var(--s-4);
+  max-block-size: 100%;
+  overflow-y: auto;
+}
+.audience__answers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4) var(--s-6);
+  inline-size: 100%;
+  font-size: clamp(var(--fs-md), 2vmin, var(--fs-2xl));
+}
+.audience__countdown {
+  flex: 1;
+  max-inline-size: 40rem;
+}
+.audience__countdown .countdown__time {
+  font-size: clamp(var(--fs-2xl), 5vmin, 4rem);
+}
+.audience .countdown__bar,
+.audience .answer-progress__bar {
+  background: var(--audience-track);
+}
+.audience .countdown__bar::after {
+  background: var(--brand-aqua);
+}
+.audience .stage-slide.is-question {
+  border: 1px solid var(--audience-line);
+  background: var(--audience-card);
+  color: var(--audience-text);
+}
+.audience .stage-slide__kind,
+.audience .stage-slide__letter {
+  color: var(--audience-subtle);
+}
+.audience .stage-slide__letter {
+  background: var(--audience-track);
+}
+.audience .stage-slide__options li {
+  border-color: var(--audience-line);
+}
+.audience .share__bar {
+  background: var(--audience-bar);
+  border-inline-end: 4px solid var(--brand-aqua);
+}
+.audience .share__figures {
+  color: var(--audience-text);
+  font-size: 1.1em;
+}
+/* While a question is up, the card leaves room under it for the countdown and the count. */
+.audience.has-answers .audience__stage.is-question {
+  inline-size: min(100%, calc((100dvh - 5vmin - 7rem) * 16 / 9));
+}
+.audience .answer-progress__label,
+.audience .answer-progress__more {
+  color: var(--audience-subtle);
+}
+.audience .countdown.is-ending .countdown__time {
+  color: var(--audience-danger);
+}
+.audience__progress {
+  min-inline-size: 14rem;
+}
+.audience__progress .answer-progress__char {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share__bar,
+  .countdown__bar::after,
+  .answer-progress__bar::after,
+  .answer-pad__option {
+    transition: none;
+  }
+}
+
+/* ---------- Results reveal (spec 006 US5) ---------- */
+.reveal {
+  position: relative;
+  display: grid;
+  gap: clamp(var(--s-3), 2cqi, var(--s-5));
+}
+.reveal__confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+.reveal__options {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reveal__option {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  overflow: hidden;
+  padding: clamp(var(--s-2), 1.5cqi, var(--s-4)) clamp(var(--s-3), 2cqi, var(--s-5));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  font-size: clamp(var(--fs-md), 2.4cqi, 2rem);
+}
+/* The bar grows from the inline start to its share, one option after another. */
+.reveal__bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: -1;
+  inline-size: var(--share, 0%);
+  background: var(--primary-subtle);
+  transform-origin: left center;
+  /* Ease-out cubic, like the count-up in reveal.ts, with the same stagger. */
+  animation: reveal-grow var(--reveal-ms, 900ms) cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-ms, 80ms));
+}
+.reveal__bar:dir(rtl) {
+  transform-origin: right center;
+}
+/* Shown at once: under reduced motion, and when coming back to results already revealed. */
+.reveal.is-still .reveal__bar,
+.reveal.is-still .reveal__spotlight,
+.reveal.is-still .reveal__spotlight-char {
+  animation: none;
+}
+@keyframes reveal-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.reveal__option.is-winner .reveal__bar {
+  background: var(--primary-subtle-hover);
+  border-inline-end: 3px solid var(--primary);
+}
+.reveal__option.is-correct {
+  border: 2px solid var(--success);
+}
+.reveal__option.is-correct .reveal__bar {
+  background: var(--success-subtle);
+  border-inline-end: 3px solid var(--success);
+}
+.reveal__text {
+  display: grid;
+  flex: 1 1 8rem;
+  gap: var(--s-1);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.reveal__label {
+  justify-self: start;
+}
+.reveal__marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.reveal__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 0.1em 0.6em;
+  border-radius: var(--r-pill);
+  font-size: max(var(--fs-sm), 0.55em);
+  font-weight: 600;
+}
+.reveal__mark.is-winner {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.reveal__mark.is-correct {
+  background: var(--success);
+  color: var(--on-success);
+}
+.reveal__mark.is-mine {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-subtle);
+}
+.reveal__figures {
+  display: grid;
+  justify-items: end;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.reveal__percent {
+  font-size: 1.25em;
+  font-weight: 700;
+}
+.reveal__count {
+  font-size: max(var(--fs-sm), 0.55em);
+  color: var(--text-subtle);
+}
+.reveal__empty {
+  margin: 0;
+  padding: var(--s-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  text-align: center;
+  color: var(--text-subtle);
+  font-size: clamp(var(--fs-md), 2.4cqi, 1.75rem);
+}
+
+/* The spotlight arrives once the bars have grown: the character hops in with its name and time. */
+.reveal__spotlight {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  justify-self: start;
+  margin: 0;
+  padding-block: var(--s-3);
+  padding-inline: var(--s-3) var(--s-5);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  animation: spotlight-in 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--reveal-ms, 900ms) + 150ms);
+}
+.reveal__spotlight.is-nobody {
+  color: var(--text-subtle);
+  font-size: clamp(var(--fs-md), 2cqi, 1.5rem);
+}
+.reveal__spotlight-char {
+  inline-size: clamp(3rem, 7cqi, 5rem);
+  block-size: clamp(3rem, 7cqi, 5rem);
+  animation: spotlight-cheer 700ms ease-in-out 2 both;
+  animation-delay: calc(var(--reveal-ms, 900ms) + 500ms);
+}
+.reveal__spotlight-text {
+  display: grid;
+  margin: 0;
+}
+.reveal__spotlight-label {
+  font-size: max(var(--fs-sm), 1.6cqi);
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+.reveal__spotlight-who {
+  font-size: clamp(var(--fs-lg), 2.6cqi, 2rem);
+  font-weight: 700;
+}
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes spotlight-cheer {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(-14%) rotate(-6deg);
+  }
+  60% {
+    transform: translateY(0) rotate(5deg);
+  }
+}
+
+/* The projector keeps its dark palette. */
+.audience .reveal__option {
+  border-color: var(--audience-line);
+}
+.audience .reveal__bar {
+  background: var(--audience-bar);
+}
+.audience .reveal__option.is-winner .reveal__bar {
+  background: var(--audience-bar-strong);
+  border-inline-end-color: var(--brand-aqua);
+}
+.audience .reveal__option.is-correct {
+  border-color: var(--audience-success);
+}
+.audience .reveal__option.is-correct .reveal__bar {
+  background: var(--audience-success-bar);
+  border-inline-end-color: var(--audience-success);
+}
+.audience .reveal__mark.is-correct {
+  background: var(--audience-success);
+  color: var(--audience-bg);
+}
+.audience .reveal__count {
+  color: var(--audience-text);
+}
+/* A 1280 × 720 projector window holds six answers and the spotlight. */
+.audience .reveal__option {
+  font-size: min(2.4cqi, 3.2vh);
+  padding-block: min(1.5cqi, 1.2vh);
+}
+.audience .reveal__options {
+  gap: min(var(--s-2), 1vh);
+}
+/* On the projector the marks sit beside the answer, and the question scales with the screen height, so six answers
+   and the spotlight fit a 1280 × 720 window. */
+.audience .reveal__text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-3);
+}
+.audience .stage-slide.is-question .stage-slide__question {
+  gap: min(2.5cqi, 2vh);
+  padding: min(5cqi, 4vh) min(5cqi, 5vh);
+}
+.audience .stage-slide.is-question .stage-slide__title {
+  font-size: min(4.5cqi, 7vh, 3.5rem);
+}
+.audience .reveal__spotlight {
+  padding-block: min(var(--s-3), 1vh);
+}
+.audience .reveal__spotlight-char {
+  inline-size: min(9cqi, 10vh, 8rem);
+  block-size: min(9cqi, 10vh, 8rem);
+}
+
+.audience .reveal__spotlight-who {
+  font-size: clamp(var(--fs-2xl), 3.5cqi, 3rem);
+}
+.audience .reveal__spotlight-label,
+.audience .reveal__empty,
+.audience .reveal__spotlight.is-nobody {
+  color: var(--audience-subtle);
+}
+.audience .reveal__spotlight {
+  border-color: var(--audience-line);
+  background: var(--audience-card);
+  color: var(--audience-text);
+}
+.audience .reveal__mark.is-mine {
+  background: transparent;
+  color: var(--audience-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal__bar,
+  .reveal__spotlight,
+  .reveal__spotlight-char {
+    animation: none;
+  }
+}
+/* Projector rows: percentage and count on one line keep six answers short enough for 720p. */
+.audience .reveal__figures {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
 }

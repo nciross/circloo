@@ -479,7 +479,31 @@
     "cactus": "Cactus",
     "axolotl": "Axolotl",
     "raccoon": "Raccoon",
-    "llama": "Llama"
+    "llama": "Llama",
+    "superhero": "Superhero",
+    "ninja": "Ninja",
+    "knight": "Knight",
+    "wizard": "Wizard",
+    "pirate": "Pirate",
+    "astronaut": "Astronaut",
+    "viking": "Viking",
+    "detective": "Detective",
+    "sunflower": "Sunflower",
+    "mushroom": "Mushroom",
+    "tulip": "Tulip",
+    "sprout": "Sprout",
+    "pumpkin": "Pumpkin",
+    "cherry": "Cherry",
+    "pineapple": "Pineapple",
+    "tree": "Tree",
+    "alien": "Alien",
+    "unicorn": "Unicorn",
+    "dragon": "Dragon",
+    "snowman": "Snowman",
+    "cloud": "Cloud",
+    "sun": "Sun",
+    "moon": "Moon",
+    "star": "Star"
   },
   "activities": {
     "category": "Category",
@@ -702,7 +726,17 @@
       "session-conflict": "A presentation was just started from another window.",
       "no-session": "No presentation is running.",
       "out-of-range": "There is no slide there.",
-      "busy": "Several changes at once. Try again."
+      "busy": "Several changes at once. Try again.",
+      "answers-closed": "Answers are closed for this question.",
+      "not-current-question": "The animator has moved on to another slide.",
+      "invalid-options": "That answer is not one of the choices.",
+      "quiz-final": "Your answer to this quiz is already in.",
+      "animator-cannot-answer": "As the animator, you open and close answers but you don’t answer.",
+      "slow-down": "Slow down a little, then try again.",
+      "not-a-question": "This slide is not a question.",
+      "already-open": "Answers are already open on this question.",
+      "not-answering": "Answers are not open on this question.",
+      "not-open": "Open answers on this question before showing its results."
     }
   },
   "boards": {
@@ -938,7 +972,7 @@
     "listTitle_other": "{{count}} notes on the canvas",
     "find": "Show",
     "label": "Canvas",
-    "hint": "Double-click to drop a note, drag notes to move them, drag the background or scroll to look around, Ctrl + scroll to zoom. Keyboard: arrow keys move, N adds a note, E edits.",
+    "hint": "Double-click to drop a note, drag notes to move them, drag the background or scroll to look around, Ctrl + scroll to zoom. Keyboard: arrow keys move, N adds a note, E or Enter edits, Delete removes, Esc lets go, F fits everything.",
     "empty": "An empty canvas! Double-click anywhere to drop the first note.",
     "newNote": "New note",
     "editNote": "Edit the note",
@@ -973,7 +1007,11 @@
       "green": "Green",
       "violet": "Violet",
       "white": "White"
-    }
+    },
+    "presence": "Who is here",
+    "hereCount": "{{here}} of {{total}} here",
+    "jumpTo": "Go to {{name}}'s pointer",
+    "fit": "Fit all notes"
   },
   "presentations": {
     "title": "Presentations",
@@ -1066,7 +1104,10 @@
       "pollAdded": "Poll added as slide {{number}}.",
       "quizAdded": "Quiz added as slide {{number}}."
     },
-    "movedTo": "Slide moved to place {{number}} of {{count}}."
+    "movedTo": "Slide moved to place {{number}} of {{count}}.",
+    "autoOpen": "Open answers as soon as a question shows",
+    "autoOpenOn": "Participants can answer the moment you reach a question.",
+    "autoOpenOff": "You open answers yourself on each question."
   },
   "present": {
     "pickTitle": "Pick a presentation",
@@ -1109,6 +1150,60 @@
     "offline": "This screen is offline. Reload it to follow again.",
     "converting": "Converting…",
     "listFailed": "Your presentations could not be loaded.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "openAnswers": "Open answers",
+    "closeAnswers": "Close answers",
+    "answersClosed": "Answers closed",
+    "answersTitle": "Answers",
+    "stillToAnswer": "Still to answer",
+    "andMore": "+{{count}}",
+    "secondsLeft_one": "{{count}} second left",
+    "secondsLeft_other": "{{count}} seconds left",
+    "timeUp": "Time is up",
+    "answer": {
+      "wait": "The animator opens answers in a moment.",
+      "tap": "Tap your answer. You can change it until answers close.",
+      "tapFinal": "Tap your answer. It counts as soon as you tap.",
+      "pickMany": "Pick one or more answers, then send.",
+      "inChange": "Your answer is in. You can still change it.",
+      "inFinal": "Your answer is in. Fingers crossed!",
+      "closed": "Answers are closed.",
+      "closedCounted": "Answers are closed. Your answer counted.",
+      "send": "Send my answer",
+      "update": "Update my answer",
+      "unsent": "Not sent yet: send it to count.",
+      "resultsIn": "Results are in!",
+      "right": "You got it!",
+      "wrong": "Not this time. Next one!",
+      "noAnswer": "No answer from you this time."
+    },
+    "answered_one": "{{count}} of {{of}} answered",
+    "answered_other": "{{count}} of {{of}} answered",
+    "share_one": "{{percent}}% · {{count}} vote",
+    "share_other": "{{percent}}% · {{count}} votes",
+    "andMoreLabel_one": "and {{count}} more person",
+    "andMoreLabel_other": "and {{count}} more people",
+    "reveal": {
+      "show": "Show results",
+      "shown": "Results shown",
+      "title": "Results",
+      "option": "Answer",
+      "count": "Votes",
+      "percent": "Share",
+      "row": "{{option}}: {{count}}, {{percent}}%",
+      "announce": "Results: {{summary}}",
+      "noAnswers": "No answers this time. Maybe next question!",
+      "mostChosen": "Most chosen",
+      "correct": "Right answer",
+      "yours": "Your answer",
+      "fastest": "Fastest answer",
+      "firstRight": "First right answer",
+      "nobodyRight": "Nobody found it this time. Next one!",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} answer",
+      "answers_other": "{{count}} answers"
+    }
   }
 }

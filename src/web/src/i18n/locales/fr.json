@@ -479,7 +479,31 @@
     "cactus": "Cactus",
     "axolotl": "Axolotl",
     "raccoon": "Raton laveur",
-    "llama": "Lama"
+    "llama": "Lama",
+    "superhero": "Super-héros",
+    "ninja": "Ninja",
+    "knight": "Chevalier",
+    "wizard": "Magicien",
+    "pirate": "Pirate",
+    "astronaut": "Astronaute",
+    "viking": "Viking",
+    "detective": "Détective",
+    "sunflower": "Tournesol",
+    "mushroom": "Champignon",
+    "tulip": "Tulipe",
+    "sprout": "Pousse",
+    "pumpkin": "Citrouille",
+    "cherry": "Cerise",
+    "pineapple": "Ananas",
+    "tree": "Arbre",
+    "alien": "Alien",
+    "unicorn": "Licorne",
+    "dragon": "Dragon",
+    "snowman": "Bonhomme de neige",
+    "cloud": "Nuage",
+    "sun": "Soleil",
+    "moon": "Lune",
+    "star": "Étoile"
   },
   "activities": {
     "category": "Catégorie",
@@ -702,7 +726,17 @@
       "session-conflict": "Une présentation vient d’être lancée depuis une autre fenêtre.",
       "no-session": "Aucune présentation en cours.",
       "out-of-range": "Il n’y a pas de diapositive à cet endroit.",
-      "busy": "Plusieurs changements en même temps. Réessaie."
+      "busy": "Plusieurs changements en même temps. Réessaie.",
+      "answers-closed": "Les réponses à cette question sont fermées.",
+      "not-current-question": "L’animateur est passé à une autre diapositive.",
+      "invalid-options": "Cette réponse ne fait pas partie des choix.",
+      "quiz-final": "Ta réponse à ce quiz est déjà enregistrée.",
+      "animator-cannot-answer": "En tant qu’animateur, tu ouvres et fermes les réponses, mais tu ne réponds pas.",
+      "slow-down": "Doucement, puis réessaie.",
+      "not-a-question": "Cette diapositive n’est pas une question.",
+      "already-open": "Les réponses sont déjà ouvertes sur cette question.",
+      "not-answering": "Les réponses ne sont pas ouvertes sur cette question.",
+      "not-open": "Ouvre les réponses à cette question avant d’afficher ses résultats."
     }
   },
   "boards": {
@@ -938,7 +972,7 @@
     "listTitle_other": "{{count}} notes sur la toile",
     "find": "Montrer",
     "label": "Toile",
-    "hint": "Double-clique pour poser une note, fais glisser les notes pour les déplacer, fais glisser le fond ou défile pour te déplacer, Ctrl + molette pour zoomer. Clavier : flèches pour déplacer, N ajoute une note, E modifie.",
+    "hint": "Double-cliquez pour poser une note, glissez les notes pour les déplacer, glissez le fond ou faites défiler pour explorer, Ctrl + molette pour zoomer. Clavier : les flèches déplacent, N ajoute une note, E ou Entrée modifie, Suppr efface, Échap relâche, F affiche tout.",
     "empty": "Une toile vide ! Double-clique n’importe où pour poser la première note.",
     "newNote": "Nouvelle note",
     "editNote": "Modifier la note",
@@ -973,7 +1007,11 @@
       "green": "Vert",
       "violet": "Violet",
       "white": "Blanc"
-    }
+    },
+    "presence": "Qui est là",
+    "hereCount": "{{here}} sur {{total}} ici",
+    "jumpTo": "Aller au pointeur de {{name}}",
+    "fit": "Tout afficher"
   },
   "presentations": {
     "title": "Présentations",
@@ -1070,7 +1108,10 @@
       "pollAdded": "Sondage ajouté en diapositive {{number}}.",
       "quizAdded": "Quiz ajouté en diapositive {{number}}."
     },
-    "movedTo": "Diapositive déplacée en position {{number}} sur {{count}}."
+    "movedTo": "Diapositive déplacée en position {{number}} sur {{count}}.",
+    "autoOpen": "Ouvrir les réponses dès qu’une question s’affiche",
+    "autoOpenOn": "Les participants peuvent répondre dès que tu arrives sur une question.",
+    "autoOpenOff": "Tu ouvres toi-même les réponses à chaque question."
   },
   "present": {
     "pickTitle": "Choisir une présentation",
@@ -1113,6 +1154,60 @@
     "offline": "Cet écran est hors ligne. Recharge-le pour suivre à nouveau.",
     "converting": "Conversion…",
     "listFailed": "Impossible de charger tes présentations.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "openAnswers": "Ouvrir les réponses",
+    "closeAnswers": "Fermer les réponses",
+    "answersClosed": "Réponses fermées",
+    "answersTitle": "Réponses",
+    "stillToAnswer": "Pas encore répondu",
+    "andMore": "+{{count}}",
+    "secondsLeft_one": "Encore {{count}} seconde",
+    "secondsLeft_other": "Encore {{count}} secondes",
+    "timeUp": "Temps écoulé",
+    "answer": {
+      "wait": "L’animateur ouvre les réponses dans un instant.",
+      "tap": "Appuie sur ta réponse. Tu peux la changer jusqu’à la fermeture.",
+      "tapFinal": "Appuie sur ta réponse. Elle compte dès que tu appuies.",
+      "pickMany": "Choisis une ou plusieurs réponses, puis envoie.",
+      "inChange": "Ta réponse est enregistrée. Tu peux encore la changer.",
+      "inFinal": "Ta réponse est partie. Croise les doigts !",
+      "closed": "Les réponses sont fermées.",
+      "closedCounted": "Les réponses sont fermées. Ta réponse a bien été prise en compte.",
+      "send": "Envoyer ma réponse",
+      "update": "Modifier ma réponse",
+      "unsent": "Pas encore envoyée : envoie-la pour qu’elle compte.",
+      "resultsIn": "Les résultats sont là !",
+      "right": "Bien joué, c’est ça !",
+      "wrong": "Pas cette fois. À la prochaine !",
+      "noAnswer": "Pas de réponse de ta part cette fois."
+    },
+    "answered_one": "{{count}} sur {{of}} a répondu",
+    "answered_other": "{{count}} sur {{of}} ont répondu",
+    "share_one": "{{percent}} % · {{count}} vote",
+    "share_other": "{{percent}} % · {{count}} votes",
+    "andMoreLabel_one": "et {{count}} autre personne",
+    "andMoreLabel_other": "et {{count}} autres personnes",
+    "reveal": {
+      "show": "Afficher les résultats",
+      "shown": "Résultats affichés",
+      "title": "Résultats",
+      "option": "Réponse",
+      "count": "Votes",
+      "percent": "Part",
+      "row": "{{option}} : {{count}}, {{percent}} %",
+      "announce": "Résultats : {{summary}}",
+      "noAnswers": "Aucune réponse cette fois. Peut-être à la prochaine !",
+      "mostChosen": "La plus choisie",
+      "correct": "Bonne réponse",
+      "yours": "Ta réponse",
+      "fastest": "Réponse la plus rapide",
+      "firstRight": "Première bonne réponse",
+      "nobodyRight": "Personne n’a trouvé cette fois. À la suivante !",
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} réponse",
+      "answers_other": "{{count}} réponses"
+    }
   }
 }

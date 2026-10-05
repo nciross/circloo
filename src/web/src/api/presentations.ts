@@ -41,6 +41,8 @@ export interface SlideView {
 
 export interface PresentationDetail extends PresentationSummary {
   showPodium: boolean
+  /** Answers open as soon as a question slide is shown (#170); off, the animator opens them. */
+  autoOpen: boolean
   version: number
   slides: SlideView[]
 }
@@ -139,7 +141,7 @@ function useEdit<V>(id: string, request: (vars: V, version: number, current?: Pr
 }
 
 export const useUpdatePresentation = (id: string) =>
-  useEdit<{ name?: string; showPodium?: boolean }>(id, (body, version) =>
+  useEdit<{ name?: string; showPodium?: boolean; autoOpen?: boolean }>(id, (body, version) =>
     api(`/api/presentations/${id}`, { method: 'PATCH', body: { ...body, version } }))
 
 export const useSetHidden = (id: string) =>

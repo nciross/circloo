@@ -73,7 +73,8 @@ export default function JoinCircle() {
       await join.mutateAsync({ name: value.trim(), character: character! })
       goIn()
     } catch (err) {
-      if (err instanceof ApiError && err.type === 'character-taken') {
+      // Every copy of that character is taken now (spec 008): show what is free.
+      if (err instanceof ApiError && err.type === 'character-full') {
         const fresh = await info.refetch()
         setTaken(fresh.data?.taken ?? [...(taken ?? circle.taken), character!])
         setCharacter(null)

@@ -46,7 +46,8 @@ public sealed record PresentationStateView(
     DateTimeOffset? OpenedAt,
     DateTimeOffset? Deadline,
     DateTimeOffset ServerNow,
-    int Version);
+    int Version,
+    ResultsView? Results = null);
 
 /// <summary>The animator's view of the next slide, beside their notes.</summary>
 public sealed record NextSlideView(Guid SlideId, string Kind, string? Image, string? Question);
@@ -71,22 +72,30 @@ public static class LiveSession
                     s.Kind == SlideKinds.Quiz ? s.TimerSeconds ?? PresentationRules.TimerDefault : null, s.ShowFirst, s.Kind == SlideKinds.Poll && s.ShowLive)
                 : new SnapshotSlide(s.Id, s.Kind, HasNotes: !string.IsNullOrWhiteSpace(s.Notes)))];
 
-    public static PresentationSession Start(Guid circleId, Guid presentationId, Guid animatorMemberId, IReadOnlyList<SnapshotSlide> snapshot, bool showPodium, DateTimeOffset now)
+    public static PresentationSession Start(Guid circleId, Guid presentationId, Guid animatorMemberId, IReadOnlyList<SnapshotSlide> snapshot, bool showPodium, DateTimeOffset now,
+        bool autoOpen = false)
     {
         if (snapshot.Count == 0)
         {
             throw new LiveSessionException("presentation-empty");
         }
-        return new PresentationSession
+        var session = new PresentationSession
         {
             CircleId = circleId,
             PresentationId = presentationId,
             StartedByMemberId = animatorMemberId,
             Snapshot = JsonSerializer.Serialize(snapshot, Json),
             ShowPodium = showPodium,
+            AutoOpen = autoOpen,
             Phase = SessionPhases.Idle,
             StartedAt = now,
         };
+        // A presentation that starts on a question opens it at once when answers open automatically (#170).
+        if (autoOpen && SlideKinds.IsQuestion(snapshot[0].Kind))
+        {
+            Open(session, now);
+        }
+        return session;
     }
 
     public static IReadOnlyList<SnapshotSlide> Slides(PresentationSession s) =>
@@ -98,8 +107,10 @@ public static class LiveSession
     /// <summary>
     /// Moves to <paramref name="position"/>: the slide shows unblanked, and a question shows its stored phase. Moving to
     /// the slide already shown only unblanks it, and never closes its question. Returns whether anything changed.
+    /// <paramref name="leavingAnswered"/> says whether anyone answered the question being left: with automatic opening,
+    /// one passed through without answers (and not revealed) is forgotten, so it opens fresh when shown again.
     /// </summary>
-    public static bool GoTo(PresentationSession s, int position, DateTimeOffset now)
+    public static bool GoTo(PresentationSession s, int position, DateTimeOffset now, bool leavingAnswered = true)
     {
         var slides = Slides(s);
         if (position < 0 || position >= slides.Count)
@@ -116,7 +127,7 @@ public static class LiveSession
             return true;
         }
         var phases = Phases(s);
-        Remember(s, slides[s.Position], phases, now);
+        Remember(s, slides[s.Position], phases, now, leavingAnswered);
 
         s.Position = position;
         s.MaxPosition = Math.Max(s.MaxPosition, position);
@@ -129,6 +140,12 @@ public static class LiveSession
         else
         {
             (s.Phase, s.OpenedAt, s.Deadline, s.LockedAt) = (SessionPhases.Idle, null, null, null);
+            // A question shown for the first time opens at once when answers open automatically (#170); one already
+            // opened keeps its stored phase above, so it is never reopened and a quiz timer never restarts.
+            if (s.AutoOpen && SlideKinds.IsQuestion(target.Kind))
+            {
+                Open(s, now);
+            }
         }
         s.QuestionPhases = JsonSerializer.Serialize(phases, Json);
         return true;
@@ -203,6 +220,54 @@ public static class LiveSession
 
     public static SnapshotSlide Current(PresentationSession s) => Slides(s)[s.Position];
 
+    /// <summary>Whether the current slide is a question people are answering or have answered.</summary>
+    public static bool AsksNow(PresentationSession s) => SlideKinds.IsQuestion(Current(s).Kind) && s.Phase != SessionPhases.Idle;
+
+    /// <summary>Results everyone may see before the reveal: only polls that show them live, once answering has opened.</summary>
+    public static bool ShowsLiveResults(PresentationSession s) =>
+        Current(s) is { Kind: SlideKinds.Poll, ShowLive: true } && s.Phase is SessionPhases.Answering or SessionPhases.Locked;
+
+    /// <summary>Whether the current question has been revealed (its results stay on screen, podium included).</summary>
+    public static bool Revealed(PresentationSession s) =>
+        SlideKinds.IsQuestion(Current(s).Kind) && s.Phase is SessionPhases.Revealed or SessionPhases.Podium;
+
+    /// <summary>Whether everyone sees results now: once revealed, or live for polls that show them.</summary>
+    public static bool ShowsResults(PresentationSession s) => Revealed(s) || ShowsLiveResults(s);
+
+    /// <summary>
+    /// Whether an answer to <paramref name="slideId"/> is accepted now: the current question, answering open, and for a
+    /// quiz before its deadline. Returns the refusal code, or null.
+    /// </summary>
+    public static string? AnswerRefusal(PresentationSession s, Guid slideId, DateTimeOffset now)
+    {
+        var slide = Current(s);
+        if (slide.SlideId != slideId || !SlideKinds.IsQuestion(slide.Kind))
+        {
+            return "not-current-question";
+        }
+        if (s.Phase != SessionPhases.Answering || (s.Deadline is { } deadline && now >= deadline))
+        {
+            return "answers-closed";
+        }
+        return null;
+    }
+
+    /// <summary>Checks the chosen options: known, distinct, one unless the poll takes several. Returns them cleaned, or null.</summary>
+    public static string[]? CleanOptions(SnapshotSlide slide, IReadOnlyList<string>? chosen)
+    {
+        if (chosen is null || chosen.Count == 0)
+        {
+            return null;
+        }
+        var known = (slide.Options ?? []).Select(o => o.Id).ToHashSet(StringComparer.Ordinal);
+        var distinct = chosen.Distinct(StringComparer.Ordinal).ToArray();
+        if (distinct.Length != chosen.Count || distinct.Any(o => !known.Contains(o)) || (distinct.Length > 1 && !slide.Multiple))
+        {
+            return null;
+        }
+        return [.. distinct.OrderBy(o => o, StringComparer.Ordinal)];
+    }
+
     /// <summary>Whether a member may load this slide's picture: it is in the session and has been shown.</summary>
     public static bool HasShown(PresentationSession s, Guid slideId)
     {
@@ -217,7 +282,7 @@ public static class LiveSession
         return false;
     }
 
-    public static PresentationStateView View(PresentationSession s, string presentationName, DateTimeOffset now)
+    public static PresentationStateView View(PresentationSession s, string presentationName, DateTimeOffset now, ResultsView? results = null)
     {
         var slides = Slides(s);
         var slide = slides[s.Position];
@@ -225,7 +290,7 @@ public static class LiveSession
             ? new SlideStateView(slide.Kind, slide.SlideId, Question: slide.Question, Options: slide.Options ?? [], MultipleChoice: slide.Multiple,
                 TimerSeconds: slide.Timer, ShowFirst: slide.ShowFirst, ShowLive: slide.ShowLive)
             : new SlideStateView(slide.Kind, slide.SlideId, Image: PresentationEndpoints.ImageUrl(slide.SlideId));
-        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now, s.Version);
+        return new PresentationStateView(s.Id, presentationName, s.Position, slides.Count, s.Blank, view, s.Phase, s.OpenedAt, s.Deadline, now, s.Version, results);
     }
 
     public static NextSlideView? Next(PresentationSession s)
@@ -239,11 +304,20 @@ public static class LiveSession
         return new NextSlideView(next.SlideId, next.Kind, SlideKinds.IsQuestion(next.Kind) ? null : PresentationEndpoints.ImageUrl(next.SlideId), next.Question);
     }
 
-    /// <summary>Stores the phase of the question being left; one still answering locks now (or at its passed deadline).</summary>
-    private static void Remember(PresentationSession s, SnapshotSlide leaving, Dictionary<Guid, QuestionPhase> phases, DateTimeOffset now)
+    /// <summary>
+    /// Stores the phase of the question being left; one still answering locks now (or at its passed deadline). With
+    /// automatic opening, a question left with no answers and not revealed is not stored: flipping past it (an extra
+    /// Next, a peek back) never uses it up, and it opens fresh, a quiz with a fresh timer, when shown again.
+    /// </summary>
+    private static void Remember(PresentationSession s, SnapshotSlide leaving, Dictionary<Guid, QuestionPhase> phases, DateTimeOffset now, bool answered)
     {
         if (!SlideKinds.IsQuestion(leaving.Kind) || s.Phase == SessionPhases.Idle)
         {
+            return;
+        }
+        if (s.AutoOpen && !answered && s.Phase is SessionPhases.Answering or SessionPhases.Locked)
+        {
+            phases.Remove(leaving.SlideId);
             return;
         }
         if (s.Phase == SessionPhases.Answering)

@@ -39,6 +39,10 @@ public interface ICircleClient
     Task PresenterNotes(Guid slideId, string? notes, NextSlideView? upcoming);
     /// <summary>The session ended; screens still showing it leave the presentation (a late event about another one is ignored).</summary>
     Task PresentationEnded(Guid sessionId);
+    /// <summary>"n of N answered" and who is still to answer: animator connections and the audience screen only.</summary>
+    Task AnswerCount(AnswerCountView count);
+    /// <summary>A participant's own answer to the current question, to all of their connections.</summary>
+    Task MyAnswer(MyAnswerView answer);
     /// <summary>A poll was created, edited, opened or closed (drafts reach the animator only, spec 007).</summary>
     Task PollChanged(PollView poll);
     /// <summary>Aggregated results: to everyone when the poll shows them, otherwise to the animator only.</summary>
@@ -76,7 +80,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, Qa qa, LiveThrottle throttle) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -128,9 +132,10 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
         }
         var online = presence.Online(circleId);
-        await Clients.Group(Group(circleId)).Presence(online);
+        RequestPresence(circleId);
         // Reloads and late joiners land on the current slide (spec 006 FR-608).
-        await SendPresentationAsync(circleId, Clients.Caller, notes: me.Role == Roles.Animator);
+        await SendPresentationAsync(circleId, Clients.Caller, me);
+        RequestAnswerCount(circleId);
         return online;
     }
 
@@ -419,10 +424,20 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
     {
         if (presence.Remove(Context.ConnectionId) is { } left)
         {
-            await Clients.Group(Group(left.Circle)).Presence(presence.Online(left.Circle));
+            RequestPresence(left.Circle);
+            // "n of N answered" counts the people in the room.
+            RequestAnswerCount(left.Circle);
         }
         await base.OnDisconnectedAsync(exception);
     }
+
+    /// <summary>
+    /// Tells the circle who is online, at most every 250 ms with the latest list last, so 100 people arriving do not
+    /// send everyone one full list per arrival (spec 008 FR-827). The arriving member gets the list from <c>Enter</c>.
+    /// </summary>
+    private void RequestPresence(Guid circleId) =>
+        throttle.Request($"presence:{circleId}", services => services.GetRequiredService<IHubContext<CircleHub, ICircleClient>>()
+            .Clients.Group(Group(circleId)).Presence(services.GetRequiredService<CirclePresence>().Online(circleId)));
 
     private async Task<(Guid CircleId, CircleMember Me)> CurrentAsync(bool animatorOnly = false)
     {

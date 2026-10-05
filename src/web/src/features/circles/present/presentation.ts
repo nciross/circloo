@@ -11,7 +11,31 @@ export type SlideState =
   | { kind: 'deck'; slideId: string; image: string }
   | { kind: 'poll' | 'quiz'; slideId: string; question: string; options: OptionView[]; multipleChoice: boolean; timerSeconds?: number | null; showFirst: boolean; showLive: boolean }
 
+export type QuestionSlide = Extract<SlideState, { kind: 'poll' | 'quiz' }>
+
 export type Phase = 'idle' | 'answering' | 'locked' | 'revealed' | 'podium'
+
+/** A question's results (contracts/hub.md `Results`): live for polls that show them, otherwise at the reveal. */
+export interface Results {
+  total: number
+  options: { id: string; count: number; percent: number; winner: boolean; correct?: boolean | null }[]
+  /** Who answered first (for a quiz, first correct), set at the reveal when the question shows it. */
+  first?: { memberId: string; name: string; character: string; ms: number } | null
+}
+
+/** "n of N answered" and who is still to answer: the animator and the audience screen only. */
+export interface AnswerCount {
+  slideId: string
+  answered: number
+  of: number
+  pending: string[]
+}
+
+/** Your own answer to a question, on every tab and device you use. */
+export interface MyAnswer {
+  slideId: string
+  options: string[]
+}
 
 /** What every screen in the circle renders (contracts/hub.md `PresentationState`). */
 export interface PresentationState {
@@ -27,6 +51,7 @@ export interface PresentationState {
   serverNow: string
   /** Grows with every change of the session: an older state arriving late is ignored. */
   version: number
+  results?: Results | null
 }
 
 /** The animator's private view: the current slide's notes and the next slide. */
@@ -41,6 +66,16 @@ interface PresentationStore {
   notes: PresenterNotes | null
   /** When the state arrived, to judge freshness on screens that measure it (e2e, SC-603). */
   receivedAt: number
+  /** Server time minus this device's time (ms), so countdowns follow the server's deadline, not a wrong phone clock. */
+  skew: number
+  count: AnswerCount | null
+  /**
+   * The question this page saw being revealed (a revealed state following a not-yet-revealed one). Only that reveal
+   * plays its animation, confetti and announcement; coming back, unblanking or reloading shows the stored results still.
+   */
+  revealedLive: string | null
+  /** Your answers by question, as the server confirmed them. */
+  mine: Record<string, string[]>
   reset: () => void
 }
 
@@ -49,8 +84,18 @@ export const useLive = create<PresentationStore>()((set) => ({
   state: null,
   notes: null,
   receivedAt: 0,
-  reset: () => set({ state: null, notes: null, receivedAt: 0 }),
+  skew: 0,
+  revealedLive: null,
+  count: null,
+  mine: {},
+  reset: () => set({ state: null, notes: null, receivedAt: 0, skew: 0, count: null, mine: {}, revealedLive: null }),
 }))
+
+/** Whether a question's results have been revealed (they stay on screen through the podium). */
+export const isRevealed = (state: PresentationState) => state.slide.kind !== 'deck' && (state.phase === 'revealed' || state.phase === 'podium')
+
+/** This device's clock, corrected to the server's. */
+export const serverNow = () => Date.now() + useLive.getState().skew
 
 /** Sessions that ended while this page was open: a state about one of them arriving late never brings it back. */
 const ended = new Set<string>()
@@ -70,7 +115,17 @@ export function receive(state: PresentationState | null) {
     useLive.getState().reset()
     return
   }
-  if (isNewer(state, useLive.getState().state)) useLive.setState({ state, receivedAt: Date.now() })
+  const shown = useLive.getState().state
+  if (!isNewer(state, shown)) return
+  const receivedAt = Date.now()
+  const skew = Date.parse(state.serverNow) - receivedAt
+  // Another session (the same deck presented again reuses its slide ids): answers and counts start over.
+  const fresh = shown && shown.sessionId !== state.sessionId ? { mine: {}, count: null, revealedLive: null } : {}
+  const live =
+    isRevealed(state) && shown && shown.sessionId === state.sessionId && shown.slide.slideId === state.slide.slideId && !isRevealed(shown)
+      ? { revealedLive: state.slide.slideId }
+      : {}
+  useLive.setState({ state, receivedAt, skew: Number.isFinite(skew) ? skew : 0, ...fresh, ...live })
 }
 
 /**
@@ -83,6 +138,12 @@ export function bindPresentation(connection: HubConnection, isCurrent: () => boo
   })
   connection.on('PresenterNotes', (slideId: string, notes: string | null, upcoming: PresenterNotes['upcoming']) => {
     if (isCurrent()) useLive.setState({ notes: { slideId, notes, upcoming } })
+  })
+  connection.on('AnswerCount', (count: AnswerCount) => {
+    if (isCurrent()) useLive.setState({ count })
+  })
+  connection.on('MyAnswer', (answer: MyAnswer) => {
+    if (isCurrent()) useLive.setState((s) => ({ mine: { ...s.mine, [answer.slideId]: answer.options } }))
   })
   connection.on('PresentationEnded', (sessionId: string) => {
     ended.add(sessionId)

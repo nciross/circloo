@@ -479,7 +479,31 @@
     "cactus": "Cactus",
     "axolotl": "Ajolote",
     "raccoon": "Mapache",
-    "llama": "Llama"
+    "llama": "Llama",
+    "superhero": "Superhéroe",
+    "ninja": "Ninja",
+    "knight": "Caballero",
+    "wizard": "Mago",
+    "pirate": "Pirata",
+    "astronaut": "Astronauta",
+    "viking": "Vikingo",
+    "detective": "Detective",
+    "sunflower": "Girasol",
+    "mushroom": "Seta",
+    "tulip": "Tulipán",
+    "sprout": "Brote",
+    "pumpkin": "Calabaza",
+    "cherry": "Cereza",
+    "pineapple": "Piña",
+    "tree": "Árbol",
+    "alien": "Alienígena",
+    "unicorn": "Unicornio",
+    "dragon": "Dragón",
+    "snowman": "Muñeco de nieve",
+    "cloud": "Nube",
+    "sun": "Sol",
+    "moon": "Luna",
+    "star": "Estrella"
   },
   "activities": {
     "category": "Categoría",
@@ -702,7 +726,17 @@
       "session-conflict": "Se acaba de iniciar una presentación desde otra ventana.",
       "no-session": "No hay ninguna presentación en curso.",
       "out-of-range": "No hay ninguna diapositiva ahí.",
-      "busy": "Varios cambios a la vez. Vuelve a intentarlo."
+      "busy": "Varios cambios a la vez. Vuelve a intentarlo.",
+      "answers-closed": "Las respuestas a esta pregunta están cerradas.",
+      "not-current-question": "El animador ya pasó a otra diapositiva.",
+      "invalid-options": "Esa respuesta no está entre las opciones.",
+      "quiz-final": "Tu respuesta a este cuestionario ya está enviada.",
+      "animator-cannot-answer": "Como animador, abres y cierras las respuestas, pero no respondes.",
+      "slow-down": "Más despacio y vuelve a intentarlo.",
+      "not-a-question": "Esta diapositiva no es una pregunta.",
+      "already-open": "Las respuestas ya están abiertas en esta pregunta.",
+      "not-answering": "Las respuestas no están abiertas en esta pregunta.",
+      "not-open": "Abre las respuestas de esta pregunta antes de mostrar sus resultados."
     }
   },
   "boards": {
@@ -938,7 +972,7 @@
     "listTitle_other": "{{count}} notas en el lienzo",
     "find": "Mostrar",
     "label": "Lienzo",
-    "hint": "Doble clic para poner una nota, arrastra las notas para moverlas, arrastra el fondo o desplázate para mirar alrededor, Ctrl + rueda para hacer zoom. Teclado: flechas para mover, N añade una nota, E edita.",
+    "hint": "Haz doble clic para soltar una nota, arrastra las notas para moverlas, arrastra el fondo o desplázate para mirar, Ctrl + rueda para hacer zoom. Teclado: las flechas mueven, N añade una nota, E o Intro edita, Supr borra, Esc suelta, F lo encuadra todo.",
     "empty": "¡Un lienzo vacío! Haz doble clic en cualquier sitio para poner la primera nota.",
     "newNote": "Nota nueva",
     "editNote": "Editar la nota",
@@ -973,7 +1007,11 @@
       "green": "Verde",
       "violet": "Violeta",
       "white": "Blanco"
-    }
+    },
+    "presence": "Quién está aquí",
+    "hereCount": "{{here}} de {{total}} aquí",
+    "jumpTo": "Ir al puntero de {{name}}",
+    "fit": "Ver todas las notas"
   },
   "presentations": {
     "title": "Presentaciones",
@@ -1070,7 +1108,10 @@
       "pollAdded": "Encuesta añadida como diapositiva {{number}}.",
       "quizAdded": "Cuestionario añadido como diapositiva {{number}}."
     },
-    "movedTo": "Diapositiva movida al puesto {{number}} de {{count}}."
+    "movedTo": "Diapositiva movida al puesto {{number}} de {{count}}.",
+    "autoOpen": "Abrir las respuestas en cuanto aparece una pregunta",
+    "autoOpenOn": "Los participantes pueden responder en cuanto llegas a una pregunta.",
+    "autoOpenOff": "Tú abres las respuestas en cada pregunta."
   },
   "present": {
     "pickTitle": "Elige una presentación",
@@ -1113,6 +1154,60 @@
     "offline": "Esta pantalla está sin conexión. Recárgala para seguir de nuevo.",
     "converting": "Convirtiendo…",
     "listFailed": "No se pudieron cargar tus presentaciones.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "openAnswers": "Abrir respuestas",
+    "closeAnswers": "Cerrar respuestas",
+    "answersClosed": "Respuestas cerradas",
+    "answersTitle": "Respuestas",
+    "stillToAnswer": "Faltan por responder",
+    "andMore": "+{{count}}",
+    "secondsLeft_one": "Queda {{count}} segundo",
+    "secondsLeft_other": "Quedan {{count}} segundos",
+    "timeUp": "Se acabó el tiempo",
+    "answer": {
+      "wait": "El animador abrirá las respuestas en un momento.",
+      "tap": "Toca tu respuesta. Puedes cambiarla hasta que se cierren.",
+      "tapFinal": "Toca tu respuesta. Cuenta en cuanto la tocas.",
+      "pickMany": "Elige una o varias respuestas y envíalas.",
+      "inChange": "Tu respuesta está enviada. Aún puedes cambiarla.",
+      "inFinal": "¡Respuesta enviada! Cruza los dedos.",
+      "closed": "Las respuestas están cerradas.",
+      "closedCounted": "Las respuestas están cerradas. Tu respuesta se ha contado.",
+      "send": "Enviar mi respuesta",
+      "update": "Cambiar mi respuesta",
+      "unsent": "Aún no enviada: envíala para que cuente.",
+      "resultsIn": "¡Ya están los resultados!",
+      "right": "¡La acertaste!",
+      "wrong": "Esta vez no. ¡A por la siguiente!",
+      "noAnswer": "Esta vez no respondiste."
+    },
+    "answered_one": "{{count}} de {{of}} ha respondido",
+    "answered_other": "{{count}} de {{of}} han respondido",
+    "share_one": "{{percent}} % · {{count}} voto",
+    "share_other": "{{percent}} % · {{count}} votos",
+    "andMoreLabel_one": "y {{count}} persona más",
+    "andMoreLabel_other": "y {{count}} personas más",
+    "reveal": {
+      "show": "Mostrar resultados",
+      "shown": "Resultados mostrados",
+      "title": "Resultados",
+      "option": "Respuesta",
+      "count": "Votos",
+      "percent": "Porcentaje",
+      "row": "{{option}}: {{count}}, {{percent}} %",
+      "announce": "Resultados: {{summary}}",
+      "noAnswers": "Nadie respondió esta vez. ¡Quizá en la próxima!",
+      "mostChosen": "La más elegida",
+      "correct": "Respuesta correcta",
+      "yours": "Tu respuesta",
+      "fastest": "Respuesta más rápida",
+      "firstRight": "Primera respuesta correcta",
+      "nobodyRight": "Nadie la acertó esta vez. ¡A por la siguiente!",
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos",
+      "who": "{{name}}, {{time}}",
+      "answers_one": "{{count}} respuesta",
+      "answers_other": "{{count}} respuestas"
+    }
   }
 }

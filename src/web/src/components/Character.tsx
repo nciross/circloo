@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { CharacterId } from './characters'
 
 /*
- * Twenty-four funny characters drawn on a 64 × 64 grid. They share the circloo eyes (white rings with
+ * Forty-eight funny characters: animals, heroes, plants and a few strange friends, drawn on a 64 × 64 grid. They share the circloo eyes (white rings with
  * a pupil) so the whole cast reads as one family with the logo. Colours are fixed in both themes:
  * a character is a person's identity, not chrome. Outlines use the brand navy.
  */
@@ -305,6 +305,257 @@ const ART: Record<CharacterId, ReactNode> = {
       <ellipse cx="32" cy="45" rx="8.5" ry="6.5" fill="#e3c99a" />
       <path d="M29.5 42 v2 M34.5 42 v2" stroke={INK} strokeWidth="1.6" strokeLinecap="round" />
       <path d="M28 48 Q32 51 36 48" fill="none" stroke={INK} strokeWidth="1.8" strokeLinecap="round" />
+    </>
+  ),
+  superhero: (
+    <>
+      <path d="M8 58 Q10 36 18 30 L46 30 Q54 36 56 58 Z" fill="#e5383b" {...stroke} />
+      <circle cx="32" cy="32" r="19" fill="#f6cfa6" {...stroke} />
+      <path d="M13 28 Q32 16 51 28 Q52 38 44 38 Q38 35 32 37 Q26 35 20 38 Q12 38 13 28 Z" fill="#2457c5" {...stroke} />
+      <path d="M32 6 l2.2 4.6 5 .6 -3.7 3.4 1 5 -4.5 -2.5 -4.5 2.5 1 -5 -3.7 -3.4 5 -.6 Z" fill="#ffd23f" {...stroke} strokeWidth="1.6" />
+      <Eyes y={30} gap={8} r={4.4} />
+      <Smile y={44} w={5} />
+    </>
+  ),
+  ninja: (
+    <>
+      <path d="M50 24 L61 20 M50 28 L60 33" stroke="#e5383b" strokeWidth="3.4" strokeLinecap="round" />
+      <circle cx="32" cy="34" r="22" fill="#27364a" {...stroke} />
+      <path d="M13 28 H51 V40 H13 Z" fill="#f6cfa6" {...stroke} strokeWidth="2" />
+      <rect x="11" y="21" width="42" height="6" fill="#e5383b" {...stroke} strokeWidth="2" />
+      <Eyes y={34} gap={8} r={4.4} />
+      <path d="M26 47 Q32 50 38 47" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+    </>
+  ),
+  knight: (
+    <>
+      <path d="M32 3 Q42 1 44 14 Q36 8 32 14 Q28 8 20 14 Q22 1 32 3 Z" fill="#e5383b" {...stroke} strokeWidth="1.8" />
+      <path d="M12 56 V30 Q12 10 32 10 Q52 10 52 30 V56 Z" fill="#b9c2cc" {...stroke} />
+      <rect x="14" y="26" width="36" height="14" rx="5" fill="#2f3b4a" {...stroke} />
+      <Eyes y={33} gap={8} r={4.6} />
+      <path d="M32 40 V47 M22 46 H42" stroke={INK} strokeWidth="1.8" />
+      <path d="M26 50 Q32 53 38 50" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+    </>
+  ),
+  wizard: (
+    <>
+      <path d="M32 2 L46 24 H18 Z" fill="#6a4fd1" {...stroke} />
+      <ellipse cx="32" cy="25" rx="21" ry="5" fill="#6a4fd1" {...stroke} />
+      <path d="M31 12 l1.6 3.4 3.6 .4 -2.7 2.5 .8 3.6 -3.3 -1.9 -3.3 1.9 .8 -3.6 -2.7 -2.5 3.6 -.4 Z" fill="#ffd23f" />
+      <path d="M13 34 Q32 24 51 34 Q52 52 32 60 Q12 52 13 34 Z" fill="#f6cfa6" {...stroke} />
+      <path d="M17 42 Q32 46 47 42 Q46 58 32 62 Q18 58 17 42 Z" fill="#f2f2f2" {...stroke} />
+      <Eyes y={36} gap={8} r={4.4} />
+      <ellipse cx="32" cy="43" rx="3.4" ry="2.2" fill="#e8b48c" {...stroke} strokeWidth="1.6" />
+    </>
+  ),
+  pirate: (
+    <>
+      <circle cx="32" cy="36" r="21" fill="#f6cfa6" {...stroke} />
+      <path d="M10 28 Q32 6 54 28 Q32 20 10 28 Z" fill="#e5383b" {...stroke} />
+      <path d="M52 26 Q60 28 60 36" fill="none" stroke="#e5383b" strokeWidth="3.4" strokeLinecap="round" />
+      <circle cx="26" cy="19" r="1.4" fill="#fff" /><circle cx="34" cy="16" r="1.4" fill="#fff" /><circle cx="42" cy="20" r="1.4" fill="#fff" />
+      <Eyes y={35} gap={8} r={4.6} />
+      <path d="M13 24 L45 44" stroke={INK} strokeWidth="2" />
+      <ellipse cx="24" cy="35" rx="6.4" ry="5.6" fill={INK} />
+      <path d="M24 46 Q32 52 40 46" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+      <rect x="38" y="46" width="2.6" height="3" fill="#fff" />
+    </>
+  ),
+  astronaut: (
+    <>
+      <circle cx="32" cy="34" r="24" fill="#f4f6f8" {...stroke} />
+      <ellipse cx="32" cy="34" rx="18" ry="15" fill="#223a5e" {...stroke} />
+      <path d="M22 26 Q26 22 31 23" fill="none" stroke="#7aa7e0" strokeWidth="2.2" strokeLinecap="round" />
+      <Eyes y={34} gap={7} r={4.2} />
+      <path d="M28 40 Q32 43.2 36 40" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+      <rect x="27" y="54" width="10" height="6" rx="2" fill="#e5383b" {...stroke} strokeWidth="1.8" />
+      <circle cx="9" cy="34" r="3" fill="#e5383b" {...stroke} strokeWidth="1.8" />
+      <circle cx="55" cy="34" r="3" fill="#e5383b" {...stroke} strokeWidth="1.8" />
+    </>
+  ),
+  viking: (
+    <>
+      <path d="M13 22 Q4 18 5 8 Q12 12 17 18 Z M51 22 Q60 18 59 8 Q52 12 47 18 Z" fill="#f7f1e1" {...stroke} />
+      <path d="M13 56 Q12 38 18 46 M51 56 Q52 38 46 46" fill="none" stroke="#e0883a" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="32" cy="35" r="19" fill="#f6cfa6" {...stroke} />
+      <path d="M12 28 Q12 10 32 10 Q52 10 52 28 Q32 21 12 28 Z" fill="#8c96a3" {...stroke} />
+      <path d="M17 40 Q32 50 47 40 Q48 58 32 60 Q16 58 17 40 Z" fill="#e0883a" {...stroke} />
+      <Eyes y={34} gap={8} r={4.4} />
+      <Smile y={45} w={4} />
+    </>
+  ),
+  detective: (
+    <>
+      <path d="M12 26 Q14 8 32 8 Q50 8 52 26 Z" fill="#a47148" {...stroke} />
+      <path d="M8 27 Q32 22 56 27 Q56 32 50 31 Q32 28 14 31 Q8 32 8 27 Z" fill="#8a5a33" {...stroke} />
+      <path d="M12 24 H52" stroke={INK} strokeWidth="2" />
+      <path d="M13 31 H51 V40 Q51 56 32 58 Q13 56 13 40 Z" fill="#f6cfa6" {...stroke} />
+      <Eyes y={38} gap={8} r={4.4} />
+      <path d="M22 47 Q32 44 42 47 Q32 51 22 47 Z" fill="#6b4423" {...stroke} strokeWidth="1.8" />
+      <circle cx="49" cy="46" r="6" fill="none" stroke={INK} strokeWidth="2.2" /><path d="M53 50 L59 56" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+    </>
+  ),
+  sunflower: (
+    <>
+      {[0,30,60,90,120,150,180,210,240,270,300,330].map((a) => (
+        <ellipse key={a} cx="32" cy="9" rx="5.4" ry="9" fill="#ffd23f" {...stroke} strokeWidth="1.8" transform={`rotate(${a} 32 33)`} />
+      ))}
+      <circle cx="32" cy="33" r="16" fill="#8a5a33" {...stroke} />
+      <Eyes y={31} gap={7} r={4.4} />
+      <Smile y={40} w={5} />
+      <path d="M32 49 V62" stroke="#3f9a45" strokeWidth="4" strokeLinecap="round" />
+    </>
+  ),
+  mushroom: (
+    <>
+      <path d="M22 36 H42 V50 Q42 58 32 58 Q22 58 22 50 Z" fill="#f7efe0" {...stroke} />
+      <path d="M6 36 Q6 8 32 8 Q58 8 58 36 Q32 42 6 36 Z" fill="#e5383b" {...stroke} />
+      <circle cx="19" cy="22" r="4.4" fill="#fff" /><circle cx="34" cy="16" r="3.6" fill="#fff" /><circle cx="46" cy="26" r="4.6" fill="#fff" />
+      <Eyes y={46} gap={5} r={4.2} />
+      <Smile y={53} w={3} />
+    </>
+  ),
+  tulip: (
+    <>
+      <path d="M32 46 V62 M32 56 Q20 54 18 44 Q28 46 32 56 M32 58 Q44 56 46 46 Q36 48 32 58" fill="#3f9a45" stroke="#2c7a34" strokeWidth="2" strokeLinecap="round" />
+      <path d="M14 22 Q12 8 20 8 L26 18 L32 6 L38 18 L44 8 Q52 8 50 22 Q50 46 32 48 Q14 46 14 22 Z" fill="#ff6f91" {...stroke} />
+      <Eyes y={30} gap={8} r={4.6} />
+      <Smile y={39} w={5} />
+      <circle cx="18" cy="38" r="2.4" fill="#ff3d6b" /><circle cx="46" cy="38" r="2.4" fill="#ff3d6b" />
+    </>
+  ),
+  sprout: (
+    <>
+      <path d="M32 22 Q30 12 22 9 Q14 8 14 14 Q16 22 32 22 Z" fill="#6fcf6c" {...stroke} />
+      <path d="M32 22 Q34 10 44 8 Q52 8 50 15 Q46 22 32 22 Z" fill="#4fb84e" {...stroke} />
+      <circle cx="32" cy="39" r="19" fill="#8bd06a" {...stroke} />
+      <Eyes y={37} gap={8} r={4.6} />
+      <Smile y={46} w={5} />
+      <circle cx="19" cy="44" r="2.4" fill="#ffb199" /><circle cx="45" cy="44" r="2.4" fill="#ffb199" />
+    </>
+  ),
+  pumpkin: (
+    <>
+      <path d="M30 14 Q30 6 36 5" fill="none" stroke="#3f7a2c" strokeWidth="4" strokeLinecap="round" />
+      <ellipse cx="19" cy="37" rx="13" ry="19" fill="#f08a24" {...stroke} />
+      <ellipse cx="45" cy="37" rx="13" ry="19" fill="#f08a24" {...stroke} />
+      <ellipse cx="32" cy="37" rx="12" ry="21" fill="#ff9d3a" {...stroke} />
+      <Eyes y={34} gap={8} r={4.6} />
+      <path d="M22 45 Q32 55 42 45" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+    </>
+  ),
+  cherry: (
+    <>
+      <path d="M32 6 Q28 22 20 38 M32 6 Q40 22 46 40 M32 6 Q42 2 48 8" fill="none" stroke="#3f7a2c" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M32 6 Q44 0 52 10 Q42 14 32 6 Z" fill="#4fb84e" {...stroke} strokeWidth="1.8" />
+      <circle cx="19" cy="44" r="14" fill="#d62246" {...stroke} />
+      <circle cx="45" cy="46" r="13" fill="#e5383b" {...stroke} />
+      <Eyes y={42} gap={5} r={4.2} />
+      <Smile y={50} w={3.4} />
+      <path d="M12 38 Q13 34 17 33" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+    </>
+  ),
+  pineapple: (
+    <>
+      <path d="M32 18 Q22 8 18 2 Q26 4 30 12 Q30 2 32 0 Q34 2 34 12 Q38 4 46 2 Q42 8 32 18 Z" fill="#4fb84e" {...stroke} strokeWidth="1.8" />
+      <ellipse cx="32" cy="40" rx="17" ry="21" fill="#ffd23f" {...stroke} />
+      <path d="M20 28 L44 52 M44 28 L20 52 M32 20 V60" stroke="#e0a800" strokeWidth="1.4" opacity="0.7" />
+      <Eyes y={36} gap={7} r={4.4} />
+      <Smile y={45} w={5} />
+    </>
+  ),
+  tree: (
+    <>
+      <path d="M27 46 H37 L38 62 H26 Z" fill="#8a5a33" {...stroke} />
+      <path d="M32 4 Q44 2 48 12 Q60 14 58 28 Q60 42 46 46 Q36 52 26 46 Q8 44 8 30 Q6 16 18 12 Q22 2 32 4 Z" fill="#4fb84e" {...stroke} />
+      <circle cx="18" cy="22" r="2.2" fill="#e5383b" /><circle cx="48" cy="36" r="2.2" fill="#e5383b" />
+      <Eyes y={27} gap={8} r={4.6} />
+      <Smile y={37} w={5} />
+    </>
+  ),
+  alien: (
+    <>
+      <path d="M22 12 Q18 4 12 4 M42 12 Q46 4 52 4" fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="12" cy="4" r="3" fill="#ffd23f" {...stroke} strokeWidth="1.8" /><circle cx="52" cy="4" r="3" fill="#ffd23f" {...stroke} strokeWidth="1.8" />
+      <path d="M10 30 Q10 10 32 10 Q54 10 54 30 Q54 52 32 58 Q10 52 10 30 Z" fill="#8fe388" {...stroke} />
+      <Eyes y={30} gap={10} r={7} />
+      <path d="M28 47 Q32 50 36 47" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" />
+    </>
+  ),
+  unicorn: (
+    <>
+      <path d="M32 2 L37 20 H27 Z" fill="#ffd23f" {...stroke} />
+      <path d="M26 14 L38 10 M27 20 L37 16" stroke="#e0a800" strokeWidth="1.4" />
+      <path d="M14 14 L22 24 L12 28 Z M50 14 L42 24 L52 28 Z" fill="#fff" {...stroke} />
+      <path d="M10 26 Q10 18 20 18 Q16 30 14 40 Q8 36 10 26 Z" fill="#ff8ab8" {...stroke} />
+      <path d="M12 28 Q32 14 52 28 Q52 52 32 58 Q12 52 12 28 Z" fill="#fff" {...stroke} />
+      <path d="M52 26 Q54 18 44 18 Q48 30 50 40 Q56 36 52 26 Z" fill="#8fd0ff" {...stroke} />
+      <Eyes y={34} gap={8} r={4.4} />
+      <ellipse cx="32" cy="48" rx="8" ry="5.4" fill="#ffd6e6" {...stroke} strokeWidth="1.8" />
+      <circle cx="29.5" cy="47" r="1" fill={INK} /><circle cx="34.5" cy="47" r="1" fill={INK} />
+    </>
+  ),
+  dragon: (
+    <>
+      <path d="M16 18 L12 6 L24 14 Z M48 18 L52 6 L40 14 Z" fill="#ffd23f" {...stroke} />
+      <path d="M26 10 L32 2 L38 10 Z" fill="#2f8f4a" {...stroke} strokeWidth="1.8" />
+      <path d="M10 34 Q10 12 32 12 Q54 12 54 34 Q54 54 32 58 Q10 54 10 34 Z" fill="#3fb95f" {...stroke} />
+      <ellipse cx="32" cy="46" rx="13" ry="9" fill="#b6ecb0" {...stroke} />
+      <circle cx="27" cy="45" r="1.8" fill={INK} /><circle cx="37" cy="45" r="1.8" fill={INK} />
+      <Eyes y={30} gap={9} r={4.8} />
+      <path d="M27 51 Q32 54 37 51" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+    </>
+  ),
+  snowman: (
+    <>
+      <rect x="20" y="5" width="24" height="12" rx="2" fill="#2f3b4a" {...stroke} />
+      <rect x="15" y="15" width="34" height="5" rx="2.5" fill="#2f3b4a" {...stroke} />
+      <circle cx="32" cy="36" r="21" fill="#fff" {...stroke} />
+      <Eyes y={32} gap={8} r={4.4} />
+      <path d="M32 38 L47 41 L32 43 Z" fill="#f28c38" {...stroke} strokeWidth="1.8" />
+      <path d="M16 50 Q32 58 48 50 L47 56 Q32 62 17 56 Z" fill="#e5383b" {...stroke} strokeWidth="1.8" />
+    </>
+  ),
+  cloud: (
+    <>
+      <path d="M18 50 Q4 50 6 38 Q6 28 17 28 Q18 14 32 14 Q46 14 47 27 Q60 26 59 39 Q58 50 46 50 Z" fill="#dbeeff" {...stroke} />
+      <Eyes y={33} gap={8} r={4.6} />
+      <Smile y={43} w={5} />
+      <circle cx="18" cy="42" r="2.6" fill="#ffb3c6" /><circle cx="46" cy="42" r="2.6" fill="#ffb3c6" />
+      <path d="M22 56 l-2 5 M32 56 l-2 5 M42 56 l-2 5" stroke="#4fa0e8" strokeWidth="2.6" strokeLinecap="round" />
+    </>
+  ),
+  sun: (
+    <>
+      {[0,45,90,135,180,225,270,315].map((a) => (
+        <path key={a} d="M32 2 L37 12 H27 Z" fill="#ffb703" {...stroke} strokeWidth="1.8" transform={`rotate(${a} 32 32)`} />
+      ))}
+      <circle cx="32" cy="32" r="19" fill="#ffd23f" {...stroke} />
+      <Eyes y={30} gap={7.5} r={4.4} />
+      <Smile y={40} w={6} />
+      <circle cx="19" cy="38" r="2.6" fill="#ff9a62" /><circle cx="45" cy="38" r="2.6" fill="#ff9a62" />
+    </>
+  ),
+  moon: (
+    <>
+      <path d="M44 6 Q24 4 14 20 Q4 38 18 52 Q34 64 52 52 Q38 54 30 42 Q22 28 34 16 Q38 10 44 6 Z" fill="#ffe08a" {...stroke} />
+      <circle cx="30" cy="30" r="2.6" fill="#f0c860" /><circle cx="26" cy="43" r="3.2" fill="#f0c860" />
+      <g className="char__eyes">
+        <g className="char__eye">
+          <circle cx="26" cy="33" r="4.6" fill="#fff" stroke={INK} strokeWidth="2.2" />
+          <circle className="char__pupil" cx="26" cy="33.6" r="1.9" fill={INK} />
+        </g>
+      </g>
+      <path d="M17 41 Q22 46 28 45" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M50 12 l1.4 3 3.2 .4 -2.4 2.2 .6 3.2 -2.8 -1.6 -2.8 1.6 .6 -3.2 -2.4 -2.2 3.2 -.4 Z" fill="#fff" {...stroke} strokeWidth="1.4" />
+    </>
+  ),
+  star: (
+    <>
+      <path d="M32 4 L40 22 L60 24 L45 37 L50 57 L32 46 L14 57 L19 37 L4 24 L24 22 Z" fill="#ffd23f" {...stroke} />
+      <Eyes y={33} gap={7} r={4.2} />
+      <Smile y={42} w={4.6} />
+      <circle cx="21" cy="40" r="2.2" fill="#ff9a62" /><circle cx="43" cy="40" r="2.2" fill="#ff9a62" />
     </>
   ),
 }

@@ -12,7 +12,10 @@ public sealed class RateLimitOptions
     public int OtpRequestsPerEmailPer15Min { get; set; } = 3;
     public int OtpFailedGuessesPerEmailPerDay { get; set; } = 25;
     public int AiRequestsPerUserPerMinute { get; set; } = 6;
-    public int CircleJoinsPerIpPer10Min { get; set; } = 60;
+    /// <summary>A class or an office joins from one public IP: room for a whole circle and then some (spec 008 R4).</summary>
+    public int CircleJoinsPerIpPer10Min { get; set; } = 300;
+    /// <summary>Joins of one circle from one IP; unset means the circle's capacity plus 20 (spec 008 R4).</summary>
+    public int? CircleJoinsPerIpAndCodePer10Min { get; set; }
     public int CirclesCreatedPerUserPerHour { get; set; } = 30;
     public int IntegrationCallsPerUserPer10Min { get; set; } = 20;
     public int PresentationUploadsPerUserPerHour { get; set; } = 10;
@@ -77,4 +80,18 @@ public static class RateLimits
     }
 
     public static string? ClientIp(HttpContext ctx) => ctx.Connection.RemoteIpAddress?.ToString();
+
+    /// <summary>
+    /// A refusal from a limiter inside an endpoint, answered and audited exactly like the policies above: 429
+    /// <c>rate-limited</c>, <c>Retry-After</c> and <c>retryAfterSeconds</c>.
+    /// </summary>
+    public static async Task<IResult> RejectAsync(HttpContext http, TimeSpan retryAfter, string scope, CancellationToken ct)
+    {
+        var seconds = (int)Math.Ceiling(retryAfter.TotalSeconds);
+        http.Response.Headers.RetryAfter = seconds.ToString(CultureInfo.InvariantCulture);
+        await http.RequestServices.GetRequiredService<AuditLog>().WriteAsync(AuditTypes.OtpRateLimited, ip: ClientIp(http),
+            detail: new { scope, path = http.Request.Path.Value }, ct: ct);
+        return Results.Problem(statusCode: StatusCodes.Status429TooManyRequests, type: "rate-limited", title: "Too many requests. Please slow down.",
+            extensions: new Dictionary<string, object?> { ["retryAfterSeconds"] = seconds });
+    }
 }

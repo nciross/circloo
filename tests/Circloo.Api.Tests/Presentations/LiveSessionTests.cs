@@ -193,4 +193,156 @@ public sealed class LiveSessionTests
         Assert.False(s.Blank);
         Assert.Equal(SessionPhases.Answering, s.Phase);
     }
+
+    [Fact]
+    public void Answers_are_taken_only_on_the_current_open_question_and_a_quiz_only_before_its_deadline()
+    {
+        var (s, slides) = Running();
+        Assert.Equal("not-current-question", LiveSession.AnswerRefusal(s, slides[0].SlideId, T0));
+        LiveSession.GoTo(s, 1, T0);
+        Assert.Equal("answers-closed", LiveSession.AnswerRefusal(s, slides[1].SlideId, T0));
+        LiveSession.Open(s, T0);
+        Assert.Null(LiveSession.AnswerRefusal(s, slides[1].SlideId, T0.AddMinutes(5)));
+        Assert.Equal("not-current-question", LiveSession.AnswerRefusal(s, slides[3].SlideId, T0));
+
+        LiveSession.GoTo(s, 3, T0);
+        LiveSession.Open(s, T0);
+        Assert.Null(LiveSession.AnswerRefusal(s, slides[3].SlideId, T0.AddSeconds(19.9)));
+        // At the deadline the server refuses, even before the quiz clock has locked it.
+        Assert.Equal("answers-closed", LiveSession.AnswerRefusal(s, slides[3].SlideId, T0.AddSeconds(20)));
+    }
+
+    [Fact]
+    public void Chosen_options_must_be_known_distinct_and_single_unless_the_poll_takes_several()
+    {
+        var (_, slides) = Running();
+        var poll = slides[1];
+        var quiz = slides[3];
+        Assert.Equal(["a", "b"], LiveSession.CleanOptions(poll, ["b", "a"])!);
+        Assert.Null(LiveSession.CleanOptions(poll, ["a", "a"]));
+        Assert.Null(LiveSession.CleanOptions(poll, ["c"]));
+        Assert.Null(LiveSession.CleanOptions(poll, []));
+        Assert.Null(LiveSession.CleanOptions(poll, null));
+        // The quiz keeps one answer even though its slide had "multiple" switched on.
+        Assert.Equal(["b"], LiveSession.CleanOptions(quiz, ["b"])!);
+        Assert.Null(LiveSession.CleanOptions(quiz, ["a", "b"]));
+    }
+
+    [Fact]
+    public void Live_results_show_only_for_polls_that_ask_for_them_once_answering_opened()
+    {
+        var (s, _) = Running();
+        LiveSession.GoTo(s, 1, T0);
+        Assert.False(LiveSession.ShowsLiveResults(s));
+        LiveSession.Open(s, T0);
+        Assert.True(LiveSession.ShowsLiveResults(s));
+        LiveSession.Lock(s, T0);
+        Assert.True(LiveSession.ShowsLiveResults(s));
+
+        // A quiz never shows its results before the reveal, whatever its slide said.
+        LiveSession.GoTo(s, 3, T0);
+        LiveSession.Open(s, T0);
+        Assert.False(LiveSession.ShowsLiveResults(s));
+    }
+
+    [Fact]
+    public void Results_count_each_option_add_up_to_100_and_the_reveal_crowns_every_tie()
+    {
+        var (_, slides) = Running();
+        var results = ResultsBuilder.Build(slides[1], [["a"], ["a", "b"], ["b"]], winners: true);
+        Assert.Equal(3, results.Total);
+        Assert.Equal([(2, 50, true), (2, 50, true)], results.Options.Select(o => (o.Count, o.Percent, o.Winner)));
+
+        // Live results move the bars but crown nobody before the reveal.
+        Assert.All(ResultsBuilder.Build(slides[1], [["a"], ["a"], ["b"]]).Options, o => Assert.False(o.Winner));
+
+        var none = ResultsBuilder.Build(slides[1], [], winners: true);
+        Assert.All(none.Options, o => Assert.Equal((0, 0, false), (o.Count, o.Percent, o.Winner)));
+    }
+
+    [Fact]
+    public void The_reveal_spotlights_the_earliest_answer_and_for_a_quiz_the_earliest_correct_one()
+    {
+        var (_, slides) = Running();
+        var (amina, kenji, ghost) = (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        var members = new Dictionary<Guid, (string, string)> { [amina] = ("Amina", "robot"), [kenji] = ("Kenji", "fox") };
+        AnswerRow Row(long seq, Guid who, string option, double seconds, bool? correct = null) =>
+            new(seq, who, [option], T0.AddSeconds(seconds), correct);
+
+        var poll = ResultsBuilder.Reveal(slides[1], [Row(7, kenji, "b", 4.25), Row(3, amina, "a", 2.4)], T0, members);
+        Assert.Equal(("Amina", "robot", 2400L), (poll.First!.Name, poll.First.Character, poll.First.Ms));
+        Assert.All(poll.Options, o => Assert.Null(o.Correct));
+
+        var quiz = ResultsBuilder.Reveal(slides[3], [Row(3, amina, "a", 1, correct: false), Row(5, kenji, "b", 3.5, correct: true)], T0, members);
+        Assert.Equal(("Kenji", 3500L), (quiz.First!.Name, quiz.First.Ms));
+        Assert.Equal([false, true], quiz.Options.Select(o => o.Correct!.Value));
+
+        // Nobody right, someone who is no longer known, or the spotlight off: no name.
+        Assert.Null(ResultsBuilder.Reveal(slides[3], [Row(3, amina, "a", 1, correct: false)], T0, members).First);
+        Assert.Null(ResultsBuilder.Reveal(slides[1], [Row(1, ghost, "a", 1)], T0, members).First);
+        Assert.Null(ResultsBuilder.Reveal(slides[1] with { ShowFirst = false }, [Row(1, amina, "a", 1)], T0, members).First);
+    }
+
+    /// <summary>The same deck with answers opening automatically (#170).</summary>
+    private static PresentationSession RunningAuto() =>
+        LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Running().Slides, showPodium: true, T0, autoOpen: true);
+
+    [Fact]
+    public void With_automatic_opening_a_question_opens_when_shown_and_a_deck_slide_stays_idle()
+    {
+        var s = RunningAuto();
+        Assert.Equal(SessionPhases.Idle, s.Phase);
+        LiveSession.SetBlank(s, true);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(1));
+        Assert.Equal((false, SessionPhases.Answering, T0.AddSeconds(1)), (s.Blank, s.Phase, s.OpenedAt));
+        Assert.False(LiveSession.GoTo(s, 1, T0.AddSeconds(2)));
+        LiveSession.GoTo(s, 2, T0.AddSeconds(3));
+        Assert.Equal(SessionPhases.Idle, s.Phase);
+        LiveSession.GoTo(s, 3, T0.AddSeconds(4));
+        Assert.Equal((SessionPhases.Answering, T0.AddSeconds(24)), (s.Phase, s.Deadline));
+    }
+
+    [Fact]
+    public void A_presentation_starting_on_a_quiz_opens_it_with_its_deadline()
+    {
+        var snapshot = LiveSession.BuildSnapshot([Quiz(0), Deck(1)]);
+        var s = LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), snapshot, showPodium: true, T0, autoOpen: true);
+        Assert.Equal((SessionPhases.Answering, T0, T0.AddSeconds(20)), (s.Phase, s.OpenedAt, s.Deadline));
+        var manual = LiveSession.Start(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), snapshot, showPodium: true, T0);
+        Assert.Equal(SessionPhases.Idle, manual.Phase);
+    }
+
+    [Fact]
+    public void Passing_through_an_unanswered_question_never_uses_it_up_but_an_answered_one_stays_locked()
+    {
+        var s = RunningAuto();
+        LiveSession.GoTo(s, 1, T0);
+        // An extra Next: nobody answered, so the poll is forgotten and opens fresh on the way back.
+        LiveSession.GoTo(s, 2, T0.AddSeconds(2), leavingAnswered: false);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(5));
+        Assert.Equal((SessionPhases.Answering, T0.AddSeconds(5)), (s.Phase, s.OpenedAt));
+
+        // Answered this time: leaving locks it, and coming back never reopens it.
+        LiveSession.GoTo(s, 2, T0.AddSeconds(9), leavingAnswered: true);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(12));
+        Assert.Equal(SessionPhases.Locked, s.Phase);
+
+        // A question revealed (even with no answers) keeps its results.
+        LiveSession.GoTo(s, 3, T0.AddSeconds(13));
+        LiveSession.Reveal(s, T0.AddSeconds(14));
+        LiveSession.GoTo(s, 2, T0.AddSeconds(15), leavingAnswered: false);
+        LiveSession.GoTo(s, 3, T0.AddSeconds(16));
+        Assert.Equal(SessionPhases.Revealed, s.Phase);
+    }
+
+    [Fact]
+    public void Without_automatic_opening_passing_through_keeps_the_old_rule()
+    {
+        var (s, _) = Running();
+        LiveSession.GoTo(s, 1, T0);
+        LiveSession.Open(s, T0);
+        LiveSession.GoTo(s, 2, T0.AddSeconds(2), leavingAnswered: false);
+        LiveSession.GoTo(s, 1, T0.AddSeconds(3));
+        Assert.Equal(SessionPhases.Locked, s.Phase);
+    }
 }

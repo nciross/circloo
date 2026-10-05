@@ -155,9 +155,15 @@ appear one by one; a participant who taps twice still counts once.
    character), but no option counts until the reveal, unless the poll has "Show results live" on, in which case
    everyone sees the bars move as answers arrive and Reveal locks answers and marks the winner.
 7. **Given** the animator moves away from a question while answering is open, **Then** answering locks; coming back
-   shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts.
+   shows it locked (it can be revealed, not reopened), answers are kept and a quiz timer never restarts (see 9 for a
+   question nobody answered when answers open automatically).
 8. **Given** the interface is in Arabic, **Then** answer buttons, the countdown and "n of N answered" are mirrored and
    numbers stay readable.
+9. **Given** a question slide is shown for the first time, **Then** answering opens at once (a quiz starts its
+   countdown), unless the animator turned "Open answers as soon as a question shows" off for the presentation, in
+   which case they open answers themselves (#170, founder feedback 2026-10-04). With automatic opening, a question left
+   before anyone answered and not revealed is not kept: shown again, it opens fresh (a quiz with a new countdown), so an
+   extra Next or a peek back never uses it up.
 
 ---
 
@@ -261,8 +267,9 @@ option and the first correct answerer are shown; the podium after the second qui
 - **FR-608**: While presenting, the current slide, blank state, open question and its phase (answering, locked,
   revealed, podium) MUST be the same for everyone in the circle, reach every participant within 1 second, and be
   restored for anyone who joins or reloads.
-- **FR-609**: Only the animator MUST be able to change slides, blank the screen, open, lock and reveal questions, show
-  the podium and end the presentation; speaker notes and the next slide MUST be visible to the animator only.
+- **FR-609**: Only the animator MUST be able to change slides, blank the screen, open (or let questions open as they
+  are shown, #170), lock and reveal questions, show the podium and end the presentation; speaker notes and the next
+  slide MUST be visible to the animator only.
 - **FR-609a**: The animator MUST be able to open an **audience screen** for the running presentation: a full-screen,
   control-free view for a projector or TV that mirrors the shared state (slide, blank, question, countdown, answer
   count, results, spotlight, podium) and shows the circle's join code and QR code between questions. Only the
