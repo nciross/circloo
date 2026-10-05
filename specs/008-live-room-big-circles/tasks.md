@@ -75,7 +75,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - the per-IP limit at 300 and the per-code limit.
 
   Depends on T801.
-- [ ] T803 [US1] **Shared characters in the UI.** (#177)
+- [x] T803 [US1] **Shared characters in the UI.** (#177)
   - `src/web/src/components/Character.tsx` gains a `ring` prop: ring 0 draws no ring; rings 1–5 draw a 3 px outline in ring tokens (≥ 3:1 against light, dark and projector surfaces) plus an index dot, so it is not colour alone. Tokens go in `src/web/src/styles/tokens.css`.
   - `src/web/src/features/circles/JoinCircle.tsx` shows the use count per character, the assigned ring with a way to pick another free ring, and a full character as unavailable.
   - Every place that shows a member's character passes their `ring` and shows or announces their name: people, chat, answer progress, spotlight, raised hands. The room's member list and the projector's join card handle 100 entries.
