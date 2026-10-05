@@ -91,13 +91,6 @@ public sealed class ChatTests(PostgresFixture pg) : IAsyncLifetime
     private Task<int> StoredAsync(Guid circleId, string text) =>
         _host.DbAsync(db => db.CircleMessages.CountAsync(m => m.CircleId == circleId && m.Text == text));
 
-    /// <summary>One circle's audit details of a type, filtered here: <c>Detail</c> is jsonb, so no string search in SQL.</summary>
-    private async Task<List<string>> AuditsAsync(string type, Guid circleId)
-    {
-        var details = await _host.DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == type && a.Detail != null).Select(a => a.Detail!).ToListAsync());
-        return [.. details.Where(d => d.Contains(circleId.ToString(), StringComparison.Ordinal))];
-    }
-
     [Fact]
     public async Task Entering_pushes_the_room_settings()
     {
@@ -228,9 +221,9 @@ public sealed class ChatTests(PostgresFixture pg) : IAsyncLifetime
         await screen.StartAsync();
         await screen.InvokeAsync("EnterAudience", room.CircleId);
         Assert.Contains("not-entered", await RefusedAsync(() => screen.InvokeAsync("Say", "hi")));
-        Assert.Contains("not-entered", await RefusedAsync(() => screen.InvokeAsync("LikeMessage", id)));
-        Assert.Contains("not-entered", await RefusedAsync(() => screen.InvokeAsync("HideMessage", id, true)));
-        Assert.Contains("not-entered", await RefusedAsync(() => screen.InvokeAsync("SetRoomSettings", Chat(RoomChatModes.Paused))));
+        Assert.Contains("audience-read-only", await RefusedAsync(() => screen.InvokeAsync("LikeMessage", id)));
+        Assert.Contains("audience-read-only", await RefusedAsync(() => screen.InvokeAsync("HideMessage", id, true)));
+        Assert.Contains("audience-read-only", await RefusedAsync(() => screen.InvokeAsync("SetRoomSettings", Chat(RoomChatModes.Paused))));
     }
 
     [Fact]
@@ -317,7 +310,7 @@ public sealed class ChatTests(PostgresFixture pg) : IAsyncLifetime
         Assert.DoesNotContain(luciaView!.Messages, m => m.Id == id);
         var animatorView = await room.AnimatorHttp.GetFromJsonAsync<CircleView>($"/api/circles/{room.CircleId}");
         Assert.True(animatorView!.Messages.Single(m => m.Id == id).Hidden);
-        var audit = Assert.Single(await AuditsAsync("message.hidden", room.CircleId));
+        var audit = Assert.Single(await _host.AuditsAsync("message.hidden", room.CircleId));
         Assert.DoesNotContain("Not so kind", audit, StringComparison.Ordinal);
 
         await room.Animator.InvokeAsync("HideMessage", id, false);
@@ -339,7 +332,7 @@ public sealed class ChatTests(PostgresFixture pg) : IAsyncLifetime
         Assert.Equal(quiet, RoomSettings.Of(await _host.DbAsync(db => db.Circles.AsNoTracking().SingleAsync(c => c.Id == room.CircleId))));
         var view = await room.KenjiHttp.GetFromJsonAsync<CircleView>($"/api/circles/{room.CircleId}");
         Assert.Equal(quiet, view!.Settings);
-        Assert.Single(await AuditsAsync("chat.slow", room.CircleId));
+        Assert.Single(await _host.AuditsAsync("chat.slow", room.CircleId));
 
         await room.Animator.InvokeAsync("StartActivity", "qa");
         Assert.Equal(RoomSettings.Default, await room.LuciaSettings.NextAsync(s => s.Chat == RoomChatModes.Open));
@@ -349,6 +342,6 @@ public sealed class ChatTests(PostgresFixture pg) : IAsyncLifetime
         await room.LuciaSettings.NextAsync(s => s.Chat == RoomChatModes.Paused);
         await room.Animator.InvokeAsync("EndActivity");
         Assert.Equal(RoomSettings.Default, await room.LuciaSettings.NextAsync(s => s.Chat == RoomChatModes.Open));
-        Assert.Single(await AuditsAsync("chat.paused", room.CircleId));
+        Assert.Single(await _host.AuditsAsync("chat.paused", room.CircleId));
     }
 }

@@ -74,6 +74,7 @@ public sealed partial class CircleHub
         await db.Presentations.Where(p => p.Id == deck.Id).ExecuteUpdateAsync(s => s.SetProperty(p => p.LastUsedAt, now));
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, ActivityCatalog.Presentation));
         await ResetRoomSettingsAsync(circleId);
+        await ClearHandsAsync(circleId, me.UserId, "presentation-started");
 
         var started = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"start:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(ActivityCatalog.Presentation, me.Id));
@@ -209,6 +210,7 @@ public sealed partial class CircleHub
         }
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         await ResetRoomSettingsAsync(circleId);
+        await ClearHandsAsync(circleId, me.UserId, "presentation-ended");
         var ended = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"end:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));
@@ -230,6 +232,7 @@ public sealed partial class CircleHub
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
         await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
+        await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         if (await ActiveSessionAsync(circleId) is not { } active)
         {
             return null;

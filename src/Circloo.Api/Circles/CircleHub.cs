@@ -71,6 +71,8 @@ public interface ICircleClient
     Task MyLike(long id, bool liked);
     /// <summary>The room's chat mode and switches changed, were reset, or the caller just entered.</summary>
     Task RoomSettings(RoomSettings settings);
+    /// <summary>The raised hands changed (spec 008): the queue oldest first and who has the floor. The audience screen shows only the count.</summary>
+    Task Hands(HandsView view);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -92,7 +94,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<DiscussionOptions> discussion) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<DiscussionOptions> discussion, HandsGrace grace) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -143,8 +145,10 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
         }
+        grace.Cancel(me.Id);
         await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
+        await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         var online = presence.Online(circleId);
         RequestPresence(circleId);
         // Reloads and late joiners land on the current slide (spec 006 FR-608).
@@ -195,6 +199,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
         await ResetRoomSettingsAsync(circleId);
+        await ClearHandsAsync(circleId, me.UserId, "activity-started");
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
@@ -214,6 +219,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         await ResetRoomSettingsAsync(circleId);
+        await ClearHandsAsync(circleId, me.UserId, "activity-ended");
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));
@@ -444,6 +450,11 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             RequestPresence(left.Circle);
             // "n of N answered" counts the people in the room.
             RequestAnswerCount(left.Circle);
+            // Their hand stays up for a moment, so a reload or a flaky network keeps their place.
+            if (!presence.Online(left.Circle).Contains(left.Member))
+            {
+                grace.Schedule(left.Circle, left.Member);
+            }
         }
         await base.OnDisconnectedAsync(exception);
     }
