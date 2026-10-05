@@ -174,9 +174,12 @@ export interface JoinInfo {
   name: string
   animatorName: string
   animatorCharacter: CharacterId
+  /** Characters with no free ring left. */
   taken: CharacterId[]
   full: boolean
   alreadyIn: boolean
+  /** How many people use each character and which of its rings (0–5) are free (spec 008). */
+  characters: { id: CharacterId; used: number; freeRings: number[] }[]
 }
 
 export const circlesKey = ['circles'] as const

@@ -12,11 +12,8 @@ public static class Roles
 /// <summary>The characters participants pick from (spec 003 US2, 24 since #94). Ids match the web cast.</summary>
 public static class Characters
 {
-    /// <summary>
-    /// How many people may share one character, each with their own ring (spec 008). Until joining assigns rings
-    /// (T802, #176), every member has ring 0, so each character is still one person.
-    /// </summary>
-    public const int RingsInUse = 1;
+    /// <summary>How many people may share one character, each with their own ring 0–5 (spec 008 FR-803).</summary>
+    public const int RingsInUse = 6;
 
     /// <summary>The most people a circle can hold: the configured maximum, never more than character/ring pairs.</summary>
     public static int Capacity(int maxPeople) => Math.Min(maxPeople, All.Length * RingsInUse);
@@ -172,5 +169,15 @@ public static class Hands
     {
         var all = hands.OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToList();
         return new HandsView([.. all.Where(h => !h.HasFloor).Select(h => new HandView(h.MemberId, h.RaisedAt))], all.FirstOrDefault(h => h.HasFloor)?.MemberId);
+    }
+}
+
+/// <summary>Which copies of a character are taken and which rings are still free (spec 008 FR-803/805).</summary>
+public static class Rings
+{
+    public static CharacterUse Use(string character, IEnumerable<int> taken)
+    {
+        var used = taken.ToHashSet();
+        return new CharacterUse(character, used.Count, [.. Enumerable.Range(0, Characters.RingsInUse).Where(r => !used.Contains(r))]);
     }
 }

@@ -6,7 +6,7 @@ Changes to existing endpoints. JSON is camelCase, and errors are `ProblemDetails
 
 | Endpoint | Change |
 |---|---|
-| `GET /api/join/{code}` | `JoinInfo` replaces `taken: string[]` with `characters: { id: string; used: number; freeRings: number[] }[]`. `full` follows `Circles:MaxPeople`. |
+| `GET /api/join/{code}` | `JoinInfo` gains `characters: { id: string; used: number; freeRings: number[] }[]`. `taken` now lists only characters with no free ring. `full` follows `Circles:MaxPeople`. |
 | `POST /api/join/{code}` | The body gains an optional `ring` (0–5). Without it, the lowest free ring of the character is assigned. If two people race for the same ring, the next free one is used. `409 circle-full` when the circle is at its maximum (checked under a row lock). `409 character-full` when all 6 rings of the character are taken. |
 
 Rate limits:

@@ -12,7 +12,10 @@ public sealed class RateLimitOptions
     public int OtpRequestsPerEmailPer15Min { get; set; } = 3;
     public int OtpFailedGuessesPerEmailPerDay { get; set; } = 25;
     public int AiRequestsPerUserPerMinute { get; set; } = 6;
-    public int CircleJoinsPerIpPer10Min { get; set; } = 60;
+    /// <summary>A class or an office joins from one public IP: room for a whole circle and then some (spec 008 R4).</summary>
+    public int CircleJoinsPerIpPer10Min { get; set; } = 300;
+    /// <summary>Joins of one circle from one IP; unset means the circle's capacity plus 20 (spec 008 R4).</summary>
+    public int? CircleJoinsPerIpAndCodePer10Min { get; set; }
     public int CirclesCreatedPerUserPerHour { get; set; } = 30;
     public int IntegrationCallsPerUserPer10Min { get; set; } = 20;
     public int PresentationUploadsPerUserPerHour { get; set; } = 10;
