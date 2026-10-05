@@ -26,6 +26,9 @@ public sealed partial class HandsGrace(IServiceScopeFactory scopes, CirclePresen
         });
     }
 
+    /// <summary>Whether a grace timer is waiting for this member (their last connection closed and they are not back yet).</summary>
+    public bool IsPending(Guid memberId) => _timers.ContainsKey(memberId);
+
     /// <summary>The member is back: their hand stays.</summary>
     public void Cancel(Guid memberId)
     {

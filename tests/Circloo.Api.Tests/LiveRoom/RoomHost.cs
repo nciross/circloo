@@ -61,6 +61,27 @@ public sealed class RoomHost(ApiFactory factory)
 
     public Task<List<CircleMember>> MembersAsync(Guid circleId) =>
         DbAsync(db => db.CircleMembers.AsNoTracking().Where(m => m.CircleId == circleId && m.LeftAt == null).ToListAsync());
+
+    /// <summary>One circle's audit details of a type, filtered here: <c>Detail</c> is jsonb, so no string search in SQL.</summary>
+    public async Task<List<string>> AuditsAsync(string type, Guid circleId)
+    {
+        var details = await DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == type && a.Detail != null).Select(a => a.Detail!).ToListAsync());
+        return [.. details.Where(d => d.Contains(circleId.ToString(), StringComparison.Ordinal))];
+    }
+
+    /// <summary>Polls a server-side condition until it holds, instead of sleeping a fixed time. Fails after <see cref="Wait"/>.</summary>
+    public static async Task UntilAsync(Func<bool> condition, string what)
+    {
+        var waited = System.Diagnostics.Stopwatch.StartNew();
+        while (!condition())
+        {
+            if (waited.Elapsed > Wait)
+            {
+                Assert.Fail($"Timed out waiting for {what}.");
+            }
+            await Task.Delay(10);
+        }
+    }
 }
 
 /// <summary>Every event of one kind a connection receives, to await in order.</summary>

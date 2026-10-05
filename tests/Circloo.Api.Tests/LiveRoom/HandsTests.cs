@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Circloo.Api.Tests.LiveRoom;
 
@@ -58,12 +59,8 @@ public sealed class HandsTests(PostgresFixture pg) : IAsyncLifetime
     private Task<List<RaisedHand>> RowsAsync(Guid circleId) =>
         _host.DbAsync(db => db.RaisedHands.AsNoTracking().Where(h => h.CircleId == circleId).OrderBy(h => h.Id).ToListAsync());
 
-    /// <summary>The database is shared by the whole collection: count only this circle's rows.</summary>
-    private async Task<int> ClearAuditsAsync(Guid circleId)
-    {
-        var rows = await _host.DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == "hands.cleared").ToListAsync());
-        return rows.Count(a => a.Detail is not null && a.Detail.Contains(circleId.ToString(), StringComparison.Ordinal));
-    }
+    /// <summary>The database is shared by the whole collection: count only this circle's rows (filtered in memory, never in SQL on jsonb).</summary>
+    private async Task<int> ClearAuditsAsync(Guid circleId) => (await _host.AuditsAsync("hands.cleared", circleId)).Count;
 
     [Fact]
     public async Task Parallel_raises_by_one_member_leave_one_row()
@@ -171,22 +168,25 @@ public sealed class HandsTests(PostgresFixture pg) : IAsyncLifetime
         await back.Hub.InvokeAsync("RaiseHand");
         var placeBefore = (await RowsAsync(circle.Id)).Single(h => h.MemberId == back.Id).Id;
 
+        var grace = _factory.Services.GetRequiredService<HandsGrace>();
         await gone.Hub.StopAsync();
         await back.Hub.StopAsync();
-        await presence.NextAsync(p => !p.Contains(gone.Id) && !p.Contains(back.Id));
-        // The server schedules the grace period in the same step as the presence update.
-        await Task.Delay(300);
+        // The timers start when the server handles the disconnects: wait for them, not for wall time.
+        await RoomHost.UntilAsync(() => grace.IsPending(gone.Id) && grace.IsPending(back.Id), "both grace timers");
 
+        // The fake clock runs due timers inside Advance: none is due yet, so both hands are still up.
         _factory.Clock.Advance(HandsGrace.Period - TimeSpan.FromSeconds(5));
-        await Task.Delay(300);
+        Assert.True(grace.IsPending(gone.Id) && grace.IsPending(back.Id));
         Assert.Equal(2, (await RowsAsync(circle.Id)).Count);
 
-        // Lea is back in time.
+        // Lea is back in time: Enter has cancelled her timer when it returns.
         await EnterAsync(back.Cookies, circle.Id);
+        Assert.False(grace.IsPending(back.Id));
         _factory.Clock.Advance(TimeSpan.FromSeconds(10));
+        // Kenji's hand is deleted before the Hands event goes out.
         var lowered = await animatorHands.NextAsync(v => v.Queue.Count == 1 && v.Queue[0].MemberId == back.Id);
         Assert.Equal([back.Id], lowered.Queue.Select(h => h.MemberId));
-        await Task.Delay(300);
+        Assert.False(grace.IsPending(gone.Id));
 
         var rows = await RowsAsync(circle.Id);
         var kept = Assert.Single(rows);
