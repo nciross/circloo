@@ -1,8 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/readex-pro'
-import '@fontsource-variable/fraunces'
-import '@fontsource-variable/noto-naskh-arabic'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
