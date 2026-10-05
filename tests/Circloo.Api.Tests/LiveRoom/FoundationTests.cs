@@ -179,8 +179,8 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
     {
         Assert.Equal(12, Characters.Capacity(12));
         Assert.Equal(100, Characters.Capacity(100));
-        // Never more people than 24 characters x 6 rings.
-        Assert.Equal(144, Characters.Capacity(500));
+        // Never more people than characters x 6 rings.
+        Assert.Equal(Characters.All.Length * Characters.RingsInUse, Characters.Capacity(10_000));
     }
 
     [Fact]
