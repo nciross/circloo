@@ -80,6 +80,6 @@ Each reaction flush adds its counts with a single SQL update. Totals are never l
 
 | Key | Default | Meaning |
 |---|---|---|
-| `Circles:MaxPeople` | 100 | active members per circle, animators included (2–144 = 24 characters × 6 rings) |
+| `Circles:MaxPeople` | 100 | active members per circle, animators included (2–144 = 24 characters × 6 rings; since #201 the cast is 48, so the bound is 2–288 = 48 × 6) |
 | `RateLimits:CircleJoinsPerIpPer10Min` | 300 | was 60 (R4) |
 | `RateLimits:CircleJoinsPerIpAndCodePer10Min` | MaxPeople + 20 | new (R4) |

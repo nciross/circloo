@@ -178,8 +178,9 @@ public sealed class FoundationTests(PostgresFixture pg) : IAsyncLifetime
     public void A_circle_holds_its_configured_maximum_but_never_more_people_than_characters_allow()
     {
         Assert.Equal(12, Characters.Capacity(12));
-        // Until rings are assigned at join (T802), one person per character.
-        Assert.Equal(Characters.All.Length * Characters.RingsInUse, Characters.Capacity(100));
+        Assert.Equal(100, Characters.Capacity(100));
+        // Never more people than characters x 6 rings.
+        Assert.Equal(Characters.All.Length * Characters.RingsInUse, Characters.Capacity(10_000));
     }
 
     [Fact]
