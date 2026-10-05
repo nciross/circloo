@@ -120,8 +120,9 @@ export function Landing() {
                 </button>
               ) : null}
               {lm.reduced ? (
-                <button type="button" className="motion-toggle" aria-pressed={lm.optedIn} onClick={toggleOptIn}>
-                  {lm.optedIn ? <Undo2 size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing2.motion.respect' : 'landing2.motion.play')}
+                // A changing label says what a press does; aria-pressed on top would read as "Respect my system setting, pressed".
+                <button type="button" className="motion-toggle motion-optin" onClick={toggleOptIn}>
+                  {lm.optedIn ? <Undo2 className="flip-rtl" size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing2.motion.respect' : 'landing2.motion.play')}
                 </button>
               ) : null}
               <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>

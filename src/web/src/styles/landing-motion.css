@@ -699,6 +699,8 @@
 
 /* ---------- Comparison table ---------- */
 .tablewrap {
+  /* Contains the cells' visually-hidden labels, which otherwise widen the page on phones while motion is off. */
+  position: relative;
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 20px;

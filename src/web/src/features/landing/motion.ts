@@ -62,11 +62,17 @@ function subscribe(onChange: () => void) {
   } catch {
     /* no matchMedia: nothing to watch */
   }
-  window.addEventListener('storage', onChange)
+  // Another tab changed the choice: what is stored now wins over this tab's in-memory copy.
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== null && e.key !== MOTION_KEY) return
+    memory = null
+    onChange()
+  }
+  window.addEventListener('storage', onStorage)
   return () => {
     listeners.delete(onChange)
     mq?.removeEventListener('change', onChange)
-    window.removeEventListener('storage', onChange)
+    window.removeEventListener('storage', onStorage)
   }
 }
 

@@ -115,11 +115,16 @@ test.describe('reduced motion', () => {
     await expect(site).toHaveAttribute('data-motion', 'off')
     await expect(page.locator('.marquee__track')).toHaveCSS('animation-name', 'none')
 
-    const play = page.locator('.hero__motion .motion-toggle[aria-pressed="false"]')
-    await expect(play).toBeVisible()
+    // One control, whose label says what a press does; the pause control joins it once motion runs.
+    const play = page.locator('.hero__motion .motion-optin')
+    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(1)
+    await expect(play).toHaveText(/Play animations/)
     await play.click()
     await expect(site).toHaveAttribute('data-motion', 'on')
-    await expect(page.locator('.hero__motion .motion-toggle[aria-pressed="true"]')).toHaveCount(2)
+    await expect(play).toHaveText(/Respect my system setting/)
+    await expect(play).toBeFocused()
+    await expect(page.getByRole('status').filter({ hasText: 'Animations are playing.' })).toHaveCount(1)
+    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(2)
     await expect(page.locator('.marquee__track')).not.toHaveCSS('animation-name', 'none')
     const running = await page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))
     expect(running).toBe(true)
@@ -127,7 +132,7 @@ test.describe('reduced motion', () => {
     // The choice survives a reload, and going back to the system setting stills the page again.
     await page.reload()
     await expect(site).toHaveAttribute('data-motion', 'on')
-    await page.locator('.hero__motion .motion-toggle[aria-pressed="true"]').last().click()
+    await play.click()
     await expect(site).toHaveAttribute('data-motion', 'off')
   })
 })
