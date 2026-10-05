@@ -118,7 +118,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: five participants chat with emoji and likes during a presentation. The animator pauses the chat, then turns on slow mode (one message per 10 s). An unsafe message is refused.
 
-- [ ] T805 [P] [US3] **Chat hub.** (#179)
+- [x] T805 [P] [US3] **Chat hub.** (#179)
   - `Say` limits in `src/Circloo.Api/Circles/CircleHub.cs` per `contracts/hub.md`:
     - participants get 5 per 10 s through `RoomLimits` (`slow-down`);
     - `ChatMode = slow` allows one per 10 s, counted from the member's last stored message (`slow-mode:<secondsLeft>`);
