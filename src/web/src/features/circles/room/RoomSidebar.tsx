@@ -47,6 +47,14 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
     tabRefs.current[next.id]?.focus()
   }
 
+  // Escape closes the phone sheet, unless it is clearing a field first (a search or a message being written).
+  const onSheetKey = (e: KeyboardEvent) => {
+    if (wide || e.key !== 'Escape' || e.defaultPrevented) return
+    const field = e.target as HTMLInputElement | HTMLTextAreaElement
+    if ((field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') && field.value) return
+    setOpen(false)
+  }
+
   const flip = 'room-side__flip'
   return (
     <aside className={`room-side${open ? ' is-open' : ' is-closed'}${!wide && sheet === 'full' ? ' is-full' : ''}`} aria-label={t('circles.room.sideLabel')} data-slot="room-side">
@@ -75,7 +83,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
         ) : null}
       </button>
 
-      <div className="room-side__body" id={`${base}-body`} hidden={!open}>
+      <div className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
         <div className="room-side__bar">
           {wide ? null : <span className="room-side__grip" aria-hidden="true" />}
           <div className="room-side__tabs" role="tablist" aria-label={t('circles.room.sideLabel')} onKeyDown={onTabKey}>

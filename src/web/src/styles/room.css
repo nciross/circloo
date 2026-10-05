@@ -6,10 +6,14 @@
  * Slots in the side area: tabs in RoomSidebar.tsx (People today; Chat, Hands as they land). The stage (spec 009)
  * goes in the main area, above the activity, and the sheet below keeps clear of it the same way.
  */
-.room__grid {
-  --side-w: clamp(20rem, 25vw, 22.5rem);
+:root {
+  /* On :root because the assistant's corner button (outside the room) rises above the open sheet. */
   --sheet-half: 50dvh;
   --sheet-full: 88dvh;
+}
+.room__grid {
+  /* A third of the room at most, so the slide keeps two thirds (spec 008 US2), between 17.5rem and 22.5rem. */
+  --side-w: clamp(17.5rem, calc(100% / 3 - var(--s-5)), 22.5rem);
   --people-row: 3.25rem;
 }
 
@@ -25,7 +29,8 @@
     inset-block-start: calc(var(--topbar-h) + var(--s-5));
     display: flex;
     flex-direction: column;
-    block-size: calc(100dvh - var(--topbar-h) - var(--s-5) * 2);
+    /* Ends above the bottom corner, which belongs to Pirikoo's button (3.75rem plus its offset), so the send button stays clear. */
+    block-size: calc(100dvh - var(--topbar-h) - var(--s-5) - 6rem);
     min-block-size: 24rem;
     border: 1px solid var(--border);
     border-radius: var(--r-md);
@@ -118,8 +123,12 @@
   display: flex;
   gap: var(--s-1);
   min-inline-size: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 .room-side__tab {
+  flex: none;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
@@ -142,6 +151,20 @@
 }
 .room-side__tab-icon {
   display: inline-flex;
+  flex: none;
+}
+/* A narrow sidebar drops the tab icons before a label would be cut (French, Arabic). */
+.room-side__body {
+  container: room-side / inline-size;
+}
+@container room-side (max-width: 23rem) {
+  .room-side__tab {
+    gap: var(--s-1);
+    padding-inline: var(--s-2);
+  }
+  .room-side__tab-icon {
+    display: none;
+  }
 }
 .room-side__badge {
   min-inline-size: 1.25rem;
@@ -181,6 +204,21 @@
   box-shadow: none;
   border-radius: 0;
   margin: calc(var(--s-3) * -1);
+}
+/* In the sidebar the tab already names the chat: the activity title is kept for screen readers only, the End button stays. */
+.room-side__panel > .chat > .panel__head {
+  justify-content: flex-end;
+  padding-block: var(--s-2);
+}
+.room-side__panel > .chat > .panel__head > .panel__title,
+.room-side__panel > .chat > .panel__head:not(:has(button)) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .room-side__panel > .invite {
   flex: none;
