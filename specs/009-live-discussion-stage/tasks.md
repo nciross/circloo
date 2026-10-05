@@ -105,7 +105,7 @@ No setup task: no package, container or Azure resource is added (plan "Technical
 
 **Independent Test**: with fake devices a person accepts audio only and is heard; another denies permission and still uses chat and hands; a third has no microphone and reads a clear message.
 
-- [ ] T905 [P] [US4] **Client mesh manager (no visible UI).** In `src/web/src/features/circles/stage/`:
+- [x] T905 [P] [US4] **Client mesh manager (no visible UI).** In `src/web/src/features/circles/stage/`:
   - `stage.ts`: the zustand store (`discussion`, `seats`, `recording`, `myMedia`, announcements queue) and `bindStage(connection, isCurrent)` binding `Discussion`, `Stage`, `StageNotice`, `Recording`, `RecordingWarning` and `Signal`, hooked up in `src/web/src/features/circles/room.ts` the way `bindPresentation` is. Actions `joinStage`, `leaveStage`, `watchStage`, `setMedia` and the animator ones call the hub through the existing `invoke`.
   - `mesh.ts`: `MeshManager` opens one `PeerLink` per seat it must talk to (stage to stage, viewers to stage), fetches ICE servers from `GET /api/circles/{id}/discussion/ice` on first use (`src/web/src/api/discussion.ts`), closes links to anyone the `Stage` view no longer lists, and plays a remote person's audio and video only while the server's `Stage` view says on stage, not muted and media on (R4, R7). Bitrate budget per link (R2).
   - `link.ts`: `PeerLink` with up-front transceivers, the offerer rule (viewer, else smaller member id), `linkId`, `replaceTrack` for mic and camera, one ICE restart, `getStats()` every 3 s for the weak-link rule (video off first, audio stays), and `data-link-state` / `data-receiving` values for the UI.
