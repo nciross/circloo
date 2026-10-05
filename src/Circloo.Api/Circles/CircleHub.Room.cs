@@ -44,14 +44,15 @@ public sealed partial class CircleHub
                 throw new HubException($"slow-mode:{(int)Math.Ceiling(left.TotalSeconds)}");
             }
         }
-        if (!limits.TryTake(me.Id, "message", MessagesPerWindow, MessageWindow))
-        {
-            throw new HubException("slow-down");
-        }
-        // Taken last, so two tabs sending at the same moment cannot both pass the slow-mode check.
+        // Two tabs sending at the same moment cannot both pass the slow-mode check. Taken before the sending rate: once
+        // the stored message is 10 s old the rate window is empty, so a message refused here never uses that budget.
         if (mode == RoomChatModes.Slow && !limits.TryTake(me.Id, "slow", 1, SlowEvery))
         {
             throw new HubException($"slow-mode:{(int)SlowEvery.TotalSeconds}");
+        }
+        if (!limits.TryTake(me.Id, "message", MessagesPerWindow, MessageWindow))
+        {
+            throw new HubException("slow-down");
         }
     }
 
