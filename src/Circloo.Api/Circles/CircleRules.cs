@@ -9,7 +9,7 @@ public static class Roles
     public const string Participant = "participant";
 }
 
-/// <summary>The characters participants pick from (spec 003 US2, 48 since #201). Ids match the web cast.</summary>
+/// <summary>The characters participants pick from (spec 003 US2, 49 since #205; build-your-own ids are accepted too). Ids match the web cast.</summary>
 public static class Characters
 {
     /// <summary>How many people may share one character, each with their own ring 0–5 (spec 008 FR-803).</summary>
@@ -28,8 +28,37 @@ public static class Characters
         "sunflower", "mushroom", "tulip", "sprout", "pumpkin", "cherry", "pineapple", "tree",
         // Other friends
         "alien", "unicorn", "dragon", "snowman", "cloud", "sun", "moon", "star",
+        // For people who prefer not to be seen
+        "anonymous",
     ];
-    public static bool IsKnown(string? id) => id is not null && All.Contains(id);
+    public static bool IsKnown(string? id) => id is not null && (All.Contains(id) || Avatars.IsValid(id));
+}
+
+/// <summary>
+/// Build-your-own characters (#205): "me:" and one digit per option (face, skin, hair, hair colour, beard, glasses, outfit,
+/// mouth). Ids are short so they fit the Character column; keep the counts in step with the web (components/avatar.ts).
+/// </summary>
+public static class Avatars
+{
+    private const string Prefix = "me:";
+    private static readonly int[] Counts = [4, 6, 9, 8, 5, 4, 8, 4];
+
+    public static bool IsValid(string? id)
+    {
+        if (id is null || id.Length != Prefix.Length + Counts.Length || !id.StartsWith(Prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+        for (var i = 0; i < Counts.Length; i++)
+        {
+            var d = id[Prefix.Length + i] - '0';
+            if (d < 0 || d >= Counts[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 /// <summary>Join codes: 10 Crockford base32 symbols (50 bits), shown as XXXXX-XXXXX, forgiving when typed.</summary>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import type { CharacterId } from './characters'
+import type { AnyCharacter, CharacterId } from './characters'
+import { decodeAvatar, HAIR, isAvatarCode, OUTFIT, SKIN, type Avatar } from './avatar'
 
 /*
  * Forty-eight funny characters: animals, heroes, plants and a few strange friends, drawn on a 64 × 64 grid. They share the circloo eyes (white rings with
@@ -558,6 +559,126 @@ const ART: Record<CharacterId, ReactNode> = {
       <circle cx="21" cy="40" r="2.2" fill="#ff9a62" /><circle cx="43" cy="40" r="2.2" fill="#ff9a62" />
     </>
   ),
+  anonymous: (
+    <>
+      <path d="M8 62 Q8 46 32 46 Q56 46 56 62 Z" fill="#9aa7b4" {...stroke} />
+      <circle cx="32" cy="29" r="18" fill="#cfd8e0" {...stroke} />
+      <path d="M22 26 Q32 22 42 26 M22 33 Q32 29 42 33" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" opacity="0.7" />
+      <path d="M28 24.5 Q28 20 32 20 Q36 20 36 24 Q36 27 32 28.4 V31" fill="none" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+      <circle cx="32" cy="35.6" r="1.7" fill={INK} />
+    </>
+  ),
+}
+
+const FACE_PATH = [
+  'M32 12 A17 17 0 1 1 31.9 12 Z',
+  'M32 11 Q47 11 47 31 Q47 51 32 51 Q17 51 17 31 Q17 11 32 11 Z',
+  'M18 18 Q18 12 24 12 H40 Q46 12 46 18 V40 Q46 50 36 51 H28 Q18 50 18 40 Z',
+  'M17 22 Q17 12 32 12 Q47 12 47 22 Q47 34 38 44 Q34 51 32 51 Q30 51 26 44 Q17 34 17 22 Z',
+]
+
+/** The hair that sits behind the head (long, bun, afro) and the cap or fringe in front of it. */
+function Hair({ style, color }: { style: number; color: string }) {
+  const f = { fill: color, ...stroke }
+  switch (style) {
+    case 1: // short
+      return <path d="M15 28 Q13 8 32 8 Q51 8 49 28 Q47 18 38 17 Q28 21 20 18 Q16 20 15 28 Z" {...f} />
+    case 2: // buzz
+      return <path d="M16 24 Q16 10 32 10 Q48 10 48 24 Q40 14 32 14 Q24 14 16 24 Z" {...f} strokeWidth="1.8" />
+    case 3: // side part
+      return <path d="M14 30 Q10 8 32 8 Q52 8 50 28 Q44 20 26 18 Q20 20 18 32 Q14 34 14 30 Z" {...f} />
+    case 4: // long
+      return <path d="M13 56 Q8 8 32 8 Q56 8 51 56 Q47 52 46 40 Q46 20 32 18 Q18 20 18 40 Q17 52 13 56 Z" {...f} />
+    case 5: // bun
+      return (
+        <>
+          <circle cx="32" cy="6" r="6.5" {...f} />
+          <path d="M15 28 Q13 11 32 11 Q51 11 49 28 Q46 18 32 18 Q18 18 15 28 Z" {...f} />
+        </>
+      )
+    case 6: // curly
+      return (
+        <>
+          {[[16, 20], [24, 12], [33, 9], [42, 12], [49, 20], [14, 30], [50, 30]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="6.4" {...f} />)}
+        </>
+      )
+    case 7: // afro
+      return <circle cx="32" cy="22" r="23" {...f} />
+    case 8: // mohawk
+      return <path d="M27 18 Q26 4 32 2 Q38 4 37 18 Q32 14 27 18 Z" {...f} />
+    default:
+      return null
+  }
+}
+
+function Beard({ style, color }: { style: number; color: string }) {
+  switch (style) {
+    case 1: // stubble
+      return <path d="M19 38 Q22 50 32 51 Q42 50 45 38 Q40 46 32 46 Q24 46 19 38 Z" fill={color} opacity="0.4" />
+    case 2: // short beard
+      return <path d="M18 36 Q20 52 32 52 Q44 52 46 36 Q42 44 32 44 Q22 44 18 36 Z" fill={color} {...stroke} strokeWidth="1.8" />
+    case 3: // full beard
+      return <path d="M17 33 Q16 58 32 58 Q48 58 47 33 Q44 46 32 47 Q20 46 17 33 Z" fill={color} {...stroke} strokeWidth="1.8" />
+    case 4: // moustache
+      return <path d="M22 41 Q27 37 32 40 Q37 37 42 41 Q37 44 32 42 Q27 44 22 41 Z" fill={color} {...stroke} strokeWidth="1.6" />
+    default:
+      return null
+  }
+}
+
+function Glasses({ style }: { style: number }) {
+  if (style === 0) return null
+  const s = { fill: 'none', stroke: INK, strokeWidth: 2.2 }
+  if (style === 1)
+    return (
+      <>
+        <circle cx="24" cy="31" r="6.4" {...s} /><circle cx="40" cy="31" r="6.4" {...s} />
+        <path d="M30.4 31 H33.6" {...s} />
+      </>
+    )
+  if (style === 2)
+    return (
+      <>
+        <rect x="17.5" y="25.5" width="13" height="10" rx="2.4" {...s} /><rect x="33.5" y="25.5" width="13" height="10" rx="2.4" {...s} />
+        <path d="M30.5 30 H33.5" {...s} />
+      </>
+    )
+  return (
+    <>
+      <rect x="17" y="25" width="14" height="10" rx="3.4" fill={INK} /><rect x="33" y="25" width="14" height="10" rx="3.4" fill={INK} />
+      <path d="M31 29 H33" stroke={INK} strokeWidth="2.2" />
+      <path d="M20 28 l4 -1.4 M36 28 l4 -1.4" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+    </>
+  )
+}
+
+function Mouth({ style }: { style: number }) {
+  const y = 43.5
+  if (style === 1) return <path d={`M26 ${y - 1} Q32 ${y + 7} 38 ${y - 1} Z`} fill="#fff" stroke={INK} strokeWidth="2.2" strokeLinejoin="round" />
+  if (style === 2) return <path d={`M28 ${y + 1} H36`} stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+  if (style === 3) return <ellipse cx="32" cy={y + 1} rx="3.2" ry="3.6" fill={INK} />
+  return <path d={`M26.5 ${y} Q32 ${y + 5} 37.5 ${y}`} fill="none" stroke={INK} strokeWidth="2.4" strokeLinecap="round" />
+}
+
+/** A character built from the options: outfit, hair behind, face, beard, eyes, glasses, mouth, hair in front. */
+export function AvatarArt({ avatar }: { avatar: Avatar }) {
+  const skin = SKIN[avatar.skin] ?? SKIN[1]!
+  const hair = HAIR[avatar.hairColor] ?? HAIR[0]!
+  const outfit = OUTFIT[avatar.outfit] ?? OUTFIT[0]!
+  const behind = avatar.hair === 4 || avatar.hair === 7
+  return (
+    <>
+      {behind ? <Hair style={avatar.hair} color={hair} /> : null}
+      <path d="M8 64 Q8 49 32 49 Q56 49 56 64 Z" fill={outfit} {...stroke} />
+      <path d="M27 49 Q32 54 37 49" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+      <path d={FACE_PATH[avatar.face] ?? FACE_PATH[0]} fill={skin} {...stroke} />
+      <Beard style={avatar.beard} color={hair} />
+      <Eyes y={31} gap={7.4} r={4.2} />
+      <Glasses style={avatar.glasses} />
+      <Mouth style={avatar.mouth} />
+      {behind ? null : <Hair style={avatar.hair} color={hair} />}
+    </>
+  )
 }
 
 /**
@@ -568,11 +689,12 @@ const ART: Record<CharacterId, ReactNode> = {
  * number, so the difference never rests on colour alone. At small sizes (`tag={false}`) the number would be
  * unreadable, so it is left out and the person's name is shown beside the character instead.
  */
-export function Character({ id, className, title, ring = 0, tag = true }: { id: CharacterId; className?: string; title?: string; ring?: number; tag?: boolean }) {
+export function Character({ id, className, title, ring = 0, tag = true }: { id: AnyCharacter; className?: string; title?: string; ring?: number; tag?: boolean }) {
   const ringed = ring > 0 && ring <= 5
+  const custom = isAvatarCode(id)
   return (
     <svg
-      className={['char', `char--${id}`, ringed ? `char--ring char--ring-${ring}` : '', className].filter(Boolean).join(' ')}
+      className={['char', custom ? 'char--custom' : `char--${id}`, ringed ? `char--ring char--ring-${ring}` : '', className].filter(Boolean).join(' ')}
       viewBox="0 0 64 64"
       role={title ? 'img' : undefined}
       aria-label={title}
@@ -581,7 +703,9 @@ export function Character({ id, className, title, ring = 0, tag = true }: { id: 
     >
       {ringed ? <circle className="char__ring" cx="32" cy="32" r="30.5" fill="none" strokeWidth="3" /> : null}
       {/* Inside a ring the art is drawn a little smaller, so ears and hair never cross the ring. */}
-      <g className="char__art" transform={ringed ? 'translate(32 32) scale(0.84) translate(-32 -32)' : undefined}>{ART[id]}</g>
+      <g className="char__art" transform={ringed ? 'translate(32 32) scale(0.84) translate(-32 -32)' : undefined}>
+        {custom ? <AvatarArt avatar={decodeAvatar(id)} /> : ART[id]}
+      </g>
       {ringed && tag ? (
         <g className="char__ring-dot">
           <circle cx="32" cy="57" r="9.5" strokeWidth="2" />

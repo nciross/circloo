@@ -503,7 +503,8 @@
     "cloud": "Nube",
     "sun": "Sol",
     "moon": "Luna",
-    "star": "Estrella"
+    "star": "Estrella",
+    "anonymous": "Anónimo"
   },
   "activities": {
     "category": "Categoría",
@@ -1216,5 +1217,63 @@
       "answers_one": "{{count}} respuesta",
       "answers_other": "{{count}} respuestas"
     }
+  },
+  "avatar": {
+    "surprise": "Sorpréndeme",
+    "colour": "Color {{n}}",
+    "fields": {
+      "face": "Cara",
+      "skin": "Piel",
+      "hair": "Pelo",
+      "hairColor": "Color del pelo",
+      "beard": "Barba",
+      "glasses": "Gafas",
+      "outfit": "Ropa",
+      "mouth": "Boca"
+    },
+    "options": {
+      "face": [
+        "Redonda",
+        "Ovalada",
+        "Cuadrada",
+        "Corazón"
+      ],
+      "hair": [
+        "Calvo",
+        "Corto",
+        "Rapado",
+        "Raya al lado",
+        "Largo",
+        "Moño",
+        "Rizado",
+        "Afro",
+        "Cresta"
+      ],
+      "beard": [
+        "Ninguna",
+        "Incipiente",
+        "Corta",
+        "Completa",
+        "Bigote"
+      ],
+      "glasses": [
+        "Ninguna",
+        "Redondas",
+        "Cuadradas",
+        "De sol"
+      ],
+      "mouth": [
+        "Sonrisa",
+        "Sonrisón",
+        "Tranquila",
+        "Sorprendida"
+      ]
+    },
+    "tabs": {
+      "friends": "Amigos ({{count}})",
+      "people": "Personas ({{count}})",
+      "build": "Crear el mío"
+    },
+    "person": "Persona {{n}}"
   }
 }
