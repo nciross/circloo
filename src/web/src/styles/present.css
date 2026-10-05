@@ -101,8 +101,14 @@
 }
 
 /* ---------- Presenter view ---------- */
-.room__grid.is-presenting {
+/* The room grid (room.css) is the same for every activity; with the sidebar open the presenter's notes go under the slide. */
+.room__grid.is-presenting .presenter {
   grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 60rem) {
+  .room__grid.is-presenting:has(.room-side.is-closed) .presenter {
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 20rem);
+  }
 }
 .presenter {
   display: grid;
@@ -190,10 +196,6 @@
 }
 
 /* ---------- Participant view ---------- */
-/* On a phone the slide comes first, the people below it. */
-.room__grid.is-following .room__side {
-  order: 1;
-}
 .follow {
   display: grid;
   gap: var(--s-2);

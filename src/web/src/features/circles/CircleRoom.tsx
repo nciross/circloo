@@ -8,7 +8,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
 import { Panda } from '../../components/Panda'
-import { ActivityGrid, InviteCard, PeopleRing } from './parts'
+import { ActivityGrid } from './parts'
 import { SendResults } from './SendResults'
 import { Chat } from './Chat'
 import { Board } from './Board'
@@ -18,11 +18,12 @@ import { useLive } from './present/presentation'
 import { PresenterView } from './present/PresenterView'
 import { ParticipantView } from './present/ParticipantView'
 import { PresentationPicker } from './present/PresentationPicker'
-import { Segmented } from '../../components/Segmented'
 import { useCircleConnection, useRoom } from './room'
+import { RoomPanels } from './room/RoomPanels'
 import '../../styles/circles.css'
 import '../../styles/integrations.css'
 import '../../styles/present.css'
+import '../../styles/room.css'
 
 const STATUS_KEY = { connecting: 'connecting', live: 'live', reconnecting: 'reconnecting', offline: 'offline' } as const
 
@@ -42,7 +43,6 @@ export default function CircleRoom() {
   const [stateLate, setStateLate] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [starting, setStarting] = useState(false)
-  const [pane, setPane] = useState<'board' | 'chat'>('board')
   useDocumentTitle('circles.room.title')
 
   useEffect(() => {
@@ -70,6 +70,9 @@ export default function CircleRoom() {
   const ready = room.circleId === view.id
   const activity = ready ? room.activity : view.currentActivity
   const closed = ready ? room.closed : view.status === 'closed'
+
+  // The conversation lives in the sidebar next to a board, a canvas or a presentation; a chat activity is the main area itself.
+  const chatActivity = activity && (activity === PRESENTATION || BOARD_COLUMNS[activity] || activity === CANVAS) ? activity : null
 
   const start = async (activityId: string) => {
     // A presentation starts from the picker: the animator chooses which one (spec 006 US3 #1).
@@ -141,19 +144,9 @@ export default function CircleRoom() {
                 <PresentationPicker onBack={() => setPicking(false)} onStarted={() => setPicking(false)} />
               </div>
             ) : activity && (BOARD_COLUMNS[activity] || activity === CANVAS) ? (
-              <>
-                <Segmented<'board' | 'chat'>
-                  label={t('boards.view')}
-                  hideLabel
-                  className="room__pane"
-                  value={pane}
-                  onChange={setPane}
-                  choices={[{ value: 'board', label: activity === CANVAS ? t('activities.canvas.title') : t('boards.board') }, { value: 'chat', label: t('circles.room.conversation') }]}
-                />
-                <div key={`${activity}-${pane}`} className="room__reveal">
-                  {pane === 'chat' ? <Chat activityId={activity} /> : activity === CANVAS ? <Canvas /> : <Board activityId={activity} />}
-                </div>
-              </>
+              <div key={activity} className="room__reveal">
+                {activity === CANVAS ? <Canvas /> : <Board activityId={activity} />}
+              </div>
             ) : activity ? (
               <div key={activity} className="room__reveal">
                 <Chat activityId={activity} />
@@ -179,18 +172,15 @@ export default function CircleRoom() {
               </section>
             )}
           </div>
-          <aside className="room__side">
-            <section className="panel" aria-labelledby="people-title">
-              <div className="panel__head">
-                <h2 id="people-title" className="panel__title">{t('circles.room.peopleTitle')}</h2>
-              </div>
-              <div className="panel__body">
-                <PeopleRing members={ready ? room.members : view.members} online={room.online} meId={view.me.id} arrivals={room.arrivals} />
-                <p className="visually-hidden" aria-live="polite">{room.announcement ? t('circles.room.joined', { name: room.announcement }) : ''}</p>
-              </div>
-            </section>
-            {isAnimator && view.joinCode ? <InviteCard code={view.joinCode} fresh={fresh} /> : null}
-          </aside>
+          <RoomPanels
+            members={ready ? room.members : view.members}
+            online={room.online}
+            meId={view.me.id}
+            arrivals={room.arrivals}
+            announcement={room.announcement}
+            chatActivity={chatActivity}
+            invite={isAnimator && view.joinCode ? { code: view.joinCode, fresh } : undefined}
+          />
         </div>
       )}
     </div>

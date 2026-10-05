@@ -57,8 +57,8 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   await expect(guest.locator('.room__wait')).toBeVisible()
 
   // US3: both are present on the ring.
-  await expect(page.locator('.ring__seat.is-online')).toHaveCount(2)
-  await expect(guest.locator('.ring__seat.is-online')).toHaveCount(2)
+  await expect(page.locator('.people__row.is-online')).toHaveCount(2)
+  await expect(guest.locator('.people__row.is-online')).toHaveCount(2)
 
   // US4: the animator starts an activity; circloo opens it for everyone.
   await page.locator('.activity .btn').first().click()
