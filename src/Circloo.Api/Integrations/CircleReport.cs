@@ -24,7 +24,7 @@ public static class CircleReports
     {
         var notes = await db.BoardNotes.AsNoTracking().Where(n => n.CircleId == circle.Id)
             .Select(n => new { n.ActivityId, n.Column, n.Text, Votes = n.Votes.Count }).ToListAsync(ct);
-        var lastAi = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == circle.Id && m.Kind == "ai")
+        var lastAi = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == circle.Id && m.Kind == "ai" && m.HiddenAt == null)
             .GroupBy(m => m.ActivityId).Select(g => g.OrderByDescending(m => m.Id).First()).ToListAsync(ct);
         var people = await db.CircleMembers.CountAsync(m => m.CircleId == circle.Id && m.LeftAt == null, ct);
 

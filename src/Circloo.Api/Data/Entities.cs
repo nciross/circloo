@@ -119,8 +119,24 @@ public sealed class Circle
     public DateTimeOffset? ClosedAt { get; set; }
     /// <summary>Q&A: whether members may ask anonymously (spec 007, off by default).</summary>
     public bool QaAllowAnonymous { get; set; }
+    /// <summary>The live room's chat: <c>open</c>, <c>slow</c> or <c>paused</c> (spec 008); reset when an activity changes.</summary>
+    public string ChatMode { get; set; } = RoomChatModes.Open;
+    /// <summary>Whether members may send emoji reactions (spec 008); reset when an activity changes.</summary>
+    public bool ReactionsOn { get; set; } = true;
+    /// <summary>Pirikoo keeps still in the room; its bubbles still show (spec 008).</summary>
+    public bool PirikooQuiet { get; set; }
 
     public bool IsOpen(DateTimeOffset now) => ClosedAt is null && ExpiresAt > now;
+}
+
+/// <summary>The chat modes of a live room (spec 008 FR-811).</summary>
+public static class RoomChatModes
+{
+    public const string Open = "open";
+    public const string Slow = "slow";
+    public const string Paused = "paused";
+
+    public static bool IsValid(string? mode) => mode is Open or Slow or Paused;
 }
 
 public sealed class CircleMember
@@ -132,6 +148,11 @@ public sealed class CircleMember
     public Guid? UserId { get; set; }
     public required string Name { get; set; }
     public required string Character { get; set; }
+    /// <summary>
+    /// Which copy of the character (0–5): several people may share a character, each with its own ring (spec 008).
+    /// Ring 0 draws no ring, so circles from before look the same.
+    /// </summary>
+    public int Ring { get; set; }
     public DateTimeOffset JoinedAt { get; set; }
     public DateTimeOffset? LeftAt { get; set; }
 }
@@ -145,6 +166,27 @@ public sealed class CircleMessage
     public required string Kind { get; set; }
     public required string Text { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    /// <summary>Hidden by the animator: never sent to members again, nor to the circloo coach (spec 008 FR-813).</summary>
+    public DateTimeOffset? HiddenAt { get; set; }
+}
+
+/// <summary>One member's like on one chat message (spec 008 FR-810).</summary>
+public sealed class MessageLike
+{
+    public long MessageId { get; set; }
+    public Guid MemberId { get; set; }
+    public DateTimeOffset At { get; set; }
+}
+
+/// <summary>A raised hand in a live room: the queue is ordered by <see cref="RaisedAt"/> (spec 008 US5).</summary>
+public sealed class RaisedHand
+{
+    public long Id { get; set; }
+    public Guid CircleId { get; set; }
+    public Guid MemberId { get; set; }
+    public DateTimeOffset RaisedAt { get; set; }
+    /// <summary>The member has the floor; at most one per circle.</summary>
+    public bool HasFloor { get; set; }
 }
 
 /// <summary>A sticky note on a circle's live board (spec 004).</summary>
@@ -276,6 +318,8 @@ public sealed class PresentationSession
     public DateTimeOffset? LockedAt { get; set; }
     /// <summary>Per question slide id, its stored phase and times (JSON), so coming back to a question restores it.</summary>
     public string QuestionPhases { get; set; } = "{}";
+    /// <summary>How many reactions of each kind the room sent (JSON <c>{ "clap": n, … }</c>), never who (spec 008 FR-818).</summary>
+    public string ReactionTotals { get; set; } = "{}";
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset? EndedAt { get; set; }
     public int Version { get; set; }
