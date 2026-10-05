@@ -30,7 +30,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Purpose**: the data, records and room plumbing that every story builds on.
 
-- [ ] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`:
+- [ ] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`: (#175)
   - `CircleMember.Ring` "int, 0–5; 0 for every existing member". The unique index `(CircleId, Character)` filtered on `LeftAt IS NULL` is replaced by a unique `(CircleId, Character, Ring)` with the same filter.
   - `Circle.ChatMode` "`open` \| `slow` \| `paused`, default `open`", `ReactionsOn` "default true" and `PirikooQuiet` "default false".
   - `CircleMessage.HiddenAt` (nullable) and `Likes` (int).
@@ -61,7 +61,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: 60 guests join one circle. Five pick the fox, each with a different ring and their name. With the cap set lower, the next join gets `circle-full`.
 
-- [ ] T802 [US1] **Join for big circles.** Everything in `src/Circloo.Api/Circles/CircleEndpoints.cs` per `contracts/rest.md`:
+- [ ] T802 [US1] **Join for big circles.** Everything in `src/Circloo.Api/Circles/CircleEndpoints.cs` per `contracts/rest.md`: (#176)
   - `POST /api/join/{code}` runs in one transaction under `SELECT … FOR UPDATE` on the circle row, counts active members against `Circles:MaxPeople` and returns `409 circle-full` (R2).
   - Optional `ring` (0–5). Without it, the lowest free ring of the character is assigned. On a unique violation it retries with the next free ring. `409 character-full` when all 6 rings are taken. Leaving frees the ring.
   - `GET /api/join/{code}` returns `characters: { id, used, freeRings }[]` and `full`.
@@ -75,7 +75,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - the per-IP limit at 300 and the per-code limit.
 
   Depends on T801.
-- [ ] T803 [US1] **Shared characters in the UI.**
+- [ ] T803 [US1] **Shared characters in the UI.** (#177)
   - `src/web/src/components/Character.tsx` gains a `ring` prop: ring 0 draws no ring; rings 1–5 draw a 3 px outline in ring tokens (≥ 3:1 against light, dark and projector surfaces) plus an index dot, so it is not colour alone. Tokens go in `src/web/src/styles/tokens.css`.
   - `src/web/src/features/circles/JoinCircle.tsx` shows the use count per character, the assigned ring with a way to pick another free ring, and a full character as unavailable.
   - Every place that shows a member's character passes their `ring` and shows or announces their name: people, chat, answer progress, spotlight, raised hands. The room's member list and the projector's join card handle 100 entries.
@@ -95,7 +95,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: a laptop presenting to 40 people keeps the slide at ≥ 2/3 width. Search finds Amina, and collapsing widens the slide. On a phone you get a bottom sheet with People and Chat.
 
-- [ ] T804 [US2] **Room layout.**
+- [ ] T804 [US2] **Room layout.** (#178)
   - `src/web/src/features/circles/room/RoomSidebar.tsx`:
     - ≥ 960 px: 320–360 px on the inline end, collapsible, the choice kept in `localStorage`, with a collapsed handle showing unread messages and raised hands;
     - < 960 px: a bottom sheet with People and Chat tabs, half height by default, expandable, closable, and never covering the answer pad or the presenter controls (FR-807).
@@ -116,7 +116,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: five participants chat with emoji and likes during a presentation. The animator pauses the chat, then turns on slow mode (one message per 10 s). An unsafe message is refused.
 
-- [ ] T805 [P] [US3] **Chat hub.**
+- [ ] T805 [P] [US3] **Chat hub.** (#179)
   - `Say` limits in `src/Circloo.Api/Circles/CircleHub.cs` per `contracts/hub.md`:
     - participants get 5 per 10 s through `RoomLimits` (`slow-down`);
     - `ChatMode = slow` allows one per 10 s, counted from the member's last stored message (`slow-mode:<secondsLeft>`);
@@ -140,7 +140,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - settings reset on activity change.
 
   Depends on T801.
-- [ ] T806 [US3] **Chat UI.**
+- [ ] T806 [US3] **Chat UI.** (#180)
   - `src/web/src/features/circles/room/ChatPanel.tsx` wraps `Chat`:
     - groups a sender's consecutive messages under one name with character and ring;
     - like button with count and "you liked" by icon and label;
@@ -163,7 +163,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: 40 phones tap 👏 within 2 s. Every screen shows a short burst ending in "👏 ×40" with at most 12 moving emoji. The results show "Reactions: 👏 40".
 
-- [ ] T807 [P] [US4] **Reactions hub.**
+- [ ] T807 [P] [US4] **Reactions hub.** (#181)
   - `React(kind)` in `src/Circloo.Api/Circles/CircleHub.Room.cs`:
     - kinds "`clap heart laugh wow like party`" (`reaction-invalid` otherwise);
     - silently dropped when reactions are off or the member is over 5 per 10 s (`RoomLimits`).
@@ -178,7 +178,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - no member id in any payload.
 
   Depends on T801.
-- [ ] T808 [US4] **Reactions UI.**
+- [ ] T808 [US4] **Reactions UI.** (#182)
   - `src/web/src/features/circles/room/ReactionBar.tsx` under the slide for participants and the animator: 6 buttons ≥ 44 px, labelled, hidden when reactions are off.
   - `src/web/src/features/circles/room/ReactionLayer.tsx` over the slide stage:
     - floats from the bottom edge, fades in about 2 s;
@@ -201,7 +201,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: three hands go up and everyone sees the queue in order. The animator gives the floor, everyone sees who is speaking and who is next, and the projector shows "2 hands up".
 
-- [ ] T809 [P] [US5] **Hands hub.**
+- [ ] T809 [P] [US5] **Hands hub.** (#183)
   - `RaiseHand` (participants; `animator-cannot-raise`), `LowerHand(memberId?)` (yourself, or anyone for the animator; `animator-only`), `LowerAllHands`, `GiveFloor(memberId)` (`hand-invalid`) in `src/Circloo.Api/Circles/CircleHub.Room.cs`.
   - The `Hands(view)` event goes to the circle group, ordered by `RaisedAt` then `Id`, with `floor`.
   - Clean-up: lower on leaving the circle and when the member's last connection closes (presence); clear all on `StartActivity` and `EndActivity`.
@@ -217,7 +217,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - only the animator lowers others.
 
   Depends on T801.
-- [ ] T810 [US5] **Hands UI.**
+- [ ] T810 [US5] **Hands UI.** (#184)
   - `src/web/src/features/circles/room/HandsQueue.tsx`:
     - "Raise hand" / "Lower hand" for participants, with their place shown ("You are 3rd");
     - the full queue in order with character, ring and name for everyone (clarification 2);
@@ -240,7 +240,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: a raised hand shows Pirikoo's bubble on the animator's screen, and "Give the floor" works from it. Twenty 😂 make Pirikoo laugh once. When muted, only the bubble shows. Participants never see "Your turn!" while presenting.
 
-- [ ] T811 [US6] **Pirikoo in the live room.**
+- [ ] T811 [US6] **Pirikoo in the live room.** (#185)
   - `src/web/src/features/pirikoo/tips.ts` returns no participant nudges while the activity is `presentation` (FR-825).
   - `src/web/src/features/pirikoo/HandBubble.tsx`, on the animator's connections only:
     - a bubble from `Hands` events, grouped when several hands go up within 2 s ("3 people would like to speak");
@@ -264,14 +264,14 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: the load test reports a median below 1 s and a p95 below 2 s for slide changes, chat and reaction bursts with 100 simulated participants.
 
-- [ ] T812 [P] [US7] **Production stays awake** (azure-infra): a `webMinReplicas` parameter for the `web` container app in `infra/modules/app.bicep`, set in `infra/main.bicep` to 1 when `environmentName` is `prod` and 0 otherwise, overridable with the azd environment variable `CIRCLOO_WEB_MIN_REPLICAS` (R12).
+- [ ] T812 [P] [US7] **Production stays awake** (azure-infra): a `webMinReplicas` parameter for the `web` container app in `infra/modules/app.bicep`, set in `infra/main.bicep` to 1 when `environmentName` is `prod` and 0 otherwise, overridable with the azd environment variable `CIRCLOO_WEB_MIN_REPLICAS` (R12). (#186)
   - `maxReplicas` stays 1.
   - `az bicep build --file infra/main.bicep` must pass in CI.
   - `docs/architecture/overview.md` notes the always-on replica, its cost and the single-replica limit.
   - The PR states the monthly cost.
 
   Depends on nothing.
-- [ ] T813 [US7] **Load test:** a new console project `tests/Circloo.LoadTest/Circloo.LoadTest.csproj` (not referenced by `dotnet test`) using `Microsoft.AspNetCore.SignalR.Client`, per R11.
+- [ ] T813 [US7] **Load test:** a new console project `tests/Circloo.LoadTest/Circloo.LoadTest.csproj` (not referenced by `dotnet test`) using `Microsoft.AspNetCore.SignalR.Client`, per R11. (#187)
   - **Sequence:**
     1. Sign the animator in through Mailpit and create a circle.
     2. Upload `src/web/e2e/fixtures/circloo-demo.pptx`, then add a poll and a quiz.
@@ -294,7 +294,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T814 **Journey, docs and audit.**
+- [ ] T814 **Journey, docs and audit.** (#188)
   - **Playwright:** the full journey covering quickstart B in `src/web/e2e/live-room.spec.ts` (en desktop, ar phone, axe, reduced motion), including measured fan-out of a chat message and a reaction burst to 10 pages (median under 1 s).
   - **Design review:** `/impeccable audit` and `/impeccable critique` on the sidebar, sheet, chat, reactions, hands and Pirikoo, with findings fixed or justified. While the plugin is unavailable, the ux-designer review is recorded instead (#126).
   - **Docs:** update `PRODUCT.md` (circles up to 100, shared characters), `docs/product/prd.md` and `docs/architecture/overview.md` (cap, rings, single replica, load-test results).
