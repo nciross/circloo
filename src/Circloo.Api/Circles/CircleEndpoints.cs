@@ -7,6 +7,7 @@ using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Circloo.Api.Circles;
 
@@ -15,12 +16,12 @@ public sealed record JoinCircle(string? Name, string? Character);
 public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, string Role, string Status, DateTimeOffset CreatedAt, int People);
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
-    MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide);
+    MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide,
+    RoomSettings? Settings = null, HandsView? Hands = null);
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn);
 
 public static class CircleAccess
 {
-    public const int MaxPeople = 12;
     public static readonly TimeSpan Lifetime = TimeSpan.FromDays(7);
 
     /// <summary>The caller's active membership in a circle: by account, or by the guest cookie of that circle.</summary>
@@ -113,8 +114,14 @@ public static class CircleEndpoints
             var c = me.Circle!;
             var members = await db.CircleMembers.AsNoTracking().Where(m => m.CircleId == id && m.LeftAt == null)
                 .OrderBy(m => m.JoinedAt).Select(m => MemberDto.From(m)).ToArrayAsync(ct);
-            var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id)
+            // Hidden messages only ever reach the animator (spec 008 FR-813).
+            var animator = me.Role == Roles.Animator;
+            var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id && (animator || m.HiddenAt == null))
                 .OrderByDescending(m => m.Id).Take(200).ToListAsync(ct);
+            var messageIds = messages.Select(m => m.Id).ToList();
+            var liked = (await db.MessageLikes.AsNoTracking().Where(l => l.MemberId == me.Id && messageIds.Contains(l.MessageId))
+                .Select(l => l.MessageId).ToListAsync(ct)).ToHashSet();
+            var hands = await db.RaisedHands.AsNoTracking().Where(h => h.CircleId == id).OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToListAsync(ct);
             var notes = await db.BoardNotes.AsNoTracking().Include(n => n.Votes).Where(n => n.CircleId == id)
                 .OrderBy(n => n.Id).Take(ActivityCatalog.MaxNotes * 4).ToListAsync(ct);
             var canvas = await db.CanvasNotes.AsNoTracking().Where(n => n.CircleId == id)
@@ -123,9 +130,10 @@ public static class CircleEndpoints
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
-                [.. messages.OrderBy(m => m.Id).Select(MessageDto.From)], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
+                [.. messages.OrderBy(m => m.Id).Select(m => MessageDto.From(m, liked.Contains(m.Id)))], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
                 // Q&A and forms are filled in by their tasks (spec 007 T704, T707).
-                DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished }));
+                DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished },
+                RoomSettings.Of(c), Hands.View(hands)));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
@@ -147,7 +155,7 @@ public static class CircleEndpoints
 
         var join = api.MapGroup("/join").RequireRateLimiting(RateLimits.Join);
 
-        join.MapGet("/{code}", async (string code, HttpContext ctx, CirclooDbContext db, TimeProvider clock, CancellationToken ct) =>
+        join.MapGet("/{code}", async (string code, HttpContext ctx, CirclooDbContext db, TimeProvider clock, IOptions<CircleOptions> circles, CancellationToken ct) =>
         {
             var circle = await FindOpenAsync(db, code, clock.GetUtcNow(), ct);
             if (circle is null)
@@ -158,11 +166,11 @@ public static class CircleEndpoints
             var animator = members.First(m => m.Role == Roles.Animator);
             var mine = await CircleAccess.ResolveAsync(db, ctx.User, circle.Id, ct);
             return Results.Ok(new JoinInfo(circle.Id, circle.Name, animator.Name, animator.Character,
-                [.. members.Select(m => m.Character)], members.Count >= CircleAccess.MaxPeople, mine is not null));
+                [.. members.Select(m => m.Character)], members.Count >= circles.Value.MaxPeople, mine is not null));
         });
 
         join.MapPost("/{code}", async (string code, JoinCircle body, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
-            IHubContext<CircleHub, ICircleClient> hub, CancellationToken ct) =>
+            IHubContext<CircleHub, ICircleClient> hub, IOptions<CircleOptions> circles, CancellationToken ct) =>
         {
             var now = clock.GetUtcNow();
             var circle = await FindOpenAsync(db, code, now, ct);
@@ -190,7 +198,7 @@ public static class CircleEndpoints
                 return Results.ValidationProblem(errors);
             }
             var active = await db.CircleMembers.Where(m => m.CircleId == circle.Id && m.LeftAt == null).Select(m => m.Character).ToListAsync(ct);
-            if (active.Count >= CircleAccess.MaxPeople)
+            if (active.Count >= circles.Value.MaxPeople)
             {
                 return Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "circle-full", title: "This circle is full.");
             }

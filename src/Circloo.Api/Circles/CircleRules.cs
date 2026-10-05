@@ -98,14 +98,47 @@ public static class TextRules
         c is '‎' or '‏' or '؜' || (c >= '‪' && c <= '‮') || (c >= '⁦' && c <= '⁩');
 }
 
-public sealed record MemberDto(Guid Id, string Role, string Name, string Character)
+/// <summary>A person in a circle; <see cref="Ring"/> tells apart people sharing a character (spec 008).</summary>
+public sealed record MemberDto(Guid Id, string Role, string Name, string Character, int Ring = 0)
 {
-    public static MemberDto From(CircleMember m) => new(m.Id, m.Role, m.Name, m.Character);
+    public static MemberDto From(CircleMember m) => new(m.Id, m.Role, m.Name, m.Character, m.Ring);
 }
 
-public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At)
+/// <summary>
+/// A chat message (spec 003), with its likes and whether the reader liked it (spec 008). <see cref="Hidden"/> is only
+/// ever true in the animator's view: members never receive hidden messages.
+/// </summary>
+public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At,
+    int Likes = 0, bool Liked = false, bool Hidden = false)
 {
-    public static MessageDto From(CircleMessage m) => new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt);
+    public static MessageDto From(CircleMessage m, bool liked = false) =>
+        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, m.Likes, liked, m.HiddenAt is not null);
+}
+
+/// <summary>The live room's switches (spec 008, contracts/hub.md <c>RoomSettings</c>).</summary>
+public sealed record RoomSettings(string Chat, bool Reactions, bool PirikooQuiet)
+{
+    public static RoomSettings Of(Circle c) => new(c.ChatMode, c.ReactionsOn, c.PirikooQuiet);
+
+    /// <summary>What a room starts with, and goes back to when the activity changes.</summary>
+    public static readonly RoomSettings Default = new(RoomChatModes.Open, true, false);
+}
+
+/// <summary>One raised hand in the queue (member id only: names come from the member list).</summary>
+public sealed record HandView(Guid MemberId, DateTimeOffset RaisedAt);
+
+/// <summary>The raised hands, oldest first, and who has the floor (spec 008, contracts/hub.md <c>HandsView</c>).</summary>
+public sealed record HandsView(IReadOnlyList<HandView> Queue, Guid? Floor)
+{
+    public static readonly HandsView Empty = new([], null);
+}
+
+/// <summary>The emoji reactions a room can send (spec 008 FR-815).</summary>
+public static class ReactionKinds
+{
+    public static readonly string[] All = ["clap", "heart", "laugh", "wow", "like", "party"];
+
+    public static bool IsValid(string? kind) => kind is not null && All.Contains(kind);
 }
 
 public sealed record CanvasNoteDto(long Id, string ActivityId, string Text, double X, double Y, string Color, string Size, string Shape, string? Sticker, Guid AuthorId)
@@ -117,4 +150,14 @@ public sealed record BoardNoteDto(long Id, string ActivityId, string Column, str
 {
     public static BoardNoteDto From(BoardNote n) =>
         new(n.Id, n.ActivityId, n.Column, n.Text, n.Color, n.AuthorMemberId, [.. n.Votes.Select(v => v.MemberId)]);
+}
+
+/// <summary>Raised hands as everyone sees them: the queue oldest first, and who has the floor (spec 008 US5).</summary>
+public static class Hands
+{
+    public static HandsView View(IEnumerable<RaisedHand> hands)
+    {
+        var all = hands.OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToList();
+        return new HandsView([.. all.Where(h => !h.HasFloor).Select(h => new HandView(h.MemberId, h.RaisedAt))], all.FirstOrDefault(h => h.HasFloor)?.MemberId);
+    }
 }

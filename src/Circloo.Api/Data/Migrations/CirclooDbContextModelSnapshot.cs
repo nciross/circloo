@@ -249,6 +249,11 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.Property<string>("ChatMode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<DateTimeOffset?>("ClosedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -281,7 +286,13 @@ namespace Circloo.Api.Data.Migrations
                     b.Property<Guid>("OwnerUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("PirikooQuiet")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("QaAllowAnonymous")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ReactionsOn")
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
@@ -319,6 +330,9 @@ namespace Circloo.Api.Data.Migrations
                         .HasMaxLength(24)
                         .HasColumnType("character varying(24)");
 
+                    b.Property<int>("Ring")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(12)
@@ -331,13 +345,13 @@ namespace Circloo.Api.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("CircleId", "Character")
-                        .IsUnique()
-                        .HasFilter("\"LeftAt\" IS NULL");
-
                     b.HasIndex("CircleId", "UserId")
                         .IsUnique()
                         .HasFilter("\"UserId\" IS NOT NULL AND \"LeftAt\" IS NULL");
+
+                    b.HasIndex("CircleId", "Character", "Ring")
+                        .IsUnique()
+                        .HasFilter("\"LeftAt\" IS NULL");
 
                     b.ToTable("CircleMembers");
                 });
@@ -360,10 +374,16 @@ namespace Circloo.Api.Data.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("HiddenAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
+
+                    b.Property<int>("Likes")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
@@ -541,6 +561,24 @@ namespace Circloo.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("IntegrationConnections");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.MessageLike", b =>
+                {
+                    b.Property<long>("MessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MessageId", "MemberId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("MessageLikes");
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.OtpChallenge", b =>
@@ -790,6 +828,10 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("ReactionTotals")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<bool>("ShowPodium")
                         .HasColumnType("boolean");
 
@@ -882,6 +924,40 @@ namespace Circloo.Api.Data.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("QaUpvotes");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.RaisedHand", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("HasFloor")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("RaisedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("CircleId", "MemberId")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "CircleId" }, "IX_RaisedHands_CircleId_Floor")
+                        .IsUnique()
+                        .HasFilter("\"HasFloor\"");
+
+                    b.ToTable("RaisedHands");
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.SavedForm", b =>
@@ -1370,6 +1446,21 @@ namespace Circloo.Api.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.MessageLike", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.CircleMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.Poll", b =>
                 {
                     b.HasOne("Circloo.Api.Data.Circle", null)
@@ -1484,6 +1575,21 @@ namespace Circloo.Api.Data.Migrations
                     b.HasOne("Circloo.Api.Data.QaQuestion", null)
                         .WithMany()
                         .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.RaisedHand", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.CircleMember", null)
+                        .WithMany()
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

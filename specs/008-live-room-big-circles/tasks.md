@@ -30,7 +30,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Purpose**: the data, records and room plumbing that every story builds on.
 
-- [ ] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`: (#175)
+- [x] T801 Live room foundation: **migration and entities.** Migration `src/Circloo.Api/Data/Migrations/*_LiveRoomBigCircles.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`, exactly as `data-model.md`: (#175)
   - `CircleMember.Ring` "int, 0–5; 0 for every existing member". The unique index `(CircleId, Character)` filtered on `LeftAt IS NULL` is replaced by a unique `(CircleId, Character, Ring)` with the same filter.
   - `Circle.ChatMode` "`open` \| `slow` \| `paused`, default `open`", `ReactionsOn` "default true" and `PirikooQuiet` "default false".
   - `CircleMessage.HiddenAt` (nullable) and `Likes` (int).
