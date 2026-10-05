@@ -30,6 +30,9 @@ public static class AuditTypes
     public const string PollClosed = "poll.closed";
     public const string QaHidden = "qa.hidden";
     public const string PresentationPurged = "presentation.purged";
+    public const string DiscussionOn = "discussion.on";
+    public const string DiscussionOff = "discussion.off";
+    public const string DiscussionRefused = "discussion.refused";
 }
 
 /// <summary>Writes security events. Emails and IPs are stored as keyed hashes only.</summary>

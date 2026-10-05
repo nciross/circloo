@@ -264,6 +264,18 @@ namespace Circloo.Api.Data.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
+                    b.Property<DateTimeOffset?>("DiscussionChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DiscussionChangedByMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("DiscussionOn")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("DiscussionVideo")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTimeOffset>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -385,12 +397,17 @@ namespace Circloo.Api.Data.Migrations
                     b.Property<Guid?>("MemberId")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("ReplyToId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ReplyToId");
 
                     b.HasIndex("CircleId", "Id");
 
@@ -957,6 +974,100 @@ namespace Circloo.Api.Data.Migrations
                     b.ToTable("RaisedHands");
                 });
 
+            modelBuilder.Entity("Circloo.Api.Data.Recording", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CaptureFrom")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CircleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EndedReason")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset>("MaxAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("StartedByMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CircleId", "StartedAt")
+                        .IsDescending(false, true);
+
+                    b.HasIndex(new[] { "CircleId" }, "IX_Recordings_CircleId_Running")
+                        .IsUnique()
+                        .HasFilter("\"EndedAt\" IS NULL");
+
+                    b.ToTable("Recordings");
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.RecordingEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid?>("ActorMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long?>("MessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.Property<Guid>("RecordingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("ReplyToMessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("SubjectMemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(280)
+                        .HasColumnType("character varying(280)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecordingId", "Id");
+
+                    b.ToTable("RecordingEvents", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RecordingEvents_TextOnlyForMessages", "(\"Kind\" = 'message' AND \"Text\" IS NOT NULL) OR (\"Kind\" <> 'message' AND \"Text\" IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("Circloo.Api.Data.SavedForm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1336,6 +1447,11 @@ namespace Circloo.Api.Data.Migrations
                         .HasForeignKey("CircleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Circloo.Api.Data.CircleMessage", null)
+                        .WithMany()
+                        .HasForeignKey("ReplyToId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Circloo.Api.Data.Form", b =>
@@ -1587,6 +1703,24 @@ namespace Circloo.Api.Data.Migrations
                     b.HasOne("Circloo.Api.Data.CircleMember", null)
                         .WithMany()
                         .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.Recording", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Circle", null)
+                        .WithMany()
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Circloo.Api.Data.RecordingEvent", b =>
+                {
+                    b.HasOne("Circloo.Api.Data.Recording", null)
+                        .WithMany()
+                        .HasForeignKey("RecordingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

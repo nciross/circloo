@@ -23,6 +23,8 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
     public DbSet<CircleMessage> CircleMessages => Set<CircleMessage>();
     public DbSet<MessageLike> MessageLikes => Set<MessageLike>();
     public DbSet<RaisedHand> RaisedHands => Set<RaisedHand>();
+    public DbSet<Recording> Recordings => Set<Recording>();
+    public DbSet<RecordingEvent> RecordingEvents => Set<RecordingEvent>();
     public DbSet<BoardNote> BoardNotes => Set<BoardNote>();
     public DbSet<CanvasNote> CanvasNotes => Set<CanvasNote>();
     public DbSet<BoardVote> BoardVotes => Set<BoardVote>();
@@ -162,7 +164,32 @@ public sealed class CirclooDbContext(DbContextOptions<CirclooDbContext> options)
             e.Property(m => m.Kind).HasMaxLength(8);
             e.Property(m => m.Text).HasMaxLength(2000);
             e.HasIndex(m => new { m.CircleId, m.Id });
+            e.HasIndex(m => m.ReplyToId);
             e.HasOne<Circle>().WithMany().HasForeignKey(m => m.CircleId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<CircleMessage>().WithMany().HasForeignKey(m => m.ReplyToId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Recording>(e =>
+        {
+            e.Property(r => r.Title).HasMaxLength(80);
+            e.Property(r => r.EndedReason).HasMaxLength(16);
+            e.HasIndex(r => new { r.CircleId, r.StartedAt }).IsDescending(false, true);
+            // At most one running recording per circle (spec 009 FR-920).
+            e.HasIndex(r => r.CircleId, "IX_Recordings_CircleId_Running").IsUnique().HasFilter("\"EndedAt\" IS NULL");
+            e.HasOne<Circle>().WithMany().HasForeignKey(r => r.CircleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RecordingEvent>(e =>
+        {
+            e.Property(r => r.Id).UseIdentityAlwaysColumn();
+            e.Property(r => r.Kind).HasMaxLength(20);
+            e.Property(r => r.Reason).HasMaxLength(24);
+            e.Property(r => r.Text).HasMaxLength(280);
+            e.HasIndex(r => new { r.RecordingId, r.Id });
+            e.HasOne<Recording>().WithMany().HasForeignKey(r => r.RecordingId).OnDelete(DeleteBehavior.Cascade);
+            // Text exists for messages and only for messages: nothing else is ever stored (spec 009 SC-906).
+            e.ToTable(t => t.HasCheckConstraint("CK_RecordingEvents_TextOnlyForMessages",
+                "(\"Kind\" = 'message' AND \"Text\" IS NOT NULL) OR (\"Kind\" <> 'message' AND \"Text\" IS NULL)"));
         });
 
         modelBuilder.Entity<BoardNote>(e =>

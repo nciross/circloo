@@ -46,6 +46,8 @@ var api = builder.AddProject<Projects.Circloo_Api>("api")
     .WithEnvironment("RateLimits__CircleJoinsPerIpAndCodePer10Min", "1000")
     // The seed provider costs nothing: a roomy shared budget so repeated local test runs never hit it.
     .WithEnvironment("Ai__DailyGlobal", "100000")
+    // Local discussion needs no internet: a blank entry leaves browsers with host candidates only.
+    .WithEnvironment("Discussion__IceUrls__0", "")
     .WithHttpHealthCheck("/health");
 
 builder.AddViteApp("web", "../web")

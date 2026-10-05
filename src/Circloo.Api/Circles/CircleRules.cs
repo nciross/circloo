@@ -150,11 +150,11 @@ public sealed record MemberDto(Guid Id, string Role, string Name, string Charact
 /// ever true in the animator's view: members never receive hidden messages.
 /// </summary>
 public sealed record MessageDto(long Id, string? ActivityId, Guid? MemberId, string Kind, string Text, DateTimeOffset At,
-    int Likes = 0, bool Liked = false, bool Hidden = false)
+    int Likes = 0, bool Liked = false, bool Hidden = false, long? ReplyToId = null)
 {
     /// <param name="likes">Counted from the likes when read, so a deleted account never leaves a stale count.</param>
     public static MessageDto From(CircleMessage m, int likes = 0, bool liked = false) =>
-        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, likes, liked, m.HiddenAt is not null);
+        new(m.Id, m.ActivityId, m.MemberId, m.Kind, m.Text, m.CreatedAt, likes, liked, m.HiddenAt is not null, m.ReplyToId);
 }
 
 /// <summary>The live room's switches (spec 008, contracts/hub.md <c>RoomSettings</c>).</summary>

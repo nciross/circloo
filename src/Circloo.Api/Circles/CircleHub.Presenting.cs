@@ -1,4 +1,5 @@
 using Circloo.Api.Data;
+using Circloo.Api.Discussion;
 using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.SignalR;
@@ -225,6 +226,7 @@ public sealed partial class CircleHub
         Context.Items[AudienceKey] = circleId;
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
+        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
         if (await ActiveSessionAsync(circleId) is not { } active)
         {
             return null;
