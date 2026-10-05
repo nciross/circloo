@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AnyCharacter, CharacterId } from './characters'
-import { decodeAvatar, HAIR, isAvatarCode, OUTFIT, SKIN, type Avatar } from './avatar'
+import { decodeAvatar, HAIR, isAvatarCode, OUTFIT, SKIN, type Avatar } from './avatarCode'
 
 /*
  * Forty-eight funny characters: animals, heroes, plants and a few strange friends, drawn on a 64 × 64 grid. They share the circloo eyes (white rings with

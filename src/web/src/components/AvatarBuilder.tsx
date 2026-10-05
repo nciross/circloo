@@ -5,7 +5,7 @@ import { Character } from './Character'
 import {
   AVATAR_COUNTS, DEFAULT_AVATAR, HAIR, OUTFIT, SKIN, decodeAvatar, encodeAvatar, randomAvatar,
   type Avatar, type AvatarCode, type AvatarField,
-} from './avatar'
+} from './avatarCode'
 import '../styles/avatar.css'
 
 /** Fields shown as colour dots; the others are named styles. */
