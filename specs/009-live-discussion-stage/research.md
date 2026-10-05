@@ -26,7 +26,7 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 
 ## R4. Signalling authorisation and limits (FR-909, FR-921)
 
-- **Decision**: `Signal(Guid toMemberId, string kind, Guid linkId, string payload)`. The server re-resolves the sender (`CurrentAsync`), requires Live discussion on, finds both seats in the circle's `StageRegistry` and allows only stage to stage or viewer to stage. The sender id on the wire is the server's. Delivery is to the target seat's `ConnectionId`.
+- **Decision**: `Signal(Guid toMemberId, string kind, Guid linkId, string payload)`. The server re-resolves the sender (`CurrentAsync`), requires Live discussion on, finds both seats in the circle's `StageRegistry` and allows only stage and stage, or a viewer and a stage seat in either direction (offers go viewer to stage, answers and ICE both ways); never viewer and viewer. The sender id on the wire is the server's. Delivery is to the target seat's `ConnectionId`.
   - `kind` in `offer`, `answer`, `ice`. `payload`: SDP at most 16 KB (starts with `v=0`), ICE at most 2 KB (valid JSON object or the empty end-of-candidates marker).
   - Limits per member (across tabs): 40 offers/answers and 300 ICE per 10 s.
   - Every refusal is the single code `signal-refused`.
@@ -134,10 +134,12 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 
 ## R18. Infra (constitution VII, azure-infra)
 
-- **Decision**: no Bicep change and no new secret. New settings are plain environment variables with code defaults: `Discussion__StageMax`, `Discussion__ListenersMax`, `Discussion__IceUrls__0..n`, `Discussion__SeatGraceSeconds`, `Discussion__AwayFreezeSeconds`, `Discussion__AwayEndSeconds`, `Discussion__RecordingMaxMinutes`, `Discussion__RecordingWarnMinutes`, `Discussion__RecordingNoticeSeconds`, `Discussion__RecordingMaxEvents`, `Discussion__RecordingsPerCircle`. They are added to the env list in `docs/architecture/overview.md` (task T901). The app stays on one replica (the registry and watchdog are in memory).
+- **Decision**: no Bicep change and no new secret. New settings are plain environment variables with code defaults: `Discussion__StageMax`, `Discussion__ListenersMax`, `Discussion__IceUrls__0..n`, `Discussion__SeatGraceSeconds`, `Discussion__InviteSeconds`, `Discussion__AwayFreezeSeconds`, `Discussion__AwayEndSeconds`, `Discussion__RecordingMaxMinutes`, `Discussion__RecordingWarnMinutes`, `Discussion__RecordingNoticeSeconds`, `Discussion__RecordingMaxEvents`, `Discussion__RecordingsPerCircle`. They are added to the env list in `docs/architecture/overview.md` (task T901). The app stays on one replica (the registry and watchdog are in memory).
 - **Later**: a TURN relay is a separate azure-infra task: pick the provider, add its secret to Key Vault and `infra/`, return time-limited credentials from the ICE endpoint, state the monthly cost. It is not blocking this feature.
 
-## Founder decisions to confirm
+## Founder decisions
+
+D1 to D4 were answered on 2026-10-05 and are recorded in the spec's Clarifications (cap of 8 opt-in viewers; STUN only, TURN later; "Allow cameras" switch, default on; Cloudflare STUN). D5 to D7 still need the founder.
 
 - **D1. Watching limit**: viewers are opt-in and capped at 8 (configurable). A real audience of 100 needs a media server (SFU), which contradicts "no media through servers". Is the cap acceptable until a later decision?
 - **D2. Strict networks**: with STUN only, some people (corporate firewalls, some mobile carriers) cannot connect. Accept until a TURN task, or ask for TURN sooner?
@@ -145,3 +147,4 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 - **D4. STUN provider**: the default is Cloudflare's public STUN, which sees participants' public IPs. Prefer another provider, or self-hosting later?
 - **D5. Privacy text**: transcripts hold personal data (names via members, message text). The notice says what is recorded; backups keep a deleted transcript for the platform backup window. Needs a sentence in the privacy policy.
 - **D6. Animator away for 5 minutes switches the discussion off** (not just ends the session). It stays off until the animator switches it on again.
+- **D7. Transcript retention and a member's own data** (spec open question 2, not in the Clarifications): the default here is "kept until the animator deletes it" with no upper limit, and a member's erasure request depends on the animator deleting the whole transcript (R10). The PRD promises "export and delete my data". Confirm, or choose a maximum retention and/or redaction of a member's `Text` and ids when they delete their account or ask for erasure. Whatever is chosen, the later E6 "export and delete my data" feature must cover `RecordingEvent` rows where the member is actor or subject.

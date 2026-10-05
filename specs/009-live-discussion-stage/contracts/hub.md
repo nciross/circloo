@@ -7,8 +7,8 @@ Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`), in the p
 1. The caller must have entered a circle (`not-entered`) and the server re-resolves membership and the circle's open state on **every call** (`CurrentAsync`): `not-a-member` otherwise.
 2. The **animator role comes from the database row**, never from a client claim. "Animator" methods use `CurrentAsync(animatorOnly: true)` and answer `animator-only`. A refused attempt is audited as `discussion.refused` with the method name and ids (at most 5 rows per member per minute).
 3. An audience-screen connection (`EnterAudience`) is read only: every method below answers `audience-read-only`.
-4. Every method except `EnableDiscussion` and `DisableDiscussion` answers `discussion-off` when the circle's `DiscussionOn` is false.
-5. Signalling is allowed only between two registered seats of the **same circle** (stage to stage, or viewer to stage). The sender's member id is added by the server.
+4. Every method introduced by this spec except `EnableDiscussion`, `DisableDiscussion` and `Reply` answers `discussion-off` when the circle's `DiscussionOn` is false. Spec 008's methods (`RaiseHand`, `LowerHand`, `LowerAllHands`, `GiveFloor`), `Say` and `Reply` keep working as circle chat and hands when it is off.
+5. Signalling is allowed only between two registered seats of the **same circle**: stage and stage, or a viewer and a stage seat in either direction (never viewer and viewer). The sender's member id is added by the server.
 6. Per-member limits use `RoomLimits` and therefore cover all of a member's tabs. Over a limit the call answers `slow-down`, except `Signal`, which answers `signal-refused`.
 7. No payload (SDP, ICE, message text, device labels) is ever logged, audited or stored by these methods.
 
@@ -29,14 +29,14 @@ Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`), in the p
 | `MuteMember(Guid memberId)` | animator | `MutedByAnimator = true`, `AudioOn = false`. The person stays muted until allowed. Captured as `muted`. Audit `stage.muted`. `StageNotice('muted')` | `animator-only`, `member-invalid` |
 | `AllowUnmute(Guid memberId)` | animator | Clears `MutedByAnimator`. Switches nothing on (FR-908). Captured as `unmute.allowed`. `StageNotice('unmute-allowed')` | `animator-only`, `member-invalid` |
 | `SetMedia(bool audioOn, bool videoOn)` | seat on the stage | Reports the seat's devices so every client has the server's view. Refused: audio while `MutedByAnimator`, video when `DiscussionVideo` is false. Limit 20 per 10 s. The server never switches a device on | `not-on-stage`, `muted-by-animator`, `video-not-allowed`, `slow-down` |
-| `Signal(Guid toMemberId, string kind, Guid linkId, string payload)` | seat | Forwards one signalling message to the target seat's own connection as `Signal(fromMemberId, ...)`. `kind` in `offer`, `answer`, `ice`. SDP at most 16 KB and starting with `v=0`, ICE at most 2 KB. Allowed only stage to stage or viewer to stage in the same circle. Limits per member per 10 s: 40 offer/answer, 300 ICE. Nothing is stored or logged | `signal-refused` (every reason, including limits and unknown targets) |
+| `Signal(Guid toMemberId, string kind, Guid linkId, string payload)` | seat | Forwards one signalling message to the target seat's own connection as `Signal(fromMemberId, ...)`. `kind` in `offer`, `answer`, `ice`. SDP at most 16 KB and starting with `v=0`, ICE at most 2 KB. Allowed only between stage and stage, or a viewer and a stage seat (either direction), in the same circle. Limits per member per 10 s: 40 offer/answer, 300 ICE. Nothing is stored or logged | `signal-refused` (every reason, including limits and unknown targets) |
 | `StartRecording(string? title)` | animator | Creates the `Recording` in phase `notice`, broadcasts `Recording`, adds a system line, audits `recording.started`. Capture begins after the notice period. Idempotent: if one runs, returns it. 6 per hour | `animator-only`, `too-many-recordings`, `slow-down`, `message-unsafe` (title) |
 | `StopRecording()` | animator | Ends the running recording (reason `animator`), saves it, broadcasts `Recording(null)`, system line, audit `recording.stopped`. Idempotent | `animator-only` |
 | `AcknowledgeRecordingNotice(Guid recordingId)` | any member | The client says the notice and indicator are on screen. Stored in the connection only. Not a user choice | `recording-invalid` (not the running one) |
 | `Reply(long parentId, string text)` | member | Same path as `Say` (clean, safety filter, 008 limits and modes, notice gate) with `ReplyToId`. Broadcasts `Message`. Captured as `message` | `message-invalid`, `message-unsafe`, `reply-invalid`, `chat-paused`, `slow-mode:<s>`, `slow-down`, `notice-required` |
 | `Say(string text)` (existing) | member | Unchanged, plus: needs the notice acknowledged while a recording runs, and is captured as `message` once capture has begun | existing codes, `notice-required` |
 
-`Enter(circleId)` also pushes `Discussion`, `Stage` and `Recording` to the caller (before 008's `RoomSettings` and `Hands`). `EnterAudience` pushes `Discussion`, `Recording` and the hands, never seats' media.
+`Enter(circleId)` also pushes `Recording` first, then `Discussion` and `Stage`, to the caller (all before 008's `RoomSettings` and `Hands`). `EnterAudience` pushes `Discussion`, `Recording` and the hands, never seats' media.
 
 ## Server to client (`ICircleClient` additions)
 

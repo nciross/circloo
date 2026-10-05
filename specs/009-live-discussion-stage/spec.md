@@ -27,7 +27,7 @@
 - Q: Watching limit (plan D1)? -> A: Watching the stage is opt-in and capped at 8 viewers (configurable); everyone else in a big circle uses chat and raise hand. A 100-person live audience is out of scope (it would need a media server).
 - Q: Strict networks (plan D2)? -> A: Public STUN only at launch; people behind strict firewalls see "Can't connect, chat and hands still work". A TURN relay is a later, separate task after an azure-infra check.
 - Q: Keeping minors off camera (plan D3)? -> A: A per-circle animator switch "Allow cameras", default on; off means audio and chat only. No new kids-safe flag.
-- Q: STUN provider (plan D4)? -> A: Cloudflare public STUN (`stun:stun.cloudflare.com:3478`), configurable through `Discussion__IceServers`; the permission primer discloses that it sees public IP addresses.
+- Q: STUN provider (plan D4)? -> A: Cloudflare public STUN (`stun:stun.cloudflare.com:3478`), configurable through `Discussion__IceUrls__0..n`; the permission primer discloses that it sees public IP addresses.
 - Open questions 4 to 7, 8 (reuse the circle chat with replies), 10 to 12 and 14 are decided in `/speckit-plan` with the stated proposals as defaults: one animator controls the stage and recording, 60 s then 5 min animator-away rule, a muted person stays muted until the animator allows, stage size is a configuration value defaulting to 8, kids-safe circles allow audio and chat only, the projector shows only the recording indicator and the number of raised hands, a 4 h recording maximum with a warning, and Playwright with fake media devices plus hub tests stand in for a test skill.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -46,7 +46,7 @@ Théo, who animates a team circle, opens the room settings and switches on **Liv
 2. **Given** I am the animator, **When** I switch Live discussion on, **Then** every member in the room sees the Discussion area within 1 second, everyone starts muted with video off, and nobody is asked for camera or microphone permission yet.
 3. **Given** I am a participant, **When** I try to switch it on or off (through the interface or by sending the request myself), **Then** the server refuses and nothing changes.
 4. **Given** Live discussion is on and people are on the stage, **When** the animator switches it off, **Then** all live audio and video end for everyone, an active recording is stopped and saved (User Story 6), and the room shows "The animator ended the discussion".
-5. **Given** the switch is on, **Then** the setting is remembered for the circle until the animator changes it. Hands, stage and mute state reset when the room ends.
+5. **Given** the switch is on, **Then** the setting is remembered for the circle until the animator changes it (or the animator-away rule switches it off, research R8). Hands, stage and mute state reset when the room ends.
 6. **Given** the interface is in Arabic, **Then** the switch, its label and the explanation are right-to-left and readable.
 
 ---
@@ -83,9 +83,9 @@ Théo gives Amina the floor. She joins the stage: she can now switch on her micr
 2. **Given** I am on the stage, **When** I switch on my microphone or camera, **Then** the browser asks for permission with a short explanation shown first (User Story 4). Only then do others receive my audio or video.
 3. **Given** I am the animator, **When** I mute someone, lower a hand or remove someone from the stage, **Then** it takes effect for everyone within 1 second and the person is told what happened in kind words.
 4. **Given** I am on the stage, **When** I tap Leave stage, **Then** my audio and video stop at once and I return to the audience.
-5. **Given** a participant is muted by the animator, **Then** they can unmute themselves only after the animator allows it again, or by leaving and being given the floor again (decision in open questions).
+5. **Given** a participant is muted by the animator, **Then** they can unmute themselves only after the animator allows it again, or by leaving and being given the floor again (decided in the plan, research R7).
 6. **Given** the stage holds its maximum number of people (default 8, a configuration value `Discussion:StageMax`, decided in the plan), **When** the animator tries to add one more, **Then** they are told the stage is full and can remove someone first.
-7. **Given** people in the audience (not on stage), **Then** they can watch and listen to the stage and use the chat and raise hand, but never send audio or video.
+7. **Given** people in the audience (not on stage), **Then** they can use the chat and raise hand, and up to `Discussion:ListenersMax` of them (default 8, opt-in, Clarifications) can watch and listen to the stage. The audience never sends audio or video.
 8. **Given** the interface is in Arabic, **Then** the stage, its controls and its order mirror, and names of mixed direction stay readable.
 
 ---
@@ -146,7 +146,7 @@ Théo taps **Record session**. Before it starts, everyone sees a clear banner ("
 5. **Given** a recording is running, **When** the animator stops it, or switches Live discussion off, or the animator leaves (see edge cases), **Then** the recording ends, everyone is told "Recording stopped", and the transcript is saved.
 6. **Given** a transcript, **Then** it contains: session title and date, start and end times, chat messages with sender name and time, hidden messages marked as hidden and excluded for non-animators, raised hands and lowering with times, stage joins, leaves, mutes and removals with times and who did them. It contains no audio, no video, no speech-to-text and no device or network information.
 7. **Given** a message is sent when no recording is running, **Then** it is not part of any transcript.
-8. **Given** the transcript is saved, **Then** the animator can read it, export it as text or Markdown, and delete it. Who else can read it, and how long it is kept, is an open question.
+8. **Given** the transcript is saved, **Then** the animator can read it, export it as text or Markdown, and delete it. Nobody else can read it (Clarifications). It is kept until the animator deletes it (research R10; retention to be confirmed by the founder, D7).
 9. **Given** the interface is in Arabic, **Then** the notice, indicator and transcript are right-to-left and exports keep correct text direction.
 
 ---
@@ -172,7 +172,7 @@ A participant using a screen reader hears when hands go up, when the floor chang
 
 ### Edge Cases
 
-- **The animator disconnects**: if they return within 60 seconds nothing changes. Otherwise the stage freezes, new hands are queued but nobody can be given the floor, the recording keeps its state, and everyone sees "The animator is away". If the animator does not return in 5 minutes the room ends the discussion and saves the transcript. (Times are proposals, to be confirmed.)
+- **The animator disconnects**: if they return within 60 seconds nothing changes. Otherwise the stage freezes, new hands are queued but nobody can be given the floor, the recording keeps its state, and everyone sees "The animator is away". If the animator does not return in 5 minutes the room ends the discussion and saves the transcript. (Times are configuration, research R8; switching off after 5 minutes is decision D6.)
 - **The person holding the floor drops**: the stage removes them after 30 seconds, their media stops for others and the next hand is shown as next.
 - **Network loss for a participant**: audio and video stop for them first, chat and hands recover on reconnect, and the place in the queue is kept for 30 seconds.
 - **Browser unsupported or media blocked** (strict corporate network, no relay reachable): the person is told their audio and video cannot connect, and keeps chat and raise hand.
@@ -180,10 +180,10 @@ A participant using a screen reader hears when hands go up, when the floor chang
 - **The animator removes someone who is also recording nothing**: no effect on the transcript except the "removed" line.
 - **Someone tries to join a circle that is full or has Live discussion off**: no stage controls are shown and nothing is sent.
 - **A participant rejoins the stage after being removed**: allowed only when given the floor again.
-- **Recording is running when a participant leaves**: their earlier messages stay in the transcript. Leaving the circle does not erase them (retention and erasure on request are open questions).
+- **Recording is running when a participant leaves**: their earlier messages stay in the transcript. Leaving the circle does not erase them (research R10; erasure on request is decision D7).
 - **A very long session**: the recording has a maximum length (proposal: 4 hours), after which it stops and says so.
 - **The audience screen (projector)**: it shows only the recording indicator and the number of raised hands (decided in the plan, research R17), never video, and always shows the recording indicator. Showing speaker names would be a later setting.
-- **A kids-safe circle**: the animator must switch Live discussion on explicitly. Open question: whether video from children is allowed at all.
+- **A kids-safe circle**: the animator must switch Live discussion on explicitly. Video is governed by the animator's "Allow cameras" switch (default on; off means audio and chat only, Clarifications).
 - **Two animators start or stop the recording at the same time**: exactly one recording results.
 - **A circle left on with nobody present**: nothing runs and nothing is recorded.
 
@@ -200,11 +200,11 @@ A participant using a screen reader hears when hands go up, when the floor chang
 - **FR-904**: When Live discussion is on, everybody MUST join with microphone off and video off. Nothing MUST be requested from the browser until the person chooses to switch a device on.
 - **FR-905**: Participants MUST be able to raise and lower a hand. The queue MUST be in arrival order and visible to everyone with characters and names. This feature reuses the raised-hand queue of spec 008 and does not create a second one.
 - **FR-906**: The animator MUST be able to give the floor to a person, mute them, lower one or all hands and remove someone from the stage. Anyone on the stage MUST be able to leave it at any time.
-- **FR-907**: The stage MUST have a maximum number of people at once (target about 8, confirmed in the plan). Larger circles MUST be able to watch and listen, or use hands with the stage limit. The audience never sends audio or video.
+- **FR-907**: The stage MUST have a maximum number of people at once (default 8, configuration `Discussion:StageMax`, Clarifications). Watching and listening to the stage MUST be opt-in and capped (default 8 viewers, `Discussion:ListenersMax`); everyone else in a larger circle follows through chat, raise hand and the stage roster. The audience never sends audio or video.
 - **FR-908**: The person given the floor MUST start with devices off and choose when to switch them on. The animator MUST be able to mute a person, but MUST NOT be able to switch a person's camera or microphone on.
 
 **Audio, video and permissions**
-- **FR-909**: Live audio and video MUST travel directly between browsers (WebRTC). circloo servers MUST only relay the signalling needed to connect them, over the existing live hub. Signalling MUST be authorised on every message. No audio or video MUST pass through circloo servers or be stored by circloo, in any environment, except for a connection relay that only forwards data and stores nothing (open question on cost and need).
+- **FR-909**: Live audio and video MUST travel directly between browsers (WebRTC). circloo servers MUST only relay the signalling needed to connect them, over the existing live hub. Signalling MUST be authorised on every message. No audio or video MUST pass through circloo servers or be stored by circloo, in any environment. At launch only public STUN is used (Clarifications), which carries no media. A TURN relay that forwards encrypted media and stores nothing is a later, separate task that needs a founder decision.
 - **FR-910**: Before the browser asks for camera or microphone, the interface MUST explain in one short sentence why and that nothing is stored.
 - **FR-911**: The feature MUST degrade gracefully: permission denied, no device, no camera, audio only, device busy, unsupported browser, and weak connection (video drops before audio). In every case chat and raise hand MUST keep working.
 - **FR-912**: When the camera is off, others MUST see the person's character and name, never an empty box.
@@ -218,7 +218,7 @@ A participant using a screen reader hears when hands go up, when the floor chang
 - **FR-916**: Before a recording captures anything, every person in the room MUST see a notice stating what is recorded and that no audio or video is kept. Capture MUST start only after the notice has been delivered to those present.
 - **FR-917**: While a recording runs, an indicator MUST be visible to every person at all times, with text and an icon (never colour alone), on every layout including phones, the collapsed sidebar and the audience screen. People who join or reconnect MUST see it on entry, before they can send anything.
 - **FR-918**: The transcript MUST contain: session title, date, start and end times; messages with sender name and time; raised hands and lowering with times; stage joins, leaves, mutes and removals with times and the person who did them. Hidden messages MUST be marked for the animator and MUST NOT appear for others. It MUST NOT contain audio, video, speech-to-text, device information or network addresses.
-- **FR-919**: The animator MUST be able to read, export (text and Markdown) and delete a transcript. Who else may read it, how long it is kept, and what a member can ask for about their own messages MUST be decided in `/speckit-clarify` (see open questions) before the plan, and are bound by GDPR basics in the PRD.
+- **FR-919**: The animator MUST be able to read, export (text and Markdown) and delete a transcript. Nobody else may read it (Clarifications). It is kept until the animator deletes it, and a member's own lines follow research R10; both are bound by GDPR basics in the PRD and await founder confirmation (D7).
 - **FR-920**: A recording MUST stop when the animator stops it, when Live discussion is switched off, when the animator is away for longer than the grace period, or when the maximum length is reached. Only one recording MAY run in a circle at a time.
 
 **Security, abuse and limits**
@@ -272,9 +272,9 @@ No usage numbers exist yet and none are invented. These are measurable behaviour
 ## Assumptions
 
 - This feature builds on spec 008 (sidebar, chat, likes, hiding, slow mode, raised-hand queue, 100-person circles). Spec 008 is still a draft. This spec depends on its chat and hand queue and does not duplicate them. "Give the floor" in 008 is a visual signal only; here it also opens the stage.
-- #96 was an earlier, broader scope (audio/video mesh for up to 12 people, filters, local file recording of one's own camera, ask to speak). The founder's decisions of 2026-10-05 narrow media to browser-to-browser audio and video with no recording, so filters and local camera recording are out of this feature. This is an overlap the founder should settle: re-scope #96 to what remains, or close it in favour of the idea issue for this feature. #96 also carries `type:task` although it predates a plan, which is a labelling issue for Nicolas, not for this spec.
-- Live audio and video are browser-to-browser. Small stages (about 8 at once) are the target. Circles up to 100 people (#174) can watch, listen, chat and raise a hand.
-- circloo only relays signalling over the existing SignalR hub. A STUN/TURN relay is likely needed for strict networks. It forwards encrypted media and stores nothing. Its cost and hosting are a planning question, deferred to `/speckit-plan` and the azure-infra agent.
+- #96 was an earlier, broader scope (audio/video mesh for up to 12 people, filters, local file recording of one's own camera, ask to speak). The founder's decisions of 2026-10-05 narrow media to browser-to-browser audio and video with no recording, so filters and local camera recording are out of this feature. The founder closed #96 as superseded by #212 (Clarifications). #96 also carries `type:task` although it predates a plan, which is a labelling issue for Nicolas, not for this spec.
+- Live audio and video are browser-to-browser. Stages of 8 at once (configuration) are the target. In circles up to 100 people (#174) everyone can chat and raise a hand; up to 8 can opt in to watch and listen (Clarifications).
+- circloo only relays signalling over the existing SignalR hub. Public STUN only at launch (Clarifications). A TURN relay for strict networks is a later, separate task (azure-infra and a founder decision); it would forward encrypted media and store nothing.
 - Default behaviour when on: everyone joins muted with video off; people raise a hand; the animator gives the floor, mutes, lowers hands or removes from stage; anyone can leave the stage.
 - The recording is text only (chat, hands, stage events). It is not a recording of audio or video.
 - The animator of a circle is the only moderator. The animator's identity comes from the server, never the client.
@@ -282,6 +282,8 @@ No usage numbers exist yet and none are invented. These are measurable behaviour
 - Zero-cost development (constitution IX): STUN-only locally and fake media devices in tests; no paid service is needed to run this feature in development.
 
 ## Open questions (for `/speckit-clarify`)
+
+All answered: 1, 3, 9, 10 and 13 in Clarifications (with plan decisions D1 to D4), the others in `research.md` with the proposals as defaults. Question 2 (retention and erasure) has a plan default (R10) that the founder still has to confirm (D7). Kept below for history.
 
 1. **Transcript readers**: only the animator, or all circle members, or all members who were present while it ran? Default proposal: animator only, with an option to share to the circle.
 2. **Retention and deletion**: how long is a transcript kept (proposal: until the animator deletes it, with an organization maximum later under E6 data retention)? Can a member ask for their messages to be removed from a transcript? How does GDPR export and delete apply?
