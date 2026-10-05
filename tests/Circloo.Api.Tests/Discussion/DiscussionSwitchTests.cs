@@ -4,6 +4,7 @@ using Circloo.Api.Data;
 using Circloo.Api.Discussion;
 using Circloo.Api.Tests.Infrastructure;
 using Circloo.Api.Tests.LiveRoom;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 
@@ -91,7 +92,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
     public async Task A_refusal_names_ids_only_and_audits_at_most_five_rows_a_minute_per_member()
     {
         var circle = await _host.Room.CircleAsync();
-        var (_, guestCookies, _) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
+        var (_, _, guestCookies) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
         await using var guest = await _host.EnteredAsync(guestCookies, circle.Id);
         var before = (await _host.RefusalsAsync()).Count;
         for (var i = 0; i < 8; i++)
@@ -112,7 +113,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
     public async Task The_switch_reaches_a_member_at_once_and_survives_a_new_connection()
     {
         var circle = await _host.Room.CircleAsync();
-        var (_, guestCookies, _) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
+        var (_, _, guestCookies) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
         var guest = _host.Room.Hub(guestCookies);
         var pushed = new Inbox<DiscussionState>(guest, "Discussion");
         var lines = new Inbox<MessageDto>(guest, "Message");
@@ -130,7 +131,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         var animatorMember = (await _host.Room.MembersAsync(circle.Id)).Single(m => m.Role == Roles.Animator);
         Assert.Equal(animatorMember.Id, row.DiscussionChangedByMemberId);
         Assert.NotNull(row.DiscussionChangedAt);
-        Assert.Single(await _host.AuditAsync("discussion.on"));
+        Assert.Single(await _host.AuditAsync("discussion.on", circle.Id));
 
         // A reload: the new connection and the page load both see it.
         await guest.StopAsync();
@@ -161,7 +162,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
 
         var row = await _host.CircleRowAsync(circle.Id);
         Assert.Equal((true, false), (row.DiscussionOn, row.DiscussionVideo));
-        Assert.Equal(2, (await _host.AuditAsync("discussion.on")).Count);
+        Assert.Equal(2, (await _host.AuditAsync("discussion.on", circle.Id)).Count);
         var lines = await _host.Room.DbAsync(db => db.CircleMessages.Where(m => m.CircleId == circle.Id && m.Text == "discussion:on").CountAsync());
         Assert.Equal(1, lines);
     }
@@ -170,7 +171,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Switching_off_clears_the_hands_and_the_setting_for_everyone_within_two_seconds()
     {
         var circle = await _host.Room.CircleAsync();
-        var (_, guestCookies, _) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
+        var (_, _, guestCookies) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
         var guest = _host.Room.Hub(guestCookies);
         var pushed = new Inbox<DiscussionState>(guest, "Discussion");
         await guest.StartAsync();
@@ -193,11 +194,11 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         Assert.Equal(0, await _host.Room.DbAsync(db => db.RaisedHands.CountAsync(h => h.CircleId == circle.Id)));
         var row = await _host.CircleRowAsync(circle.Id);
         Assert.False(row.DiscussionOn);
-        Assert.Single(await _host.AuditAsync("discussion.off"));
+        Assert.Single(await _host.AuditAsync("discussion.off", circle.Id));
 
         // Off again: nothing more is written.
         await animator.InvokeAsync("DisableDiscussion");
-        Assert.Single(await _host.AuditAsync("discussion.off"));
+        Assert.Single(await _host.AuditAsync("discussion.off", circle.Id));
         await guest.DisposeAsync();
     }
 

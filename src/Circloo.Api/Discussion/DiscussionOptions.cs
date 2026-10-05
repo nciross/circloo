@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Options;
 
 namespace Circloo.Api.Discussion;
 
@@ -88,8 +89,19 @@ public sealed class DiscussionOptions
     {
         services.AddOptions<DiscussionOptions>().BindConfiguration(Section)
             .ValidateDataAnnotations()
-            .Validate(o => !o.Problems().Any(), "Discussion settings are invalid.")
             .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<DiscussionOptions>, DiscussionOptionsValidator>();
         return services;
+    }
+}
+
+/// <summary>Fails start-up with every <see cref="DiscussionOptions.Problems"/> named, so the operator sees which setting is wrong.</summary>
+public sealed class DiscussionOptionsValidator : IValidateOptions<DiscussionOptions>
+{
+    public ValidateOptionsResult Validate(string? name, DiscussionOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        var problems = options.Problems().ToList();
+        return problems.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(problems);
     }
 }

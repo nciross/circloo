@@ -67,8 +67,12 @@ public sealed class DiscussionHost(ApiFactory factory)
     public Task<List<AuditEvent>> RefusalsAsync() =>
         Room.DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == "discussion.refused").OrderBy(a => a.Id).ToListAsync());
 
-    public Task<List<AuditEvent>> AuditAsync(string type) =>
-        Room.DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == type).OrderBy(a => a.Id).ToListAsync());
+    /// <summary>The audit rows of one type for one circle: the test database is shared by every test of the collection.</summary>
+    public async Task<List<AuditEvent>> AuditAsync(string type, Guid circleId)
+    {
+        var rows = await Room.DbAsync(db => db.AuditEvents.AsNoTracking().Where(a => a.Type == type).OrderBy(a => a.Id).ToListAsync());
+        return [.. rows.Where(a => a.Detail is not null && a.Detail.Contains(circleId.ToString(), StringComparison.Ordinal))];
+    }
 
     /// <summary>Moves the fake clock, for the time rules of later tasks.</summary>
     public void Advance(TimeSpan by) => factory.Clock.Advance(by);
