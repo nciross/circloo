@@ -26,6 +26,28 @@ export interface Message {
   liked: boolean
   /** Only ever true in the animator's view: members never receive hidden messages. */
   hidden: boolean
+  /** The message this one answers, one level only (spec 009). */
+  replyToId: number | null
+}
+
+/** The live discussion setting (spec 009, contracts/hub.md). Off by default; only the animator changes it. */
+export interface DiscussionState {
+  on: boolean
+  videoAllowed: boolean
+  stageMax: number
+  listenersMax: number
+  away: 'none' | 'frozen'
+  awayEndsAt: string | null
+}
+
+/** The running text recording, if any (spec 009); filled in by a later task. */
+export interface RecordingState {
+  id: string
+  phase: 'notice' | 'capturing'
+  startedAt: string
+  captureFrom: string
+  maxAt: string
+  byMemberId: string
 }
 
 /** The live room's switches (spec 008, contracts/hub.md). */
@@ -99,6 +121,8 @@ export interface CircleView {
   decide: DecideView
   settings: RoomSettings
   hands: HandsView
+  discussion: DiscussionState
+  recording: RecordingState | null
   /** Reactions per kind in the latest presentation of the circle, for its results (spec 008). */
   reactionTotals?: Partial<Record<'clap' | 'heart' | 'laugh' | 'wow' | 'like' | 'party', number>>
 }

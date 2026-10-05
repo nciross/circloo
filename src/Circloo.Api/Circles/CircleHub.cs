@@ -3,11 +3,13 @@ using Circloo.Api.Auth;
 using Circloo.Api.Ai;
 using Circloo.Api.Data;
 using Circloo.Api.Decide;
+using Circloo.Api.Discussion;
 using Circloo.Api.Presentations;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Circloo.Api.Circles;
 
@@ -59,6 +61,8 @@ public interface ICircleClient
     Task QaSettings(bool allowAnonymous);
     /// <summary>The member's own upvote on a question, to all of their connections.</summary>
     Task MyUpvote(long questionId, bool upvoted);
+    /// <summary>The live discussion switch changed, or the caller just entered (spec 009).</summary>
+    Task Discussion(DiscussionState state);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -80,7 +84,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<DiscussionOptions> discussion) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -131,6 +135,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
         }
+        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
         var online = presence.Online(circleId);
         RequestPresence(circleId);
         // Reloads and late joiners land on the current slide (spec 006 FR-608).

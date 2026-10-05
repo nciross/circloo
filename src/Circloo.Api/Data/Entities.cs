@@ -125,6 +125,13 @@ public sealed class Circle
     public bool ReactionsOn { get; set; } = true;
     /// <summary>Pirikoo keeps still in the room; its bubbles still show (spec 008).</summary>
     public bool PirikooQuiet { get; set; }
+    /// <summary>The live discussion (spec 009): off until the animator switches it on, and kept until they change it.</summary>
+    public bool DiscussionOn { get; set; }
+    /// <summary>"Allow cameras" while the discussion is on; false means audio only (spec 009 R13).</summary>
+    public bool DiscussionVideo { get; set; } = true;
+    public DateTimeOffset? DiscussionChangedAt { get; set; }
+    /// <summary>The animator who last changed the setting, or null when the system switched it off. No foreign key.</summary>
+    public Guid? DiscussionChangedByMemberId { get; set; }
 
     public bool IsOpen(DateTimeOffset now) => ClosedAt is null && ExpiresAt > now;
 }
@@ -168,6 +175,37 @@ public sealed class CircleMessage
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Hidden by the animator: never sent to members again, nor to the circloo coach (spec 008 FR-813).</summary>
     public DateTimeOffset? HiddenAt { get; set; }
+    /// <summary>The message this one answers, one level only (spec 009).</summary>
+    public long? ReplyToId { get; set; }
+}
+
+/// <summary>One run of text recording in a circle (spec 009). Only text is ever recorded: no audio, no video.</summary>
+public sealed class Recording
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CircleId { get; set; }
+    public Guid? StartedByMemberId { get; set; }
+    public required string Title { get; set; }
+    public DateTimeOffset StartedAt { get; set; }
+    public DateTimeOffset CaptureFrom { get; set; }
+    public DateTimeOffset MaxAt { get; set; }
+    public DateTimeOffset? EndedAt { get; set; }
+    public string? EndedReason { get; set; }
+}
+
+/// <summary>An append-only line of a transcript (spec 009): the text of a message only for <c>message</c>.</summary>
+public sealed class RecordingEvent
+{
+    public long Id { get; set; }
+    public Guid RecordingId { get; set; }
+    public DateTimeOffset At { get; set; }
+    public required string Kind { get; set; }
+    public Guid? ActorMemberId { get; set; }
+    public Guid? SubjectMemberId { get; set; }
+    public long? MessageId { get; set; }
+    public long? ReplyToMessageId { get; set; }
+    public string? Reason { get; set; }
+    public string? Text { get; set; }
 }
 
 /// <summary>One member's like on one chat message (spec 008 FR-810).</summary>

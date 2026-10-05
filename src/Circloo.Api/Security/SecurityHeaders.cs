@@ -7,9 +7,36 @@ public static class SecurityHeaders
         "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; " +
         "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'";
 
+    public const string PermissionsPolicy = "camera=(), microphone=(), geolocation=()";
+
+    /// <summary>The live room may use the camera and microphone for the discussion (spec 009 R15); nothing else may.</summary>
+    public const string RoomPermissionsPolicy = "camera=(self), microphone=(self), geolocation=()";
+
+    private static readonly string[] RoomPrefixes = ["/c/", "/app/circles/"];
+
+    /// <summary>True for <c>/c/{guid}</c> and <c>/app/circles/{guid}</c> only: the audience route and every other path stay denied.</summary>
+    public static bool IsRoomRoute(PathString path)
+    {
+        var value = path.Value;
+        if (value is null)
+        {
+            return false;
+        }
+        foreach (var prefix in RoomPrefixes)
+        {
+            if (value.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return Guid.TryParseExact(value[prefix.Length..].TrimEnd('/'), "D", out _);
+            }
+        }
+        return false;
+    }
+
     public static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app, IWebHostEnvironment env) =>
         app.Use(async (ctx, next) =>
         {
+            // Read before the SPA fallback rewrites the path to /index.html: the policy follows the URL the browser asked for.
+            var path = ctx.Request.Path;
             ctx.Response.OnStarting(() =>
             {
                 var h = ctx.Response.Headers;
@@ -17,14 +44,14 @@ public static class SecurityHeaders
                 h.XContentTypeOptions = "nosniff";
                 h.XFrameOptions = "DENY";
                 h["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                h["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+                h["Permissions-Policy"] = IsRoomRoute(path) ? RoomPermissionsPolicy : PermissionsPolicy;
                 h["Cross-Origin-Opener-Policy"] = "same-origin";
                 if (!env.IsDevelopment())
                 {
                     h.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
                 }
                 // API answers are never cached unless an endpoint chose otherwise (slide pictures: private, spec 006).
-                if (ctx.Request.Path.StartsWithSegments("/api") && string.IsNullOrEmpty(h.CacheControl))
+                if (path.StartsWithSegments("/api") && string.IsNullOrEmpty(h.CacheControl))
                 {
                     h.CacheControl = "no-store";
                 }
