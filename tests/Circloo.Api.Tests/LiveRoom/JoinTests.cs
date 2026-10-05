@@ -23,6 +23,14 @@ public sealed class JoinTests(PostgresFixture pg) : IAsyncLifetime
 
     public async Task DisposeAsync() => await _factory.DisposeAsync();
 
+    /// <summary>A fresh server with these settings (the test server sees every request from one address).</summary>
+    private async Task RestartAsync(Dictionary<string, string?> settings)
+    {
+        await _factory.DisposeAsync();
+        _factory = new ApiFactory(pg.Container.GetConnectionString(), settings);
+        _host = new RoomHost(_factory);
+    }
+
     private static async Task<string?> TypeAsync(HttpResponseMessage res) =>
         res.IsSuccessStatusCode ? null : (await res.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("type").GetString();
 
@@ -32,6 +40,8 @@ public sealed class JoinTests(PostgresFixture pg) : IAsyncLifetime
     [Fact]
     public async Task A_hundred_people_join_at_once_and_the_circle_never_goes_past_its_capacity()
     {
+        // Every request comes from one address here: lift the join limits so only the capacity decides.
+        await RestartAsync(new() { ["RateLimits:CircleJoinsPerIpPer10Min"] = "1000", ["RateLimits:CircleJoinsPerIpAndCodePer10Min"] = "1000" });
         var circle = await _host.CircleAsync();
         // 110 people press Join together; the animator is already in, so 99 places are left.
         var joins = await Task.WhenAll(Enumerable.Range(0, 110).Select(async i =>
@@ -82,6 +92,35 @@ public sealed class JoinTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Seven_people_racing_for_the_same_fox_ring_end_on_six_rings_and_one_must_pick_another()
+    {
+        var circle = await _host.CircleAsync();
+        var joins = await Task.WhenAll(Enumerable.Range(0, 7).Select(async i =>
+        {
+            var (res, _, _) = await _host.JoinAsync(circle.Code, $"Fox {i}", "fox", ring: 0);
+            return (res.StatusCode, Type: await TypeAsync(res), Ring: res.IsSuccessStatusCode ? await RingAsync(res) : -1);
+        }));
+        Assert.Equal([0, 1, 2, 3, 4, 5], joins.Where(j => j.StatusCode == HttpStatusCode.OK).Select(j => j.Ring).Order());
+        Assert.Equal((HttpStatusCode.Conflict, "character-full"), joins.Where(j => j.StatusCode != HttpStatusCode.OK).Select(j => (j.StatusCode, j.Type)).Single());
+    }
+
+    [Fact]
+    public async Task The_same_person_joining_from_two_tabs_at_once_is_one_member()
+    {
+        var circle = await _host.CircleAsync();
+        var (http, _) = _host.Browser();
+        var csrf = await http.SignInAsync(_factory, $"kenji-{Guid.NewGuid():N}@example.test");
+        var tabs = await Task.WhenAll(Enumerable.Range(0, 2).Select(i =>
+            http.PostJsonAsync($"/api/join/{circle.Code}", new { name = "Kenji", character = i == 0 ? "fox" : "owl" }, csrf)));
+        Assert.All(tabs, t => Assert.Equal(HttpStatusCode.OK, t.StatusCode));
+        Assert.Single(await _host.DbAsync(db => db.CircleMembers.Where(m => m.CircleId == circle.Id && m.Name == "Kenji").ToListAsync()));
+        // Joining again answers with the same membership and its ring.
+        var again = await http.PostJsonAsync($"/api/join/{circle.Code}", new { name = "Kenji", character = "bee" }, csrf);
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode);
+        Assert.Equal(0, await RingAsync(again));
+    }
+
+    [Fact]
     public async Task A_ring_asked_for_is_used_when_free_and_replaced_by_a_free_one_when_taken()
     {
         var circle = await _host.CircleAsync();
@@ -95,14 +134,9 @@ public sealed class JoinTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task One_address_cannot_fill_a_circle_beyond_its_per_circle_join_limit()
+    public async Task Joins_of_one_circle_from_one_address_are_limited_and_the_refusal_says_when_to_retry()
     {
-        await _factory.DisposeAsync();
-        _factory = new ApiFactory(pg.Container.GetConnectionString(), new Dictionary<string, string?>
-        {
-            ["RateLimits:CircleJoinsPerIpAndCodePer10Min"] = "3",
-        });
-        _host = new RoomHost(_factory);
+        await RestartAsync(new() { ["RateLimits:CircleJoinsPerIpAndCodePer10Min"] = "3" });
         var circle = await _host.CircleAsync();
         var other = await _host.CircleAsync();
 
@@ -111,17 +145,34 @@ public sealed class JoinTests(PostgresFixture pg) : IAsyncLifetime
             (await _host.JoinAsync(circle.Code, $"Guest {i}", Characters.All[i + 1])).Response.EnsureSuccessStatusCode();
         }
         var (limited, _, _) = await _host.JoinAsync(circle.Code, "Guest 3", "bee");
-        Assert.Equal((HttpStatusCode.TooManyRequests, "slow-down"), (limited.StatusCode, await TypeAsync(limited)));
+        Assert.Equal((HttpStatusCode.TooManyRequests, "rate-limited"), (limited.StatusCode, await TypeAsync(limited)));
+        Assert.NotNull(limited.Headers.RetryAfter);
+        Assert.True(await _host.DbAsync(db => db.AuditEvents.AnyAsync(e => e.Type == "otp.rate_limited")));
         // Another circle from the same address is not affected.
         (await _host.JoinAsync(other.Code, "Guest 4", "bee")).Response.EnsureSuccessStatusCode();
     }
 
     [Fact]
+    public async Task One_address_may_join_up_to_300_times_in_ten_minutes_by_default()
+    {
+        Assert.Equal(300, new Circloo.Api.Security.RateLimitOptions().CircleJoinsPerIpPer10Min);
+        await RestartAsync(new() { ["RateLimits:CircleJoinsPerIpPer10Min"] = "5" });
+        var first = await _host.CircleAsync();
+        var second = await _host.CircleAsync();
+        var codes = new[] { first.Code, second.Code, first.Code, second.Code, first.Code, second.Code };
+        var statuses = new List<HttpStatusCode>();
+        foreach (var (code, i) in codes.Select((c, i) => (c, i)))
+        {
+            statuses.Add((await _host.JoinAsync(code, $"Guest {i}", Characters.All[i + 1])).Response.StatusCode);
+        }
+        // Five joins pass across both circles; the sixth from the same address is refused.
+        Assert.Equal([.. Enumerable.Repeat(HttpStatusCode.OK, 5), HttpStatusCode.TooManyRequests], statuses);
+    }
+
+    [Fact]
     public async Task The_cap_follows_configuration_and_the_full_circle_says_so()
     {
-        await _factory.DisposeAsync();
-        _factory = new ApiFactory(pg.Container.GetConnectionString(), new Dictionary<string, string?> { ["Circles:MaxPeople"] = "3" });
-        _host = new RoomHost(_factory);
+        await RestartAsync(new() { ["Circles:MaxPeople"] = "3" });
         var circle = await _host.CircleAsync();
         (await _host.JoinAsync(circle.Code, "Kenji", "fox")).Response.EnsureSuccessStatusCode();
         (await _host.JoinAsync(circle.Code, "Lucía", "fox")).Response.EnsureSuccessStatusCode();

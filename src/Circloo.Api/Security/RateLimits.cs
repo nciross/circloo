@@ -80,4 +80,18 @@ public static class RateLimits
     }
 
     public static string? ClientIp(HttpContext ctx) => ctx.Connection.RemoteIpAddress?.ToString();
+
+    /// <summary>
+    /// A refusal from a limiter inside an endpoint, answered and audited exactly like the policies above: 429
+    /// <c>rate-limited</c>, <c>Retry-After</c> and <c>retryAfterSeconds</c>.
+    /// </summary>
+    public static async Task<IResult> RejectAsync(HttpContext http, TimeSpan retryAfter, string scope, CancellationToken ct)
+    {
+        var seconds = (int)Math.Ceiling(retryAfter.TotalSeconds);
+        http.Response.Headers.RetryAfter = seconds.ToString(CultureInfo.InvariantCulture);
+        await http.RequestServices.GetRequiredService<AuditLog>().WriteAsync(AuditTypes.OtpRateLimited, ip: ClientIp(http),
+            detail: new { scope, path = http.Request.Path.Value }, ct: ct);
+        return Results.Problem(statusCode: StatusCodes.Status429TooManyRequests, type: "rate-limited", title: "Too many requests. Please slow down.",
+            extensions: new Dictionary<string, object?> { ["retryAfterSeconds"] = seconds });
+    }
 }

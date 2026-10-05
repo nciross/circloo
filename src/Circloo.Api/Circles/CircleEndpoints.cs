@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace Circloo.Api.Circles;
 
@@ -182,24 +183,25 @@ public static class CircleEndpoints
                 uses));
         });
 
-        join.MapPost("/{code}", async (string code, JoinCircle body, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
+        join.MapPost("/{code}", async Task<IResult> (string code, JoinCircle body, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
             IHubContext<CircleHub, ICircleClient> hub, IOptions<CircleOptions> circles, JoinLimiter limiter, CancellationToken ct) =>
         {
-            // Beside the per-IP limit of the group: one IP cannot fill another circle (spec 008 R4).
-            if (!limiter.TryAcquire(RateLimits.ClientIp(ctx), JoinCodes.Normalize(code)))
-            {
-                return Results.Problem(statusCode: StatusCodes.Status429TooManyRequests, type: "slow-down", title: "Too many joins from here. Try again in a few minutes.");
-            }
             var now = clock.GetUtcNow();
             var circle = await FindOpenAsync(db, code, now, ct);
             if (circle is null)
             {
                 return NotOpen();
             }
+            // Beside the per-IP limit of the group: joins of one circle from one address (spec 008 R4). Keyed on circles
+            // that exist, so guessed codes add no entries (the per-IP limit covers guessing).
+            if (!limiter.TryAcquire(RateLimits.ClientIp(ctx), circle.Id, out var retryAfter))
+            {
+                return await RateLimits.RejectAsync(ctx, retryAfter, "circle-join", ct);
+            }
             var existing = await CircleAccess.ResolveAsync(db, ctx.User, circle.Id, ct);
             if (existing is not null)
             {
-                return Results.Ok(new { circleId = circle.Id, memberId = existing.Id });
+                return Results.Ok(new { circleId = circle.Id, memberId = existing.Id, ring = existing.Ring });
             }
             var errors = new Dictionary<string, string[]>();
             var name = TextRules.Clean(body.Name, TextRules.NameMax);
@@ -221,18 +223,32 @@ public static class CircleEndpoints
             }
             var userId = ctx.User.TryGetUserId();
             var capacity = Characters.Capacity(circles.Value.MaxPeople);
+            // The id is fixed once, so a retry after a commit that did go through finds the member instead of adding a
+            // second one.
+            var memberId = Guid.CreateVersion7();
             // Joins of one circle run one at a time under a lock on its row, so 100 people joining at once can never
             // push it past its capacity, and the ring picked is still free when saved (spec 008 R2).
-            var (member, refusal) = await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            var (member, refusal) = await db.Database.CreateExecutionStrategy().ExecuteAsync(async Task<(CircleMember?, IResult?)> () =>
             {
                 db.ChangeTracker.Clear();
                 await using var tx = await db.Database.BeginTransactionAsync(ct);
-                await db.Database.ExecuteSqlAsync($"""SELECT 1 FROM "Circles" WHERE "Id" = {circle.Id} FOR UPDATE""", ct);
+                var locked = await db.Circles.FromSql($"""SELECT * FROM "Circles" WHERE "Id" = {circle.Id} FOR UPDATE""").AsNoTracking().FirstOrDefaultAsync(ct);
+                if (locked is null || !locked.IsOpen(now))
+                {
+                    return ((CircleMember?)null, NotOpen());
+                }
+                // Already in: this very join committed on an earlier attempt, or the same person joined from another tab.
+                var already = await db.CircleMembers.AsNoTracking().FirstOrDefaultAsync(m => m.CircleId == circle.Id && m.LeftAt == null
+                    && (m.Id == memberId || (userId != null && m.UserId == userId)), ct);
+                if (already is not null)
+                {
+                    return (already, (IResult?)null);
+                }
                 var active = await db.CircleMembers.Where(m => m.CircleId == circle.Id && m.LeftAt == null)
                     .Select(m => new { m.Character, m.Ring }).ToListAsync(ct);
                 if (active.Count >= capacity)
                 {
-                    return ((CircleMember?)null, Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "circle-full", title: "This circle is full."));
+                    return (null, Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "circle-full", title: "This circle is full."));
                 }
                 var use = Rings.Use(body.Character!, active.Where(a => a.Character == body.Character).Select(a => a.Ring));
                 if (use.FreeRings.Length == 0)
@@ -242,6 +258,7 @@ public static class CircleEndpoints
                 }
                 var joined = new CircleMember
                 {
+                    Id = memberId,
                     CircleId = circle.Id,
                     Role = Roles.Participant,
                     UserId = userId,
@@ -253,15 +270,28 @@ public static class CircleEndpoints
                 };
                 db.CircleMembers.Add(joined);
                 audit.Add(AuditTypes.CircleJoined, userId, ip: RateLimits.ClientIp(ctx), detail: new { circle = circle.Id, guest = userId is null });
-                await db.SaveChangesAsync(ct);
+                try
+                {
+                    await db.SaveChangesAsync(ct);
+                }
+                catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+                {
+                    // A backstop: the lock makes this unreachable for one circle, but answer as "already in" rather than fail.
+                    await tx.RollbackAsync(ct);
+                    db.ChangeTracker.Clear();
+                    var mine = await db.CircleMembers.AsNoTracking().FirstOrDefaultAsync(m => m.CircleId == circle.Id && m.LeftAt == null
+                        && (m.Id == memberId || (userId != null && m.UserId == userId)), ct);
+                    return mine is not null
+                        ? (mine, null)
+                        : (null, Results.Problem(statusCode: StatusCodes.Status409Conflict, type: "character-full", title: "Every copy of this character is taken. Pick another one."));
+                }
                 await tx.CommitAsync(ct);
                 return (joined, (IResult?)null);
             });
             if (refusal is not null)
             {
                 return refusal;
-            }
-            if (userId is null)
+            }            if (userId is null)
             {
                 await ctx.SignInAsync(GuestAuthentication.Scheme, GuestAuthentication.Principal(member!.Id, circle.Id),
                     new AuthenticationProperties { IsPersistent = false });

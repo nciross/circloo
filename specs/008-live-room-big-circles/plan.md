@@ -65,7 +65,7 @@ Circles grow from 12 to 100 people, configurable (`Circles:MaxPeople`).
 | Reaction or hand flooding hurting the room | Reactions: 5 per 10 s per member, buffered and grouped, at most 12 drawn at once. Hands: one per member, a unique index, broadcasts only on change. |
 | Impersonation through a shared character | The name is always shown with the character (FR-804). The ring and index dot differ. Names are already validated and safety-filtered at join. |
 | Overshooting the cap through concurrent joins | The join transaction locks the circle row. The unique `(Circle, Character, Ring)` index is backed by retries. |
-| Join-code guessing after the IP limit is raised | The per-IP limit stays (300 per 10 min). The per-IP-and-code limit stops one IP from filling another circle. Codes are 50 bits. |
+| Join-code guessing after the IP limit is raised | The per-IP limit stays (300 requests per 10 min, per replica). Codes are 50 bits, so guessing stays hopeless. The per-IP-and-circle limit (capacity + 20) only bounds how fast one address joins one circle; it does not stop one address from filling a circle (removing members or locking a circle would, out of scope here). Refusals are audited like the other limits. |
 | Privacy on a wall screen | The audience screen renders only the reaction bursts and the number of hands, never chat text or names. |
 | Data minimisation | Reactions are stored only as anonymous totals per session. Likes are stored, because members see their own like. No message text appears in logs or audit records. |
 | Denial of service through a big circle on one replica | Coalesced presence and likes, buffered reactions, a capped list of pending answers, and the load test before release. The cap itself bounds the fan-out. |

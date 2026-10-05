@@ -23,7 +23,7 @@ Decisions taken while planning. Each one lists what was chosen, why, and what el
 
 ## R4. Join rate limit at events
 
-- **Decision**: `CircleJoinsPerIpPer10Min` goes from 60 to 300. A second limit is added, keyed by IP and join code, at `Circles:MaxPeople + 20` per 10 minutes. It still stops code guessing, because the per-IP limit caps the number of codes tried.
+- **Decision**: `CircleJoinsPerIpPer10Min` goes from 60 to 300. A second limit is added, keyed by IP and circle (checked once the code matches an open circle, so guessed codes add no entries), at the circle's capacity + 20 per 10 minutes. Code guessing stays covered by the per-IP limit. Both count requests to `/api/join` (page loads and joins), not people, and each replica counts its own; 300 lets about 130–150 people join from one address. Refusals answer 429 `rate-limited` with `Retry-After` and are audited.
 - **Rationale**: a class or company joins from one public IP (NAT). With 60 per IP per 10 minutes, the 61st phone of a 100-person room would be refused.
 - **Alternatives**: no IP limit (reopens code guessing); a CAPTCHA (friction on phones, and it fails the "seconds-simple" product rule).
 
