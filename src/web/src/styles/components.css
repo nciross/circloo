@@ -965,6 +965,7 @@
 }
 .char__ring-dot circle {
   fill: var(--ring, currentColor);
+  stroke: var(--surface);
 }
 .char--ring-1 {
   --ring: var(--ring-1);

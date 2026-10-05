@@ -20,7 +20,7 @@ export interface Results {
   total: number
   options: { id: string; count: number; percent: number; winner: boolean; correct?: boolean | null }[]
   /** Who answered first (for a quiz, first correct), set at the reveal when the question shows it. */
-  first?: { memberId: string; name: string; character: string; ms: number } | null
+  first?: { memberId: string; name: string; character: string; ms: number; ring?: number } | null
 }
 
 /** "n of N answered" and who is still to answer: the animator and the audience screen only. */

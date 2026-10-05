@@ -53,7 +53,7 @@ function TypingLine({ people }: { people: Member[] }) {
   return (
     <div className="chat__typing" aria-hidden="true">
       <span className="chat__typing-faces">
-        {people.slice(0, 3).map((m) => <Character key={m.id} id={m.character} ring={m.ring} className="chat__typing-face" />)}
+        {people.slice(0, 3).map((m) => <Character key={m.id} id={m.character} ring={m.ring} tag={false} className="chat__typing-face" />)}
       </span>
       <span>{text}</span>
       <span className="typing-dots"><i /><i /><i /></span>
@@ -135,7 +135,7 @@ export function Chat({ activityId }: { activityId: string }) {
           const mine = m.memberId === me?.id
           return (
             <li key={m.id} className={`chat__msg${mine ? ' is-mine' : ''}${who?.role === 'animator' ? ' is-animator' : ''}`}>
-              {who ? <Character id={who.character} ring={who.ring} className="chat__avatar" /> : null}
+              {who ? <Character id={who.character} ring={who.ring} tag={false} className="chat__avatar" /> : null}
               <div className="chat__bubble">
                 <span className="chat__name"><bdi>{who?.name ?? '…'}</bdi></span>
                 <p className="chat__text" dir="auto">{m.text}</p>

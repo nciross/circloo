@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Copy, Crown, Play } from 'lucide-react'
 import { Character } from '../../components/Character'
@@ -21,12 +21,14 @@ export interface CharacterUse {
  * shared, each person with their own ring (spec 008).
  */
 export function CharacterPicker({
-  value, onChange, taken = [], uses, legend, describedBy, invalid,
+  value, onChange, taken = [], uses, pickedRing = 0, legend, describedBy, invalid,
 }: {
   value: CharacterId | null
   onChange: (c: CharacterId) => void
   taken?: string[]
   uses?: CharacterUse[]
+  /** The ring the picked character will wear, drawn on its tile so a one-tap joiner sees it. */
+  pickedRing?: number
   legend: string
   describedBy?: string
   invalid?: boolean
@@ -43,7 +45,7 @@ export function CharacterPicker({
           return (
             <label key={c} className={`pick__item${value === c ? ' is-picked' : ''}${isTaken ? ' is-taken' : ''}`}>
               <input type="radio" name="character" value={c} checked={value === c} disabled={isTaken} onChange={() => onChange(c)} />
-              <Character id={c} className="pick__char" />
+              <Character id={c} ring={value === c ? pickedRing : 0} className="pick__char" />
               <span className="pick__name">{t(`characters.${c}`)}</span>
               {isTaken ? <span className="pick__taken">{t(uses ? 'circles.join.characterFull' : 'circles.taken')}</span> : null}
               {shared ? <span className="pick__used">{t('circles.join.used', { count: use!.used })}</span> : null}
@@ -66,16 +68,17 @@ export function RingPicker({ character, freeRings, value, onChange }: {
   onChange: (ring: number) => void
 }) {
   const { t } = useTranslation()
+  const help = useId()
   return (
-    <fieldset className="rings">
+    <fieldset className="rings" aria-describedby={help}>
       <legend className="field__label">{t('circles.join.ringLegend')}</legend>
-      <p className="field__help rings__help">{t('circles.join.ringHelp')}</p>
+      <p id={help} className="field__help rings__help">{t('circles.join.ringHelp', { n: value + 1 })}</p>
       <div className="rings__grid">
         {freeRings.map((r) => (
           <label key={r} className={`rings__item${value === r ? ' is-picked' : ''}`}>
             <input type="radio" name="ring" value={r} checked={value === r} onChange={() => onChange(r)} />
             <Character id={character} ring={r} className="rings__char" />
-            <span className="rings__name">{t('circles.join.ringOption', { n: r + 1 })}</span>
+            <span className="rings__name">{r === 0 ? t('circles.join.ringNone') : t('circles.join.ringOption', { n: r + 1 })}</span>
           </label>
         ))}
       </div>

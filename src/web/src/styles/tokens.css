@@ -43,8 +43,8 @@
   --ring-1: #1d4ed8;
   --ring-2: #c2410c;
   --ring-3: #15803d;
-  --ring-4: #be185d;
-  --ring-5: #334155;
+  --ring-4: #9d174d;
+  --ring-5: #0e7490;
   --on-ring: #ffffff;
   --success-subtle: #dcf5e8;
   --success-text: #145c3b;
@@ -141,7 +141,7 @@
   --ring-2: #fb923c;
   --ring-3: #4ade80;
   --ring-4: #f472b6;
-  --ring-5: #cbd5e1;
+  --ring-5: #22d3ee;
   --on-ring: #0c141b;
   --success-subtle: #133528;
   --success-text: #7ee2b8;
@@ -196,7 +196,7 @@
     --ring-2: #fb923c;
     --ring-3: #4ade80;
     --ring-4: #f472b6;
-    --ring-5: #cbd5e1;
+    --ring-5: #22d3ee;
     --on-ring: #0c141b;
     --success-subtle: #133528;
     --success-text: #7ee2b8;

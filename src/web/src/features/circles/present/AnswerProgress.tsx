@@ -30,8 +30,9 @@ export function AnswerProgress({ state, members, showPending = true, className }
           <ul className="answer-progress__pending">
             {waiting.slice(0, SHOWN).map((m) => (
               <li key={m.id} title={m.name}>
-                <Character id={m.character} ring={m.ring} className="answer-progress__char" />
-                <span className="visually-hidden">{m.name}</span>
+                <Character id={m.character} ring={m.ring} tag={false} className="answer-progress__char" />
+                {/* Shared characters show the name: at this size a ring number would be unreadable. */}
+                {m.ring > 0 ? <bdi className="answer-progress__name">{m.name}</bdi> : <span className="visually-hidden">{m.name}</span>}
               </li>
             ))}
             {waiting.length > SHOWN ? (

@@ -313,10 +313,11 @@ const ART: Record<CharacterId, ReactNode> = {
  * One character. Decorative unless `title` is given (then it is an image with that name).
  *
  * `ring` tells apart people sharing a character (spec 008): ring 0 draws nothing, so a small circle looks as before;
- * rings 1–5 draw a coloured outline behind the art and a numbered dot, so the difference never rests on colour alone.
- * The person's name always goes with it wherever it is shown.
+ * rings 1–5 draw a coloured outline around the slightly smaller art and a numbered tag on the ring, like a jersey
+ * number, so the difference never rests on colour alone. At small sizes (`tag={false}`) the number would be
+ * unreadable, so it is left out and the person's name is shown beside the character instead.
  */
-export function Character({ id, className, title, ring = 0 }: { id: CharacterId; className?: string; title?: string; ring?: number }) {
+export function Character({ id, className, title, ring = 0, tag = true }: { id: CharacterId; className?: string; title?: string; ring?: number; tag?: boolean }) {
   const ringed = ring > 0 && ring <= 5
   return (
     <svg
@@ -328,11 +329,12 @@ export function Character({ id, className, title, ring = 0 }: { id: CharacterId;
       focusable="false"
     >
       {ringed ? <circle className="char__ring" cx="32" cy="32" r="30.5" fill="none" strokeWidth="3" /> : null}
-      {ART[id]}
-      {ringed ? (
+      {/* Inside a ring the art is drawn a little smaller, so ears and hair never cross the ring. */}
+      <g className="char__art" transform={ringed ? 'translate(32 32) scale(0.84) translate(-32 -32)' : undefined}>{ART[id]}</g>
+      {ringed && tag ? (
         <g className="char__ring-dot">
-          <circle cx="53" cy="53" r="8.5" strokeWidth="2" stroke="#fff" />
-          <text x="53" y="56.6" textAnchor="middle" fontSize="10" fontWeight="700">{ring + 1}</text>
+          <circle cx="32" cy="57" r="9.5" strokeWidth="2" />
+          <text x="32" y="61.2" textAnchor="middle" fontSize="12.5" fontWeight="800">{ring + 1}</text>
         </g>
       ) : null}
     </svg>

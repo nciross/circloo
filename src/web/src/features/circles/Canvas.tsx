@@ -160,7 +160,9 @@ function NoteView({ note, author, selected, canEdit, zoom, onSelect, onEdit }: {
         onKeyDown={onKeyDown}
       >
         <span className="canvas-note__text" dir="auto">{note.text}</span>
-        {author ? <Character id={author.character} ring={author.ring} className="canvas-note__by" /> : null}
+        {author ? <Character id={author.character} ring={author.ring} tag={false} className="canvas-note__by" /> : null}
+        {/* Someone sharing a character: their name tells them apart where a number would be too small to read. */}
+        {author && author.ring > 0 ? <bdi className="canvas-note__by-name">{author.name}</bdi> : null}
       </button>
       {Sticker ? (
         <span className={`canvas-note__sticker canvas-note__sticker--${note.sticker}`} aria-hidden="true">
@@ -253,7 +255,7 @@ function RemoteCursor({ member, x, y, at, now }: { member: Member; x: number; y:
         <path d="M1.5 1.5 L14 7.2 L8.4 8.6 L6.3 14.2 Z" />
       </svg>
       <span className="canvas-cursor__tag">
-        <Character id={member.character} ring={member.ring} className="canvas-cursor__char" />
+        <Character id={member.character} ring={member.ring} tag={false} className="canvas-cursor__char" />
         <bdi>{member.name}</bdi>
       </span>
     </div>

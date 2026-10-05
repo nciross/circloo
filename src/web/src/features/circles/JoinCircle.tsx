@@ -132,6 +132,7 @@ export default function JoinCircle() {
           onChange={(c) => { setCharacter(c); setRing(null); setErrors((x) => ({ ...x, character: undefined })) }}
           taken={circle.taken}
           uses={circle.characters}
+          pickedRing={chosenRing}
           describedBy={errors.character ? charErr : undefined}
           invalid={!!errors.character}
         />

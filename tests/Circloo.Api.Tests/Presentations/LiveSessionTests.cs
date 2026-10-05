@@ -265,7 +265,7 @@ public sealed class LiveSessionTests
     {
         var (_, slides) = Running();
         var (amina, kenji, ghost) = (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-        var members = new Dictionary<Guid, (string, string)> { [amina] = ("Amina", "robot"), [kenji] = ("Kenji", "fox") };
+        var members = new Dictionary<Guid, (string, string, int)> { [amina] = ("Amina", "robot", 0), [kenji] = ("Kenji", "fox", 2) };
         AnswerRow Row(long seq, Guid who, string option, double seconds, bool? correct = null) =>
             new(seq, who, [option], T0.AddSeconds(seconds), correct);
 
@@ -274,7 +274,7 @@ public sealed class LiveSessionTests
         Assert.All(poll.Options, o => Assert.Null(o.Correct));
 
         var quiz = ResultsBuilder.Reveal(slides[3], [Row(3, amina, "a", 1, correct: false), Row(5, kenji, "b", 3.5, correct: true)], T0, members);
-        Assert.Equal(("Kenji", 3500L), (quiz.First!.Name, quiz.First.Ms));
+        Assert.Equal(("Kenji", 3500L, 2), (quiz.First!.Name, quiz.First.Ms, quiz.First.Ring));
         Assert.Equal([false, true], quiz.Options.Select(o => o.Correct!.Value));
 
         // Nobody right, someone who is no longer known, or the spotlight off: no name.

@@ -113,7 +113,7 @@ function Spotlight({ slide, results, text }: { slide: QuestionSlide; results: Re
   if (!slide.showFirst || !first || !text) return null
   return (
     <section className="reveal__spotlight" aria-label={t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}>
-      {isCharacter(first.character) ? <Character id={first.character} className="reveal__spotlight-char" /> : null}
+      {isCharacter(first.character) ? <Character id={first.character} ring={first.ring ?? 0} className="reveal__spotlight-char" /> : null}
       <p className="reveal__spotlight-text">
         <span className="reveal__spotlight-label">{t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}</span>
         <span className="reveal__spotlight-who">{text}</span>

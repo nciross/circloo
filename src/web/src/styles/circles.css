@@ -374,14 +374,22 @@
   gap: 2px;
   block-size: fit-content;
   transform: rotate(calc(-1 * var(--a, 0deg)));
+  animation: pop-in 360ms var(--ease-out);
+}
+/* Away: the art and the name fade, the ring keeps its colour (still 3:1) and turns dashed, so away is not colour alone. */
+.ring__body .char__art,
+.ring__body .ring__name {
   opacity: 0.45;
   filter: grayscale(0.8);
   transition:
     opacity 300ms ease,
     filter 300ms ease;
-  animation: pop-in 360ms var(--ease-out);
 }
-.ring__seat.is-online .ring__body {
+.ring__seat:not(.is-online) .char__ring {
+  stroke-dasharray: 5 4;
+}
+.ring__seat.is-online .ring__body .char__art,
+.ring__seat.is-online .ring__body .ring__name {
   opacity: 1;
   filter: none;
 }

@@ -635,15 +635,16 @@
       "errors": {
         "name": "Escribe el nombre que verán los demás.",
         "character": "Elige un personaje para entrar.",
-        "taken": "Todas las copias de este personaje están ocupadas. Elige otro.",
+        "taken": "Este personaje ya está completo. Elige otro.",
         "full": "Este círculo está lleno."
       },
-      "used_one": "{{count}} ya",
-      "used_other": "{{count}} ya",
+      "used_one": "{{count}} aquí",
+      "used_other": "{{count}} aquí",
       "characterFull": "Completo",
       "ringLegend": "Tu anillo de color",
-      "ringHelp": "Otras personas eligieron este personaje. Tu anillo te distingue y tu nombre siempre aparece con él.",
-      "ringOption": "Anillo {{n}}"
+      "ringHelp": "Otras personas eligieron este personaje. Llevarás el anillo {{n}} y tu nombre siempre aparece con él. Cámbialo aquí si quieres.",
+      "ringOption": "Anillo {{n}}",
+      "ringNone": "Sin anillo"
     },
     "room": {
       "title": "Círculo",

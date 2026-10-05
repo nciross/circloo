@@ -509,3 +509,14 @@
     transition: none !important;
   }
 }
+/* A shared character's owner is named on the note (spec 008): the ring alone would be too thin to tell apart. */
+.canvas-note__by-name {
+  flex: none;
+  max-inline-size: 6rem;
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.8;
+}
