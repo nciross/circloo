@@ -1,42 +1,25 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, Lock, MessagesSquare, Search } from 'lucide-react'
+import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, MessagesSquare, Search } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
-import { Brand, Wordmark } from '../../components/Brand'
+import { Wordmark } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
 import { MoodIcon, type Mood } from '../../components/MoodIcon'
 import { useDocumentTitle } from '../../app/locale'
 import { IcebreakerCard } from './IcebreakerCard'
-import { MoodDemo } from './MoodDemo'
 import { CircleStage } from './CircleStage'
 import { Story } from './Story'
+import { AudienceTabs, Compare, Drifters, Facts, Faq, FloatingCards, HeroForm, Jobs, LogoStrip, PlatformStrip, Principles } from './Sections'
+import { INTEGRATIONS } from './integrations'
+import { useScrollProgress, useScrollReveal } from './useMotion'
 import '../../styles/landing.css'
+import '../../styles/landing-motion.css'
 
 interface CheckinItem { name: string; mood: string; need: string }
 interface Step { title: string; body: string }
 
 const CHECKIN_MOODS: Mood[] = [5, 3, 4, 2]
-const BOARD = [
-  { col: 'well', notes: [0], votes: [3] },
-  { col: 'improve', notes: [1, 3], votes: [5, 2] },
-  { col: 'actions', notes: [2, 4], votes: [4, 1] },
-] as const
-
-/** Real seed jokes, one per language, shown in their own language and direction. */
-const FUN_CARDS = [
-  { lang: 'fr', text: 'Que dit un escargot quand il croise une limace ? « Oh, un nudiste ! »' },
-  { lang: 'es', text: '—¿Qué le dice una iguana a su hermana gemela? —¡Somos iguanitas!' },
-  { lang: 'ar', text: 'قال الحاسوب لصاحبه: أنا متعب. فقال له: نَم قليلًا. فدخل في وضع السكون!' },
-  { lang: 'en', text: "Why don't eggs tell jokes? They'd crack each other up." },
-] as const
-
-const INTEGRATIONS = [
-  { id: 'teams', name: 'Microsoft Teams & 365', logos: ['teams', 'microsoft365'] },
-  { id: 'salesforce', name: 'Salesforce', logos: ['salesforce'] },
-  { id: 'jira', name: 'Jira', logos: ['jira'] },
-  { id: 'confluence', name: 'Confluence', logos: ['confluence'] },
-  { id: 'notion', name: 'Notion', logos: ['notion'] },
-] as const
 
 function Soon() {
   const { t } = useTranslation()
@@ -87,17 +70,23 @@ function ProductPreview() {
 export function Landing() {
   const { t } = useTranslation()
   useDocumentTitle('landing.title')
-  const notes = t('landing.work.notes', { returnObjects: true }) as string[]
+  useScrollReveal()
+  const progress = useRef<HTMLDivElement>(null)
+  useScrollProgress(progress)
   const steps = t('landing.how.steps', { returnObjects: true }) as Step[]
+  const cols = t('landing2.footer.cols', { returnObjects: true }) as { title: string; links: { label: string; href: string }[] }[]
 
   return (
     <div className="site">
+      <div ref={progress} className="scrollbar" aria-hidden="true"><span /></div>
       <SiteHeader
         links={
           <nav className="sitebar__links" aria-label={t('landing.nav.label')}>
             <a href="#story">{t('landing.nav.story')}</a>
+            <a href="#audience">{t('landing2.nav.audience')}</a>
+            <a href="#product">{t('landing2.nav.product')}</a>
             <a href="#pricing">{t('landing.nav.pricing')}</a>
-            <a href="#integrations">{t('landing.nav.integrations')}</a>
+            <a href="#faq">{t('landing2.nav.faq')}</a>
           </nav>
         }
       >
@@ -108,99 +97,34 @@ export function Landing() {
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
+            <HeroForm />
             <h1 id="hero-title" className="hero__title">{t('landing.headline')}</h1>
             <p className="hero__lead">{t('landing.sub')}</p>
-            <div className="hero__actions">
-              <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>
-                {t('landing.cta')}
-              </ButtonLink>
-              <a className="hero__link" href="#story">{t('landing.ctaSecondary')}</a>
-            </div>
             <ul className="hero__facts">
               <li><Check size={16} aria-hidden="true" /> {t('landing.languagesLine')}</li>
-              <li><Lock size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
+              <li><Check size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
             </ul>
           </div>
-          <CircleStage />
+          <div className="hero__art">
+            <CircleStage />
+            <FloatingCards />
+          </div>
         </section>
+
+        <LogoStrip />
 
         <Story />
 
-        <section className="band band--sunken inside" aria-labelledby="inside-title">
-          <div className="band__inner inside__inner">
-            <div className="section-head">
-              <h2 id="inside-title" className="section-title">{t('landing.inside.title')}</h2>
-              <p>{t('landing.inside.body')}</p>
-            </div>
-            <ProductPreview />
-          </div>
-        </section>
+        <AudienceTabs />
 
-        <section id="product" className="band" aria-labelledby="features-title">
-          <div className="band__inner">
-            <h2 id="features-title" className="section-title">{t('landing.features')}</h2>
+        <Jobs soon={t('common.soon')} />
 
-            <div className="feature reveal">
-              <div className="feature__copy">
-                <h3 className="feature__title">{t('landing.feel.title')} <Soon /></h3>
-                <p>{t('landing.feel.body')}</p>
-              </div>
-              <div className="feature__show">
-                <MoodDemo />
-                <p className="feature__note">
-                  <span className="lozenge lozenge--neutral">{t('common.example')}</span> {t('landing.feel.weather')}
-                </p>
-              </div>
-            </div>
-
-            <div className="feature feature--flip reveal">
-              <div className="feature__copy">
-                <h3 className="feature__title">{t('landing.work.title')} <Soon /></h3>
-                <p>{t('landing.work.body')}</p>
-              </div>
-              <div className="feature__show">
-                <div className="demo-board" role="group" aria-label={t('landing.work.title')}>
-                  {BOARD.map((c) => (
-                    <div key={c.col} className={`demo-board__col demo-board__col--${c.col}`}>
-                      <h4 className="demo-board__head">{t(`landing.work.columns.${c.col}`)} <span className="demo-board__count">{c.notes.length}</span></h4>
-                      {c.notes.map((n, i) => (
-                        <div key={n} className="demo-note">
-                          <p>{notes[n]}</p>
-                          <span className="demo-note__votes" role="img" aria-label={t('landing.work.votes', { count: c.votes[i] })}>
-                            {Array.from({ length: c.votes[i] ?? 0 }, (_, k) => <span key={k} className="demo-vote" aria-hidden="true" />)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <p className="feature__note"><span className="lozenge lozenge--neutral">{t('common.example')}</span></p>
-              </div>
-            </div>
-
-            <div className="feature reveal">
-              <div className="feature__copy">
-                <h3 className="feature__title">{t('landing.fun.title')} <span className="lozenge lozenge--success">{t('home.modules.icebreakers.tag')}</span></h3>
-                <p>{t('landing.fun.body')}</p>
-              </div>
-              <div className="feature__show">
-                <ul className="jokes">
-                  {FUN_CARDS.map((c) => (
-                    <li key={c.lang} className="joke" lang={c.lang} dir={c.lang === 'ar' ? 'rtl' : 'ltr'}>
-                      <span className="joke__lang" aria-hidden="true">{t(`common.languageShort.${c.lang}`)}</span>
-                      <p>{c.text}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
+        <PlatformStrip />
 
         <section id="how" className="band" aria-labelledby="how-title">
           <div className="band__inner">
             <h2 id="how-title" className="section-title">{t('landing.how.title')}</h2>
-            <ol className="steps reveal">
+            <ol className="steps">
               {steps.map((s, i) => (
                 <li key={s.title} className="step">
                   <span className="step__num" aria-hidden="true">{i + 1}</span>
@@ -212,15 +136,47 @@ export function Landing() {
           </div>
         </section>
 
+        <Facts>
+          <ProductPreview />
+        </Facts>
+
+        <Principles />
+
+        <Compare />
+
+        <section id="integrations" className="band" aria-labelledby="plugs-title">
+          <div className="band__inner">
+            <div className="section-head">
+              <h2 id="plugs-title" className="section-title">{t('landing.integrations.title')}</h2>
+              <p>{t('landing.integrations.body')}</p>
+            </div>
+            <ul className="integrations">
+              {INTEGRATIONS.map((p) => (
+                <li key={p.id} className="integration">
+                  <span className="integration__logos" aria-hidden="true">
+                    {p.logos.map((l) => <img key={l} className="integration__logo" src={`/brands/${l}.svg`} alt="" width="40" height="40" />)}
+                  </span>
+                  <p className="integration__name" lang="en" dir="ltr">{p.name}</p>
+                  <p className="integration__what">{t(`landing.integrations.items.${p.id}`)}</p>
+                  {p.id === 'salesforce'
+                    ? <span className="lozenge lozenge--neutral integration__soon">{t('landing.integrations.stamp')}</span>
+                    : <span className="lozenge lozenge--success integration__soon">{t('landing.integrations.available')}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         <section id="pricing" className="band band--sunken" aria-labelledby="pricing-title">
           <div className="band__inner pricing">
             <div className="section-head pricing__head">
+              <span className="pill-status">{t('landing2.pricing.status')}</span>
               <h2 id="pricing-title" className="section-title">{t('landing.pricing.title')}</h2>
               <p>{t('landing.pricing.body')}</p>
             </div>
-            <article className="plan reveal" aria-labelledby="plan-name">
+            <article className="plan" aria-labelledby="plan-name">
               <div className="plan__top">
-                <h3 id="plan-name" className="plan__name">{t('landing.pricing.plan')}</h3>
+                <h3 id="plan-name" className="plan__name">{t('landing.pricing.plan')} <span className="plan__tag">{t('landing2.pricing.tag')}</span></h3>
                 <p className="plan__price">
                   <span className="plan__amount">{t('landing.pricing.price')}</span>
                   <span className="plan__period">{t('landing.pricing.period')}</span>
@@ -239,46 +195,38 @@ export function Landing() {
           </div>
         </section>
 
-        <section id="integrations" className="band" aria-labelledby="plugs-title">
-          <div className="band__inner">
-            <div className="section-head">
-              <h2 id="plugs-title" className="section-title">{t('landing.integrations.title')}</h2>
-              <p>{t('landing.integrations.body')}</p>
-            </div>
-            <ul className="integrations reveal">
-              {INTEGRATIONS.map((p) => (
-                <li key={p.id} className="integration">
-                  <span className="integration__logos" aria-hidden="true">
-                    {p.logos.map((l) => <img key={l} className="integration__logo" src={`/brands/${l}.svg`} alt="" width="40" height="40" />)}
-                  </span>
-                  <p className="integration__name" lang="en" dir="ltr">{p.name}</p>
-                  <p className="integration__what">{t(`landing.integrations.items.${p.id}`)}</p>
-                  {p.id === 'salesforce'
-                    ? <span className="lozenge lozenge--neutral integration__soon">{t('landing.integrations.stamp')}</span>
-                    : <span className="lozenge lozenge--success integration__soon">{t('landing.integrations.available')}</span>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+        <Faq />
 
         <section className="cta" aria-labelledby="final-title">
+          <Drifters />
           <div className="cta__inner">
+            <p className="eyebrow eyebrow--inverse">{t('landing2.final.eyebrow')}</p>
             <h2 id="final-title" className="cta__title">{t('landing.final.title')}</h2>
             <p>{t('landing.final.body')}</p>
-            <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>
-              {t('landing.final.cta')}
-            </ButtonLink>
+            <div className="cta__actions">
+              <ButtonLink to="/signin" size="lg" icon={<ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />}>{t('landing.final.cta')}</ButtonLink>
+              <a className="btn btn--lg btn--outline-inverse" href="#story"><span className="btn__label">{t('landing.ctaSecondary')}</span></a>
+            </div>
+            <p className="cta__note">{t('landing2.final.note')}</p>
           </div>
         </section>
       </main>
 
       <footer className="footer">
         <div className="footer__inner">
-          <Brand />
-          <p>{t('landing.footer.private')}</p>
-          <p>{t('landing.footer.made')}</p>
-          <p className="footer__legal">{t('landing.footer.trademarks')}</p>
+          <div className="footer__about">
+            <Wordmark />
+            <p>{t('landing.footer.made')}</p>
+          </div>
+          <nav className="footer__cols" aria-label={t('landing.nav.label')}>
+            {cols.map((c) => (
+              <div key={c.title}>
+                <h3 className="eyebrow">{c.title}</h3>
+                <ul>{c.links.map((l) => <li key={l.label}><a href={l.href}>{l.label}</a></li>)}</ul>
+              </div>
+            ))}
+          </nav>
+          <p className="footer__legal">{t('landing.footer.private')} {t('landing.footer.trademarks')}</p>
         </div>
       </footer>
     </div>
