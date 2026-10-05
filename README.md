@@ -29,11 +29,11 @@ The same small space works for your family dinner planning and your team retro. 
 
 | | |
 |---|---|
-| **Feel together** | One tap tells your circle how you are. Words and faces, never just colours. |
+| **Feel together** | One tap will tell your circle how you are (the daily check-in is planned, see below). Words and faces, never just colours. |
 | **Work together** | Live boards and a shared canvas for brainstorms, retros and decisions: notes, votes, live pointers. Presentations with live polls and quizzes. |
 | **Have fun together** | Icebreakers, riddles and jokes written by people in each language, plus fresh cards from circloo, checked for kindness. |
 | **Join easily** | Sign up with an email code (no password), or join a circle with a link or short code and just a first name. |
-| **Plug in your company** | Teams, Jira, Confluence and Notion; single sign-on is configuration, never customer-specific code. |
+| **Plug in your company** | Teams, Jira, Confluence and Notion today; single sign-on is planned as configuration, never customer-specific code. |
 
 <p align="center">
   <img src="docs/assets/landing-jobs.png" alt="The three jobs panel on the landing page: Feel together, Work together, Have fun together" width="860">
@@ -41,11 +41,11 @@ The same small space works for your family dinner planning and your team retro. 
 
 ### Characters, not avatars
 
-Everyone picks a character to be in the circle: 49 friends (animals, heroes, plants, a few strange ones and an anonymous silhouette), 160 ready-made people, or **build your own** from face, skin, hair, beard, glasses, outfit and mouth, about 1.1 million combinations. People who pick the same character get a colour ring so you can still tell them apart.
+Everyone picks a character to be in the circle: 49 friends (animals, heroes, plants, a few strange ones and an anonymous silhouette), 160 ready-made people, or **build your own** from face, skin, hair, hair colour, beard, glasses, outfit and mouth, about 1.1 million combinations. People who pick the same character get a colour ring so you can still tell them apart.
 
 <p align="center">
-  <img src="docs/assets/characters-people.png" alt="The character picker, People tab" width="400">
-  <img src="docs/assets/characters-builder.png" alt="The character builder with a live preview" width="400">
+  <img src="docs/assets/characters-people.png" alt="The character picker on the People tab: a grid of ready-made people to choose from" width="400">
+  <img src="docs/assets/characters-builder.png" alt="The character builder: option rows for face, skin, hair and more, with a live preview" width="400">
 </p>
 
 ## Where it stands
@@ -58,10 +58,10 @@ circloo is built feature by feature through [Spec-Kit](.specify/) specs. This ta
 | Icebreakers and jokes, AI cards (Microsoft Foundry behind `IAiProvider`) | Live | [002](specs/002-ai-icebreakers/) |
 | Live circles: invite by link or code, join as a guest, characters and rings | Live | [003](specs/003-live-circles/), [008](specs/008-live-room-big-circles/) |
 | Live boards and canvas | Live | [004](specs/004-live-boards/) |
-| Pirikoo, the parakeet who guides new circles and answers questions in the chat | Live | [#84](https://github.com/nciross/circloo/pull/87), [#88](https://github.com/nciross/circloo/pull/90) |
+| Pirikoo, the parakeet who guides new circles and answers questions in the chat | Live | [#87](https://github.com/nciross/circloo/pull/87), [#90](https://github.com/nciross/circloo/pull/90) |
 | Integrations: Teams, Jira, Confluence, Notion (Salesforce is coming) | Live, partly | [005](specs/005-integrations/) |
-| Presentations: PowerPoint decks with live polls and quizzes | Live | [006](specs/006-live-presentations/) |
-| Polls, Q&A and feedback forms (servers merged, screens next) | In progress | [007](specs/007-circle-polls-qa-forms/) |
+| Presentations: PowerPoint decks with live polls and quizzes | Live, quiz points next | [006](specs/006-live-presentations/) |
+| Polls, Q&A and feedback forms (poll and Q&A servers merged; forms and the screens next) | In progress | [007](specs/007-circle-polls-qa-forms/) |
 | Big circles (up to 100): sidebar, chat, reactions, raised hands | In progress | [008](specs/008-live-room-big-circles/) |
 | **Live discussion**: audio and video stage, raise a hand, text-only session record | In progress, 2 of 15 tasks merged | [009](specs/009-live-discussion-stage/) |
 | Daily mood check-in, notifications and digest | Planned | [PRD](docs/product/prd.md) |
@@ -72,7 +72,7 @@ Pricing is undecided. During early access circloo is free, and if that ever chan
 ## Privacy, in plain words
 
 - **Private by default.** Only members and invitees see what happens in a circle. No ads.
-- **No media stored.** Live discussion audio and video go browser to browser and never pass through or rest on circloo servers. "Recording a session" saves a **text** transcript only (messages, raised hands, who was on stage), and only the animator can start it, read it or delete it.
+- **No media stored.** Live discussion is still being built, and it is designed so that audio and video go browser to browser and never pass through or rest on circloo servers. "Recording a session" saves a **text** transcript only (messages, raised hands, who was on stage), and only the animator can start it, read it or delete it.
 - **The animator decides.** Live discussion is off until the animator turns it on, and every moderator action is checked on the server, never trusted from the browser.
 - **Passwordless.** One-time codes are stored as an HMAC and are single use; sessions are server-side and revocable; every unsafe request needs a CSRF token; the CSP allows no inline scripts. See [Security by design](docs/architecture/overview.md#security-by-design-constitution-viii).
 
@@ -134,7 +134,7 @@ flowchart LR
 ```
 
 - **App:** [.NET Aspire](src/Circloo.AppHost) orchestrates everything locally. [`src/Circloo.Api`](src/Circloo.Api) is the ASP.NET Core minimal API (EF Core, SignalR); [`src/web`](src/web) is the React SPA. In production a single container serves both.
-- **Infra:** [`infra/`](infra/) is Bicep for one resource group, `rg-circloo-<env>`: Container Apps, ACR, Postgres Flexible Server, ACS Email, Storage, Key Vault, Log Analytics and Application Insights, with a user-assigned identity. App secrets are Key Vault references. New Azure resources go into the Bicep, never the portal.
+- **Infra:** [`infra/`](infra/) is Bicep for one resource group, `rg-circloo-<env>`: Container Apps, ACR, Postgres Flexible Server, Web PubSub, ACS Email, Storage, Microsoft Foundry, Key Vault, Log Analytics and Application Insights, with a user-assigned identity. App secrets are Key Vault references. New Azure resources go into the Bicep, never the portal.
 - **Fun content:** seed icebreakers and jokes live in [`content/fun/`](content/fun/) (`en`, `fr`, `ar`, `es`). They are written natively per language and kept kind, never translated word for word.
 - **Design:** one action blue, violet only for AI, and a logo that feels what you feel. See [`DESIGN.md`](DESIGN.md) and the [no-AI-look rules](docs/design/anti-ai-look.md). Every string exists in all four locales, and layout uses logical CSS properties so Arabic is a first-class direction.
 
