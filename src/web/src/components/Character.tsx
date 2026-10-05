@@ -333,7 +333,7 @@ const ART: Record<CharacterId, ReactNode> = {
       <path d="M12 56 V30 Q12 10 32 10 Q52 10 52 30 V56 Z" fill="#b9c2cc" {...stroke} />
       <rect x="14" y="26" width="36" height="14" rx="5" fill="#2f3b4a" {...stroke} />
       <Eyes y={33} gap={8} r={4.6} />
-      <path d="M32 40 V56 M22 46 H42" stroke={INK} strokeWidth="1.8" />
+      <path d="M32 40 V47 M22 46 H42" stroke={INK} strokeWidth="1.8" />
       <path d="M26 50 Q32 53 38 50" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
     </>
   ),
@@ -367,7 +367,7 @@ const ART: Record<CharacterId, ReactNode> = {
       <ellipse cx="32" cy="34" rx="18" ry="15" fill="#223a5e" {...stroke} />
       <path d="M22 26 Q26 22 31 23" fill="none" stroke="#7aa7e0" strokeWidth="2.2" strokeLinecap="round" />
       <Eyes y={34} gap={7} r={4.2} />
-      <Smile y={40} w={4} />
+      <path d="M28 40 Q32 43.2 36 40" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
       <rect x="27" y="54" width="10" height="6" rx="2" fill="#e5383b" {...stroke} strokeWidth="1.8" />
       <circle cx="9" cy="34" r="3" fill="#e5383b" {...stroke} strokeWidth="1.8" />
       <circle cx="55" cy="34" r="3" fill="#e5383b" {...stroke} strokeWidth="1.8" />
@@ -411,7 +411,7 @@ const ART: Record<CharacterId, ReactNode> = {
       <path d="M22 36 H42 V50 Q42 58 32 58 Q22 58 22 50 Z" fill="#f7efe0" {...stroke} />
       <path d="M6 36 Q6 8 32 8 Q58 8 58 36 Q32 42 6 36 Z" fill="#e5383b" {...stroke} />
       <circle cx="19" cy="22" r="4.4" fill="#fff" /><circle cx="34" cy="16" r="3.6" fill="#fff" /><circle cx="46" cy="26" r="4.6" fill="#fff" />
-      <Eyes y={46} gap={5} r={3.6} />
+      <Eyes y={46} gap={5} r={4.2} />
       <Smile y={53} w={3} />
     </>
   ),
@@ -450,7 +450,7 @@ const ART: Record<CharacterId, ReactNode> = {
       <path d="M32 6 Q44 0 52 10 Q42 14 32 6 Z" fill="#4fb84e" {...stroke} strokeWidth="1.8" />
       <circle cx="19" cy="44" r="14" fill="#d62246" {...stroke} />
       <circle cx="45" cy="46" r="13" fill="#e5383b" {...stroke} />
-      <Eyes y={42} gap={5} r={3.6} />
+      <Eyes y={42} gap={5} r={4.2} />
       <Smile y={50} w={3.4} />
       <path d="M12 38 Q13 34 17 33" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
     </>
@@ -540,7 +540,12 @@ const ART: Record<CharacterId, ReactNode> = {
     <>
       <path d="M44 6 Q24 4 14 20 Q4 38 18 52 Q34 64 52 52 Q38 54 30 42 Q22 28 34 16 Q38 10 44 6 Z" fill="#ffe08a" {...stroke} />
       <circle cx="30" cy="30" r="2.6" fill="#f0c860" /><circle cx="26" cy="43" r="3.2" fill="#f0c860" />
-      <circle cx="26" cy="33" r="4.6" fill="#fff" stroke={INK} strokeWidth="2.2" /><circle cx="26" cy="33.6" r="1.9" fill={INK} />
+      <g className="char__eyes">
+        <g className="char__eye">
+          <circle cx="26" cy="33" r="4.6" fill="#fff" stroke={INK} strokeWidth="2.2" />
+          <circle className="char__pupil" cx="26" cy="33.6" r="1.9" fill={INK} />
+        </g>
+      </g>
       <path d="M17 41 Q22 46 28 45" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" />
       <path d="M50 12 l1.4 3 3.2 .4 -2.4 2.2 .6 3.2 -2.8 -1.6 -2.8 1.6 .6 -3.2 -2.4 -2.2 3.2 -.4 Z" fill="#fff" {...stroke} strokeWidth="1.4" />
     </>
