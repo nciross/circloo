@@ -205,7 +205,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: three hands go up and everyone sees the queue in order. The animator gives the floor, everyone sees who is speaking and who is next, and the projector shows "2 hands up".
 
-- [ ] T809 [P] [US5] **Hands hub.** (#183)
+- [x] T809 [P] [US5] **Hands hub.** (#183)
   - `RaiseHand` (participants; `animator-cannot-raise`), `LowerHand(memberId?)` (yourself, or anyone for the animator; `animator-only`), `LowerAllHands`, `GiveFloor(memberId)` (`hand-invalid`) in `src/Circloo.Api/Circles/CircleHub.Room.cs`.
   - The `Hands(view)` event goes to the circle group, ordered by `RaisedAt` then `Id`, with `floor`.
   - Clean-up: lower on leaving the circle, and 30 s after the member's last connection closed unless they came back (grace period); clear all on `StartActivity`, `EndActivity` and `EndPresentation`. `GiveFloor` deletes the previous floor row and marks the new one in one transaction, mapping a unique violation (two animator tabs) to a retry.

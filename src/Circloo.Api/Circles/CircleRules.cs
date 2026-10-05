@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Circloo.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Circloo.Api.Circles;
 
@@ -205,6 +206,12 @@ public static class Hands
         var all = hands.OrderBy(h => h.RaisedAt).ThenBy(h => h.Id).ToList();
         return new HandsView([.. all.Where(h => !h.HasFloor).Select(h => new HandView(h.MemberId, h.RaisedAt))], all.FirstOrDefault(h => h.HasFloor)?.MemberId);
     }
+
+    /// <summary>The circle's hands as stored now; only people still in the circle count.</summary>
+    public static async Task<HandsView> LoadAsync(CirclooDbContext db, Guid circleId, CancellationToken ct = default) =>
+        View(await db.RaisedHands.AsNoTracking()
+            .Where(h => h.CircleId == circleId && db.CircleMembers.Any(m => m.Id == h.MemberId && m.LeftAt == null))
+            .ToListAsync(ct));
 }
 
 /// <summary>Which copies of a character are taken and which rings are still free (spec 008 FR-803/805).</summary>

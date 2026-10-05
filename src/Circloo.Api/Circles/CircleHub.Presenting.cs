@@ -207,6 +207,7 @@ public sealed partial class CircleHub
             throw new HubException("no-session");
         }
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
+        await ClearHandsAsync(circleId, me.UserId, "presentation-ended");
         var ended = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"end:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));
@@ -227,6 +228,7 @@ public sealed partial class CircleHub
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
         await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
+        await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         if (await ActiveSessionAsync(circleId) is not { } active)
         {
             return null;
