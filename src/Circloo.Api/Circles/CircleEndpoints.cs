@@ -291,7 +291,8 @@ public static class CircleEndpoints
             if (refusal is not null)
             {
                 return refusal;
-            }            if (userId is null)
+            }
+            if (userId is null)
             {
                 await ctx.SignInAsync(GuestAuthentication.Scheme, GuestAuthentication.Principal(member!.Id, circle.Id),
                     new AuthenticationProperties { IsPersistent = false });
@@ -305,7 +306,6 @@ public static class CircleEndpoints
 
     private static IResult NotOpen() =>
         Results.Problem(statusCode: StatusCodes.Status404NotFound, type: "circle-not-open", title: "This circle is not open.");
-
 
     private static async Task<Circle?> FindOpenAsync(CirclooDbContext db, string code, DateTimeOffset now, CancellationToken ct)
     {
