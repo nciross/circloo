@@ -195,7 +195,10 @@
       "label": "En esta página",
       "story": "Cómo funciona",
       "pricing": "Precio",
-      "integrations": "Integraciones"
+      "integrations": "Integraciones",
+      "personas": "Para quién",
+      "features": "Funciones",
+      "faq": "Preguntas"
     },
     "story": {
       "title": "Mira cómo cobra vida un círculo",
@@ -241,6 +244,149 @@
           "video": "Vídeo sin sonido. Alguien pregunta a Pirikoo cómo invitar a la gente; el periquito escribe y luego responde paso a paso."
         }
       }
+    },
+    "announce": {
+      "text": "Acceso anticipado: cada círculo es gratis mientras construimos.",
+      "link": "Crea el tuyo"
+    },
+    "badge": "Saludar, jugar y decidir, juntos",
+    "headlineA": "Tu círculo,",
+    "headlineB": "en un espacio privado.",
+    "trust": [
+      "Privado por defecto",
+      "Nunca anuncios",
+      "Gratis en acceso anticipado",
+      "Listo en un minuto"
+    ],
+    "fine": [
+      "Sin contraseña, un código por correo",
+      "Invita por correo o con un enlace",
+      "English, français, العربية, español"
+    ],
+    "ctaPricing": "Ver cómo funciona",
+    "personas": {
+      "eyebrow": "Para quién",
+      "title": "Hecho para la gente que ya conoces",
+      "items": [
+        {
+          "id": "friends",
+          "role": "Amigos",
+          "promise": "Un grupo de chat que se convirtió en un lugar propio.",
+          "card": "El organizador",
+          "cardSub": "Siempre planeando la siguiente",
+          "body": "Saluda con un toque, abre un tablero para elegir el plan del fin de semana y empieza la noche con un rompehielos. No hace falta cuenta para unirse: basta un enlace y un nombre."
+        },
+        {
+          "id": "families",
+          "role": "Familias",
+          "promise": "Todos juntos, en cualquier país e idioma.",
+          "card": "Quien reúne a todos",
+          "cardSub": "Mantiene unida a la familia",
+          "body": "La abuela escribe en árabe, los primos en español, los niños en francés. circloo habla los cuatro de forma nativa, con un diseño de derecha a izquierda real y chistes escritos por personas, no traducidos."
+        },
+        {
+          "id": "teams",
+          "role": "Equipos",
+          "promise": "Rituales sin una herramienta pesada.",
+          "card": "La líder del equipo",
+          "cardSub": "Lleva la reunión del lunes",
+          "body": "Abre la semana con un estado de ánimo y un rompehielos, haz la retro en un tablero en vivo y conecta tu propio SSO por configuración. Sin código a medida ni otra herramienta que aprender."
+        }
+      ]
+    },
+    "grid": {
+      "eyebrow": "Los detalles",
+      "title": "Todo lo que un círculo necesita, nada que sobre",
+      "items": [
+        {
+          "n": "Estado de ánimo",
+          "d": "Un toque por la mañana, con nota o necesidad si quieres."
+        },
+        {
+          "n": "Tableros en vivo",
+          "d": "Notas, columnas, votos y cursores en vivo.",
+          "tag": "soon"
+        },
+        {
+          "n": "Rompehielos y chistes",
+          "d": "Escritos en cada idioma, amables por diseño."
+        },
+        {
+          "n": "Cuatro idiomas",
+          "d": "English, français, العربية y español, con derecha a izquierda."
+        },
+        {
+          "n": "Círculos privados",
+          "d": "Solo los miembros y los invitados ven algo."
+        },
+        {
+          "n": "Invitación con enlace o código",
+          "d": "Para quien no tiene correo o prefiere no compartirlo."
+        },
+        {
+          "n": "Tarjetas IA nuevas",
+          "d": "Rompehielos nuevos para tu círculo, revisados por su amabilidad."
+        },
+        {
+          "n": "Pantalla del público",
+          "d": "Una vista limpia a pantalla completa para el proyector."
+        },
+        {
+          "n": "Pirikoo",
+          "d": "Un pequeño periquito que ayuda cuando se lo pides."
+        },
+        {
+          "n": "Tu propio SSO",
+          "d": "Entra ID, Google, Okta o cualquier proveedor OIDC y SAML."
+        },
+        {
+          "n": "Presentaciones",
+          "d": "Dirige una ronda en vivo con animador y participantes."
+        },
+        {
+          "n": "Conecta con tus herramientas",
+          "d": "Teams, Jira, Confluence y Notion.",
+          "tag": "soon"
+        }
+      ]
+    },
+    "faq": {
+      "title": "Preguntas, respondidas",
+      "contact": "¿Aún con curiosidad? Crea un círculo y compruébalo.",
+      "items": [
+        {
+          "q": "¿Necesito una contraseña?",
+          "a": "No. Escribes tu correo y te enviamos un código de seis dígitos. Quien llega por enlace solo necesita un nombre."
+        },
+        {
+          "q": "¿Quién ve lo que pasa en mi círculo?",
+          "a": "Solo sus miembros y las personas que invites. Los círculos son privados por defecto y no hay anuncios."
+        },
+        {
+          "q": "¿De verdad es gratis?",
+          "a": "Sí, durante el acceso anticipado. Si algún día hay un plan de pago, te avisaremos mucho antes de cobrar nada."
+        },
+        {
+          "q": "¿Puede mi empresa usar su propio inicio de sesión?",
+          "a": "Sí. El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML se configura, sin código a medida."
+        },
+        {
+          "q": "¿Qué idiomas habla?",
+          "a": "Inglés, francés, árabe (con diseño real de derecha a izquierda) y español. Los chistes se escriben de forma nativa en cada uno, nunca traducidos literalmente."
+        }
+      ]
+    },
+    "final2": {
+      "a": "Tu chat es un flujo.",
+      "b": "Esto es un lugar."
+    },
+    "footer2": {
+      "mail": "hello@circloo.app",
+      "blurb": "¿Preguntas o ideas? Escríbenos, te responde una persona.",
+      "product": "Producto",
+      "company": "circloo",
+      "howItWorks": "Cómo funciona",
+      "legal": "Privado por defecto"
     }
   },
   "auth": {
