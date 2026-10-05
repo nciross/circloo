@@ -1094,7 +1094,7 @@
     "listTitle_other": "{{count}} notas en el lienzo",
     "find": "Mostrar",
     "label": "Lienzo",
-    "hint": "Doble clic para poner una nota, arrastra las notas para moverlas, arrastra el fondo o desplázate para mirar alrededor, Ctrl + rueda para hacer zoom. Teclado: flechas para mover, N añade una nota, E edita.",
+    "hint": "Haz doble clic para soltar una nota, arrastra las notas para moverlas, arrastra el fondo o desplázate para mirar, Ctrl + rueda para hacer zoom. Teclado: las flechas mueven, N añade una nota, E o Intro edita, Supr borra, Esc suelta, F lo encuadra todo.",
     "empty": "¡Un lienzo vacío! Haz doble clic en cualquier sitio para poner la primera nota.",
     "newNote": "Nota nueva",
     "editNote": "Editar la nota",
@@ -1129,7 +1129,11 @@
       "green": "Verde",
       "violet": "Violeta",
       "white": "Blanco"
-    }
+    },
+    "presence": "Quién está aquí",
+    "hereCount": "{{here}} de {{total}} aquí",
+    "jumpTo": "Ir al puntero de {{name}}",
+    "fit": "Ver todas las notas"
   },
   "presentations": {
     "title": "Presentaciones",
