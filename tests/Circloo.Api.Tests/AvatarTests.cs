@@ -5,7 +5,7 @@ namespace Circloo.Api.Tests;
 public class AvatarTests
 {
     [Theory]
-    [InlineData("me:01234567")]
+    [InlineData("me:01234373")]
     [InlineData("me:00000000")]
     [InlineData("me:35874373")]
     public void A_built_character_with_every_option_in_range_is_accepted(string id)
