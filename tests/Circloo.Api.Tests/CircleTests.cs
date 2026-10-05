@@ -101,14 +101,15 @@ public sealed class CircleTests(PostgresFixture pg) : IAsyncLifetime
         var info = await http.GetFromJsonAsync<JsonElement>($"/api/join/{code.ToLowerInvariant()}");
         Assert.Equal("Monday retro", info.GetProperty("name").GetString());
         Assert.Equal("Nadia", info.GetProperty("animatorName").GetString());
-        Assert.Contains("panda", info.GetProperty("taken").EnumerateArray().Select(e => e.GetString()));
+        // Characters can be shared (spec 008): the animator's panda is used once and still has 5 free rings.
+        var panda = info.GetProperty("characters").EnumerateArray().Single(c => c.GetProperty("id").GetString() == "panda");
+        Assert.Equal((1, 5), (panda.GetProperty("used").GetInt32(), panda.GetProperty("freeRings").GetArrayLength()));
+        Assert.Empty(info.GetProperty("taken").EnumerateArray());
 
         var csrf = await http.CsrfAsync();
         var noCharacter = await http.PostJsonAsync($"/api/join/{code}", new { name = "Théo" }, csrf);
         Assert.Equal(HttpStatusCode.BadRequest, noCharacter.StatusCode);
-        var taken = await http.PostJsonAsync($"/api/join/{code}", new { name = "Théo", character = "panda" }, csrf);
-        Assert.Equal(HttpStatusCode.Conflict, taken.StatusCode);
-        Assert.Equal("character-taken", (await taken.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("type").GetString());
+
         var spoof = await http.PostJsonAsync($"/api/join/{code}", new { name = "‮admin", character = "fox" }, csrf);
         Assert.Equal(HttpStatusCode.BadRequest, spoof.StatusCode);
 

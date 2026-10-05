@@ -79,9 +79,11 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
   - `src/web/src/components/Character.tsx` gains a `ring` prop: ring 0 draws no ring; rings 1–5 draw a 3 px outline in ring tokens (≥ 3:1 against light, dark and projector surfaces) plus an index dot, so it is not colour alone. Tokens go in `src/web/src/styles/tokens.css`.
   - `src/web/src/features/circles/JoinCircle.tsx` shows the use count per character, the assigned ring with a way to pick another free ring, and a full character as unavailable.
   - Every place that shows a member's character passes their `ring` and shows or announces their name: people, chat, answer progress, spotlight, raised hands. The room's member list and the projector's join card handle 100 entries.
+  - `useJoin` in `src/web/src/api/circles.ts` sends `ring` and reads the `ring` in the answer: the server may assign another free ring, and the screen shows and announces the ring actually given. The join screen is driven by `characters[].used` and `freeRings` (not `taken`), refetches on `circle-full` too, and rewords `circles.join.errors.taken` for "every copy of this character is taken".
+  - `MemberJoined` already carries `ring`: the room's member list shows it.
   - Strings `circles.join.*` in all four locales.
   - Impeccable shape plus audit/critique on the PR. While the plugin is unavailable, the ux-designer review is recorded instead (#126).
-  - e2e `src/web/e2e/live-room.spec.ts` "big circle": 15 guests, 3 foxes with distinct rings and names, the cap reached with `Circles__MaxPeople=16`, en + ar with axe.
+  - e2e `src/web/e2e/live-room.spec.ts` "big circle": 15 guests, 3 foxes with distinct rings and names, the cap reached with `Circles__MaxPeople=16`, en + ar with axe. Raise the join limits for local e2e in `src/Circloo.AppHost/AppHost.cs` (`RateLimits__CircleJoinsPerIpPer10Min`, `RateLimits__CircleJoinsPerIpAndCodePer10Min`), as is done for the OTP limits.
 
   Depends on T802.
 
