@@ -61,7 +61,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: 60 guests join one circle. Five pick the fox, each with a different ring and their name. With the cap set lower, the next join gets `circle-full`.
 
-- [ ] T802 [US1] **Join for big circles.** Everything in `src/Circloo.Api/Circles/CircleEndpoints.cs` per `contracts/rest.md`: (#176)
+- [x] T802 [US1] **Join for big circles.** Everything in `src/Circloo.Api/Circles/CircleEndpoints.cs` per `contracts/rest.md`: (#176)
   - `POST /api/join/{code}` runs in one transaction under `SELECT … FOR UPDATE` on the circle row, counts active members against `Circles:MaxPeople` and returns `409 circle-full` (R2).
   - Optional `ring` (0–5). Without it, the lowest free ring of the character is assigned. On a unique violation it retries with the next free ring. `409 character-full` when all 6 rings are taken. Leaving frees the ring.
   - `GET /api/join/{code}` returns `characters: { id, used, freeRings }[]` and `full`.
