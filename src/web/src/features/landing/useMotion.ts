@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useLayoutEffect, useState, type KeyboardEvent } from 'react'
+import { useLandingMotion } from './motion'
 
 /** What reveals as it scrolls into view. Staggers by position inside the parent. */
 const REVEAL = '.band .section-head, .band .section-title, .steps .step, .facts .fact, .platform, .faqrow, .quote, .compare, .integrations .integration, .plan, .cta__inner, .preview, .story__head, .logos, .pilltabs'
 
-const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /**
  * Scroll reveals that work in every browser: elements start a little low and transparent and settle when they
- * enter the screen, once. Done in a layout effect so nothing flashes. Skipped for reduced motion and when
+ * enter the screen, once. Done in a layout effect so nothing flashes. Skipped while motion is off and when
  * IntersectionObserver is missing, in which case everything simply shows.
  */
 export function useScrollReveal() {
+  const { on } = useLandingMotion()
   useLayoutEffect(() => {
-    if (reduced() || !('IntersectionObserver' in window)) return
+    if (!on || !('IntersectionObserver' in window)) return
     const els = [...document.querySelectorAll<HTMLElement>(REVEAL)]
     els.forEach((el) => {
       const siblings = el.parentElement ? [...el.parentElement.children].filter((c) => c.matches(REVEAL)) : []
@@ -42,7 +42,7 @@ export function useScrollReveal() {
       io.disconnect()
       els.forEach((el) => el.classList.remove('rv', 'is-in'))
     }
-  }, [])
+  }, [on])
 }
 
 /** Page scroll progress for the bar under the top bar, set as a CSS variable (no re-render). */
@@ -68,14 +68,15 @@ export function useScrollProgress(ref: React.RefObject<HTMLElement | null>) {
   }, [ref])
 }
 
-/** Cycles through `count` items every `ms`; stays put under reduced motion or while `paused`. */
+/** Cycles through `count` items every `ms`; stays put while motion is off or while `paused`. */
 export function useCycle(count: number, ms: number, paused = false) {
+  const { on } = useLandingMotion()
   const [i, setI] = useState(0)
   useEffect(() => {
-    if (paused || reduced() || count < 2) return
+    if (paused || !on || count < 2) return
     const id = window.setInterval(() => setI((n) => (n + 1) % count), ms)
     return () => window.clearInterval(id)
-  }, [count, ms, paused])
+  }, [count, ms, paused, on])
   return i
 }
 
@@ -83,9 +84,10 @@ const STILL_KEY = 'circloo-landing-still'
 
 /**
  * The visitor's "pause animations" choice for the landing (WCAG 2.2.2), remembered in this browser only.
- * Reduced motion already stops everything, so the control is only offered when motion is on.
+ * Offered only while motion is on: either the system allows it or the visitor opted in to play it.
  */
 export function useStillMotion() {
+  const { on } = useLandingMotion()
   const [still, setStill] = useState(() => {
     try {
       return window.localStorage.getItem(STILL_KEY) === '1'
@@ -103,7 +105,7 @@ export function useStillMotion() {
       return !v
     })
   }, [])
-  return { still, toggle, offered: !reduced() }
+  return { still, toggle, offered: on }
 }
 
 /**

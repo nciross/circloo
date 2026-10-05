@@ -182,9 +182,10 @@ kbd {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
+  /* The landing page is the one place a visitor can opt back in to motion (data-motion="on"). */
+  *:not(.site[data-motion='on'], .site[data-motion='on'] *),
+  *:not(.site[data-motion='on'], .site[data-motion='on'] *)::before,
+  *:not(.site[data-motion='on'], .site[data-motion='on'] *)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

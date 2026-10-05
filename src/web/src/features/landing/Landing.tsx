@@ -1,7 +1,7 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, MessagesSquare, Pause, Play, Search } from 'lucide-react'
+import { ArrowRight, CalendarHeart, Check, Home, LayoutGrid, MessagesSquare, Pause, Play, Search, Undo2 } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
 import { Wordmark } from '../../components/Brand'
@@ -13,6 +13,7 @@ import { CircleStage } from './CircleStage'
 import { Story } from './Story'
 import { AudienceTabs, Compare, Drifters, Facts, Faq, FloatingCards, HeroForm, Jobs, LogoStrip, PlatformStrip, Principles } from './Sections'
 import { INTEGRATIONS } from './integrations'
+import { useLandingMotion } from './motion'
 import { useScrollProgress, useScrollReveal, useStillMotion } from './useMotion'
 import '../../styles/landing.css'
 import '../../styles/landing-motion.css'
@@ -75,11 +76,17 @@ export function Landing() {
   const progress = useRef<HTMLDivElement>(null)
   useScrollProgress(progress)
   const motion = useStillMotion()
+  const lm = useLandingMotion()
+  const [announce, setAnnounce] = useState('')
+  const toggleOptIn = () => {
+    setAnnounce(t(lm.optedIn ? 'landing2.motion.following' : 'landing2.motion.playing'))
+    lm.toggleOptIn()
+  }
   const steps = t('landing.how.steps', { returnObjects: true }) as Step[]
   const cols = t('landing2.footer.cols', { returnObjects: true }) as { title: string; links: { label: string; href: string }[] }[]
 
   return (
-    <div className={`site${motion.still ? ' is-still' : ''}`}>
+    <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
       <div ref={progress} className="scrollbar" aria-hidden="true"><span /></div>
       <SiteHeader
         links={
@@ -106,11 +113,19 @@ export function Landing() {
               <li><Check size={16} aria-hidden="true" /> {t('landing.languagesLine')}</li>
               <li><Check size={16} aria-hidden="true" /> {t('landing.footer.private')}</li>
             </ul>
-            {motion.offered ? (
-              <button type="button" className="motion-toggle hero__motion" aria-pressed={motion.still} onClick={motion.toggle}>
-                {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing2.motion.pause')}
-              </button>
-            ) : null}
+            <div className="hero__motion">
+              {motion.offered ? (
+                <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
+                  {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing2.motion.pause')}
+                </button>
+              ) : null}
+              {lm.reduced ? (
+                <button type="button" className="motion-toggle" aria-pressed={lm.optedIn} onClick={toggleOptIn}>
+                  {lm.optedIn ? <Undo2 size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing2.motion.respect' : 'landing2.motion.play')}
+                </button>
+              ) : null}
+              <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
+            </div>
           </div>
           <div className="hero__art">
             <CircleStage />

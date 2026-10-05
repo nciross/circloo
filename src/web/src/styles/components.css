@@ -63,7 +63,7 @@
   text-decoration: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .face__eye {
+  .face__eye:not(.site[data-motion='on'] .face__eye) {
     animation: none;
   }
 }
@@ -933,7 +933,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .typing-dots i {
+  .typing-dots i:not(.site[data-motion='on'] .typing-dots i) {
     animation: none;
     opacity: 0.6;
   }

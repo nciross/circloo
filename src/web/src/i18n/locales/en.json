@@ -1625,7 +1625,11 @@
       "label": "Footer"
     },
     "motion": {
-      "pause": "Pause animations"
+      "pause": "Pause animations",
+      "play": "Play animations",
+      "respect": "Respect my system setting",
+      "playing": "Animations are playing.",
+      "following": "Animations follow your system setting."
     }
   }
 }

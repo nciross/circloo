@@ -9,10 +9,10 @@ import { Character } from '../../components/Character'
 import { MoodIcon, type Mood } from '../../components/MoodIcon'
 import { useSignInStore } from '../../stores/signIn'
 import { MoodDemo } from './MoodDemo'
+import { useLandingMotion } from './motion'
 import { tabKey, useCycle } from './useMotion'
 import { INTEGRATIONS } from './integrations'
 
-const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const arrow = <ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />
 
 const BOARD = [
@@ -249,7 +249,7 @@ export function Jobs({ soon, still = false }: { soon: string; still?: boolean })
   const [i, setI] = useState(0)
   const [manual, setManual] = useState(false)
   const [paused, setPaused] = useState(false)
-  const [motion] = useState(() => !reduced())
+  const { on: motion } = useLandingMotion()
   const auto = motion && !manual && !still
   useEffect(() => {
     if (!auto || paused) return
@@ -334,11 +334,12 @@ export function PlatformStrip() {
 
 /** Counts up to `to` once it is on screen. The real number is what assistive tech reads, the moving one is hidden. */
 function CountUp({ to }: { to: number }) {
+  const { on } = useLandingMotion()
   const ref = useRef<HTMLSpanElement>(null)
   const [shown, setShown] = useState(to)
   useLayoutEffect(() => {
     const el = ref.current
-    if (!el || to === 0 || reduced() || !('IntersectionObserver' in window)) return
+    if (!el || to === 0 || !on || !('IntersectionObserver' in window)) return
     setShown(0)
     let raf = 0
     const io = new IntersectionObserver(([e]) => {
@@ -358,7 +359,7 @@ function CountUp({ to }: { to: number }) {
       cancelAnimationFrame(raf)
       setShown(to)
     }
-  }, [to])
+  }, [to, on])
   return (
     <>
       <span ref={ref} aria-hidden="true">{shown}</span>
