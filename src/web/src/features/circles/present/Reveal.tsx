@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleCheck, Crown } from 'lucide-react'
 import { Character } from '../../../components/Character'
-import { isCharacter } from '../../../components/characters'
+import { isAnyCharacter } from '../../../components/characters'
 import { confetti, countUp, formatPercent, formatSeconds, REVEAL_MS, STAGGER_MS } from '../../presentations/reveal'
 import type { QuestionSlide, Results } from './presentation'
 
@@ -113,7 +113,7 @@ function Spotlight({ slide, results, text }: { slide: QuestionSlide; results: Re
   if (!slide.showFirst || !first || !text) return null
   return (
     <section className="reveal__spotlight" aria-label={t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}>
-      {isCharacter(first.character) ? <Character id={first.character} className="reveal__spotlight-char" /> : null}
+      {isAnyCharacter(first.character) ? <Character id={first.character} className="reveal__spotlight-char" /> : null}
       <p className="reveal__spotlight-text">
         <span className="reveal__spotlight-label">{t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}</span>
         <span className="reveal__spotlight-who">{text}</span>

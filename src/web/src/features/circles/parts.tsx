@@ -2,40 +2,58 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Copy, Crown, Play } from 'lucide-react'
 import { Character } from '../../components/Character'
-import { CHARACTERS, type CharacterId } from '../../components/characters'
+import { CHARACTERS, type AnyCharacter } from '../../components/characters'
+import { AvatarBuilder } from '../../components/AvatarBuilder'
+import { GALLERY, isAvatarCode } from '../../components/avatar'
 import { Button } from '../../components/Button'
 import { Segmented } from '../../components/Segmented'
 import { joinLink, type Member } from '../../api/circles'
 import { ACTIVITIES, CATEGORIES, type Category } from './catalog'
 
-/** Twelve characters as a native radio group: arrow keys move, taken ones are disabled and say so. */
+type PickTab = 'friends' | 'people' | 'build'
+
+/** Three ways to choose, as a native radio group in each:: arrow keys move, taken ones are disabled and say so. */
 export function CharacterPicker({
   value, onChange, taken = [], legend, describedBy, invalid,
 }: {
-  value: CharacterId | null
-  onChange: (c: CharacterId) => void
+  value: AnyCharacter | null
+  onChange: (c: AnyCharacter) => void
   taken?: string[]
   legend: string
   describedBy?: string
   invalid?: boolean
 }) {
   const { t } = useTranslation()
+  const [tab, setTab] = useState<PickTab>(() => (isAvatarCode(value) ? (GALLERY.includes(value) ? 'people' : 'build') : 'friends'))
+  const item = (c: AnyCharacter, name: string, compact = false) => {
+    const isTaken = taken.includes(c) && c !== value
+    return (
+      <label key={c} className={`pick__item${compact ? ' pick__item--small' : ''}${value === c ? ' is-picked' : ''}${isTaken ? ' is-taken' : ''}`}>
+        <input type="radio" name="character" value={c} checked={value === c} disabled={isTaken} onChange={() => onChange(c)} aria-label={compact ? name : undefined} />
+        <Character id={c} className="pick__char" />
+        {compact ? null : <span className="pick__name">{name}</span>}
+        {isTaken ? <span className="pick__taken">{t('circles.taken')}</span> : null}
+      </label>
+    )
+  }
   return (
     <fieldset className="pick" aria-describedby={describedBy} aria-invalid={invalid || undefined}>
       <legend className="field__label">{legend}</legend>
-      <div className="pick__grid">
-        {CHARACTERS.map((c) => {
-          const isTaken = taken.includes(c) && c !== value
-          return (
-            <label key={c} className={`pick__item${value === c ? ' is-picked' : ''}${isTaken ? ' is-taken' : ''}`}>
-              <input type="radio" name="character" value={c} checked={value === c} disabled={isTaken} onChange={() => onChange(c)} />
-              <Character id={c} className="pick__char" />
-              <span className="pick__name">{t(`characters.${c}`)}</span>
-              {isTaken ? <span className="pick__taken">{t('circles.taken')}</span> : null}
-            </label>
-          )
-        })}
-      </div>
+      <Segmented
+        label={legend}
+        hideLabel
+        className="pick__tabs"
+        value={tab}
+        onChange={setTab}
+        choices={[
+          { value: 'friends', label: t('avatar.tabs.friends', { count: CHARACTERS.length }) },
+          { value: 'people', label: t('avatar.tabs.people', { count: GALLERY.length }) },
+          { value: 'build', label: t('avatar.tabs.build') },
+        ]}
+      />
+      {tab === 'friends' ? <div className="pick__grid">{CHARACTERS.map((c) => item(c, t(`characters.${c}`)))}</div> : null}
+      {tab === 'people' ? <div className="pick__grid pick__grid--small">{GALLERY.map((c, i) => item(c, t('avatar.person', { n: i + 1 }), true))}</div> : null}
+      {tab === 'build' ? <AvatarBuilder code={isAvatarCode(value) ? value : null} onChange={onChange} /> : null}
     </fieldset>
   )
 }

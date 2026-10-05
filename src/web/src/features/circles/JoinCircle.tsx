@@ -10,7 +10,7 @@ import { AuthLayout } from '../../components/AuthLayout'
 import { Button, ButtonLink } from '../../components/Button'
 import { Character } from '../../components/Character'
 import { Loading } from '../../components/Loading'
-import type { CharacterId } from '../../components/characters'
+import type { AnyCharacter } from '../../components/characters'
 import { CharacterPicker } from './parts'
 import '../../styles/app.css'
 import '../../styles/circles.css'
@@ -27,7 +27,7 @@ export default function JoinCircle() {
   const info = useJoinInfo(code)
   const join = useJoin(code)
   const [name, setName] = useState<string | null>(null)
-  const [character, setCharacter] = useState<CharacterId | null>(null)
+  const [character, setCharacter] = useState<AnyCharacter | null>(null)
   const [errors, setErrors] = useState<{ name?: string; character?: string; form?: string }>({})
   const [taken, setTaken] = useState<string[] | null>(null)
   const nameId = useId()
