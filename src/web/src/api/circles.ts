@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, refreshCsrf } from './client'
 import type { Locale } from '../i18n'
-import type { CharacterId } from '../components/characters'
+import type { AnyCharacter } from '../components/characters'
 
 export type Role = 'animator' | 'participant'
 
@@ -9,7 +9,7 @@ export interface Member {
   id: string
   role: Role
   name: string
-  character: CharacterId
+  character: AnyCharacter
   /** Which copy of the character (0–5): people sharing a character differ by their ring (spec 008). */
   ring: number
 }
@@ -173,13 +173,13 @@ export interface JoinInfo {
   circleId: string
   name: string
   animatorName: string
-  animatorCharacter: CharacterId
+  animatorCharacter: AnyCharacter
   /** Characters with no free ring left. */
-  taken: CharacterId[]
+  taken: AnyCharacter[]
   full: boolean
   alreadyIn: boolean
   /** How many people use each character and which of its rings (0–5) are free (spec 008). */
-  characters: { id: CharacterId; used: number; freeRings: number[] }[]
+  characters: { id: AnyCharacter; used: number; freeRings: number[] }[]
 }
 
 export const circlesKey = ['circles'] as const
@@ -194,7 +194,7 @@ export const useCircle = (id: string) =>
 export function useCreateCircle() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: { name: string; activities: string[]; character: CharacterId; locale: Locale }) =>
+    mutationFn: (body: { name: string; activities: string[]; character: AnyCharacter; locale: Locale }) =>
       api<CircleSummary>('/api/circles', { method: 'POST', body }),
     onSuccess: () => qc.invalidateQueries({ queryKey: circlesKey }),
   })
@@ -213,7 +213,7 @@ export const useJoinInfo = (code: string) =>
 
 export function useJoin(code: string) {
   return useMutation({
-    mutationFn: (body: { name: string; character: CharacterId }) =>
+    mutationFn: (body: { name: string; character: AnyCharacter }) =>
       api<{ circleId: string; memberId: string }>(`/api/join/${encodeURIComponent(code)}`, { method: 'POST', body }),
     // A guest has a new identity now: the CSRF token must be bound to it.
     onSuccess: () => refreshCsrf(),
