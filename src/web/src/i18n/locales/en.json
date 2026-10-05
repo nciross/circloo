@@ -241,6 +241,21 @@
           "video": "Silent video. Someone asks Pirikoo how to invite people; the parakeet writes, then answers step by step."
         }
       }
+    },
+    "rotator": {
+      "prefix": "Made for your",
+      "words": [
+        "family",
+        "friends",
+        "team",
+        "classroom",
+        "club"
+      ]
+    },
+    "float": {
+      "checkin": "checked in",
+      "note": "New note: Shorter stand-ups",
+      "typing": "is writing…"
     }
   },
   "auth": {
@@ -1271,5 +1286,346 @@
       "build": "Make your own"
     },
     "person": "Person {{n}}"
+  },
+  "landing2": {
+    "nav": {
+      "audience": "Who it's for",
+      "product": "Features",
+      "faq": "FAQ"
+    },
+    "hero": {
+      "madeFor": "Made for your",
+      "kindLabel": "Who is it for?",
+      "note": "No password: we email you a six-digit code. Private by default.",
+      "kinds": [
+        {
+          "id": "family",
+          "label": "Family",
+          "word": "family"
+        },
+        {
+          "id": "friends",
+          "label": "Friends",
+          "word": "friends"
+        },
+        {
+          "id": "team",
+          "label": "Team",
+          "word": "team"
+        }
+      ]
+    },
+    "logos": {
+      "eyebrow": "Plugs into the tools your team already uses"
+    },
+    "audience": {
+      "eyebrow": "Who it's for",
+      "title": "One small space, three kinds of people",
+      "lead": "Pick yours. The space adapts, the rituals stay light.",
+      "items": [
+        {
+          "id": "family",
+          "tab": "Family",
+          "title": "Stay close, wherever everyone lives",
+          "body": "Check in with a tap, share a laugh in your own language and plan the next dinner together. Arabic, French, Spanish and English side by side.",
+          "bullets": [
+            "One-tap daily check-in",
+            "Jokes written natively in four languages",
+            "Invite grandma with a link, no email needed"
+          ],
+          "cta": "Start a family circle"
+        },
+        {
+          "id": "friends",
+          "tab": "Friends",
+          "title": "A group chat that grew into a place",
+          "body": "Start the evening with an icebreaker, drop ideas on a shared canvas and vote on the plan. No account needed to join.",
+          "bullets": [
+            "Icebreakers, riddles and jokes",
+            "Shared canvas with live pointers",
+            "Join with a name and a character"
+          ],
+          "cta": "Start a friends circle"
+        },
+        {
+          "id": "team",
+          "tab": "Team",
+          "title": "Team rituals without another heavy tool",
+          "body": "Open the week with a mood check-in and run the retro on a live board. Single sign-on with your own provider is on the way.",
+          "bullets": [
+            "Retro and brainstorm boards with votes",
+            "Your own SSO: Entra ID, Google, Okta (coming soon)",
+            "Results sent to Teams, Jira or Notion"
+          ],
+          "cta": "Start a team circle"
+        }
+      ]
+    },
+    "jobs": {
+      "eyebrow": "Three jobs",
+      "title": "Feel, work and play in one place",
+      "lead": "The same circle handles your mood, your decisions and your laughs.",
+      "items": [
+        {
+          "id": "feel",
+          "label": "Feel together",
+          "status": "Check-ins",
+          "title": "See how your circle is doing",
+          "body": "One tap in the morning tells everyone how you are. Faces and words, never just colours.",
+          "bullets": [
+            "A note or a small need, if you want",
+            "Circle weather at a glance",
+            "Takes seconds, never minutes"
+          ]
+        },
+        {
+          "id": "work",
+          "label": "Work together",
+          "status": "Live boards",
+          "title": "Decide things on a shared board",
+          "body": "Stick notes, drag them between columns, vote with dots and watch everyone's pointer move.",
+          "bullets": [
+            "Works on a phone or on the big screen",
+            "Votes and columns for retros",
+            "Pin chat answers onto the board"
+          ]
+        },
+        {
+          "id": "fun",
+          "label": "Have fun together",
+          "status": "Available now",
+          "title": "Start every meeting with a laugh",
+          "body": "Icebreakers and jokes written by people in each language. Ask circloo for fresh ones, checked for kindness.",
+          "bullets": [
+            "English, français, العربية, español",
+            "Kids-safe tags",
+            "Never translated by a machine"
+          ]
+        }
+      ],
+      "pause": "Stop auto-play"
+    },
+    "platform": {
+      "title": "Plugs into your week",
+      "pills": [
+        "Microsoft Teams",
+        "Jira",
+        "Confluence",
+        "Notion",
+        "Salesforce (coming soon)",
+        "Your own SSO (coming soon)"
+      ]
+    },
+    "facts": {
+      "eyebrow": "In numbers",
+      "title": "Small on purpose, built for real circles",
+      "lead": "Four plain facts about what is in the box today.",
+      "items": [
+        {
+          "n": 4,
+          "label": "languages",
+          "body": "English, français, العربية with full right-to-left, and español."
+        },
+        {
+          "n": 209,
+          "label": "characters to pick",
+          "body": "Animals, heroes, plants and 160 people, plus a builder."
+        },
+        {
+          "n": 100,
+          "label": "people per circle",
+          "body": "Circles are private; only members and invitees see anything."
+        },
+        {
+          "n": 0,
+          "label": "passwords",
+          "body": "Sign up with a six-digit code by email, or join by link."
+        }
+      ]
+    },
+    "principles": {
+      "eyebrow": "What we believe",
+      "title": "Five promises we build by",
+      "who": "The circloo team",
+      "prev": "Previous",
+      "next": "Next",
+      "items": [
+        {
+          "title": "Seconds, not minutes",
+          "body": "Checking in or reacting takes one or two taps. Anything longer is opt-in."
+        },
+        {
+          "title": "People before productivity",
+          "body": "Feelings and fun are core features, not decorations around a work tool."
+        },
+        {
+          "title": "One circle, many cultures",
+          "body": "Every screen works equally in all four languages and in right-to-left. No language is an afterthought."
+        },
+        {
+          "title": "Private by default, open by invitation",
+          "body": "Nothing is public. Inviting is easy, with or without email."
+        },
+        {
+          "title": "Simple for families, configurable for companies",
+          "body": "SSO and policies are settings, never forks of the product."
+        }
+      ]
+    },
+    "compare": {
+      "eyebrow": "One space",
+      "title": "One space instead of four tools",
+      "lead": "What a circle usually needs, and where it usually lives.",
+      "yes": "Included",
+      "no": "Not included",
+      "cols": [
+        "A group chat",
+        "A whiteboard tool",
+        "An icebreaker app",
+        "circloo"
+      ],
+      "rows": [
+        {
+          "label": "Daily mood check-in",
+          "has": [
+            false,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "label": "Live shared board with votes",
+          "has": [
+            false,
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "label": "Icebreakers and jokes",
+          "has": [
+            false,
+            false,
+            true,
+            true
+          ]
+        },
+        {
+          "label": "Join without an account",
+          "has": [
+            false,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "label": "Family, friends and teams in one place",
+          "has": [
+            false,
+            false,
+            false,
+            true
+          ]
+        }
+      ],
+      "feature": "Feature"
+    },
+    "pricing": {
+      "status": "Early access",
+      "tag": "Free for now"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions, answered",
+      "lead": "Still curious? Start a circle and see for yourself.",
+      "items": [
+        {
+          "q": "Do I need a password?",
+          "a": "No. You type your email and we send a six-digit code. People you invite by link only need a first name."
+        },
+        {
+          "q": "Who can see what happens in my circle?",
+          "a": "Only its members and the people you invite. Circles are private by default and there are no ads."
+        },
+        {
+          "q": "Is it really free?",
+          "a": "Yes, while circloo is in early access. If we ever add a paid plan, we will tell you well before anything is charged."
+        },
+        {
+          "q": "Can my company use its own login?",
+          "a": "Not yet: today everyone signs in with a code sent by email. Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is planned, and it will be set up through configuration, not custom code."
+        },
+        {
+          "q": "Which languages does it speak?",
+          "a": "English, French, Arabic (with a full right-to-left layout) and Spanish. Jokes are written natively in each, never translated literally."
+        }
+      ]
+    },
+    "final": {
+      "eyebrow": "Ready when you are",
+      "note": "Free during early access. No card, no password."
+    },
+    "footer": {
+      "cols": [
+        {
+          "title": "Product",
+          "links": [
+            {
+              "label": "How it works",
+              "href": "#story"
+            },
+            {
+              "label": "Features",
+              "href": "#product"
+            },
+            {
+              "label": "Compare",
+              "href": "#compare"
+            },
+            {
+              "label": "Pricing",
+              "href": "#pricing"
+            }
+          ]
+        },
+        {
+          "title": "Company",
+          "links": [
+            {
+              "label": "Principles",
+              "href": "#principles"
+            },
+            {
+              "label": "Integrations",
+              "href": "#integrations"
+            },
+            {
+              "label": "FAQ",
+              "href": "#faq"
+            }
+          ]
+        },
+        {
+          "title": "Get started",
+          "links": [
+            {
+              "label": "Sign in",
+              "href": "/signin"
+            },
+            {
+              "label": "Start your circle",
+              "href": "/signin"
+            }
+          ]
+        }
+      ],
+      "label": "Footer"
+    },
+    "motion": {
+      "pause": "Pause animations"
+    }
   }
 }

@@ -10,7 +10,7 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
   await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(8)
+  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(12)
 
   // Integrations are honest: every one carries a "coming soon" lozenge (US1-4).
   await expect(page.locator('.integration')).toHaveCount(5)
@@ -23,6 +23,12 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
   await page.locator('.preview .teaser .btn').click()
   await expect(question).not.toHaveText(first ?? '')
   await expect(question).toHaveAttribute('lang', locale)
+
+  // Looping motion has one visible pause for the whole page (WCAG 2.2.2, #207).
+  const pause = page.locator('.hero__motion')
+  await pause.click()
+  await expect(pause).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.site')).toHaveClass(/is-still/)
 
   // The choice survives a reload (US1-2).
   await page.reload()
@@ -44,7 +50,7 @@ test('landing explains circloo, deals icebreakers and stays in the chosen langua
 
   // The call to action leads to sign-in.
   await page.evaluate(() => window.scrollTo(0, 0))
-  await page.locator('.hero__actions .btn').click()
+  await page.locator('.heroform__row .btn').click()
   await expect(page).toHaveURL(/\/signin$/)
 })
 
