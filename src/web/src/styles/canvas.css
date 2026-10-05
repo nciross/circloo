@@ -332,6 +332,133 @@
   animation: cursor-wiggle 280ms ease-in-out infinite alternate;
 }
 
+/* The animator's pointer wears a crown and a darker, squarer tag so it reads as the one leading. */
+.canvas-cursor.is-animator .canvas-cursor__tag {
+  padding-inline-end: 0.7rem;
+  border-radius: var(--r-md);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 2px 6px rgb(15 37 55 / 0.3);
+}
+.canvas-cursor__crown {
+  flex: none;
+  margin-inline-start: 0.1rem;
+}
+
+/* Who is here: characters with a presence ring, the animator first and crowned. */
+.presence {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-inline-end: auto;
+}
+.presence__list {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 0.35rem;
+}
+.presence__list li {
+  margin-inline-start: -0.35rem;
+}
+.presence__person {
+  --ring: var(--border-strong);
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  padding: 0;
+  border: 2px solid var(--ring);
+  border-radius: 50%;
+  background: var(--surface);
+  color: inherit;
+  opacity: 0.45;
+  filter: grayscale(0.7);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+.presence__person--c0 { --cursor: #d9480f; }
+.presence__person--c1 { --cursor: #0b5bd3; }
+.presence__person--c2 { --cursor: #2b8a3e; }
+.presence__person--c3 { --cursor: #9c36b5; }
+.presence__person--c4 { --cursor: #c2255c; }
+.presence__person--c5 { --cursor: #0b7285; }
+.presence__person.is-here {
+  --ring: var(--cursor);
+  opacity: 1;
+  filter: none;
+}
+button.presence__person {
+  cursor: pointer;
+}
+button.presence__person:hover {
+  transform: translateY(-2px);
+}
+button.presence__person:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.presence__person.is-live::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 2px solid var(--cursor);
+  border-radius: 50%;
+  animation: presence-live 1.2s ease-out infinite;
+}
+.presence__char {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+.presence__crown {
+  position: absolute;
+  inset-block-start: -0.55rem;
+  inset-inline-end: -0.25rem;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+  box-sizing: content-box;
+}
+.presence__more {
+  display: grid;
+  place-items: center;
+  min-inline-size: 2rem;
+  block-size: 2rem;
+  padding-inline: 0.3rem;
+  border: 2px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+.presence__count {
+  font-size: var(--fs-sm);
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+@keyframes presence-live {
+  from {
+    opacity: 0.9;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .presence__person.is-live::after {
+    animation: none;
+    opacity: 0.8;
+  }
+  button.presence__person:hover {
+    transform: none;
+  }
+}
+
 /* Style bar for the selected note. */
 .canvas__style {
   position: absolute;
