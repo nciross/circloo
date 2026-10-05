@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Circle, Crosshair, Heart, Laugh, Lightbulb, List, Minus, Pencil, Pin, Plus, Square, Star, StickyNote, ThumbsUp, Trash2, X } from 'lucide-react'
+import { Circle, Crosshair, Crown, Heart, Laugh, Lightbulb, List, Maximize2, Minus, Pencil, Pin, Plus, Square, Star, StickyNote, ThumbsUp, Trash2, X } from 'lucide-react'
 import { Character } from '../../components/Character'
 import { usePopover } from '../../components/usePopover'
 import type { CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, Member } from '../../api/circles'
@@ -37,14 +37,17 @@ function useVars(ref: RefObject<HTMLElement | null>, vars: Record<string, string
   }, [ref, key])
 }
 
-function NoteView({ note, author, selected, canEdit, zoom, onSelect, onEdit }: {
+function NoteView({ note, author, selected, canEdit, canDelete, zoom, onSelect, onEdit, onDelete, onDeselect }: {
   note: CanvasNote
   author: Member | undefined
   selected: boolean
   canEdit: boolean
+  canDelete: boolean
   zoom: () => number
   onSelect: () => void
   onEdit: () => void
+  onDelete: () => void
+  onDeselect: () => void
 }) {
   const { t } = useTranslation()
   const moveCanvasNote = useRoom((s) => s.moveCanvasNote)
@@ -124,9 +127,15 @@ function NoteView({ note, author, selected, canEdit, zoom, onSelect, onEdit }: {
     if (move) {
       e.preventDefault()
       place(local.current.x + move[0], local.current.y + move[1], true)
-    } else if ((e.key === 'F2' || e.key === 'e') && canEdit) {
+    } else if ((e.key === 'F2' || e.key === 'e' || e.key === 'Enter') && canEdit) {
       e.preventDefault()
       onEdit()
+    } else if ((e.key === 'Delete' || e.key === 'Backspace') && canDelete) {
+      e.preventDefault()
+      onDelete()
+    } else if (e.key === 'Escape' && selected) {
+      e.preventDefault()
+      onDeselect()
     }
   }
 
@@ -248,14 +257,71 @@ function RemoteCursor({ member, x, y, at, now }: { member: Member; x: number; y:
   const idle = now - at > CURSOR_IDLE
   const moving = now - at < 700
   return (
-    <div ref={ref} className={`canvas-cursor canvas-cursor--c${hue(member.id)}${idle ? ' is-idle' : ''}${moving ? ' is-moving' : ''}`} aria-hidden="true">
+    <div ref={ref} className={`canvas-cursor canvas-cursor--c${hue(member.id)}${idle ? ' is-idle' : ''}${moving ? ' is-moving' : ''}${member.role === 'animator' ? ' is-animator' : ''}`} aria-hidden="true">
       <svg className="canvas-cursor__arrow" viewBox="0 0 16 16">
         <path d="M1.5 1.5 L14 7.2 L8.4 8.6 L6.3 14.2 Z" />
       </svg>
       <span className="canvas-cursor__tag">
         <Character id={member.character} className="canvas-cursor__char" />
+        {member.role === 'animator' ? <Crown size={11} className="canvas-cursor__crown" /> : null}
         <bdi>{member.name}</bdi>
       </span>
+    </div>
+  )
+}
+
+const PRESENCE_MAX = 6
+
+/**
+ * Who is in the room right now: the animator first, then everyone connected, then the ones away (faded).
+ * A person whose pointer is on the canvas can be clicked to jump the view to it; a live ring shows who is moving.
+ */
+export function Presence({ members, online, cursors, meId, now, onJump }: {
+  members: Member[]
+  online: string[]
+  cursors: Record<string, { x: number; y: number; at: number }>
+  meId: string | undefined
+  now: number
+  onJump: (id: string) => void
+}) {
+  const { t } = useTranslation()
+  const here = (m: Member) => m.id === meId || online.includes(m.id)
+  const ordered = [...members].sort((a, b) => Number(b.role === 'animator') - Number(a.role === 'animator') || Number(here(b)) - Number(here(a)))
+  const shown = ordered.slice(0, PRESENCE_MAX)
+  const more = ordered.length - shown.length
+  const hereCount = members.filter(here).length
+  return (
+    <div className="presence" role="group" aria-label={t('canvas.presence')}>
+      <ul className="presence__list">
+        {shown.map((m) => {
+          const isHere = here(m)
+          const c = cursors[m.id]
+          const canJump = !!c && m.id !== meId
+          const live = !!c && m.id !== meId && now - c.at < 1500
+          const role = m.role === 'animator' ? t('circles.roles.animator') : null
+          const label = [m.name, m.id === meId ? t('circles.you') : null, role, isHere ? t('circles.online') : t('circles.away')].filter(Boolean).join(', ')
+          const inner = (
+            <>
+              <Character id={m.character} className="presence__char" />
+              {m.role === 'animator' ? <Crown size={11} className="presence__crown" aria-hidden="true" /> : null}
+            </>
+          )
+          const cls = `presence__person presence__person--c${hue(m.id)}${isHere ? ' is-here' : ''}${live ? ' is-live' : ''}${m.role === 'animator' ? ' is-animator' : ''}`
+          return (
+            <li key={m.id}>
+              {canJump ? (
+                <button type="button" className={cls} title={t('canvas.jumpTo', { name: m.name })} aria-label={`${label}. ${t('canvas.jumpTo', { name: m.name })}`} onClick={() => onJump(m.id)}>
+                  {inner}
+                </button>
+              ) : (
+                <span className={cls} title={label} role="img" aria-label={label}>{inner}</span>
+              )}
+            </li>
+          )
+        })}
+        {more > 0 ? <li className="presence__more" aria-hidden="true">+{more}</li> : null}
+      </ul>
+      <p className="presence__count" aria-live="polite">{t('canvas.hereCount', { here: hereCount, total: members.length })}</p>
     </div>
   )
 }
@@ -307,7 +373,7 @@ function BringIn({ onPin }: { onPin: (text: string, color: CanvasColor) => void 
  */
 export function Canvas() {
   const { t } = useTranslation()
-  const { me, members, canvas, cursors, error, clearError, addCanvasNote, editCanvasNote, styleCanvasNote, deleteCanvasNote, sendCursor } = useRoom()
+  const { me, members, online, canvas, cursors, error, clearError, addCanvasNote, editCanvasNote, styleCanvasNote, deleteCanvasNote, sendCursor } = useRoom()
   const notes = canvas.filter((n) => n.activityId === CANVAS)
   const viewportRef = useRef<HTMLDivElement>(null)
   const view = useRef<View>({ x: 0, y: 0, z: 1 })
@@ -352,6 +418,26 @@ export function Canvas() {
     const p = toWorld(r.left + el.clientWidth / 2, r.top + el.clientHeight / 2)
     // A little scatter so several notes added in a row don't hide each other.
     return { x: bound(p.x + ((notes.length % 5) - 2) * 24), y: bound(p.y + ((notes.length % 3) - 1) * 24) }
+  }
+
+  // Frame every note: the zoom that fits their bounding box, centred. Back to the middle when the canvas is empty.
+  const fit = () => {
+    const el = viewportRef.current
+    if (!el || notes.length === 0) return center()
+    const xs = notes.map((n) => n.x)
+    const ys = notes.map((n) => n.y)
+    const pad = 140
+    const w = Math.max(...xs) - Math.min(...xs) + pad * 2
+    const h = Math.max(...ys) - Math.min(...ys) + pad * 2
+    const z = clamp(Math.min(el.clientWidth / w, el.clientHeight / h), ZOOM_MIN, 1)
+    view.current = { ...view.current, z }
+    setZoom(Math.round(z * 100) / 100)
+    center((Math.max(...xs) + Math.min(...xs)) / 2, (Math.max(...ys) + Math.min(...ys)) / 2)
+  }
+
+  const jumpTo = (id: string) => {
+    const c = cursors[id]
+    if (c) center(c.x, c.y)
   }
 
   const zoomTo = useCallback((z: number, clientX?: number, clientY?: number) => {
@@ -428,6 +514,7 @@ export function Canvas() {
     } else if (e.key === '+' || e.key === '=') zoomTo(view.current.z + 0.1)
     else if (e.key === '-') zoomTo(view.current.z - 0.1)
     else if (e.key === '0') center()
+    else if (e.key === 'f' || e.key === 'F') fit()
     else if (e.key === 'n' || e.key === 'Enter') {
       e.preventDefault()
       setDraft(middle())
@@ -477,6 +564,7 @@ export function Canvas() {
     <section className="panel canvas" aria-labelledby="canvas-title" data-perch="canvas">
       <div className="panel__head canvas__head">
         <h2 id="canvas-title" className="panel__title">{t('activities.canvas.title')}</h2>
+        <Presence members={members} online={online} cursors={cursors} meId={me?.id} now={now} onJump={jumpTo} />
         <div className="canvas__tools">
           <button type="button" className="btn btn--primary btn--sm" onClick={() => setDraft(middle())}>
             <span className="btn__icon" aria-hidden="true"><StickyNote size={14} /></span>
@@ -487,6 +575,7 @@ export function Canvas() {
           <button type="button" className="icon-btn" aria-label={t('canvas.zoomOut')} title={t('canvas.zoomOut')} onClick={() => zoomTo(view.current.z - 0.1)}><Minus size={16} aria-hidden="true" /></button>
           <span className="canvas__zoom" aria-live="polite">{zoomLabel}</span>
           <button type="button" className="icon-btn" aria-label={t('canvas.zoomIn')} title={t('canvas.zoomIn')} onClick={() => zoomTo(view.current.z + 0.1)}><Plus size={16} aria-hidden="true" /></button>
+          <button type="button" className="icon-btn" aria-label={t('canvas.fit')} title={t('canvas.fit')} onClick={fit}><Maximize2 size={16} aria-hidden="true" /></button>
           <button type="button" className="icon-btn" aria-label={t('canvas.recenter')} title={t('canvas.recenter')} onClick={() => center()}><Crosshair size={16} aria-hidden="true" /></button>
           <button type="button" className="icon-btn" aria-pressed={list} aria-label={t('canvas.list')} title={t('canvas.list')} onClick={() => setList((l) => !l)}><List size={16} aria-hidden="true" /></button>
         </div>
@@ -516,12 +605,19 @@ export function Canvas() {
               author={author(n.authorId)}
               selected={n.id === selected}
               canEdit={n.authorId === me?.id}
+              canDelete={n.authorId === me?.id || isAnimator}
               zoom={() => view.current.z}
               onSelect={() => setSelected((s) => (s === n.id ? null : n.id))}
               onEdit={() => {
                 setSelected(null)
                 setDraft({ x: n.x, y: n.y, edit: n.id })
               }}
+              onDelete={() => {
+                setSelected(null)
+                viewportRef.current?.focus()
+                void deleteCanvasNote(n.id).catch(() => undefined)
+              }}
+              onDeselect={() => setSelected(null)}
             />
           ))}
           {draft ? (
