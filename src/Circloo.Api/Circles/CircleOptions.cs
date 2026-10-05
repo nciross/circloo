@@ -8,9 +8,9 @@ public sealed class CircleOptions
     public const string Section = "Circles";
 
     /// <summary>
-    /// Active people per circle, animators included (FR-801). At most 144: 24 characters × 6 rings. Use
+    /// Active people per circle, animators included (FR-801). At most 288: 48 characters × 6 rings. Use
     /// <see cref="Characters.Capacity"/> for the number a circle really holds.
     /// </summary>
-    [Range(2, 144)]
+    [Range(2, 288)]
     public int MaxPeople { get; set; } = 100;
 }
