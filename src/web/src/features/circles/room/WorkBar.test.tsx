@@ -49,7 +49,8 @@ describe('WorkBar', () => {
     expect(screen.queryByRole('link', { name: 'Skip to the board' })).toBeNull()
     rerender(bar({ activity: 'canvas', startedBy: 'a' }).ui)
     expect(screen.getByText('Live canvas')).toBeInTheDocument()
-    expect(screen.getByText('started by Nadia')).toBeInTheDocument()
+    // The starter's name is bidi-isolated inside the sentence.
+    expect(screen.getByText('Nadia', { selector: '.workbar__round-by bdi' }).parentElement).toHaveTextContent('started by Nadia')
     expect(screen.getByRole('link', { name: 'Skip to the board' })).toHaveAttribute('href', '#room-centre')
     expect(screen.getByRole('status')).toHaveTextContent('Nadia started Live canvas')
     rerender(bar({ activity: 'canvas', startedBy: 'a', status: 'reconnecting' }).ui)
@@ -89,6 +90,20 @@ describe('WorkBar', () => {
     await userEvent.keyboard('{Escape}')
     expect(more).toHaveAttribute('aria-expanded', 'false')
     expect(more).toHaveFocus()
+  })
+
+  it('drops a pending close confirmation when the phone menu closes', async () => {
+    phone()
+    render(bar().ui)
+    const more = screen.getByRole('button', { name: 'Circle actions' })
+    await userEvent.click(more)
+    await userEvent.click(screen.getByRole('button', { name: 'Close circle' }))
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
+    await userEvent.click(document.body)
+    expect(more).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(more)
+    expect(screen.getByRole('button', { name: 'Close circle' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull()
   })
 
   it('gives participants the strip but no actions and no Home link', () => {

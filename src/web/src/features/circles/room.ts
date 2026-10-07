@@ -291,10 +291,13 @@ export function useCircleConnection(view: CircleView | undefined) {
       await connection.invoke('Enter', id).catch(() => undefined)
       await resync(id).catch(() => undefined)
     })
-    connection.onclose(() => useRoom.setState({ status: 'offline' }))
+    let cancelled = false
+    // Our own stop() on leaving is not "offline": the next room must start from "connecting", not announce a change.
+    connection.onclose(() => {
+      if (!cancelled) useRoom.setState({ status: 'offline' })
+    })
 
     useRoom.setState({ connection, status: 'connecting' })
-    let cancelled = false
     connection
       .start()
       .then(() => (cancelled ? undefined : connection.invoke<string[]>('Enter', id)))
@@ -310,7 +313,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       clearTyping()
       useLive.getState().reset()
       resetStage()
-      useRoom.setState({ connection: null })
+      useRoom.setState({ connection: null, status: 'connecting' })
       void connection.stop()
     }
   }, [id, selfId, isClosed])

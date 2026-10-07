@@ -384,7 +384,7 @@
   background: var(--surface-sunken);
   box-shadow: 0 0 0 2px var(--surface);
   color: var(--text-subtle);
-  font-size: 0.6875rem;
+  font-size: var(--fs-xs);
   font-weight: 700;
   line-height: 1.125rem;
   text-align: center;

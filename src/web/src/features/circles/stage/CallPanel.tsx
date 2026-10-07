@@ -20,10 +20,10 @@ export function CallPanel({ isAnimator }: { isAnimator: boolean }) {
         </p>
       )}
       <section className="call__stage" aria-labelledby="call-stage-title">
-        <h3 id="call-stage-title" className="call__stage-title">
+        <h2 id="call-stage-title" className="call__stage-title">
           {t('circles.call.stage')}
           <span className="lozenge">{t('common.soon')}</span>
-        </h3>
+        </h2>
         <p className="call__stage-body">{t('circles.call.stageBody')}</p>
       </section>
     </div>

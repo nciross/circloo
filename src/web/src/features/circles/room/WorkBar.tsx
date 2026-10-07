@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { DoorClosed, Ellipsis, House } from 'lucide-react'
 import type { Member } from '../../../api/circles'
@@ -49,7 +49,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
       said = activity
         ? starter ? t('circles.room.started', { name: starter.name, activity: title }) : t('circles.room.roundOpen', { activity: title })
         : t('circles.room.roundEnded')
-    } else if (seen.status !== 'connecting' || status !== 'live') {
+    } else if (!closed && (seen.status !== 'connecting' || status !== 'live')) {
       // The first "connecting → live" is the page arriving, not news.
       said = t('circles.room.connection', { status: t(`circles.status.${status}`) })
     }
@@ -58,7 +58,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
 
   const faces = stripFaces(members, online, meId)
   const more = stripMore(members.length)
-  const actions = isAnimator ? <RoomActions circleId={circleId} closed={closed} onClose={onClose} closing={closing} /> : null
+  const actions = (shown: boolean) => <RoomActions circleId={circleId} closed={closed} onClose={onClose} closing={closing} shown={shown} />
 
   return (
     <section className="workbar" aria-label={t('circles.room.workbar')}>
@@ -80,7 +80,11 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
         <span key={activity} className="workbar__round" data-activity={activity}>
           {starter ? <Character id={starter.character} ring={starter.ring} tag={false} className="workbar__round-char" /> : null}
           <span className="workbar__round-title">{title}</span>
-          {starter ? <span className="workbar__round-by">{t('circles.room.startedBy', { name: starter.name })}</span> : null}
+          {starter ? (
+            <span className="workbar__round-by">
+              <Trans i18nKey="circles.room.startedBy" values={{ name: starter.name }} components={{ name: <bdi /> }} />
+            </span>
+          ) : null}
         </span>
       ) : null}
       <div className="workbar__end">
@@ -98,7 +102,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
           </span>
           {more ? <span className="workbar__more-count" aria-hidden="true">{more}</span> : null}
         </button>
-        {actions ? (wide ? <div className="workbar__actions">{actions}</div> : <MoreMenu>{actions}</MoreMenu>) : null}
+        {isAnimator ? (wide ? <div className="workbar__actions">{actions(true)}</div> : <MoreMenu>{actions}</MoreMenu>) : null}
       </div>
       <p className="visually-hidden" role="status">{seen.said}</p>
     </section>
@@ -106,7 +110,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
 }
 
 /** Send results, and Close circle with its inline confirmation (as on the page header before). */
-function RoomActions({ circleId, closed, onClose, closing }: { circleId: string; closed: boolean; onClose: () => Promise<void>; closing: boolean }) {
+function RoomActions({ circleId, closed, onClose, closing, shown }: { circleId: string; closed: boolean; onClose: () => Promise<void>; closing: boolean; shown: boolean }) {
   const { t } = useTranslation()
   const [confirming, setConfirming] = useState(false)
   const cancelRef = useRef<HTMLButtonElement>(null)
@@ -118,6 +122,13 @@ function RoomActions({ circleId, closed, onClose, closing }: { circleId: string;
     if (confirming) cancelRef.current?.focus()
     else if (asked.current) closeRef.current?.focus()
   }, [confirming])
+
+  // When the phone menu closes, a pending confirmation goes with it: reopening starts again from "Close circle".
+  const [wasShown, setWasShown] = useState(shown)
+  if (wasShown !== shown) {
+    setWasShown(shown)
+    if (!shown) setConfirming(false)
+  }
 
   if (closed) return <SendResults circleId={circleId} />
   return confirming ? (
@@ -147,7 +158,7 @@ function RoomActions({ circleId, closed, onClose, closing }: { circleId: string;
 }
 
 /** Phones: the animator's actions behind one button, the app's disclosure pattern (Escape and outside press close it). */
-function MoreMenu({ children }: { children: React.ReactNode }) {
+function MoreMenu({ children }: { children: (open: boolean) => React.ReactNode }) {
   const { t } = useTranslation()
   const { open, toggle, triggerRef, panelRef, panelProps } = usePopover()
   const id = useId()
@@ -166,7 +177,7 @@ function MoreMenu({ children }: { children: React.ReactNode }) {
         <Ellipsis size={20} aria-hidden="true" />
       </button>
       <div ref={panelRef} id={id} className="dropdown__panel dropdown__panel--end workbar__menu-panel" hidden={!open} {...panelProps}>
-        {children}
+        {children(open)}
       </div>
     </div>
   )

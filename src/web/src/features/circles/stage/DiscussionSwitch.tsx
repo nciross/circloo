@@ -56,8 +56,10 @@ export function DiscussionSwitch() {
           id={camId}
           type="checkbox"
           checked={videoAllowed}
-          disabled={busy}
+          aria-disabled={busy || undefined}
           onChange={(e) => {
+            // Busy keeps the focus here (aria-disabled, not disabled) and ignores the press.
+            if (busy) return
             const next = e.target.checked
             setCameras(next)
             // Calling it again while on changes only the camera rule (contracts/hub.md).
