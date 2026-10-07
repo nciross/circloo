@@ -1,21 +1,25 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MessageCircle, Users } from 'lucide-react'
+import { MessageCircle, Phone, Users } from 'lucide-react'
 import type { Member } from '../../../api/circles'
 import { Chat } from '../Chat'
 import { InviteCard } from '../parts'
 import { PRESENTATION } from '../catalog'
 import { useRoom } from '../room'
 import { PeopleList } from './PeopleList'
+import { CallPanel } from '../stage/CallPanel'
 import { RoomSidebar, type SideTab } from './RoomSidebar'
-import { activeTab, useSideState } from './useSide'
+import { activeTab, type SideState } from './useSide'
 import { unreadCount } from './sidebar'
 
 /**
- * The room's side area with what exists today: People, and Chat when the current activity is not itself a chat.
- * The hands queue (spec 008 T810) joins as another tab with its count passed as `hands`.
+ * The room's side area with what exists today: People, Chat when the current activity is not itself a chat, and Call
+ * (the Live discussion switch and the stage to come). The hands queue (#184) joins as another tab with its count passed as `hands`.
+ * The side state lives in the room, so the work bar can open a tab too.
  */
-export function RoomPanels({ members, online, meId, arrivals, announcement, chatActivity, invite }: {
+export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite }: {
+  side: SideState
+  isAnimator: boolean
   members: Member[]
   online: string[]
   meId: string
@@ -26,7 +30,6 @@ export function RoomPanels({ members, online, meId, arrivals, announcement, chat
   invite?: { code: string; fresh: boolean }
 }) {
   const { t } = useTranslation()
-  const side = useSideState()
   const messages = useRoom((s) => s.messages)
   const mine = messages.filter((m) => m.activityId === chatActivity)
   const [seenRaw, setSeen] = useState({ of: chatActivity, n: 0 })
@@ -58,6 +61,12 @@ export function RoomPanels({ members, online, meId, arrivals, announcement, chat
       panel: <Chat activityId={chatActivity} hideEnd={chatActivity === PRESENTATION} />,
     })
   }
+  tabs.push({
+    id: 'call',
+    label: t('circles.room.callTab'),
+    icon: <Phone size={15} />,
+    panel: <CallPanel isAnimator={isAnimator} />,
+  })
   const chatShown = !!chatActivity && side.open && activeTab(tabs, side.tab) === 'chat'
   if (chatShown && (seenRaw.of !== chatActivity || seenRaw.n !== mine.length)) setSeen({ of: chatActivity, n: mine.length })
 

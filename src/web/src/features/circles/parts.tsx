@@ -5,7 +5,7 @@ import { Character } from '../../components/Character'
 import { CHARACTERS, type AnyCharacter } from '../../components/characters'
 import { AvatarBuilder } from '../../components/AvatarBuilder'
 import { GALLERY, isAvatarCode } from '../../components/avatarCode'
-import { Button } from '../../components/Button'
+import { Button, type ButtonVariant } from '../../components/Button'
 import { Segmented } from '../../components/Segmented'
 import { joinLink, type Member } from '../../api/circles'
 import { ACTIVITIES, CATEGORIES, type Category } from './catalog'
@@ -189,7 +189,7 @@ export function InviteCard({ code, fresh = false }: { code: string; fresh?: bool
 
 /** Activity cards by category. In "choose" mode they toggle; in "start" mode each starts the activity. */
 export function ActivityGrid({
-  ids, mode, selected = [], onToggle, onStart, busy,
+  ids, mode, selected = [], onToggle, onStart, busy, startVariant = 'primary',
 }: {
   ids?: string[]
   mode: 'choose' | 'start'
@@ -197,6 +197,8 @@ export function ActivityGrid({
   onToggle?: (id: string) => void
   onStart?: (id: string) => void
   busy?: boolean
+  /** The start buttons step back to "default" when another action leads the view (the whiteboard in the room's dock). */
+  startVariant?: ButtonVariant
 }) {
   const { t } = useTranslation()
   const pool = ACTIVITIES.filter((a) => !ids || ids.includes(a.id))
@@ -232,7 +234,7 @@ export function ActivityGrid({
                   {on ? t('circles.create.added') : t('circles.create.add')}
                 </button>
               ) : (
-                <Button size="sm" busy={busy} onClick={() => onStart?.(id)} icon={<Play size={14} />} aria-label={`${t('circles.room.start')}: ${t(`activities.${id}.title`)}`}>
+                <Button size="sm" variant={startVariant} busy={busy} onClick={() => onStart?.(id)} icon={<Play size={14} />} aria-label={`${t('circles.room.start')}: ${t(`activities.${id}.title`)}`}>
                   {t('circles.room.start')}
                 </Button>
               )}

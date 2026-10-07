@@ -695,8 +695,8 @@
       "none": "Nadie coincide con ese nombre.",
       "groupHere": "Aquí ({{count}})",
       "groupAway": "Ausentes ({{count}})",
-      "sideLabel": "Personas y conversación",
-      "openSide": "Personas y chat",
+      "sideLabel": "Personas, conversación y llamada",
+      "openSide": "Personas, conversación y llamada",
       "collapseSide": "Contraer la barra lateral",
       "expandSheet": "Hacer el panel más alto",
       "shrinkSheet": "Hacer el panel más bajo",
@@ -744,7 +744,21 @@
         "one": "{{name}} está escribiendo",
         "two": "{{a}} y {{b}} están escribiendo",
         "many": "Varias personas están escribiendo"
-      }
+      },
+      "workbar": "Sala",
+      "skipToBoard": "Ir al tablero",
+      "centre": "Espacio de trabajo",
+      "startedBy": "lo empezó <name>{{name}}</name>",
+      "roundOpen": "Nueva ronda: {{activity}}",
+      "roundEnded": "La ronda terminó.",
+      "connection": "Conexión: {{status}}",
+      "peopleStrip_one": "{{count}} persona en el círculo. Ver la lista",
+      "peopleStrip_other": "{{count}} personas en el círculo. Ver la lista",
+      "more": "Acciones del círculo",
+      "expandSide": "Abrir la barra lateral",
+      "callTab": "Llamada",
+      "openWhiteboard": "Abrir la pizarra",
+      "otherRounds": "Otras rondas"
     },
     "missing": {
       "title": "Círculo no encontrado",
@@ -780,6 +794,21 @@
       "already-open": "Las respuestas ya están abiertas en esta pregunta.",
       "not-answering": "Las respuestas no están abiertas en esta pregunta.",
       "not-open": "Abre las respuestas de esta pregunta antes de mostrar sus resultados."
+    },
+    "call": {
+      "switch": "Conversación en directo",
+      "switchHelp": "La gente habla en un escenario con su micrófono y, si lo permites, su cámara. Viene desactivada: nada cambia en el círculo hasta que la actives.",
+      "cameras": "Permitir cámaras",
+      "camerasHelp": "Desmárcalo para dejar solo audio y chat, por ejemplo si hay niños en el círculo.",
+      "isOn": "La conversación en directo está activada.",
+      "isOff": "La conversación en directo está desactivada.",
+      "stage": "Escenario",
+      "stageBody": "El audio y el vídeo llegan pronto. Mientras tanto, escribe en el chat y levanta la mano.",
+      "errors": {
+        "failed": "No ha funcionado. Inténtalo de nuevo en un momento.",
+        "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",
+        "animator-only": "Solo el animador puede cambiar esto."
+      }
     }
   },
   "boards": {

@@ -81,6 +81,8 @@ layout:
   sidebar-width: "15.5rem"
   content-max: "76rem"
   site-max: "74rem"
+  room-workbar-height: "3rem"
+  room-rail-width: "3.25rem"
 components:
   button-primary: { backgroundColor: "{colors.primary}", textColor: "#ffffff", rounded: "{rounded.sm}", height: "2.25rem" }
   button-default: { backgroundColor: "{colors.surface-sunken}", textColor: "{colors.text}", rounded: "{rounded.sm}" }
@@ -209,8 +211,26 @@ around; the streamed text ends in a violet caret. Under reduced motion the panda
 
 ## Circles (live rooms)
 
-- **Room:** the conversation panel at the start, the people ring and the invite card at the end (stacked
-  above the conversation on narrow screens). The status dot is green when live, amber when reconnecting.
+- **Workspace frame (#244):** the room is a workspace, not a page. A work bar sits under the top bar, then the
+  centre and the rail fill the app height from 960 px, each scrolling inside itself, with a 1rem margin instead of
+  the page gutter and no content width cap. On phones the page scrolls as before, with the bottom sheet.
+- **Work bar:** one sticky 3rem row: Home (animator), the circle name (one line, ellipsis, full name in `title`),
+  the status dot with its word (live, connecting, reconnecting, offline, closed; green when live, amber when
+  reconnecting), the running round as a grey chip with the starter's character ("Live canvas · started by
+  Nadia"), then at the end the people strip (four stacked characters and "+n", opens People), Send results and
+  Close circle (inline confirmation). On phones the animator's actions fold into a "Circle actions" menu. A
+  polite status line announces round and connection changes; "Skip to the board" appears while a round runs.
+- **Centre:** whatever runs fills it: the whiteboard's paper takes the full height (24rem at least), boards and
+  presentations fill the same frame. Between rounds the animator sees a dock: when the circle has the canvas, a
+  large sheet of the same dotted paper leads with "Open the whiteboard" (the one primary button), the other
+  rounds below; otherwise the rounds alone. Participants wait with the panda, centred.
+- **Rail:** on the inline end, like a meeting rail. Open: tabs People, Chat (with the round's conversation) and
+  Call. Collapsed: a 3.25rem icon rail, one 44px button per tab with its count, which opens the rail on that
+  tab and moves focus to it; collapsing returns focus to the rail. The choice is remembered per device. It ends
+  above Pirikoo's corner button. Phones keep the bottom sheet (half, full, closed to a pill with counts).
+- **Call tab:** the animator's Live discussion switch (off by default, with the plain explanation) and "Allow
+  cameras" (on by default). Everyone sees the stage with a Soon lozenge until audio and video land; participants
+  see whether the discussion is on, never the switch.
 - **People ring:** members seated on a dashed circle at equal angles (set through CSS custom properties
   from script), online people bright, away people faded and grey; the animator wears a small crown.
 - **Conversation:** like a chat with an assistant. circloo's messages are full-width text with the panda,
@@ -277,8 +297,12 @@ hidden from screen readers because it changes too often to announce, and the dot
 - **Focal moments**: the landing circle (people join, then play: bob, blink, jump, spin, wiggle, hearts, a
   cheering face); Pirikoo's moods while it listens, thinks and talks; someone arriving in a room (they hop onto the ring with hearts, and screen
   readers hear "Mia joined the circle").
-- **Continuity**: an activity opens with a short clip-path reveal; page changes cross-fade.
-- **Feedback**: a new circle's invite card glows twice; a vote count pops once; notes drop in.
+- **Continuity**: an activity opens with a short clip-path reveal and its chip slides into the room's work bar
+  from the inline end; the rail and its panel swap without animating any size (the panel fades and shifts 8px,
+  tabs cross-fade); the whiteboard's dots settle in as it opens; page changes cross-fade.
+- **Feedback**: a new circle's invite card glows twice; a vote count pops once, and so does any room count that
+  goes up (unread, people); the room's status dot pulses once on going live, never in a loop; notes drop in.
+- **Durations** are tokens: `--dur-press` 120ms, `--dur-state` 160ms, `--dur-move` 240ms, `--dur-enter` 300ms.
 - Easing is exponential ease-out (no bounce or elastic; the Impeccable detector checks it).
 
 ## Video

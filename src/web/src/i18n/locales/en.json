@@ -695,8 +695,8 @@
       "none": "Nobody matches that name.",
       "groupHere": "Here ({{count}})",
       "groupAway": "Away ({{count}})",
-      "sideLabel": "People and conversation",
-      "openSide": "People and chat",
+      "sideLabel": "People, conversation and call",
+      "openSide": "People, conversation and call",
       "collapseSide": "Collapse the sidebar",
       "expandSheet": "Make the panel taller",
       "shrinkSheet": "Make the panel shorter",
@@ -744,7 +744,21 @@
         "one": "{{name}} is typing",
         "two": "{{a}} and {{b}} are typing",
         "many": "Several people are typing"
-      }
+      },
+      "workbar": "Room",
+      "skipToBoard": "Skip to the board",
+      "centre": "Workspace",
+      "startedBy": "started by <name>{{name}}</name>",
+      "roundOpen": "{{activity}} is open",
+      "roundEnded": "The round ended.",
+      "connection": "Connection: {{status}}",
+      "peopleStrip_one": "{{count}} person in the circle. Show the list",
+      "peopleStrip_other": "{{count}} people in the circle. Show the list",
+      "more": "Circle actions",
+      "expandSide": "Open the sidebar",
+      "callTab": "Call",
+      "openWhiteboard": "Open the whiteboard",
+      "otherRounds": "Other rounds"
     },
     "missing": {
       "title": "Circle not found",
@@ -780,6 +794,21 @@
       "already-open": "Answers are already open on this question.",
       "not-answering": "Answers are not open on this question.",
       "not-open": "Open answers on this question before showing its results."
+    },
+    "call": {
+      "switch": "Live discussion",
+      "switchHelp": "People talk on a stage with their microphone and, if you allow it, their camera. It is off by default: nothing changes for the circle until you switch it on.",
+      "cameras": "Allow cameras",
+      "camerasHelp": "Untick it for audio and chat only, for example with children in the circle.",
+      "isOn": "Live discussion is on.",
+      "isOff": "Live discussion is off.",
+      "stage": "Stage",
+      "stageBody": "Audio and video arrive next. Chat and raise your hand meanwhile.",
+      "errors": {
+        "failed": "That did not work. Try again in a moment.",
+        "offline": "You are offline. It will work again once the room reconnects.",
+        "animator-only": "Only the animator can change this."
+      }
     }
   },
   "boards": {

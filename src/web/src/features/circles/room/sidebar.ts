@@ -71,3 +71,19 @@ export function saveSideOpen(open: boolean) {
 export function unreadCount(messages: Message[], seen: number, meId: string | undefined): number {
   return messages.slice(seen).filter((m) => m.kind !== 'system' && m.memberId !== meId).length
 }
+
+/** "99+" past 99: counts sit on small buttons and tabs; the exact number is in the accessible label. */
+export const shortCount = (n: number) => (n > 99 ? '99+' : String(n))
+
+/** How many characters the people strip stacks before "+n". */
+export const STRIP_FACES = 4
+
+/** Who the strip shows: people here first (you count as here), the animator leading, then the rest. */
+export function stripFaces(members: Member[], online: string[], meId: string): Member[] {
+  const here = (m: Member) => m.id === meId || online.includes(m.id)
+  const rank = (m: Member) => (here(m) ? 0 : 2) + (m.role === 'animator' ? 0 : 1)
+  return [...members].sort((a, b) => rank(a) - rank(b)).slice(0, STRIP_FACES)
+}
+
+/** "+12" past the stacked faces, never more than "+99" (a circle holds 100 people). */
+export const stripMore = (count: number) => (count > STRIP_FACES ? `+${Math.min(99, count - STRIP_FACES)}` : '')
