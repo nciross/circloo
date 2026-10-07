@@ -79,8 +79,10 @@ test('an animator opens a circle, a guest joins by link with a character, and ci
   expect(await axe(page)).toEqual([])
 
   // The animator closes the circle; the guest sees it ended.
+  // The work bar holds Close circle; on phones it sits in the "Circle actions" menu (#244).
+  if (await page.locator('.workbar__more').isVisible()) await page.locator('.workbar__more').click()
   await page.locator('.room__close').click()
-  await page.locator('.page-header__actions .btn--danger').click()
+  await page.locator('.room__close-confirm').click()
   await expect(page).toHaveURL(/\/app$/)
   await expect(page.locator('.circle-list__item')).toHaveCount(1)
   await expect(page.locator('.home-tour')).toHaveCount(0) // #91: the tour is for people without a circle yet

@@ -42,7 +42,8 @@ test('a live canvas: cursors glide, notes land, get styled and move for everyone
   await guest.locator('form button[type=submit]').click()
   await expect(guest).toHaveURL(/\/c\/[0-9a-f-]+$/)
 
-  await page.locator('.activity[data-activity=canvas] .btn').click()
+  // The whiteboard leads the room's dock (#244).
+  await page.locator('.dock__open').click()
   const guestCanvas = guest.locator('.canvas__viewport')
   await expect(guestCanvas).toBeVisible({ timeout: 15_000 })
   await expect(page.locator('.canvas__viewport')).toBeVisible()

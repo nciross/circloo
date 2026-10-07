@@ -13,9 +13,10 @@ export function DiscussionSwitch() {
   const enable = useStage((s) => s.enableDiscussion)
   const disable = useStage((s) => s.disableDiscussion)
   const on = discussion?.on ?? false
-  // While it is off the choice waits here (starting from the circle's last setting) and goes with the switch.
-  const [cameras, setCameras] = useState<boolean | null>(null)
-  const videoAllowed = on ? (discussion?.videoAllowed ?? true) : (cameras ?? discussion?.videoAllowed ?? true)
+  // While it is off the choice waits here and goes with the switch. The server reports cameras only while it is on, so an
+  // off discussion starts from the spec's default: cameras allowed.
+  const [cameras, setCameras] = useState(true)
+  const videoAllowed = on ? (discussion?.videoAllowed ?? true) : cameras
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const helpId = useId()

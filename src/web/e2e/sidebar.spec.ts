@@ -75,7 +75,8 @@ test('sidebar: the slide keeps two thirds, people are found and windowed, the ch
 
   const side = page.locator('[data-slot="room-side"]')
   const tabs = side.getByRole('tab')
-  await expect(tabs).toHaveCount(2)
+  // People, Chat and Call (#244).
+  await expect(tabs).toHaveCount(3)
 
   // People: 57 members, so only the rows in view are drawn, each with its place in the whole list.
   const rows = side.locator('.people__row')
