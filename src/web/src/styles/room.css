@@ -157,7 +157,8 @@
 }
 .room-side__badge {
   min-inline-size: 1.25rem;
-  padding: 0 0.35rem;
+  padding: 0.125rem 0.4rem;
+  line-height: 1.2;
   border-radius: var(--r-pill);
   background: var(--surface-sunken);
   color: var(--text-subtle);
