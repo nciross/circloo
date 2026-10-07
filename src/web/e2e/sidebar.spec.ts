@@ -29,7 +29,8 @@ async function createCircle(page: Page, locale: 'en' | 'ar') {
 
 /** Guests who joined through the API: they count as members (away), which makes the list long enough to window. */
 async function fillWithGuests(baseURL: string, code: string, count: number) {
-  const characters = ['fox', 'owl', 'cat', 'frog', 'bear', 'bunny']
+  // Six copies of a character at most (spec 008): enough characters that 55 guests never fill one.
+  const characters = ['fox', 'owl', 'cat', 'frog', 'bear', 'bunny', 'bee', 'lion', 'koala', 'whale', 'dino', 'chick']
   for (let i = 0; i < count; i++) {
     const ctx = await playwrightRequest.newContext({ baseURL })
     await ctx.get('/api/auth/csrf')
