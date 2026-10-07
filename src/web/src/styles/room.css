@@ -1,11 +1,10 @@
 /*
- * The room layout (spec 008 T804, #244): a work bar on top, then the centre and one side area for every activity, the
- * presenting layout included. From 960 px both are app height (a workspace, not a page) and the side area is a column on
- * the inline end (280 to 360 px), collapsible to an icon rail.
+ * The room layout (spec 008 T804, #244, orrery look #250): a work bar on top, then the centre and one side area for every
+ * activity, the presenting layout included. From 960 px both are app height (a workspace, not a page) and the side area
+ * is a rail on the inline end (280 to 360 px) on the ground with a hairline, collapsible to an icon rail.
  * Below 960 px it is a bottom sheet; the page keeps the sheet's height free below the content, so the sheet never
  * covers the answer pad or the presenter controls. Logical properties only, so Arabic mirrors without extra rules.
- * Slots in the side area: tabs in RoomSidebar.tsx (People today; Chat, Hands as they land). The stage (spec 009)
- * goes in the main area, above the activity, and the sheet below keeps clear of it the same way.
+ * Slots in the side area: tabs in RoomSidebar.tsx (People, Chat, Call; Hands as it lands). Tabs cross-fade (workspace.css).
  */
 :root {
   /* On :root because the assistant's corner button (outside the room) rises above the open sheet. */
@@ -33,10 +32,9 @@
     min-block-size: 0;
     /* Ends above the bottom corner, which belongs to Pirikoo's button, so the chat's send button stays clear of it. */
     margin-block-end: var(--corner-clear);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    background: var(--surface);
-    box-shadow: var(--shadow-raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    background: var(--ground);
     overflow: clip;
   }
   .room-side__grip {
@@ -56,13 +54,13 @@
   min-block-size: 2.75rem;
   min-inline-size: 2.75rem;
   border: 0;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   font-weight: 600;
   font-size: var(--fs-sm);
 }
 .room-side__handle:hover {
-  background: var(--surface-hover);
+  background: var(--paper-hover);
 }
 .room-side__handle:focus-visible,
 .room-side__tab:focus-visible,
@@ -80,9 +78,9 @@
   align-items: center;
   gap: 3px;
   padding: 0 0.45rem;
-  border-radius: var(--r-pill);
-  background: var(--primary);
-  color: var(--on-primary);
+  border-radius: var(--r-ring);
+  background: var(--beam);
+  color: var(--on-beam);
   font-size: var(--fs-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -105,8 +103,8 @@
   justify-content: space-between;
   gap: var(--s-2);
   padding-block: var(--s-2);
-  padding-inline: var(--s-3) var(--s-2);
-  border-block-end: 1px solid var(--border);
+  padding-inline: var(--s-2);
+  border-block-end: 1px solid var(--hairline);
 }
 .room-side__tabs {
   display: flex;
@@ -126,17 +124,22 @@
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   font-weight: 600;
   font-size: var(--fs-sm);
+  transition:
+    background-color var(--dur-press) var(--ease-out),
+    color var(--dur-press) var(--ease-out);
 }
 .room-side__tab:hover {
-  background: var(--surface-hover);
-  color: var(--text);
+  background: var(--paper-hover);
+  color: var(--ink);
 }
+/* The open tab is the one on paper, raised off the ground. */
 .room-side__tab[aria-selected='true'] {
-  background: var(--primary-subtle);
-  color: var(--primary-text);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-raised);
 }
 .room-side__tab-icon {
   display: inline-flex;
@@ -159,17 +162,17 @@
   min-inline-size: 1.25rem;
   padding: 0.125rem 0.4rem;
   line-height: 1.2;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
-  color: var(--text-subtle);
+  border-radius: var(--r-ring);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
   font-size: var(--fs-xs);
   font-weight: 700;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 .room-side__tab[aria-controls$='-panel-chat'] .room-side__badge {
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--beam);
+  color: var(--on-beam);
 }
 .room-side__tools {
   display: flex;
@@ -185,15 +188,16 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-/* The chat brings its own panel; inside the sidebar it fills the tab and drops the frame. */
+/* The chat brings its own panel; inside the rail it fills the tab and drops the frame, its bubbles on paper. */
 .room-side__panel > .chat {
   flex: 1;
   block-size: auto;
   min-block-size: 0;
-  border: 0;
-  box-shadow: none;
-  border-radius: 0;
   margin: calc(var(--s-3) * -1);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 /* In the sidebar the tab already names the chat: the activity title is kept for screen readers only, the End button stays. */
 .room-side__panel > .chat > .panel__head {
@@ -210,11 +214,14 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+.room-side__panel > .chat .composer {
+  background: transparent;
+}
 .room-side__panel > .invite {
   flex: none;
 }
 
-/* ---------- People ---------- */
+/* ---------- People: character with its online dot, name, role ---------- */
 .people {
   display: flex;
   flex-direction: column;
@@ -226,7 +233,7 @@
   margin: 0;
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
 }
 .people__search {
@@ -237,7 +244,7 @@
 .people__search svg {
   position: absolute;
   inset-inline-start: var(--s-3);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
   pointer-events: none;
 }
 .people__search .input {
@@ -261,25 +268,51 @@
 .people__head {
   display: flex;
   align-items: flex-end;
-  padding-inline: var(--s-1);
+  padding-inline: var(--s-2);
   padding-block-end: var(--s-1);
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-subtle);
+  color: var(--ink-faint);
+}
+:lang(ar) .people__head {
+  letter-spacing: 0;
+  text-transform: none;
 }
 .people__row {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding-inline: var(--s-1);
+  padding-inline: var(--s-2);
   border-radius: var(--r-sm);
 }
-.people__char {
+.people__body {
+  position: relative;
   flex: none;
-  inline-size: 2.25rem;
-  block-size: 2.25rem;
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+.people__char {
+  inline-size: 100%;
+  block-size: 100%;
+}
+/* The online dot at the character's foot, cut out of the ground; away is a hollow dot and the word. */
+.people__dot {
+  position: absolute;
+  inset-block-end: -1px;
+  inset-inline-end: -1px;
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 2px var(--ground);
+}
+.people__row.is-away .people__dot {
+  background: transparent;
+  box-shadow:
+    inset 0 0 0 1.5px var(--ink-faint),
+    0 0 0 2px var(--ground);
 }
 .people__text {
   display: grid;
@@ -294,21 +327,24 @@
 }
 .people__you {
   font-weight: 400;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .people__meta {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   font-size: var(--fs-xs);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .people__role {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-weight: 700;
-  color: var(--warning-text);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.people__role svg {
+  color: var(--brass);
 }
 /* Away: faded art, a dashed ring and the word, so it is never colour alone. */
 .people__row.is-away .char__art {
@@ -319,10 +355,11 @@
   stroke-dasharray: 5 4;
 }
 .people__row.is-away .people__name {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
+/* Someone just arrived: their row is marked in brass for a moment, then settles. */
 .people__row.is-new {
-  background: var(--primary-subtle);
+  background: var(--brass-faint);
 }
 .people__empty {
   padding: var(--s-4) var(--s-2);
@@ -348,11 +385,11 @@
     flex-direction: column;
     block-size: var(--sheet-half);
     padding-block-end: env(safe-area-inset-bottom);
-    border-start-start-radius: var(--r-lg);
-    border-start-end-radius: var(--r-lg);
-    border: 1px solid var(--border);
+    border-start-start-radius: var(--r-xl);
+    border-start-end-radius: var(--r-xl);
+    border: 1px solid var(--hairline);
     border-block-end: 0;
-    background: var(--surface);
+    background: var(--ground);
     box-shadow: var(--shadow-float);
   }
   .room-side.is-full {
@@ -364,8 +401,9 @@
     inset-block-end: calc(var(--s-4) + env(safe-area-inset-bottom));
     block-size: auto;
     padding: 0;
-    border-radius: var(--r-pill);
-    border-block-end: 1px solid var(--border);
+    border-radius: var(--r-ring);
+    border-block-end: 1px solid var(--hairline);
+    background: var(--paper);
     box-shadow: var(--shadow-overlay);
     overflow: clip;
   }
@@ -379,8 +417,8 @@
     inline-size: 2.25rem;
     block-size: 4px;
     margin-inline-start: -1.125rem;
-    border-radius: var(--r-pill);
-    background: var(--border-strong);
+    border-radius: var(--r-ring);
+    background: var(--hairline-strong);
   }
   .room-side__bar {
     padding-block-start: var(--s-3);
@@ -399,6 +437,11 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .people__row {
-    transition: background-color 600ms ease;
+    transition: background-color var(--dur-orbit) var(--ease-in-out);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-side__tab {
+    transition: none;
   }
 }

@@ -6,14 +6,14 @@
 :root {
   color-scheme: light;
 
-  /* Grounds */
-  --ground: #f3f4f1;
+  /* Grounds: bone by day (warm, never cream-yellow), paper for what sits on it */
+  --ground: #f1ede4;
   --paper: #ffffff;
-  --paper-sunken: #e9ebe6;
-  --paper-hover: #e2e5df;
-  --paper-pressed: #d8dcd4;
-  --hairline: #d6d9d3;
-  --hairline-strong: #a9afa7;
+  --paper-sunken: #e7e2d7;
+  --paper-hover: #dfd9cc;
+  --paper-pressed: #d5cfc1;
+  --hairline: #d9d4c8;
+  --hairline-strong: #aba496;
 
   /* Ink */
   --ink: #0b1320; /* 17:1 on paper */

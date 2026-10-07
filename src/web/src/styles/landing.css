@@ -1,12 +1,11 @@
-/* Landing (issue #247): the prompt is the product. Mobile first; the hero and the final band are the brand navy in
-   both themes, everything else runs on the app's tokens. Motion lives in one focal sequence (the composition) and a
-   few one-shot entrances; `.site[data-motion='off']` and `.site.is-still` keep the page still. */
+/* Landing (issue #247, restyled for the orrery #250): the prompt is the product. Mobile first. The first and the
+   last band are the dome (the Night ground, set as literals because the band stays night in both themes) with the
+   whiteboard's dotted paper; the console is the one light box on it and the circle composes itself as a ring in a
+   paper card beside it. Everything else runs on the page's ground and paper. Motion lives in one focal sequence (the
+   composition) and a few one-shot entrances; `.site[data-motion='off']` and `.site.is-still` keep the page still. */
 .site {
-  --navy: #0f2537;
-  --on-navy: #ffffff;
-  --on-navy-subtle: #c4d2de;
-  --on-navy-line: rgb(255 255 255 / 0.3);
-  background: var(--surface);
+  background: var(--ground);
+  color: var(--ink);
 }
 
 /* ---------- Shared type ---------- */
@@ -19,7 +18,7 @@
 .section-lead {
   font-size: var(--fs-lg);
   line-height: 1.55;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   max-inline-size: 52ch;
 }
 .section-head {
@@ -37,11 +36,11 @@
   font-weight: 500;
 }
 .sitebar__links a {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   text-decoration: none;
 }
 .sitebar__links a:hover {
-  color: var(--text);
+  color: var(--ink);
 }
 @media (min-width: 56rem) {
   .sitebar__links {
@@ -49,25 +48,39 @@
   }
 }
 
-/* ---------- The console: navy, dotted paper, one light box ---------- */
-.console {
+/* ---------- The dome: the first and the last band, in both themes ---------- */
+.console,
+.again {
+  --dome: #070e1a;
+  --on-dome: #f1ecdf;
+  --on-dome-soft: #b9b3a5;
+  --dome-line: #1f2b40;
+  --dome-line-strong: #34445e;
+  --dome-hover: #162238;
+  --dome-brass: #d9b45c;
+  --dome-beam: #6ea8ff;
+  --on-dome-beam: #070e1a;
+  --dome-live: #4bce97;
+  --focus: #85b8ff;
   position: relative;
   isolation: isolate;
   overflow: clip;
-  background: var(--navy);
-  color: var(--on-navy);
-  --focus: #85b8ff;
+  background: var(--dome);
+  color: var(--on-dome);
 }
+/* The whiteboard's dotted paper, as the canvas draws it at night. */
 .console::before,
 .again::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(circle, rgb(255 255 255 / 0.14) 1px, transparent 1.3px);
+  background-image: radial-gradient(circle, var(--dome-line-strong) 1px, transparent 1.3px);
   background-size: 24px 24px;
   pointer-events: none;
 }
+
+/* ---------- The console ---------- */
 .console__inner {
   display: grid;
   gap: var(--s-7);
@@ -89,7 +102,7 @@
 }
 .console__title2 {
   display: block;
-  color: var(--on-navy-subtle);
+  color: var(--on-dome-soft);
 }
 :lang(ar) .console__title {
   line-height: 1.3;
@@ -99,7 +112,7 @@
   display: grid;
   gap: var(--s-2);
   font-size: var(--fs-sm);
-  color: var(--on-navy-subtle);
+  color: var(--on-dome-soft);
 }
 .console__facts li {
   display: flex;
@@ -108,7 +121,7 @@
 }
 .console__facts svg {
   flex: none;
-  color: #7be0ad;
+  color: var(--dome-live);
 }
 .console__made {
   min-inline-size: 0;
@@ -148,28 +161,28 @@
 .say__label {
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--on-navy-subtle);
+  color: var(--on-dome);
 }
 .say__box {
   display: flex;
   align-items: flex-end;
   gap: var(--s-2);
   padding: var(--s-2);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-float);
-  --focus: var(--primary);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-overlay);
+  --focus: #2a73e8;
   transition:
     border-color var(--dur-state),
     box-shadow var(--dur-state);
 }
 .say__box:focus-within {
-  border-color: var(--primary);
+  border-color: var(--beam);
   box-shadow:
-    0 0 0 1px var(--primary),
-    var(--shadow-float);
+    0 0 0 1px var(--beam),
+    var(--shadow-overlay);
 }
 .say__bird {
   display: block;
@@ -194,7 +207,7 @@
   outline: none;
 }
 .say__field::placeholder {
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
 }
 .say__go {
   display: inline-flex;
@@ -206,9 +219,9 @@
   block-size: 2.75rem;
   padding-inline: 0.8rem;
   border: 0;
-  border-radius: var(--r-md);
-  background: var(--primary);
-  color: var(--on-primary);
+  border-radius: var(--r-sm);
+  background: var(--beam);
+  color: var(--on-beam);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -217,9 +230,10 @@
     transform var(--dur-press) var(--ease-out);
 }
 .say__go:hover {
-  background: var(--primary-hover);
+  background: var(--beam-hover);
 }
 .say__go:active {
+  background: var(--beam-pressed);
   transform: scale(0.97);
 }
 .say__go:focus-visible {
@@ -237,7 +251,7 @@
 }
 .say__hint {
   font-size: var(--fs-sm);
-  color: var(--on-navy-subtle);
+  color: var(--on-dome-soft);
 }
 .say__examples {
   display: flex;
@@ -247,10 +261,10 @@
 .say__example {
   min-block-size: 2.75rem;
   padding: 0.5rem 0.9rem;
-  border: 1px solid var(--on-navy-line);
-  border-radius: var(--r-pill);
+  border: 1px solid var(--dome-line-strong);
+  border-radius: var(--r-ring);
   background: transparent;
-  color: var(--on-navy);
+  color: var(--on-dome);
   font: inherit;
   font-size: var(--fs-sm);
   text-align: start;
@@ -261,8 +275,8 @@
     transform var(--dur-press) var(--ease-out);
 }
 .say__example:hover {
-  border-color: rgb(255 255 255 / 0.6);
-  background: rgb(255 255 255 / 0.1);
+  border-color: var(--on-dome-soft);
+  background: var(--dome-hover);
 }
 .say__example:active {
   transform: scale(0.98);
@@ -284,45 +298,72 @@
   }
 }
 
-/* The console box and the composition are the one light box on the navy, in both themes (#247): their tokens stay on
-   the light values, since the band itself is pinned navy and the dark surface would sit below it. */
+/* The console box and the composition are the one light box on the dome, in both themes: their tokens are pinned to
+   the Day values (tokens.css), since the band itself is pinned to the dome and the Night paper would sink into it. */
 .say__box,
 .made {
   color-scheme: light;
-  --surface: #ffffff;
-  --surface-sunken: #eef1f4;
-  --surface-hover: #e8ecf0;
-  --surface-pressed: #dce2e8;
-  --border: #dfe3e8;
-  --border-strong: #b9c2cc;
-  --text: #0f2537;
-  --text-subtle: #45576a;
-  --text-subtlest: #5f6f82;
-  --primary: #0d5bd7;
-  --primary-hover: #0a4cb6;
-  --primary-pressed: #083d93;
-  --primary-subtle: #e8f0fe;
-  --primary-text: #0b4fb8;
-  --on-primary: #ffffff;
-  --success-text: #145c3b;
-  --warning-text: #7a4f01;
-  --danger-text: #ae2a19;
-  --neutral-subtle: #e6eaef;
-  --neutral-text: #3d4f62;
-  --brand-ink: #062a40;
+  --ground: #f1ede4;
+  --paper: #ffffff;
+  --paper-sunken: #e7e2d7;
+  --paper-hover: #dfd9cc;
+  --paper-pressed: #d5cfc1;
+  --hairline: #d9d4c8;
+  --hairline-strong: #aba496;
+  --ink: #0b1320;
+  --ink-soft: #3d4756;
+  --ink-faint: #5d6675;
+  --brass: #8c6a1f;
+  --brass-faint: #e4d6b4;
+  --beam: #1d5fd6;
+  --beam-hover: #164db4;
+  --beam-pressed: #113d90;
+  --beam-subtle: #e4edfc;
+  --beam-text: #1550bd;
+  --on-beam: #ffffff;
+  --sky-stormy: #3b4660;
+  --sky-foggy: #a3adbd;
+  --sky-cloudy: #c6cdd8;
+  --sky-bright: #8cc4f5;
+  --sky-sunny: #f2c14e;
+  --on-sky: #0b1320;
+  --on-sky-stormy: #ffffff;
+  --coral: #ef4a32;
+  --neutral-subtle: #e9ebe6;
+  --neutral-text: #3d4756;
+  --shadow-raised: 0 1px 1px rgb(7 14 26 / 0.08), 0 0 1px rgb(7 14 26 / 0.2);
+  --shadow-overlay: 0 8px 12px rgb(7 14 26 / 0.12), 0 0 1px rgb(7 14 26 / 0.28);
+  /* The earlier names, for the shared components inside (buttons, lozenges, the face). */
+  --surface: var(--paper);
+  --surface-sunken: var(--paper-sunken);
+  --surface-hover: var(--paper-hover);
+  --surface-pressed: var(--paper-pressed);
+  --border: var(--hairline);
+  --border-strong: var(--hairline-strong);
+  --text: var(--ink);
+  --text-subtle: var(--ink-soft);
+  --text-subtlest: var(--ink-faint);
+  --primary: var(--beam);
+  --primary-hover: var(--beam-hover);
+  --primary-pressed: var(--beam-pressed);
+  --primary-subtle: var(--beam-subtle);
+  --primary-text: var(--beam-text);
+  --on-primary: var(--on-beam);
+  --brand-coral: var(--coral);
+  --brand-ink: #0f2537;
 }
 
-/* ---------- Made: the circle, composing ---------- */
+/* ---------- Made: the circle, composing, as a ring ---------- */
 .made {
   display: grid;
   gap: var(--s-4);
   padding: var(--s-5);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-lg);
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-float);
-  --focus: var(--primary);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-overlay);
+  --focus: #2a73e8;
 }
 .made__head {
   display: flex;
@@ -339,7 +380,7 @@
 }
 .made:not(.is-on) .made__name {
   font-weight: 500;
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
 }
 .made__caret {
   display: inline-block;
@@ -347,61 +388,80 @@
   block-size: 1.05em;
   margin-inline-start: 2px;
   vertical-align: -0.15em;
-  background: var(--primary);
+  background: var(--beam);
   animation: caret 900ms steps(2) infinite;
 }
 .made__caret--line {
   block-size: 1em;
 }
+/* The ring is the instrument (components/Ring: brass track, sky, tick, the transit arc); the seats ride its track
+   from here so the hop (a Motion spring on the inner span) never fights the track maths on the outer one. */
 .made__ring {
+  --made-ring: 15rem;
+  --body-size: 2.5rem;
   position: relative;
-  inline-size: min(100%, 17rem);
-  aspect-ratio: 1;
+  inline-size: var(--made-ring);
+  block-size: var(--made-ring);
   margin-inline: auto;
-  --seat: 2.75rem;
 }
-.made__ring::before {
-  content: '';
-  position: absolute;
-  inset: 13%;
-  border: 2px dashed var(--border-strong);
-  border-radius: 50%;
+.made .ring {
+  --ring-size: var(--made-ring);
 }
-.made__seat {
+.made .ring__empty {
+  display: none;
+}
+.made .ring__centre {
+  inset: 22%;
+}
+.made__seats {
   position: absolute;
   inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  transform: rotate(calc(360deg / var(--n) * var(--i)));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.made__seat {
+  --dir: 1;
+  --angle: calc(360deg / var(--n) * var(--i));
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--body-size);
+  block-size: var(--body-size);
+  margin: calc(var(--body-size) / -2);
+  display: grid;
+  place-items: center;
+  transform: rotate(calc(var(--angle) * var(--dir))) translateY(calc(var(--made-ring) * -0.46)) rotate(calc(var(--angle) * var(--dir) * -1));
   pointer-events: none;
 }
-.made__seat-body {
-  display: block;
-  inline-size: var(--seat);
-  block-size: var(--seat);
-  margin-block-start: calc(13% - var(--seat) / 2);
-  transform: rotate(calc(-360deg / var(--n) * var(--i)));
+[dir='rtl'] .made__seat {
+  --dir: -1;
+  inset-inline-start: auto;
+  inset-inline-end: 50%;
 }
+.made__seat-body {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: var(--r-ring);
+  background: var(--paper);
+  box-shadow: var(--shadow-raised);
+}
+/* A seat still empty is a brass tick on the track, radial like the ring's own. */
 .made__empty-seat {
   display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  border: 2px dashed var(--border-strong);
-  border-radius: 50%;
-  background: var(--surface);
+  inline-size: 2px;
+  block-size: 0.625rem;
+  border-radius: 1px;
+  background: var(--brass);
+  transform: rotate(calc(var(--angle) * var(--dir)));
 }
 .made__char {
-  inline-size: 100%;
-  block-size: 100%;
-  filter: drop-shadow(0 4px 6px rgb(15 37 55 / 0.18));
-}
-.made__seat.is-in .made__seat-body {
-  animation: seat-in 420ms var(--ease-out) both;
+  inline-size: 90%;
+  block-size: 90%;
 }
 .made__centre {
-  position: absolute;
-  inset: 30%;
   display: grid;
   place-items: center;
   align-content: center;
@@ -409,8 +469,8 @@
   text-align: center;
 }
 .made__face {
-  inline-size: 68%;
-  color: var(--text);
+  inline-size: 4.25rem;
+  color: inherit;
   transition: scale var(--dur-move) var(--ease-out);
 }
 .made.is-done .made__face {
@@ -419,11 +479,10 @@
 .made__count {
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--text-subtle);
   font-variant-numeric: tabular-nums;
 }
 .made__more {
-  color: var(--text-subtlest);
+  font-weight: 500;
 }
 .made__chips {
   display: flex;
@@ -436,28 +495,15 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.7rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  border-radius: var(--r-sm);
+  background: var(--paper-sunken);
+  color: var(--ink);
   font-size: var(--fs-sm);
   font-weight: 500;
-  animation: chip-in 360ms var(--ease-out) both;
 }
 .made__chip svg {
   flex: none;
-  color: var(--primary-text);
-}
-.made__chip--energizers svg {
-  color: var(--warning-text);
-}
-.made__chip--retro svg {
-  color: var(--success-text);
-}
-.made__chip--decide svg {
-  color: var(--danger-text);
-}
-.made__chip--present svg,
-.made__chip--lang svg {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .made__say {
   display: flex;
@@ -479,9 +525,9 @@
 .made__say-text {
   min-inline-size: 0;
   padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-md);
   border-start-start-radius: var(--r-xs);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
   font-size: var(--fs-md);
   line-height: 1.5;
 }
@@ -504,6 +550,7 @@
 }
 .made__byhand {
   font-weight: 500;
+  color: var(--beam-text);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
@@ -512,20 +559,11 @@
     padding: var(--s-6);
   }
   .made__ring {
-    inline-size: min(100%, 20rem);
-    --seat: 3.25rem;
+    --made-ring: 17.5rem;
+    --body-size: 2.75rem;
   }
-}
-@keyframes seat-in {
-  from {
-    opacity: 0;
-    scale: 0;
-  }
-}
-@keyframes chip-in {
-  from {
-    opacity: 0;
-    translate: 0 -8px;
+  .made__face {
+    inline-size: 5rem;
   }
 }
 @keyframes caret {
@@ -547,22 +585,27 @@
   /* 44 px on phones (the brief's touch target), quieter from 40rem where a pointer is likely. */
   min-block-size: 2.75rem;
   padding: 0.2rem 0.75rem;
-  border: 1px solid var(--on-navy-line);
-  border-radius: var(--r-pill);
+  border: 1px solid var(--dome-line-strong);
+  border-radius: var(--r-ring);
   background: transparent;
-  color: var(--on-navy-subtle);
+  color: var(--on-dome-soft);
   font: inherit;
   font-size: var(--fs-xs);
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color var(--dur-state),
+    border-color var(--dur-state),
+    color var(--dur-state);
 }
 .motion-toggle:hover {
-  color: var(--on-navy);
-  border-color: rgb(255 255 255 / 0.6);
+  color: var(--on-dome);
+  border-color: var(--on-dome-soft);
+  background: var(--dome-hover);
 }
 .motion-toggle[aria-pressed='true'] {
-  border-color: var(--on-navy);
-  color: var(--on-navy);
+  border-color: var(--on-dome);
+  color: var(--on-dome);
 }
 .motion-toggle:focus-visible {
   outline: 2px solid var(--focus);
@@ -577,8 +620,8 @@
 /* ---------- The film: one player, six chapters ---------- */
 .film {
   padding-block: var(--s-8);
-  border-block: 1px solid var(--border);
-  background: var(--bg);
+  border-block-end: 1px solid var(--hairline);
+  background: var(--ground);
 }
 .film__inner {
   display: grid;
@@ -594,10 +637,10 @@
 .film__stage {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-lg);
-  background: var(--surface-sunken);
-  box-shadow: var(--shadow-float);
+  background: var(--paper-sunken);
+  box-shadow: var(--shadow-raised);
 }
 .film__video {
   display: block;
@@ -615,19 +658,20 @@
   inline-size: 2.75rem;
   block-size: 2.75rem;
   border: 0;
-  border-radius: var(--r-pill);
-  background: rgb(15 37 55 / 0.82);
-  color: #ffffff;
+  border-radius: var(--r-ring);
+  background: rgb(7 14 26 / 0.84);
+  color: #f1ecdf;
   cursor: pointer;
   transition: background-color var(--dur-state);
 }
 .film__toggle:hover {
-  background: rgb(15 37 55 / 0.95);
+  background: rgb(7 14 26 / 0.96);
 }
 .film__toggle:focus-visible {
   outline: 2px solid #85b8ff;
   outline-offset: 2px;
 }
+/* The chapters are a dial: the chosen one carries a brass mark, and the clip's time runs as a brass rule. */
 .film__chapters {
   display: grid;
   grid-auto-flow: column;
@@ -646,10 +690,10 @@
   inline-size: 100%;
   min-block-size: 2.75rem;
   padding: var(--s-3);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--text-subtle);
+  background: var(--paper);
+  color: var(--ink-soft);
   font: inherit;
   text-align: start;
   cursor: pointer;
@@ -659,38 +703,39 @@
     color var(--dur-state);
 }
 .film__pick:hover {
-  border-color: var(--border-strong);
-  color: var(--text);
+  border-color: var(--hairline-strong);
+  color: var(--ink);
 }
 .film__pick[aria-current='true'] {
-  border-color: var(--primary);
-  color: var(--text);
+  border-color: var(--brass);
+  color: var(--ink);
 }
 .film__pick:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+/* The chapter's name is the heading; its line is the small text under it (no kicker). */
 .film__label {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--text-subtlest);
-}
-.film__line {
   font-size: var(--fs-sm);
   font-weight: 600;
-  line-height: 1.3;
+  color: var(--ink);
+}
+.film__line {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink-soft);
 }
 .film__bar {
   display: block;
-  block-size: 3px;
-  border-radius: 3px;
-  background: var(--border);
+  block-size: 2px;
+  background: var(--brass-faint);
   overflow: hidden;
 }
 .film__bar > span {
   display: block;
   block-size: 100%;
-  background: var(--primary);
+  background: var(--brass);
   transform-origin: 0 50%;
   transform: scaleX(var(--p, 0));
   transition: transform 260ms linear;
@@ -701,7 +746,7 @@
 .film__body {
   max-inline-size: 60ch;
   font-size: var(--fs-lg);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 @media (min-width: 60rem) {
   .film {
@@ -759,7 +804,7 @@
   }
 }
 
-/* Feel: the face feels what you pick */
+/* Feel: the face feels what you pick; the picked mood fills with its sky (always with its icon and word). */
 .mood-demo {
   display: grid;
   justify-items: center;
@@ -772,7 +817,7 @@
 }
 .mood-demo__face {
   inline-size: 8rem;
-  color: var(--text);
+  color: var(--ink);
   transition: transform 400ms var(--ease-out);
 }
 .mood-demo__face--m1 {
@@ -784,7 +829,7 @@
 .mood-demo__says {
   font-size: var(--fs-sm);
   font-weight: 500;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   text-align: center;
 }
 .mood-demo__pick {
@@ -796,48 +841,7 @@
   font-weight: 600;
   text-align: center;
 }
-.moods {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--s-2);
-}
-.mood {
-  display: grid;
-  justify-items: center;
-  gap: var(--s-2);
-  min-block-size: 2.75rem;
-  padding: var(--s-3) var(--s-1);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--text-subtle);
-  font: inherit;
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  text-align: center;
-  /* Five columns at 360 px leave ~57 px a label: a long word (es "Despejado") breaks instead of overflowing. */
-  hyphens: auto;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-  transition:
-    border-color var(--dur-state),
-    background-color var(--dur-state),
-    transform var(--dur-state) var(--ease-out);
-}
-.mood:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-}
-.mood[aria-pressed='true'] {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
-  color: var(--primary-text);
-  box-shadow: 0 0 0 1px var(--primary);
-}
-.mood:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
+/* .moods and .mood live in components.css: shared with Home's today phase. */
 @media (min-width: 40rem) {
   .mood-demo {
     grid-template-columns: auto minmax(0, 1fr);
@@ -870,7 +874,7 @@
   gap: var(--s-2);
   padding: var(--s-2);
   border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
 }
 .demo-board__head {
   display: flex;
@@ -880,12 +884,12 @@
   font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .demo-board__count {
   padding: 0 0.4rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-pressed);
+  border-radius: var(--r-ring);
+  background: var(--paper-pressed);
   font-variant-numeric: tabular-nums;
 }
 .demo-note {
@@ -893,7 +897,7 @@
   gap: var(--s-2);
   padding: var(--s-3);
   border-radius: var(--r-sm);
-  background: var(--surface);
+  background: var(--paper);
   box-shadow: var(--shadow-raised);
   font-size: var(--fs-sm);
   line-height: 1.4;
@@ -906,8 +910,9 @@
   inline-size: 8px;
   block-size: 8px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--beam);
 }
+/* A friend's cursor wears her body colour (violet stays for AI). */
 .demo-cursor {
   position: absolute;
   inset-block-start: 40%;
@@ -915,7 +920,7 @@
   z-index: 2;
   display: flex;
   align-items: flex-start;
-  --cursor: #9c36b5;
+  --cursor: var(--body-2);
   opacity: 0;
   pointer-events: none;
 }
@@ -924,7 +929,7 @@
   inline-size: 1.1rem;
   block-size: 1.1rem;
   fill: var(--cursor);
-  stroke: #fff;
+  stroke: var(--paper);
   stroke-width: 1.4;
   stroke-linejoin: round;
 }
@@ -932,9 +937,9 @@
   margin-block-start: 0.8rem;
   margin-inline-start: -0.15rem;
   padding: 1px 0.55rem;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-ring);
   background: var(--cursor);
-  color: #fff;
+  color: var(--on-body);
   font-size: var(--fs-xs);
   font-weight: 600;
 }
@@ -954,9 +959,9 @@
   align-content: start;
   gap: var(--s-2);
   padding: var(--s-4);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
   font-size: var(--fs-sm);
   line-height: 1.5;
 }
@@ -1089,11 +1094,11 @@
   }
 }
 
-/* ---------- Four languages ---------- */
+/* ---------- Four languages, set large ---------- */
 .tongues {
   padding: var(--s-8) var(--gutter);
-  border-block-start: 1px solid var(--border);
-  background: var(--surface);
+  border-block: 1px solid var(--hairline);
+  background: var(--paper);
   text-align: center;
 }
 .tongues__list {
@@ -1114,14 +1119,13 @@
   margin-block-start: var(--s-4);
   margin-inline: auto;
   font-size: var(--fs-lg);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 
 /* ---------- Integrations: one honest list ---------- */
 .plugs {
   padding-block: var(--s-8);
-  border-block: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--ground);
 }
 .plugs__inner {
   display: grid;
@@ -1133,9 +1137,9 @@
 .plugs__list {
   display: grid;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
 }
 .plug {
   display: grid;
@@ -1146,7 +1150,7 @@
   column-gap: var(--s-3);
   align-items: center;
   padding: var(--s-3) var(--s-4);
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--hairline);
 }
 .plug:first-child {
   border-block-start: 0;
@@ -1156,13 +1160,14 @@
   display: flex;
   gap: var(--s-1);
 }
+/* Brand marks keep their own white tile in both themes. */
 .plug__logo {
   inline-size: 2.25rem;
   block-size: 2.25rem;
   padding: 0.35rem;
   border-radius: var(--r-sm);
   background: #ffffff;
-  box-shadow: inset 0 0 0 1px var(--border);
+  box-shadow: inset 0 0 0 1px var(--hairline);
   object-fit: contain;
 }
 .plug__name {
@@ -1172,7 +1177,7 @@
 .plug__what {
   grid-area: what;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .plug__status {
   grid-area: status;
@@ -1181,6 +1186,8 @@
 /* ---------- Free ---------- */
 .free {
   padding: var(--s-8) var(--gutter);
+  border-block: 1px solid var(--hairline);
+  background: var(--paper);
 }
 .free__inner {
   display: grid;
@@ -1193,7 +1200,7 @@
   display: grid;
   gap: var(--s-2);
   font-size: var(--fs-lg);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .free__facts li {
   display: flex;
@@ -1203,14 +1210,13 @@
 .free__facts svg {
   flex: none;
   margin-block-start: 0.3rem;
-  color: var(--success);
+  color: var(--live);
 }
 
 /* ---------- FAQ ---------- */
 .faq {
   padding: var(--s-8) var(--gutter);
-  border-block: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--ground);
 }
 .faq__inner {
   display: grid;
@@ -1219,10 +1225,10 @@
   margin-inline: auto;
 }
 .faq__list {
-  border-block-start: 1px solid var(--border);
+  border-block-start: 1px solid var(--hairline);
 }
 .faqrow {
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--hairline);
 }
 .faqrow__sum {
   display: flex;
@@ -1249,7 +1255,7 @@
   flex: none;
   inline-size: 1.75rem;
   block-size: 1.75rem;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   transition: transform var(--dur-move) var(--ease-out);
 }
 .faqrow[open] .faqrow__plus {
@@ -1257,7 +1263,7 @@
 }
 .faqrow__body {
   padding-block: 0 var(--s-4);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .faqrow[open] .faqrow__body {
   animation: faq-in var(--dur-enter) var(--ease-out) both;
@@ -1269,15 +1275,9 @@
   }
 }
 
-/* ---------- One more line ---------- */
+/* ---------- One more line: the dome again ---------- */
 .again {
-  position: relative;
-  isolation: isolate;
-  overflow: clip;
   padding: var(--s-8) var(--gutter);
-  background: var(--navy);
-  color: var(--on-navy);
-  --focus: #85b8ff;
 }
 .again__inner {
   display: grid;
@@ -1295,13 +1295,13 @@
 }
 .again__inner > p {
   font-size: var(--fs-lg);
-  color: var(--on-navy-subtle);
+  color: var(--on-dome-soft);
 }
 
 /* ---------- Footer ---------- */
 .footer {
-  border-block-start: 1px solid var(--border);
-  background: var(--surface);
+  border-block-start: 1px solid var(--hairline);
+  background: var(--paper);
 }
 .footer__inner {
   display: grid;
@@ -1310,7 +1310,7 @@
   margin-inline: auto;
   padding: var(--s-7) var(--gutter);
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .footer__row {
   display: flex;
@@ -1321,7 +1321,7 @@
 .footer__row .wordmark {
   margin-inline-end: auto;
   font-size: 1.35rem;
-  color: var(--text);
+  color: var(--ink);
 }
 .footer__links {
   display: flex;
@@ -1329,23 +1329,21 @@
   gap: var(--s-2) var(--s-5);
 }
 .footer__links a {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   font-weight: 500;
   text-decoration: none;
 }
 .footer__links a:hover {
-  color: var(--text);
+  color: var(--ink);
   text-decoration: underline;
 }
 .footer__legal {
   font-size: var(--fs-xs);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
 }
 
 /* ---------- Still paths: reduced motion without opt-in, or the visitor's pause ---------- */
 :where(.site[data-motion='off'], .site.is-still) {
-  .made__seat.is-in .made__seat-body,
-  .made__chip,
   .made__caret,
   .film__video,
   .faqrow[open] .faqrow__body {
@@ -1357,6 +1355,7 @@
   .made__face,
   .made__actions,
   .made__say,
+  .made .ring__sky,
   .mood-demo__face,
   .mood {
     transition: none;

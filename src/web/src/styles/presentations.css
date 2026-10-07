@@ -1,4 +1,6 @@
-/* ---------- Presentations library and editor (spec 006) ---------- */
+/* ---------- Presentations library and editor (spec 006, restyled for the orrery #250) ----------
+   The library is a hairline grid of decks on paper; the editor is a quiet instrument: the slides on a brass-ticked
+   rail, the question form on paper. Brass only measures (rails, ticks, progress); beam is the one action colour. */
 .lozenge--danger {
   background: var(--danger-subtle);
   color: var(--danger-text);
@@ -7,6 +9,7 @@
   background: var(--warning-subtle);
   color: var(--warning-text);
 }
+/* The one allowed loop: a conversion still running. */
 .spin {
   animation: deck-spin 0.9s linear infinite;
 }
@@ -16,7 +19,7 @@
   }
 }
 
-/* Upload */
+/* ---------- Upload ---------- */
 .deck-upload {
   display: grid;
   gap: var(--s-2);
@@ -26,18 +29,19 @@
   justify-items: center;
   gap: var(--s-2);
   padding: var(--s-6) var(--s-5);
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed var(--hairline-strong);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
   text-align: center;
-  transition: border-color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+  transition: border-color var(--dur-state) var(--ease-out), background-color var(--dur-state) var(--ease-out);
 }
 .deck-drop.is-over {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
+  border-style: solid;
+  border-color: var(--beam);
+  background: var(--beam-subtle);
 }
 .deck-drop__icon {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .deck-drop__title {
   font-weight: 600;
@@ -45,19 +49,20 @@
 .deck-drop__hint {
   max-inline-size: 46ch;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .deck-drop .btn {
   margin-block-start: var(--s-2);
 }
+/* Progress is a brass rule: the track faint, the run solid. */
 .deck-drop__progress,
 .deck-progress__bar {
   position: relative;
   inline-size: min(20rem, 100%);
-  block-size: 0.375rem;
+  block-size: 2px;
   overflow: hidden;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  border-radius: var(--r-ring);
+  background: var(--brass-faint);
 }
 .deck-drop__progress span,
 .deck-progress__bar span {
@@ -65,48 +70,81 @@
   inset-block: 0;
   inset-inline-start: 0;
   border-radius: inherit;
-  background: var(--primary);
-  transition: inline-size 300ms var(--ease-out);
+  background: var(--brass);
+  transition: inline-size var(--dur-enter) var(--ease-out);
 }
 
-/* Library grid */
+/* ---------- Library: a hairline grid of decks ---------- */
 .deck-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--s-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--hairline);
 }
 .deck-card {
   display: grid;
   align-content: start;
-  gap: var(--s-2);
+  gap: var(--s-3);
   min-inline-size: 0;
+  padding: var(--s-4);
+  background: var(--paper);
 }
 .deck-card__link {
   display: grid;
-  gap: var(--s-2);
+  gap: var(--s-3);
   color: inherit;
   text-decoration: none;
-  border-radius: var(--r-md);
+  border-radius: var(--r-sm);
 }
+.deck-card__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+/* The deck's first slide, or its title set large while the picture is not there yet. */
 .deck-card__thumb {
-  display: block;
+  position: relative;
+  display: grid;
+  place-items: center;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  border-radius: var(--r-sm);
+  background: var(--paper-sunken);
+  color: var(--ink);
 }
 .deck-card__thumb img {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
+  transition: transform var(--dur-move) var(--ease-out);
 }
-.deck-card__link:hover .deck-card__thumb {
-  border-color: var(--border-strong);
+.deck-card__title-large {
+  display: -webkit-box;
+  overflow: hidden;
+  padding: var(--s-4);
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-wrap: balance;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
-.deck-card__link:hover .deck-card__name {
-  text-decoration: underline;
+@media (hover: hover) {
+  .deck-card__link:hover .deck-card__thumb img {
+    transform: scale(1.02);
+  }
+  .deck-card__link:hover .deck-card__name {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
 }
 .deck-card__body {
   display: grid;
@@ -119,11 +157,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.deck-card__meta,
+.deck-card__meta {
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
 .deck-card__why,
 .deck-card__confirm {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .deck-card__foot {
   display: flex;
@@ -145,6 +187,8 @@
   justify-items: center;
   gap: var(--s-2);
   padding: var(--s-8) var(--s-4);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-md);
   text-align: center;
 }
 .deck-empty__char {
@@ -155,7 +199,7 @@
   font-weight: 600;
 }
 
-/* Editor */
+/* ---------- Editor ---------- */
 .deck-rename {
   display: grid;
   gap: var(--s-1);
@@ -165,32 +209,40 @@
   border-color: transparent;
   background: transparent;
   font: inherit;
-  font-weight: 600;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
   padding-inline: var(--s-2);
   margin-inline-start: calc(-1 * var(--s-2));
 }
 .deck-rename__input:hover {
-  border-color: var(--border);
+  border-color: var(--hairline);
 }
 .deck-rename__input:focus {
-  border-color: var(--primary);
-  background: var(--surface);
+  border-color: var(--beam);
+  background: var(--paper);
 }
 .deck-progress {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-3);
-  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
 }
 .deck-note {
   display: flex;
   align-items: flex-start;
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--info-subtle);
-  color: var(--info-text);
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+.deck-note > svg {
+  flex: none;
+  margin-block-start: 0.2em;
 }
 .deck-note p {
   flex: 1;
@@ -198,8 +250,8 @@
 .deck-note__close {
   display: grid;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  inline-size: 2rem;
+  block-size: 2rem;
   margin: calc(-1 * var(--s-1));
   border: 0;
   border-radius: var(--r-sm);
@@ -208,22 +260,53 @@
   cursor: pointer;
 }
 .deck-note__close:hover {
-  background: rgb(0 0 0 / 0.06);
+  background: var(--paper-hover);
+  color: var(--ink);
+}
+.deck-note__close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .deck-workspace {
   display: grid;
-  grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr);
+  grid-template-columns: minmax(10rem, 12.5rem) minmax(0, 1fr);
   gap: var(--s-6);
   align-items: start;
 }
+
+/* The rail: slides hang off a brass line, each with its tick; the selected one has the long tick. */
 .slide-strip {
+  --tick: var(--s-3);
+  position: relative;
   display: grid;
   gap: var(--s-3);
   max-block-size: calc(100dvh - 14rem);
+  margin: 0;
+  padding: var(--s-1) var(--s-1) var(--s-1) 0;
+  padding-inline-start: calc(var(--tick) + var(--s-2));
   overflow-y: auto;
-  padding: var(--s-1);
-  margin: calc(-1 * var(--s-1));
+  list-style: none;
+  border-inline-start: 1px solid var(--brass-faint);
+}
+.slide-strip li {
+  position: relative;
+}
+.slide-strip li::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: calc(-1 * (var(--tick) + var(--s-2)));
+  inline-size: var(--s-2);
+  block-size: 1px;
+  background: var(--brass);
+  opacity: 0.55;
+  transition: inline-size var(--dur-state) var(--ease-out), opacity var(--dur-state) var(--ease-out);
+}
+.slide-strip li:has(.slide-thumb.is-selected)::before {
+  inline-size: var(--tick);
+  block-size: 2px;
+  opacity: 1;
 }
 .slide-thumb {
   display: grid;
@@ -231,19 +314,25 @@
   inline-size: 100%;
   padding: 0;
   border: 0;
+  border-radius: var(--r-sm);
   background: none;
   color: inherit;
   text-align: start;
   cursor: pointer;
+}
+.slide-thumb:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
 }
 .slide-thumb__frame {
   position: relative;
   display: block;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-sm);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
+  transition: border-color var(--dur-state) var(--ease-out), box-shadow var(--dur-state) var(--ease-out);
 }
 .slide-thumb__frame img {
   display: block;
@@ -251,15 +340,19 @@
   block-size: 100%;
   object-fit: cover;
 }
-.slide-thumb:hover .slide-thumb__frame {
-  border-color: var(--border-strong);
+@media (hover: hover) {
+  .slide-thumb:hover .slide-thumb__frame {
+    border-color: var(--hairline-strong);
+  }
 }
+/* The selected mark on the dial is brass; focus keeps its own blue ring. */
 .slide-thumb.is-selected .slide-thumb__frame {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary);
+  border-color: var(--brass);
+  box-shadow: 0 0 0 1px var(--brass);
 }
-.slide-thumb.is-hidden .slide-thumb__frame img {
-  opacity: 0.4;
+.slide-thumb.is-hidden .slide-thumb__frame img,
+.slide-thumb.is-hidden .slide-thumb__question {
+  opacity: 0.45;
 }
 .slide-thumb__question {
   position: absolute;
@@ -269,10 +362,13 @@
   justify-items: start;
   gap: var(--s-1);
   padding: var(--s-2);
-  background: var(--surface);
+  background: var(--paper);
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
+}
+.slide-thumb__question > svg {
+  color: var(--ink-faint);
 }
 .slide-thumb__question span {
   display: -webkit-box;
@@ -285,32 +381,34 @@
   align-items: center;
   gap: var(--s-1);
   font-size: var(--fs-xs);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .slide-thumb__num {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  color: var(--ink-soft);
   margin-inline-end: auto;
 }
 
 .slide-preview {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-4);
   min-inline-size: 0;
 }
 .slide-preview__frame {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
 }
 .slide-preview__frame img {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: contain;
+  /* Slide pictures are rendered on white by the converter; keep their paper whatever the theme. */
   background: #ffffff;
 }
 .slide-preview__question {
@@ -319,7 +417,7 @@
   display: grid;
   place-items: center;
   padding: var(--s-6);
-  background: var(--surface);
+  background: var(--paper);
   font-size: var(--fs-2xl);
   font-weight: 600;
   text-align: center;
@@ -333,9 +431,8 @@
 .slide-notes {
   display: grid;
   gap: var(--s-2);
-  padding: var(--s-4);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--hairline);
 }
 .slide-notes__title {
   display: flex;
@@ -343,44 +440,49 @@
   gap: var(--s-2);
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .slide-notes__text {
   white-space: pre-line;
+  line-height: 1.55;
 }
 
 @media (max-width: 48rem) {
   .deck-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* The rail runs across: the brass line on top, the ticks hanging from it. */
   .slide-strip {
     grid-auto-flow: column;
     grid-auto-columns: 8rem;
     max-block-size: none;
     overflow-x: auto;
     overflow-y: visible;
-    /* Room for the selection ring without pulling thumbnails to the screen edge */
-    margin: 0;
-    padding: var(--s-1) var(--s-1) var(--s-2);
+    padding: calc(var(--tick) + var(--s-2)) var(--s-1) var(--s-2);
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--brass-faint);
+  }
+  .slide-strip li::before {
+    inset-block-start: calc(-1 * (var(--tick) + var(--s-2)));
+    inset-inline-start: 50%;
+    inline-size: 1px;
+    block-size: var(--s-2);
+  }
+  .slide-strip li:has(.slide-thumb.is-selected)::before {
+    inline-size: 2px;
+    block-size: var(--tick);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .spin {
-    animation: none;
-  }
-  .deck-drop,
-  .deck-drop__progress span,
-  .deck-progress__bar span {
-    transition: none;
-  }
-}
-
-/* Question form (spec 006 US2) */
+/* ---------- Question form (spec 006 US2), on paper ---------- */
 .deck-settings {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-4) var(--s-6);
+  padding: var(--s-4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
 }
 /* One setting: its switch, then its explanation and any error, stacked. */
 .deck-setting {
@@ -404,11 +506,11 @@
 }
 .qform {
   display: grid;
-  gap: var(--s-4);
+  gap: var(--s-5);
   padding: var(--s-5);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
 }
 .qform__question {
   resize: vertical;
@@ -427,6 +529,9 @@
   display: grid;
   gap: var(--s-2);
   inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .qform__option {
   display: grid;
@@ -445,18 +550,20 @@
 }
 /* The focus border wins over the correct-answer border. */
 .qform__option.is-correct .input:not(:focus-visible) {
-  border-color: var(--success);
+  border-color: var(--live);
 }
+/* The answer's number in a hairline ring. */
 .qform__letter {
   display: grid;
   place-items: center;
   inline-size: 1.75rem;
   block-size: 1.75rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-ring);
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
 }
 .qform__correct,
 .qform__remove {
@@ -468,13 +575,17 @@
   border: 0;
   border-radius: var(--r-sm);
   background: none;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   cursor: pointer;
 }
 .qform__correct:has(:checked) {
-  color: var(--success);
+  color: var(--live);
 }
 .qform__correct:has(:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.qform__remove:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
@@ -482,18 +593,20 @@
   margin-inline-end: auto;
   align-self: center;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .qform__correct:hover,
 .qform__remove:hover {
-  background: var(--surface-hover);
-  color: var(--text);
+  background: var(--paper-hover);
+  color: var(--ink);
 }
 .qform__settings {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
   gap: var(--s-3) var(--s-5);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--hairline);
 }
 .qform__timer {
   min-inline-size: 9rem;
@@ -508,7 +621,7 @@
 }
 /* Where a dragged slide will land. */
 .slide-strip li.is-drop-target .slide-thumb {
-  outline: 2px dashed var(--primary);
+  outline: 2px dashed var(--beam);
   outline-offset: 2px;
 }
 .move-icon--inline {
@@ -520,9 +633,9 @@
   align-items: center;
   gap: var(--s-2) var(--s-3);
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
 }
 .deck-unsaved p {
   margin-inline-end: auto;
@@ -553,5 +666,22 @@
     grid-column: 2;
     grid-row: 2;
     justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+  .deck-drop,
+  .deck-drop__progress span,
+  .deck-progress__bar span,
+  .deck-card__thumb img,
+  .slide-strip li::before,
+  .slide-thumb__frame {
+    transition: none;
+  }
+  .deck-card__link:hover .deck-card__thumb img {
+    transform: none;
   }
 }

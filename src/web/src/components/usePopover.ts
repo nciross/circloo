@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
+import { dur, spring } from '../lib/motion'
 
 const ITEMS = 'a[href], button:not([disabled])'
+
+/**
+ * How a popover panel arrives and leaves: 8px up on the soft spring, out faster than in. Under
+ * reduced motion it only fades. Spread onto a `motion.div` inside an `AnimatePresence`.
+ */
+export const popoverMotion = (reduced: boolean) => ({
+  initial: { opacity: 0, y: reduced ? 0 : 8 },
+  animate: { opacity: 1, y: 0, transition: reduced ? { duration: dur.state } : spring.soft },
+  exit: { opacity: 0, y: reduced ? 0 : 4, transition: { duration: dur.press } },
+})
 
 /**
  * A disclosure popover (button + panel): opens on activation, closes on Escape, outside press or

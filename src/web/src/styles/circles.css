@@ -37,15 +37,15 @@
   padding: var(--s-3) var(--s-1) var(--s-2);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
   cursor: pointer;
   transition:
-    border-color 120ms ease,
-    background-color 120ms ease,
-    transform 160ms var(--ease-out);
+    border-color var(--dur-press) var(--ease-out),
+    background-color var(--dur-press) var(--ease-out),
+    transform var(--dur-state) var(--ease-out);
 }
 .pick__item:hover {
-  border-color: var(--border-strong);
+  border-color: var(--hairline-strong);
   transform: translateY(-2px);
 }
 .pick__item input {
@@ -59,12 +59,12 @@
   outline-offset: 2px;
 }
 .pick__item.is-picked {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
-  box-shadow: 0 0 0 1px var(--primary);
+  border-color: var(--beam);
+  background: var(--beam-subtle);
+  box-shadow: 0 0 0 1px var(--beam);
 }
 .pick__item.is-picked .pick__char {
-  animation: hop 420ms var(--ease-out);
+  animation: hop var(--dur-enter) var(--ease-out);
 }
 .pick__item.is-taken {
   opacity: 0.45;
@@ -289,14 +289,13 @@
   gap: var(--s-2);
 }
 .dot {
-  inline-size: 0.6rem;
-  block-size: 0.6rem;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
   border-radius: 50%;
-  background: var(--text-subtlest);
+  background: var(--ink-faint);
 }
 .dot--live {
-  background: var(--success);
-  box-shadow: 0 0 0 3px var(--success-subtle);
+  background: var(--live);
 }
 .dot--connecting,
 .dot--reconnecting {
@@ -313,114 +312,30 @@
   gap: var(--s-5);
   min-inline-size: 0;
 }
+.room__wait,
+.room__ended {
+  border-radius: var(--r-xl);
+}
 .room__wait .panel__body,
 .room__ended .panel__body {
   justify-items: center;
   padding-block: var(--s-8);
   text-align: center;
 }
+.room__wait .panel__title,
+.room__ended .panel__title {
+  font-size: var(--fs-xl);
+  letter-spacing: -0.01em;
+}
 .room__wait-panda,
 .room__ended-panda {
   inline-size: 6rem;
-  color: var(--text);
+  color: var(--ink);
 }
 @media (max-width: 59.99rem) {
   .room__grid {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-/* ---------- People ring ---------- */
-.ring {
-  --seat: 3.25rem;
-  position: relative;
-  inline-size: min(100%, 18rem);
-  aspect-ratio: 1;
-  margin-inline: auto;
-  overflow: clip;
-}
-.ring::before {
-  content: '';
-  position: absolute;
-  inset: 14%;
-  border: 2px dashed var(--border-strong);
-  border-radius: 50%;
-}
-.ring__seats {
-  position: absolute;
-  inset: 0;
-}
-.ring__seat {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  padding-block-start: calc(14% - var(--seat) / 2);
-  transform: rotate(var(--a, 0deg));
-  pointer-events: none;
-}
-.ring__body {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  block-size: fit-content;
-  transform: rotate(calc(-1 * var(--a, 0deg)));
-  animation: pop-in 360ms var(--ease-out);
-}
-/* Away: the art and the name fade, the ring keeps its colour (still 3:1) and turns dashed, so away is not colour alone. */
-.ring__body .char__art,
-.ring__body .ring__name {
-  opacity: 0.45;
-  filter: grayscale(0.8);
-  transition:
-    opacity 300ms ease,
-    filter 300ms ease;
-}
-.ring__seat:not(.is-online) .char__ring {
-  stroke-dasharray: 5 4;
-}
-.ring__seat.is-online .ring__body .char__art,
-.ring__seat.is-online .ring__body .ring__name {
-  opacity: 1;
-  filter: none;
-}
-.ring__char {
-  inline-size: var(--seat);
-  block-size: var(--seat);
-}
-.ring__name {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  max-inline-size: 6rem;
-  padding: 0 0.4rem;
-  border-radius: var(--r-pill);
-  background: var(--surface);
-  box-shadow: var(--shadow-raised);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.ring__name svg {
-  flex: none;
-  color: var(--warning-text);
-}
-.ring__count {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  font-size: var(--fs-sm);
-  color: var(--text-subtle);
-  font-variant-numeric: tabular-nums;
-}
-.ring__online {
-  font-size: var(--fs-3xl);
-  font-weight: 700;
-  color: var(--text);
-  text-align: center;
 }
 
 /* ---------- Invite ---------- */
@@ -435,44 +350,49 @@
 }
 .invite__code {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .invite__code-value {
   font-size: var(--fs-lg);
   letter-spacing: 0.08em;
-  color: var(--text);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Chat with circloo ---------- */
+/* ---------- Chat ---------- */
 .chat {
   grid-template-rows: auto minmax(0, 1fr) auto;
   block-size: min(44rem, calc(100dvh - var(--topbar-h) - 9rem));
   min-block-size: 26rem;
 }
 .chat__log {
-  padding: var(--s-5);
+  padding: var(--s-4);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 .chat__list {
   display: flex;
   flex-direction: column;
-  gap: var(--s-4);
+  gap: var(--s-3);
 }
 .chat__system {
   align-self: center;
   padding: 0.15rem 0.7rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  border-radius: var(--r-ring);
+  background: var(--paper-sunken);
   font-size: var(--fs-xs);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
+/* circloo's answers: the one place for AI violet, with the label and the panda at 24 px. */
 .chat__ai {
   display: grid;
   gap: var(--s-2);
   max-inline-size: 46rem;
-  animation: rise-in 240ms var(--ease-out);
+  padding: var(--s-3);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--r-md);
+  background: var(--ai-subtle);
+  animation: rise-in var(--dur-move) var(--ease-out);
 }
 .chat__who {
   display: flex;
@@ -480,20 +400,21 @@
   gap: var(--s-2);
 }
 .chat__panda {
-  inline-size: 1.9rem;
-  block-size: 1.9rem;
-  color: var(--text);
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: var(--ink);
 }
 .chat__panda--big {
-  inline-size: 3.25rem;
-  block-size: 3.25rem;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
 }
 .chat__name {
   font-size: var(--fs-sm);
   font-weight: 600;
 }
 .chat__ai .chat__text {
-  font-size: var(--fs-lg);
+  margin: 0;
+  font-size: var(--fs-md);
   line-height: 1.6;
   white-space: pre-line;
 }
@@ -514,42 +435,45 @@
 }
 .chat__msg {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--s-2);
-  max-inline-size: 80%;
-  animation: rise-in 200ms var(--ease-out);
+  max-inline-size: 85%;
+  animation: rise-in var(--dur-move) var(--ease-out);
 }
 .chat__msg.is-mine {
   align-self: flex-end;
   flex-direction: row-reverse;
 }
 .chat__avatar {
-  inline-size: 2rem;
-  block-size: 2rem;
   flex: none;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  margin-block-start: var(--s-1);
 }
 .chat__bubble {
   display: grid;
   gap: 2px;
+  min-inline-size: 0;
   padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-lg);
-  border-end-start-radius: var(--r-xs);
-  background: var(--surface-sunken);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
 }
+/* Yours: outlined in the beam, like your body on the ring. */
 .chat__msg.is-mine .chat__bubble {
-  border-end-start-radius: var(--r-lg);
-  border-end-end-radius: var(--r-xs);
-  background: var(--primary-subtle);
+  border-color: transparent;
+  background: var(--beam-subtle);
 }
 .chat__msg.is-animator .chat__name::after {
   content: ' ★';
-  color: var(--warning-text);
+  color: var(--brass);
 }
 .chat__bubble .chat__name {
   font-size: var(--fs-xs);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .chat__bubble .chat__text {
+  margin: 0;
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
@@ -560,13 +484,13 @@
   }
 }
 
-/* Composer: a Claude-like box with the send button inside */
+/* Composer: one box on paper with the send button inside; one action colour, whoever it goes to. */
 .composer {
   display: grid;
   gap: var(--s-2);
   padding: var(--s-3) var(--s-4) var(--s-4);
-  border-block-start: 1px solid var(--border);
-  background: var(--surface);
+  border-block-start: 1px solid var(--hairline);
+  background: var(--paper);
   border-end-start-radius: var(--r-md);
   border-end-end-radius: var(--r-md);
 }
@@ -595,14 +519,13 @@
   display: flex;
   align-items: flex-end;
   gap: var(--s-2);
-  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
-  border: 1px solid var(--border-strong);
+  padding: var(--s-2);
+  padding-inline-start: var(--s-4);
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-lg);
-  background: var(--surface);
+  background: var(--paper);
   box-shadow: var(--shadow-raised);
-}
-[dir='rtl'] .composer__box {
-  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2);
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .composer__box:focus-within {
   border-color: var(--focus);
@@ -628,12 +551,16 @@
   flex: none;
   border: 0;
   border-radius: var(--r-md);
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--beam);
+  color: var(--on-beam);
+  transition: background-color var(--dur-press) var(--ease-out);
 }
-.composer__send.is-ai {
-  background: var(--ai);
-  color: var(--on-ai);
+.composer__send:hover {
+  background: var(--beam-hover);
+}
+.composer__send:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 .composer__send[aria-disabled='true'] {
   opacity: 0.4;
@@ -832,6 +759,46 @@
     justify-content: center;
   }
 }
+/* Today's phase beside the lead ring: the face feels it, one tap sets the ring's sky. */
+.orbits__item--phase {
+  grid-column: span 2;
+}
+.phase {
+  display: grid;
+  gap: var(--s-4);
+  padding: var(--s-5) var(--s-6);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-raised);
+}
+.phase__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+.phase__face {
+  inline-size: 3.5rem;
+  flex: none;
+  color: var(--ink);
+}
+.phase__says {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.phase__note {
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+@media (max-width: 40rem) {
+  .orbits__item--phase {
+    grid-column: auto;
+  }
+  .phase {
+    padding: var(--s-4);
+  }
+}
 /* Kept for the specs and older pages that still list circles as rows. */
 .circle-list__name {
   font-weight: 600;
@@ -909,19 +876,22 @@
   --cols: 3;
 }
 .board__col {
+  --col: var(--ink-faint);
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: var(--s-2);
   min-block-size: 18rem;
   padding: var(--s-2);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
-  border-block-start: 3px solid var(--col, var(--primary));
-  transition: background-color 120ms ease, box-shadow 120ms ease;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper-sunken);
+  transition:
+    background-color var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-press) var(--ease-out);
 }
 .board__col.is-over {
-  background: var(--primary-subtle);
-  box-shadow: inset 0 0 0 2px var(--primary);
+  background: var(--beam-subtle);
+  box-shadow: inset 0 0 0 2px var(--beam);
 }
 .board__col--stop,
 .board__col--improve,
@@ -932,7 +902,7 @@
 .board__col--well,
 .board__col--kudos,
 .board__col--next {
-  --col: var(--success);
+  --col: var(--live);
 }
 .board__head {
   display: flex;
@@ -942,10 +912,19 @@
   font-size: var(--fs-sm);
   font-weight: 600;
 }
+.board__head::before {
+  content: '';
+  flex: none;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--col);
+}
 .board__count {
   padding: 0 0.4rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-pressed);
+  border-radius: var(--r-ring);
+  background: var(--paper);
+  color: var(--ink-soft);
   font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
 }
@@ -963,9 +942,9 @@
   border-radius: var(--r-sm);
   background: var(--note);
   color: #0f2537;
-  box-shadow: 0 1px 1px rgb(15 37 55 / 0.12), 0 4px 10px -6px rgb(15 37 55 / 0.35);
+  box-shadow: var(--shadow-raised);
   cursor: grab;
-  animation: rise-in 220ms var(--ease-out);
+  animation: rise-in var(--dur-move) var(--ease-out);
 }
 .note-card:active {
   cursor: grabbing;
@@ -983,7 +962,7 @@
   --note: #e6dcff;
 }
 .note-card.is-voted {
-  box-shadow: 0 0 0 2px #0d5bd7, 0 4px 10px -6px rgb(15 37 55 / 0.35);
+  box-shadow: 0 0 0 2px var(--beam), var(--shadow-raised);
 }
 .note-card__text {
   font-size: var(--fs-md);
@@ -1033,9 +1012,13 @@
   background: #ffffff;
 }
 .note-card__vote[aria-pressed='true'] {
-  border-color: #0d5bd7;
-  background: #0d5bd7;
-  color: #ffffff;
+  border-color: var(--beam);
+  background: var(--beam);
+  color: var(--on-beam);
+}
+.note-card__vote:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 .note-card__dots {
   display: inline-flex;
@@ -1048,7 +1031,7 @@
   background: currentColor;
 }
 .board__dots .note-card__dot {
-  background: var(--primary);
+  background: var(--beam);
 }
 .note-card__dot.is-empty {
   background: transparent;
@@ -1165,90 +1148,37 @@
 }
 
 /* ---------- Alive moments (issue #84) ---------- */
-/* Characters on the ring blink with the logo's eyes, each on its own beat. */
-.ring__char .char__eye {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: blink 5.2s infinite;
-}
-.ring__seat:nth-child(2n) .ring__char .char__eye { animation-delay: 1.3s; }
-.ring__seat:nth-child(3n) .ring__char .char__eye { animation-delay: 2.6s; }
-.ring__seat:nth-child(5n) .ring__char .char__eye { animation-delay: 3.4s; }
-
-/* Someone arrives: they hop onto their seat with a few hearts. */
-.ring__seat.is-new .ring__char {
-  animation: arrive 900ms var(--ease-out);
-}
-.ring__body {
-  position: relative;
-}
-.ring__hearts {
-  position: absolute;
-  inset-block-start: -0.25rem;
-  inset-inline: 0;
-  display: flex;
-  justify-content: center;
-}
-.ring__heart {
-  position: absolute;
-  inline-size: 1rem;
-  block-size: 1rem;
-  fill: var(--brand-coral);
-  opacity: 0;
-  animation: heart-rise 1.2s ease-out forwards;
-}
-.ring__heart--1 { fill: var(--ai); animation-delay: 120ms; --hx: -0.9rem; inline-size: 0.8rem; }
-.ring__heart--2 { fill: #ffc21a; animation-delay: 240ms; --hx: 0.9rem; inline-size: 0.75rem; }
-@keyframes arrive {
-  0% { transform: translateY(-18px) scale(0.6); opacity: 0; }
-  55% { transform: translateY(2px) scale(1.06, 0.94); opacity: 1; }
-  100% { transform: translateY(0) scale(1); }
-}
-@keyframes heart-rise {
-  0% { opacity: 0; transform: translate(0, 0.4rem) scale(0.4); }
-  25% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--hx, 0), -2.4rem) scale(1.1); }
-}
-
-/* A new circle's invite card glows twice so the next step is obvious. */
+/* A new circle's invite card is marked in brass so the next step is obvious; the mark settles after a moment. */
 .invite.is-fresh {
-  animation: ready-glow 1.4s var(--ease-out) 2;
+  border-color: var(--brass);
+  box-shadow: 0 0 0 1px var(--brass), var(--shadow-raised);
+  animation: invite-mark var(--dur-focal) var(--ease-out) both;
 }
-@keyframes ready-glow {
-  0% { box-shadow: var(--shadow-raised), 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
-  100% { box-shadow: var(--shadow-raised), 0 0 0 14px color-mix(in srgb, var(--primary) 0%, transparent); }
+.invite.is-fresh .invite__code-value {
+  color: var(--brass);
 }
-
-/* An activity opens like a page turning up into view. */
-.room__reveal {
-  display: grid;
-  gap: var(--s-5);
-  animation: reveal-up 420ms var(--ease-out);
-}
-@keyframes reveal-up {
-  from { clip-path: inset(18% 0 0 0 round var(--r-md)); opacity: 0; transform: translateY(10px); }
-  to { clip-path: inset(0 0 0 0 round var(--r-md)); opacity: 1; transform: none; }
+@keyframes invite-mark {
+  from { box-shadow: 0 0 0 0 var(--brass), var(--shadow-raised); }
 }
 
 /* A vote lands: the count pops once. */
 .note-card__count {
   display: inline-block;
-  animation: count-pop 260ms var(--ease-out);
+  animation: count-pop var(--dur-move) var(--ease-out);
 }
 @keyframes count-pop {
   from { transform: scale(1.5); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ring__char .char__eye,
-  .ring__seat.is-new .ring__char,
-  .room__reveal,
-  .note-card__count {
+  .invite.is-fresh,
+  .note-card__count,
+  .pick__item.is-picked .pick__char {
     animation: none;
   }
-  .ring__heart { display: none; }
-  /* Keep the confirmation, without movement. */
-  .invite.is-fresh { animation: none; box-shadow: 0 0 0 2px var(--primary); }
+  .pick__item:hover {
+    transform: none;
+  }
 }
 
 /* "Kenji is typing…" under the last message. */

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'motion/react'
 import { ArrowRight, Baby, Check, Globe, Home, Languages, Lightbulb, MoonStar, Play, Settings, Shuffle, Sun, Tag, UsersRound, X } from 'lucide-react'
 import type { Step } from '../../lib/intent'
+import { listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
 import { useStepLabel } from './planning'
 
 const ICONS: Record<Step['type'], typeof Home> = {
@@ -28,21 +30,23 @@ const iconOf = (s: Step) =>
 /**
  * A plan Pirikoo proposes from plain words: the person reads it, removes what they don't want, then runs it.
  * Nothing runs before "Run the plan"; removing a step removes exactly that action.
+ * The steps rise 8px one after another (60ms apart) when the plan appears; a fade under reduced motion.
  */
 export function PlanCard({ steps, ran, onRun }: { steps: Step[]; ran: boolean; onRun: (kept: Step[]) => void }) {
   const { t } = useTranslation()
   const label = useStepLabel()
+  const reduced = useReducedMotion()
   const [removed, setRemoved] = useState<number[]>([])
   const kept = steps.filter((_, i) => !removed.includes(i))
   return (
     <div className="pk-plan">
       <p className="pk-plan__title">{ran ? t('pirikoo.plan.ran') : t('pirikoo.plan.title')}</p>
-      <ol className="plan-steps">
+      <motion.ol className="plan-steps" variants={listVariants(reduced, 0.06)} initial="hidden" animate="show">
         {steps.map((s, i) => {
           if (removed.includes(i)) return null
           const Icon = iconOf(s)
           return (
-            <li key={`${s.type}-${i}`} className={`plan-steps__item plan-steps__item--${s.type}`}>
+            <motion.li key={`${s.type}-${i}`} className={`plan-steps__item plan-steps__item--${s.type}`} variants={rowVariants(reduced)}>
               <span className="plan-steps__icon" aria-hidden="true"><Icon size={16} strokeWidth={2.25} /></span>
               <span className="plan-steps__label" dir="auto">{label(s)}</span>
               {ran ? (
@@ -52,12 +56,12 @@ export function PlanCard({ steps, ran, onRun }: { steps: Step[]; ran: boolean; o
                   <X size={14} aria-hidden="true" />
                 </button>
               )}
-            </li>
+            </motion.li>
           )
         })}
-      </ol>
+      </motion.ol>
       {ran ? null : (
-        <button type="button" className="btn btn--ai btn--sm pk-plan__run" aria-disabled={kept.length === 0 || undefined} onClick={() => { if (kept.length) onRun(kept) }}>
+        <button type="button" className="btn btn--primary btn--sm pk-plan__run" aria-disabled={kept.length === 0 || undefined} onClick={() => { if (kept.length) onRun(kept) }}>
           <span className="btn__icon" aria-hidden="true"><Play size={14} strokeWidth={2.5} /></span>
           <span className="btn__label">{t('pirikoo.plan.run')}</span>
         </button>

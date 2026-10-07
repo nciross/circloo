@@ -1,7 +1,9 @@
 import { useId, useRef, useState, type DragEvent } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'motion/react'
 import { AlertTriangle, FileUp, Loader2, Trash2 } from 'lucide-react'
+import { listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
 import { ApiError } from '../../api/client'
 import {
   ACCEPT, MAX_UPLOAD_BYTES, errorKey, useDeletePresentation, usePresentations, useUpload, type PresentationSummary,
@@ -104,16 +106,21 @@ function Status({ deck }: { deck: PresentationSummary }) {
   return null
 }
 
-function DeckCard({ deck }: { deck: PresentationSummary }) {
+function DeckCard({ deck, reduced }: { deck: PresentationSummary; reduced: boolean }) {
   const { t } = useTranslation()
   const remove = useDeletePresentation()
   const [confirming, setConfirming] = useState(false)
   const titleId = useId()
   return (
-    <li className="deck-card" aria-labelledby={titleId}>
+    <motion.li className="deck-card" aria-labelledby={titleId} variants={rowVariants(reduced)}>
       <Link to={`/app/presentations/${deck.id}`} className="deck-card__link" viewTransition>
         <span className="deck-card__thumb">
-          {deck.thumbnail ? <img src={deck.thumbnail} alt="" loading="lazy" width={480} height={270} /> : null}
+          {deck.thumbnail ? (
+            <img src={deck.thumbnail} alt="" loading="lazy" width={480} height={270} />
+          ) : (
+            // Until the first slide is converted, the deck shows its name set large.
+            <span className="deck-card__title-large" aria-hidden="true" dir="auto">{deck.name}</span>
+          )}
         </span>
         <span className="deck-card__body">
           <span id={titleId} className="deck-card__name" dir="auto">{deck.name}</span>
@@ -145,7 +152,7 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
         </span>
       </div>
       {remove.isError ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
-    </li>
+    </motion.li>
   )
 }
 
@@ -153,6 +160,7 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
 export default function Library() {
   const { t } = useTranslation()
   useDocumentTitle('presentations.title')
+  const reduced = useReducedMotion()
   const list = usePresentations()
   if (list.isPending) return <Loading />
   const decks = list.data ?? []
@@ -168,9 +176,9 @@ export default function Library() {
           <p className="field__help">{t('presentations.empty.body')}</p>
         </div>
       ) : (
-        <ul className="deck-grid">
-          {decks.map((d) => <DeckCard key={d.id} deck={d} />)}
-        </ul>
+        <motion.ul className="deck-grid" variants={listVariants(reduced, 0.04)} initial="hidden" animate="show">
+          {decks.map((d) => <DeckCard key={d.id} deck={d} reduced={reduced} />)}
+        </motion.ul>
       )}
     </div>
   )

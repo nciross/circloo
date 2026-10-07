@@ -1,13 +1,25 @@
-/* ---------- Integrations ---------- */
+/* ---------- Integrations · a hairline grid of services (orrery restyle, #250) ----------
+   Each service is a cell on the paper; neighbours share one hairline. The brand marks sit on white
+   tiles whatever the theme, the status is a lozenge (Connected in --live), and the connect form
+   opens inside the cell. */
 .svc-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-  gap: var(--s-4);
-  align-items: start;
+  gap: 1px;
+  padding: 1px;
+  align-items: stretch;
 }
 .svc {
+  position: relative;
   padding: var(--s-5);
   gap: var(--s-4);
+  border: 0;
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+.svc:focus-within {
+  z-index: 1;
 }
 .svc__top {
   display: flex;
@@ -19,13 +31,14 @@
   gap: var(--s-1);
   flex: none;
 }
+/* The real marks on white tiles, day and night. */
 .svc__logos img {
   inline-size: 2.75rem;
   block-size: 2.75rem;
   padding: 0.45rem;
-  border-radius: var(--r-md);
+  border-radius: var(--r-sm);
   background: #ffffff;
-  box-shadow: inset 0 0 0 1px var(--border);
+  box-shadow: inset 0 0 0 1px var(--hairline);
   object-fit: contain;
 }
 .svc__copy {
@@ -34,20 +47,38 @@
   gap: var(--s-1);
   min-inline-size: 0;
 }
+.svc__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-3);
+}
+/* Connected pops once when it arrives; neutral and Soon stay still. */
+.svc .lozenge--success {
+  animation: svc-pop var(--dur-move) var(--ease-out);
+}
+@keyframes svc-pop {
+  50% {
+    transform: scale(1.12);
+  }
+}
 .svc__status,
 .svc__form {
   display: grid;
   gap: var(--s-3);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--hairline);
 }
 .svc__hint {
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .svc__how {
   padding: var(--s-3);
   border-radius: var(--r-sm);
-  background: var(--info-subtle);
-  color: var(--info-text);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
 }
 .svc__actions {
   display: flex;
@@ -64,16 +95,23 @@
   gap: var(--s-2);
   font-size: var(--fs-sm);
   font-weight: 500;
+  color: var(--ink-soft);
 }
 .svc__result:empty {
   display: none;
 }
 .svc--soon {
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
+}
+.svc--soon .svc__logos img {
+  opacity: 0.85;
 }
 @media (max-width: 30rem) {
   .svc-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .svc {
+    padding: var(--s-4);
   }
 }
 
@@ -108,9 +146,8 @@
   gap: 2px;
 }
 
-.svc__title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-1) var(--s-3);
+@media (prefers-reduced-motion: reduce) {
+  .svc .lozenge--success {
+    animation: none;
+  }
 }

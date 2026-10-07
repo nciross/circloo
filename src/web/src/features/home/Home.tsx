@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
@@ -9,6 +10,8 @@ import { Panda } from '../../components/Panda'
 import { useDocumentTitle } from '../../app/locale'
 import { ButtonLink } from '../../components/Button'
 import { FaceMark } from '../../components/Brand'
+import { MoodScale } from '../../components/MoodScale'
+import type { Mood } from '../../components/MoodIcon'
 import { Ring } from '../../components/Ring'
 import { TourVideo } from '../../components/TourVideo'
 import { useDeckStore } from '../../stores/deck'
@@ -17,8 +20,35 @@ import { IcebreakerCard } from '../landing/IcebreakerCard'
 import '../../styles/app.css'
 import '../../styles/circles.css'
 
+const PHASE_KEY = () => `circloo-phase-${new Date().toISOString().slice(0, 10)}`
+const readPhase = (): Mood | null => {
+  try {
+    const v = Number(localStorage.getItem(PHASE_KEY()))
+    return v >= 1 && v <= 5 ? (v as Mood) : null
+  } catch {
+    return null
+  }
+}
+
+/** Today's phase: the person's mood, one tap, kept on this device until the circle-wide check-in ships. */
+function TodayPhase({ mood, onPick }: { mood: Mood | null; onPick: (m: Mood) => void }) {
+  const { t } = useTranslation()
+  const word = mood ? t(`landing.feel.moods.${mood}`).toLocaleLowerCase() : null
+  return (
+    <section className="phase" aria-labelledby="phase-title">
+      <div className="phase__stage">
+        <FaceMark mood={mood ?? 4} interactive className="phase__face" />
+        <p className="phase__says" aria-live="polite">{word ? t('landing.feel.faceSays', { mood: word }) : t('landing.feel.tryIt')}</p>
+      </div>
+      <h2 id="phase-title" className="visually-hidden">{t('landing.feel.tryIt')}</h2>
+      <MoodScale mood={mood} onPick={onPick} label={t('landing.feel.tryIt')} />
+      <p className="phase__note">{t('home.phaseNote')}</p>
+    </section>
+  )
+}
+
 /** One circle as a ring with its people on it; the open ones lead and are larger. */
-function CircleRing({ circle, lead }: { circle: CircleSummary; lead: boolean }) {
+function CircleRing({ circle, lead, mood }: { circle: CircleSummary; lead: boolean; mood?: Mood | null }) {
   const { t } = useTranslation()
   const open = circle.status === 'open'
   return (
@@ -27,9 +57,10 @@ function CircleRing({ circle, lead }: { circle: CircleSummary; lead: boolean }) 
         size={lead ? 'lg' : 'sm'}
         bodies={circle.bodies.map((b) => ({ id: b.id, character: b.character, name: b.name, ring: b.ring, me: b.me }))}
         people={circle.people}
+        mood={lead ? mood : null}
         closed={!open}
         compose={lead}
-        label={t('circles.ring.label', { name: circle.name, count: circle.people })}
+        label={mood && lead ? t('circles.ring.labelMood', { name: circle.name, count: circle.people, mood: t(`landing.feel.moods.${mood}`).toLocaleLowerCase() }) : t('circles.ring.label', { name: circle.name, count: circle.people })}
       >
         {lead ? (
           <span className="reading" aria-hidden="true">
@@ -56,6 +87,15 @@ function MyCircles() {
   const { t } = useTranslation()
   const reduced = useReducedMotion()
   const circles = useMyCircles()
+  const [mood, setMood] = useState<Mood | null>(readPhase)
+  const pick = (m: Mood) => {
+    setMood(m)
+    try {
+      localStorage.setItem(PHASE_KEY(), String(m))
+    } catch {
+      /* private mode: the phase lives for this visit only */
+    }
+  }
   const list = [...(circles.data ?? [])].sort((a, b) => Number(b.status === 'open') - Number(a.status === 'open'))
   return (
     <section className="orrery" aria-labelledby="circles-title" data-perch="circles">
@@ -83,9 +123,14 @@ function MyCircles() {
         <motion.ul className="circle-list orbits" variants={listVariants(reduced, 0.06)} initial="hidden" animate="show">
           {list.map((c, i) => (
             <motion.li key={c.id} className="circle-list__item orbits__item" variants={rowVariants(reduced)}>
-              <CircleRing circle={c} lead={i === 0 && c.status === 'open'} />
+              <CircleRing circle={c} lead={i === 0 && c.status === 'open'} mood={mood} />
             </motion.li>
           ))}
+          {list[0]?.status === 'open' ? (
+            <motion.li className="orbits__item orbits__item--phase" variants={rowVariants(reduced)}>
+              <TodayPhase mood={mood} onPick={pick} />
+            </motion.li>
+          ) : null}
         </motion.ul>
       )}
     </section>

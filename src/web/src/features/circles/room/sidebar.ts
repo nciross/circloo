@@ -87,3 +87,29 @@ export function stripFaces(members: Member[], online: string[], meId: string): M
 
 /** "+12" past the stacked faces, never more than "+99" (a circle holds 100 people). */
 export const stripMore = (count: number) => (count > STRIP_FACES ? `+${Math.min(99, count - STRIP_FACES)}` : '')
+
+/** When the running round opened, from its "start:" system line (ISO time), or null until that line is known. */
+export function roundStartedAt(messages: Message[], activity: string | null): string | null {
+  if (!activity) return null
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i]!
+    if (m.kind === 'system' && m.text === `start:${activity}`) return m.at
+  }
+  return null
+}
+
+/** A round has no fixed end; the brass rule under its chip fills over the usual length of one, then stays full. */
+export const ROUND_LENGTH_S = 15 * 60
+
+/** Share of the usual round elapsed, 0–1. */
+export const roundProgress = (elapsedS: number) => Math.min(1, Math.max(0, elapsedS / ROUND_LENGTH_S))
+
+/** "4:07", "1:02:30" past an hour: ASCII digits, so the tabular numerals line up in every locale. */
+export function formatElapsed(totalS: number): string {
+  const s = Math.max(0, Math.floor(totalS))
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  const two = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${two(m)}:${two(sec)}` : `${m}:${two(sec)}`
+}

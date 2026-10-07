@@ -2,6 +2,7 @@
 .shell {
   min-block-size: 100dvh;
 }
+/* The top bar is paper on one hairline; the Ask bar sits in it as a sunken pill. */
 .topbar {
   position: sticky;
   inset-block-start: 0;
@@ -11,8 +12,8 @@
   gap: var(--s-3);
   block-size: var(--topbar-h);
   padding-inline: var(--s-4);
-  border-block-end: 1px solid var(--border);
-  background: var(--surface);
+  border-block-end: 1px solid var(--hairline);
+  background: var(--paper);
 }
 .topbar__menu {
   display: none;
@@ -24,20 +25,26 @@
   inline-size: min(30rem, 100%);
   min-block-size: 2.25rem;
   margin-inline: var(--s-6) auto;
-  padding: 0.3rem 0.4rem 0.3rem 0.75rem;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text-subtlest);
+  padding-block: 0.3rem;
+  padding-inline: 0.75rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-ring);
+  background: var(--paper-sunken);
+  color: var(--ink-faint);
   font-size: var(--fs-md);
   text-align: start;
-}
-[dir='rtl'] .topbar__ask {
-  padding: 0.3rem 0.75rem 0.3rem 0.4rem;
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    border-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
 }
 .topbar__ask:hover {
-  background: var(--surface-sunken);
-  border-color: var(--text-subtlest);
+  background: var(--paper-hover);
+  border-color: var(--hairline-strong);
+  color: var(--ink-soft);
+}
+.topbar__ask:focus-visible {
+  border-radius: var(--r-ring);
 }
 .topbar__bird {
   flex: none;
@@ -51,23 +58,39 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.topbar__kbd {
+  background: var(--paper);
+}
 .topbar__end {
   display: flex;
   align-items: center;
   gap: var(--s-3);
 }
 
+/* The account: the person's body in the bar. Open, it carries a brass ring like a selected mark. */
 .account__trigger {
   display: grid;
   place-items: center;
   padding: 2px;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--r-ring);
   background: none;
 }
-.account__trigger:hover .avatar,
+.account__trigger .avatar {
+  transition: box-shadow var(--dur-state) var(--ease-out);
+}
+.account__trigger:hover .avatar {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--hairline-strong);
+}
 .account__trigger[aria-expanded='true'] .avatar {
-  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary-subtle-hover);
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--brass);
+}
+.account__trigger:focus-visible {
+  border-radius: var(--r-ring);
 }
 .account__panel {
   min-inline-size: 16rem;
@@ -78,21 +101,21 @@
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4) var(--s-4);
   margin-block-end: var(--s-1);
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--hairline);
 }
 .account__id {
   min-inline-size: 0;
 }
 .account__label {
   font-size: var(--fs-xs);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
 }
 .account__name {
   font-weight: 600;
 }
 .account__email {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -163,23 +186,12 @@ a.navitem:hover {
   text-decoration: none;
 }
 .navitem.is-active {
-  background: var(--paper);
+  background: var(--beam-subtle);
   color: var(--ink);
   font-weight: 600;
-  box-shadow: var(--shadow-raised);
-}
-/* The selected item carries a brass tick at its inline start, like a mark on a dial. */
-.navitem.is-active::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: -0.75rem;
-  inset-block: 0.6rem;
-  inline-size: 3px;
-  border-radius: var(--r-ring);
-  background: var(--brass);
 }
 .navitem.is-active:hover {
-  background: var(--paper);
+  background: var(--beam-subtle-hover);
   color: var(--ink);
 }
 .navitem.is-soon {
@@ -187,6 +199,7 @@ a.navitem:hover {
   cursor: default;
 }
 
+/* The drawer: the rail on phones. It slides in from the inline start over a dimmed dome. */
 .drawer {
   inline-size: min(18rem, 86vw);
   max-inline-size: none;
@@ -196,20 +209,22 @@ a.navitem:hover {
   margin-inline-end: auto;
   padding: 0;
   border: 0;
-  background: var(--surface);
-  color: var(--text);
+  border-inline-end: 1px solid var(--hairline);
+  background: var(--ground);
+  color: var(--ink);
   box-shadow: var(--shadow-float);
 }
 .drawer[open] {
   display: flex;
   flex-direction: column;
-  animation: slide-in 200ms var(--ease-out);
+  animation: slide-in var(--dur-enter) var(--ease-out);
 }
 [dir='rtl'] .drawer[open] {
   animation-name: slide-in-rtl;
 }
 .drawer::backdrop {
-  background: rgb(9 20 30 / 0.45);
+  background: rgb(7 14 26 / 0.5);
+  animation: fade-in var(--dur-enter) var(--ease-out);
 }
 .drawer__head {
   display: flex;
@@ -217,7 +232,8 @@ a.navitem:hover {
   justify-content: space-between;
   block-size: var(--topbar-h);
   padding-inline: var(--s-4) var(--s-2);
-  border-block-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--hairline);
+  background: var(--paper);
 }
 .drawer .sidenav {
   flex: 1;
@@ -230,6 +246,17 @@ a.navitem:hover {
 @keyframes slide-in-rtl {
   from {
     transform: translateX(100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* The drawer appears in place; the backdrop still fades so the change reads. */
+  .drawer[open]:not(:where(.site[data-motion='on'] *)) {
+    animation: fade-in var(--dur-state) var(--ease-out);
   }
 }
 
@@ -298,7 +325,7 @@ a.navitem:hover {
 .hello__face {
   inline-size: 3.75rem;
   flex: none;
-  color: var(--text);
+  color: var(--ink);
 }
 .hello__text {
   flex: 1;
@@ -389,7 +416,7 @@ a.navitem:hover {
   }
 }
 
-/* Settings */
+/* Settings: label column, control column; one panel per concern. */
 .form-grid {
   grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
   align-items: center;
@@ -398,11 +425,15 @@ a.navitem:hover {
 .form-row__label {
   font-size: var(--fs-md);
   font-weight: 500;
-  color: var(--text);
+  color: var(--ink);
 }
 .form-row__control {
   min-inline-size: 0;
   max-inline-size: 24rem;
+}
+.settings-switch {
+  display: grid;
+  gap: var(--s-2);
 }
 @media (max-width: 36rem) {
   .form-grid {
@@ -414,12 +445,12 @@ a.navitem:hover {
   }
 }
 
-/* ---------- Auth (sign in, profile setup, not found) ---------- */
+/* ---------- Auth (sign in, profile setup, not found): one paper card on the ground ---------- */
 .auth {
   min-block-size: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr;
-  background: var(--bg);
+  background: var(--ground);
 }
 .auth__main {
   position: relative;
@@ -431,20 +462,25 @@ a.navitem:hover {
   gap: var(--s-5);
   padding: var(--s-7) var(--gutter) var(--s-9);
 }
+/* The face, in ink, barely there: the watermark of the instrument. */
 .auth__watermark {
   position: absolute;
   z-index: -1;
   inset-block-end: -6rem;
   inset-inline-end: -6rem;
   inline-size: clamp(18rem, 40vw, 34rem);
-  opacity: 0.07;
+  color: var(--ink);
+  opacity: 0.05;
+  pointer-events: none;
+}
+.auth__watermark .face__mouth {
+  stroke: currentColor;
 }
 .auth__card {
   inline-size: min(26rem, 100%);
   padding: var(--s-7);
-  border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  background: var(--surface);
+  background: var(--paper);
   box-shadow: var(--shadow-overlay);
 }
 .auth__note {
@@ -452,7 +488,7 @@ a.navitem:hover {
   align-items: center;
   gap: var(--s-2);
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .authform {
   display: grid;
@@ -461,20 +497,24 @@ a.navitem:hover {
 .authform__title {
   font-size: var(--fs-2xl);
   font-weight: 600;
+  letter-spacing: -0.02em;
+}
+:lang(ar) .authform__title {
+  letter-spacing: 0;
 }
 .authform__lead {
   margin-block-start: calc(-1 * var(--s-3));
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .authform__email {
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
 }
 .authform__notice {
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-sm);
-  background: var(--info-subtle);
-  color: var(--info-text);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
   font-size: var(--fs-sm);
 }
 .authform__links {
@@ -487,16 +527,24 @@ a.navitem:hover {
 .authform .btn--lg {
   inline-size: 100%;
 }
+/* Lost: the face is cloudy, the code is small, one way home. */
 .lost {
   justify-items: start;
 }
+.lost__face {
+  inline-size: 5rem;
+  color: var(--ink);
+}
 .lost__code {
-  font-size: 3.5rem;
-  font-weight: 700;
+  font-size: var(--fs-sm);
+  font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--primary);
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
   font-variant-numeric: tabular-nums;
+}
+.lost .authform__title {
+  margin-block-start: calc(-1 * var(--s-2));
 }
 @media (max-width: 30rem) {
   .auth__card {
@@ -504,10 +552,10 @@ a.navitem:hover {
   }
 }
 
-/* The six-digit code: one real input under six tiles */
+/* The six-digit code: one real input under six cells, grouped 3 + 3, a brass hairline under each. */
 .code-field {
   display: grid;
-  gap: var(--s-1);
+  gap: var(--s-2);
 }
 .code-field__tiles {
   position: relative;
@@ -527,26 +575,57 @@ a.navitem:hover {
   letter-spacing: 2em;
 }
 .code-tile {
+  --rule: var(--brass-faint);
+  position: relative;
   display: grid;
   place-items: center;
-  block-size: 3.25rem;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  font-size: var(--fs-xl);
+  block-size: 3.75rem;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--fs-3xl);
   font-weight: 600;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+  transition: background-color var(--dur-state) var(--ease-out);
 }
+/* The space between the two groups of three. */
+.code-tile:nth-of-type(4) {
+  margin-inline-start: var(--s-3);
+}
+.code-tile::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  block-size: 2px;
+  border-radius: var(--r-ring);
+  background: var(--rule);
+  transition: background-color var(--dur-state) var(--ease-out);
+}
+/* A digit arriving brightens its rule and settles in from below. */
 .code-tile.is-filled {
-  border-color: var(--text-subtle);
+  --rule: var(--brass);
+  animation: digit-in var(--dur-move) var(--ease-out);
 }
+@keyframes digit-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+/* The cell waiting for the next digit shows where the beam is. */
 .code-field__input:focus-visible ~ .code-tile.is-next,
 .code-field__input:focus-visible ~ .code-tile.is-last {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 1px var(--focus);
+  --rule: var(--focus);
+  background: var(--beam-subtle);
+}
+.code-field__input:focus-visible ~ .code-tile.is-next::after,
+.code-field__input:focus-visible ~ .code-tile.is-last::after {
+  block-size: 3px;
 }
 .code-field__input[aria-invalid='true'] ~ .code-tile {
-  border-color: var(--danger);
+  --rule: var(--danger);
 }
 
 /* ---------- Plans Pirikoo proposes (checked before they run) ---------- */

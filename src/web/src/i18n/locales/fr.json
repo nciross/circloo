@@ -361,7 +361,8 @@
     "orrery": "Tes cercles, en orbite",
     "orreryLead": "Ouvre un cercle pour revenir dans sa salle.",
     "live": "En direct",
-    "today": "Aujourd’hui dans tes cercles"
+    "today": "Aujourd’hui dans tes cercles",
+    "phaseNote": "Seulement sur cet appareil pour l’instant : le check-in quotidien de tout le cercle arrive."
   },
   "settings": {
     "title": "Réglages",
@@ -787,6 +788,7 @@
       "startedBy": "lancé par <name>{{name}}</name>",
       "roundOpen": "Nouveau tour : {{activity}}",
       "roundEnded": "Le tour est terminé.",
+      "elapsed": "En cours depuis {{time}}",
       "connection": "Connexion : {{status}}",
       "peopleStrip_one": "{{count}} personne dans le cercle. Voir la liste",
       "peopleStrip_other": "{{count}} personnes dans le cercle. Voir la liste",
@@ -840,6 +842,7 @@
       "isOff": "La discussion en direct est désactivée.",
       "stage": "Scène",
       "stageBody": "L’audio et la vidéo arrivent bientôt. En attendant, écris dans le chat et lève la main.",
+      "floor": "a la parole",
       "errors": {
         "failed": "Ça n’a pas marché. Réessaie dans un instant.",
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",

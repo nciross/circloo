@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Member, Message } from '../../../api/circles'
-import { loadSideOpen, matchesName, peopleRows, saveSideOpen, unreadCount, windowRows, WINDOW_FROM } from './sidebar'
+import { formatElapsed, loadSideOpen, matchesName, peopleRows, roundProgress, roundStartedAt, saveSideOpen, unreadCount, windowRows, WINDOW_FROM } from './sidebar'
 
 const m = (id: string, name: string, role: Member['role'] = 'participant'): Member => ({ id, name, role, character: 'fox', ring: 0 })
 const msg = (id: number, memberId: string | null, kind: Message['kind'] = 'member'): Message => ({ id, activityId: 'chat', memberId, kind, text: 'x', at: '', likes: 0, liked: false, hidden: false, replyToId: null })
@@ -64,6 +64,21 @@ describe('unreadCount', () => {
     expect(unreadCount(list, 0, 'me')).toBe(4)
     expect(unreadCount(list, 5, 'me')).toBe(1)
     expect(unreadCount(list, 6, 'me')).toBe(0)
+  })
+})
+
+describe('the running round', () => {
+  it('finds when the round opened from its start line, and formats the time that ran', () => {
+    const list = [{ ...msg(1, null, 'system'), text: 'start:canvas', at: '2026-10-07T10:00:00Z' }, msg(2, 'a'), { ...msg(3, null, 'system'), text: 'start:retro', at: '2026-10-07T10:05:00Z' }]
+    expect(roundStartedAt(list, 'retro')).toBe('2026-10-07T10:05:00Z')
+    expect(roundStartedAt(list, 'canvas')).toBe('2026-10-07T10:00:00Z')
+    expect(roundStartedAt(list, 'quiz')).toBeNull()
+    expect(roundStartedAt(list, null)).toBeNull()
+    expect(formatElapsed(0)).toBe('0:00')
+    expect(formatElapsed(247)).toBe('4:07')
+    expect(formatElapsed(3750)).toBe('1:02:30')
+    expect(roundProgress(450)).toBe(0.5)
+    expect(roundProgress(99_999)).toBe(1)
   })
 })
 

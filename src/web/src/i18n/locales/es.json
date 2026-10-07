@@ -361,7 +361,8 @@
     "orrery": "Tus círculos, en órbita",
     "orreryLead": "Abre un círculo para volver a su sala.",
     "live": "En directo",
-    "today": "Hoy en tus círculos"
+    "today": "Hoy en tus círculos",
+    "phaseNote": "Solo en este dispositivo por ahora: el check-in diario de todo el círculo está en camino."
   },
   "settings": {
     "title": "Ajustes",
@@ -787,6 +788,7 @@
       "startedBy": "lo empezó <name>{{name}}</name>",
       "roundOpen": "Nueva ronda: {{activity}}",
       "roundEnded": "La ronda terminó.",
+      "elapsed": "En curso desde hace {{time}}",
       "connection": "Conexión: {{status}}",
       "peopleStrip_one": "{{count}} persona en el círculo. Ver la lista",
       "peopleStrip_other": "{{count}} personas en el círculo. Ver la lista",
@@ -840,6 +842,7 @@
       "isOff": "La conversación en directo está desactivada.",
       "stage": "Escenario",
       "stageBody": "El audio y el vídeo llegan pronto. Mientras tanto, escribe en el chat y levanta la mano.",
+      "floor": "tiene la palabra",
       "errors": {
         "failed": "No ha funcionado. Inténtalo de nuevo en un momento.",
         "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",

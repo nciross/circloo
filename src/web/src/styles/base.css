@@ -9,8 +9,8 @@ html {
   text-size-adjust: 100%;
   scroll-behavior: smooth;
   scroll-padding-block-start: calc(var(--topbar-h) + var(--s-4));
-  scrollbar-color: var(--border-strong) transparent;
-  background: var(--bg);
+  scrollbar-color: var(--hairline-strong) transparent;
+  background: var(--ground);
 }
 
 body {
@@ -19,9 +19,9 @@ body {
   font-family: var(--font);
   font-size: var(--fs-md);
   line-height: 1.55;
-  color: var(--text);
-  background: var(--bg);
-  caret-color: var(--primary);
+  color: var(--ink);
+  background: var(--ground);
+  caret-color: var(--beam);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -58,7 +58,7 @@ ol {
 }
 
 a {
-  color: var(--primary-text);
+  color: var(--beam-text);
   text-decoration: none;
   text-underline-offset: 0.2em;
 }
@@ -89,23 +89,26 @@ button {
   cursor: pointer;
 }
 
+/* A key cap: paper on a hairline, tabular so "⌘K" and "Ctrl K" sit still. */
 kbd {
   display: inline-block;
-  padding: 0 0.4em;
+  padding: 0 0.45em;
   border-radius: var(--r-xs);
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-  color: var(--text-subtle);
+  border: 1px solid var(--hairline-strong);
+  border-block-end-width: 2px;
+  background: var(--paper);
+  color: var(--ink-soft);
   font-family: var(--font);
   font-size: var(--fs-xs);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
   line-height: 1.6;
   white-space: nowrap;
 }
 
 ::selection {
-  background: var(--primary-subtle-hover);
-  color: var(--text);
+  background: var(--beam-subtle-hover);
+  color: var(--ink);
 }
 
 :focus-visible {
@@ -115,10 +118,11 @@ kbd {
 }
 
 ::placeholder {
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
   opacity: 1;
 }
 
+/* Scrollbars: a thin strong hairline on nothing. */
 ::-webkit-scrollbar {
   inline-size: 10px;
   block-size: 10px;
@@ -127,9 +131,18 @@ kbd {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 10px;
-  border: 2px solid var(--bg);
+  background: var(--hairline-strong);
+  border-radius: var(--r-ring);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-faint);
+}
+
+/* Dialogs share one backdrop: the dome, half there. */
+dialog::backdrop {
+  background: rgb(7 14 26 / 0.5);
 }
 
 .visually-hidden {
@@ -151,8 +164,8 @@ kbd {
   z-index: 100;
   padding: var(--s-2) var(--s-4);
   border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   box-shadow: var(--shadow-overlay);
   font-weight: 600;
 }
@@ -171,10 +184,13 @@ kbd {
   transform: scaleX(-1);
 }
 
-/* Page changes cross-fade */
-::view-transition-old(root),
+/* Page changes cross-fade: a state change, not an entrance. The old page leaves faster than the new one arrives. */
+::view-transition-old(root) {
+  animation-duration: var(--dur-press);
+  animation-timing-function: var(--ease-out);
+}
 ::view-transition-new(root) {
-  animation-duration: 180ms;
+  animation-duration: var(--dur-state);
   animation-timing-function: var(--ease-out);
 }
 

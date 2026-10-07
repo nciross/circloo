@@ -1,15 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { useDocumentTitle } from '../app/locale'
 import { AuthLayout } from '../components/AuthLayout'
+import { FaceMark } from '../components/Brand'
 import { ButtonLink } from '../components/Button'
 import '../styles/app.css'
 
+/** Lost: the face goes cloudy, the code stays small, and there is one way home. */
 export default function NotFound() {
   const { t } = useTranslation()
   useDocumentTitle('notFound.title')
   return (
     <AuthLayout note={false}>
       <div className="authform lost">
+        <FaceMark className="lost__face" mood={3} />
         <p className="lost__code" aria-hidden="true">404</p>
         <h1 className="authform__title">{t('notFound.title')}</h1>
         <p className="authform__lead">{t('notFound.body')}</p>

@@ -97,7 +97,10 @@ export function PeopleList({ members, online, meId, arrivals = [] }: { members: 
                   aria-setsize={found}
                   aria-posinset={r.index + 1}
                 >
-                  <Character id={r.member.character} ring={r.member.ring} tag={false} className="people__char" />
+                  <span className="people__body">
+                    <Character id={r.member.character} ring={r.member.ring} tag={false} className="people__char" />
+                    <span className="people__dot" aria-hidden="true" />
+                  </span>
                   <span className="people__text">
                     <span className="people__name"><bdi>{r.member.name}</bdi>{r.member.id === meId ? <span className="people__you"> ({t('circles.you')})</span> : null}</span>
                     <span className="people__meta">

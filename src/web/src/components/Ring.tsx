@@ -103,18 +103,20 @@ export function Ring({ size = 'lg', bodies, people, mood, progress, closed, labe
   )
 }
 
-/** One body on the track: positioned by angle through custom properties so RTL can mirror in CSS. */
+/** One body on the track: the li is positioned by angle through a custom property (so RTL can mirror in
+ *  CSS) and never animated by Motion, which would write its own inline transform; the hop lives on an inner span. */
 function Body({ index, slots, reduced, compose, me, children }: { index: number; slots: number; reduced: boolean; compose: boolean; me?: boolean; children: React.ReactNode }) {
   const angle = (index / slots) * 360
   return (
-    <motion.li
-      className={`ring__body${me ? ' is-me' : ''}`}
-      style={{ ['--angle' as string]: `${angle}deg` }}
-      initial={compose ? (reduced ? { opacity: 0 } : { opacity: 0, scale: 0.4 }) : false}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={reduced ? { duration: dur.state, delay: 0 } : { ...spring.snappy, delay: Math.min(0.32, 0.2 + index * 0.04) }}
-    >
-      {children}
-    </motion.li>
+    <li className={`ring__body${me ? ' is-me' : ''}`} style={{ ['--angle' as string]: `${angle}deg` }}>
+      <motion.span
+        className="ring__hop"
+        initial={compose ? (reduced ? { opacity: 0 } : { opacity: 0, scale: 0.4 }) : false}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={reduced ? { duration: dur.state, delay: 0 } : { ...spring.snappy, delay: Math.min(0.32, 0.2 + index * 0.04) }}
+      >
+        {children}
+      </motion.span>
+    </li>
   )
 }

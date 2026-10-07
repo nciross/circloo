@@ -5,30 +5,33 @@ primary_target: "src/web"
 related_targets: []
 ---
 
-# Surface brief: circloo web (landing + app shell)
+---
+version: 1
+slug: "src-web"
+primary_target: "src/web"
+related_targets: []
+---
 
-**Scope**: public landing `/` (Persuade); sign-in, welcome, home, settings, icebreakers and not-found (Operate, inheriting the same world). Replaces the fridge-door world (issue #60).
-**Audience**: families spread across languages, friend groups, small teams. Job: understand circloo in seconds, play one icebreaker, start a circle. In the app: check in, run an icebreaker round, and ask circloo for things in plain words.
-**Proof/content**: real seed sparks (content/fun); example check-ins and boards labelled as examples; integrations honestly "coming soon". No testimonials, logos or metrics.
-**Constraints**: en/fr/ar(RTL)/es, strict CSP (no inline style/script, self-hosted fonts), WCAG 2.2 AA, reduced motion, light and night themes.
-**Memorable moment**: the visitor taps the water and a ring of ripples spreads: the circloo mark coming alive. Dealing a new icebreaker drops it into the pool with the same ring.
-**Software 3.0**: the Ask bar (Ctrl/⌘ K) on every app screen turns plain words into a plan the person checks before it runs. AI output always lands as cards to keep or dismiss, labelled "Suggested by AI", and an autonomy setting (Off / Suggest) governs inline suggestions.
-**Unresolved**: no photography yet; every illustration is drawn in code or SVG.
+# Surface brief: circloo web (app + public site)
 
-## Direction contract (revised, issue #60)
+**Scope**: the whole web app (Operate): shell, home with the circle list, sign-in and welcome, create and join a circle, the live room (work bar, whiteboard, boards, chat, call stage, rail), icebreakers, presentations, Pirikoo (the AI page), integrations, settings, 404; and the public landing (Persuade), which inherits the same world at a larger scale. Replaces the enterprise/Jira world (issue #250, founder decision 2026-10-07).
+**Audience**: families spread across languages, friend groups, small teams. Job in the app: check in, open the circle, run a round, talk. Job on the site: understand circloo in seconds and start a circle.
+**Proof/content**: real seed sparks, real character cast, example check-ins labelled as examples. No testimonials, logos or metrics.
+**Constraints**: en/fr/ar (RTL)/es, strict CSP, WCAG 2.2 AA in both themes, reduced motion, Readex Pro only, the face logo, the cast and the violet-means-AI rule are pinned by the founder.
+**Memorable moment**: the circle as a ring in orbit: members are bodies on the ring, a check-in is a phase, a round opening is a transit.
+**Software 3.0**: Pirikoo and the Ask bar turn plain words into a plan the person checks before it runs; AI output is violet and labelled.
+**Unresolved**: no photography; every illustration is drawn in code or SVG.
 
-THESIS: circloo is a serious collaboration tool with a warm face. The chrome follows the enterprise
-platforms teams already trust (Jira, Linear, Notion): left sidebar, top bar with Ask circloo, panels,
-tables, lozenges, in calm neutrals with one action blue. The lido and fridge worlds are retired; the
-owner asked for "Jira or enterprise platform with nice design".
+## Direction contract (issue #250, seed 463807f3)
 
-OWN-WORLD: the face. The last "oo" of the wordmark are eyes, with a coral mouth that follows the five
-check-in moods; it blinks and watches the pointer. People (avatars, characters) and content (cards,
-jokes) carry colour; violet is reserved for AI.
+THESIS: circloo is an orrery of people. A circle is a ring, its members are bodies on it, and the day's check-ins are their phases. It refuses the SaaS dashboard arrangement (white cards on grey, one accent) and the enterprise sidebar-as-identity.
 
-FIRST VIEWPORT: a big confident headline and lead at inline-start, a real product preview in its app
-frame at inline-end (live icebreaker + example check-ins). Then features with an interactive mood demo,
-integrations (coming soon), how it works, one pricing plan, and a navy final call.
+OWN-WORLD: dome ink (`#070e1a`) and bone (`#f1ecdf`) as the two grounds (Night and Day themes), brass hairlines and ticks for instrument marks, one beam blue for action, violet only for AI, coral only in the face's mouth, the five mood skies as fills. Readex Pro at every size; hierarchy by scale and weight. Rings, arcs and ticks are the only ornament, and each one carries data.
 
-FINISH: DESIGN.md and .impeccable/design.json describe the shipped system; axe passes on every journey
-in English (desktop) and Arabic (phone).
+STORY: the visitor sees their circles turning, understands at a glance who is here and how the circle feels today, checks in with one tap, and opens the round that is live.
+
+FIRST VIEWPORT (Home, app shell): a 3.5rem top bar (wordmark, Ask circloo, avatar) and a slim navigation rail at inline-start on bone (Day) or dome (Night). The content opens with the person's circles as rings, the live one largest, each ring carrying the members' characters as bodies and the circle's mood as the ring's sky fill; today's phase (the person's check-in) sits beside it with the five moods as one tap each, the primary action. Below: the round that is live, then rounds and boards as instrument cards on a hairline grid.
+
+FORM: The Orrery, candidate 1 of 7 on the grounded list (the pick card), chosen by the founder on the decision page over the assigned Barometer (candidate 6). Build path: code-led. Raises kept from the hand: hairline grid discipline, total ground commitment in Night, whole-cell member grids, time flows inline-start to inline-end and mirrors in RTL, honest round timings in tabular numerals, the mood driving Readex Pro's weight axis on the headline reading.
+
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.

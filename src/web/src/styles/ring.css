@@ -104,6 +104,13 @@
   inset-inline-start: auto;
   inset-inline-end: 50%;
 }
+.ring__hop {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 100%;
+  border-radius: var(--r-ring);
+}
 .ring__body.is-me {
   outline: 3px solid var(--beam);
   outline-offset: 2px;

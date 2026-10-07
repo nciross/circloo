@@ -149,6 +149,8 @@ function Launcher() {
   }
 
   const open = mode !== 'closed'
+  // Something to say: an unread answer, or a suggestion on show. The brass ring says so (no coral badge).
+  const calling = unread || shown !== null
   return (
     <div className={`pkl${open ? ' is-open' : ''}`}>
       <div className="pkl__tip" role="status" aria-live="polite" hidden={!shown}>
@@ -175,14 +177,13 @@ function Launcher() {
       </div>
       <button
         type="button"
-        className="pkl__button"
+        className={`pkl__button${calling ? ' is-calling' : ''}`}
         aria-label={unread ? t('pirikoo.chat.openUnread') : t('pirikoo.chat.open')}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => (open ? usePirikoo.getState().close() : usePirikoo.getState().open('panel'))}
       >
         <Bird mood={mood} className="pkl__bird" />
-        {unread ? <span className="pkl__badge" aria-hidden="true" /> : null}
       </button>
     </div>
   )

@@ -1,4 +1,5 @@
-const TONES = 6
+/** The five body colours (tokens --body-1…5), so an avatar is a body like any other on a ring. */
+const TONES = 5
 
 /** Initials on a colour picked from the name, so a person keeps the same colour everywhere. */
 export function Avatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {

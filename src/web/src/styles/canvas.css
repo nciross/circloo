@@ -1,10 +1,18 @@
-/* ---------- Live canvas (issue #93) ---------- */
-.canvas {
+/* ---------- Live canvas (issue #93, orrery look #250) ---------- */
+/* The whiteboard is a sheet of dotted paper on the ground: the panel frame goes, the toolbar sits above the sheet. */
+.panel.canvas {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   overflow: visible;
 }
 .canvas__head {
   flex-wrap: wrap;
   gap: var(--s-3);
+  min-block-size: 2.75rem;
+  padding: 0 var(--s-1) var(--s-3);
+  border-block-end: 0;
 }
 .canvas__tools {
   display: flex;
@@ -16,25 +24,26 @@
   inline-size: 1px;
   block-size: 1.5rem;
   margin-inline: var(--s-1);
-  background: var(--border);
+  background: var(--hairline);
 }
 .canvas__zoom {
   min-inline-size: 3rem;
   font-size: var(--fs-sm);
   font-variant-numeric: tabular-nums;
   text-align: center;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 
-/* The surface: a dotted paper that pans and zooms with the content. */
+/* The surface: dotted paper that pans and zooms with the content. */
 .canvas__viewport {
   position: relative;
   overflow: hidden;
   block-size: min(68dvh, 44rem);
   min-block-size: 24rem;
-  border-block: 1px solid var(--border);
-  background-color: var(--surface-sunken);
-  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1.3px);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background-color: var(--paper);
+  background-image: radial-gradient(circle, var(--hairline-strong) 1px, transparent 1.3px);
   background-size: calc(24px * var(--zoom, 1)) calc(24px * var(--zoom, 1));
   background-position: var(--pan-x, 0) var(--pan-y, 0);
   cursor: grab;
@@ -46,7 +55,7 @@
 }
 .canvas__viewport:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: -2px;
+  outline-offset: 2px;
 }
 .canvas__world {
   position: absolute;
@@ -61,30 +70,31 @@
   display: grid;
   place-items: center;
   padding: var(--s-6);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   text-align: center;
   pointer-events: none;
 }
 .canvas__hint {
-  padding: var(--s-2) var(--s-5);
+  padding: var(--s-2) var(--s-3) 0;
   font-size: var(--fs-xs);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
 }
 .canvas__error {
-  padding: 0 var(--s-5) var(--s-3);
+  padding: var(--s-3) var(--s-1) 0;
 }
 
-/* Notes: paper colours, a slight hand-placed tilt, centred on their point. */
+/* Notes: paper colours fixed in both themes (a note is a thing on the board, not chrome), a hand-placed tilt, centred on their point. */
 .canvas-note {
   --note: #fff3b0;
+  --note-ink: #17293a;
   --w: 10rem;
   position: absolute;
   top: 0;
   left: 0;
   translate: calc(var(--x, 0) * 1px) calc(var(--y, 0) * 1px);
   transform: translate(-50%, -50%) rotate(var(--tilt, 0deg));
-  transition: translate 180ms var(--ease-out);
-  animation: canvas-drop 260ms var(--ease-out);
+  transition: translate var(--dur-state) var(--ease-out);
+  animation: canvas-drop var(--dur-move) var(--ease-out);
 }
 .canvas-note--pink {
   --note: #ffd6e7;
@@ -122,21 +132,19 @@
   inline-size: var(--w);
   min-block-size: var(--w);
   padding: var(--s-3);
-  border: 1px solid rgb(15 37 55 / 0.08);
+  border: 1px solid rgb(23 41 58 / 0.1);
   border-radius: var(--r-sm);
   background: var(--note);
-  color: #17293a;
+  color: var(--note-ink);
   font: inherit;
   font-size: var(--fs-md);
   line-height: 1.35;
   text-align: start;
-  box-shadow:
-    0 1px 2px rgb(15 37 55 / 0.16),
-    0 8px 16px -8px rgb(15 37 55 / 0.3);
+  box-shadow: var(--shadow-raised);
   cursor: grab;
   transition:
-    scale 160ms var(--ease-out),
-    box-shadow 160ms var(--ease-out);
+    scale var(--dur-state) var(--ease-out),
+    box-shadow var(--dur-state) var(--ease-out);
 }
 .canvas-note--s .canvas-note__body {
   font-size: var(--fs-sm);
@@ -158,19 +166,17 @@
 }
 .canvas-note__by {
   flex: none;
-  inline-size: 1.4rem;
-  block-size: 1.4rem;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
 }
 .canvas-note.is-dragging .canvas-note__body {
-  scale: 1.05;
+  scale: 1.04;
   cursor: grabbing;
-  box-shadow:
-    0 2px 4px rgb(15 37 55 / 0.16),
-    0 18px 32px -12px rgb(15 37 55 / 0.4);
+  box-shadow: var(--shadow-overlay);
 }
 .canvas-note__body:focus-visible,
 .canvas-note.is-selected .canvas-note__body {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 .canvas-note__sticker {
@@ -184,7 +190,7 @@
   border-radius: 50%;
   background: #fff;
   box-shadow: var(--shadow-overlay);
-  animation: canvas-stick 320ms var(--ease-out);
+  animation: canvas-stick var(--dur-enter) var(--ease-out);
 }
 .canvas-note__sticker--heart,
 .canvas__sticker--heart[aria-pressed='true'] {
@@ -209,6 +215,7 @@
 
 /* Writing a note in place. */
 .canvas-draft {
+  --note-ink: #17293a;
   position: absolute;
   top: 0;
   left: 0;
@@ -219,7 +226,7 @@
   padding: var(--s-3);
   border-radius: var(--r-sm);
   background: var(--note);
-  color: #17293a;
+  color: var(--note-ink);
   box-shadow: var(--shadow-float);
   translate: calc(var(--x, 0) * 1px) calc(var(--y, 0) * 1px);
   transform: translate(-50%, -50%);
@@ -228,9 +235,9 @@
 .canvas-draft textarea {
   inline-size: 100%;
   padding: var(--s-2);
-  border: 1px solid rgb(15 37 55 / 0.2);
+  border: 1px solid rgb(23 41 58 / 0.25);
   border-radius: var(--r-xs);
-  background: rgb(255 255 255 / 0.65);
+  background: rgb(255 255 255 / 0.7);
   color: inherit;
   font: inherit;
   resize: none;
@@ -254,8 +261,8 @@
 }
 .swatch[aria-pressed='true'] {
   box-shadow:
-    0 0 0 2px var(--surface),
-    0 0 0 4px var(--text);
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--ink);
 }
 
 /* Someone else's pointer: their colour, their character, a gentle glide. */
@@ -274,7 +281,7 @@
   transform-origin: 0 0;
   transition:
     translate 110ms linear,
-    opacity 400ms var(--ease-out);
+    opacity var(--dur-enter) var(--ease-out);
   pointer-events: none;
 }
 .canvas-cursor--c1 {
@@ -303,7 +310,6 @@
   stroke: #fff;
   stroke-width: 1.4;
   stroke-linejoin: round;
-  filter: drop-shadow(0 1px 1px rgb(15 37 55 / 0.35));
 }
 .canvas-cursor__tag {
   flex: none;
@@ -313,32 +319,31 @@
   margin-block-start: 0.85rem;
   margin-inline-start: -0.2rem;
   padding: 2px 0.6rem 2px 2px;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-ring);
   background: var(--cursor);
   color: #fff;
   font-size: var(--fs-xs);
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgb(15 37 55 / 0.25);
+  box-shadow: var(--shadow-raised);
 }
 .canvas-cursor__char {
   inline-size: 1.4rem;
   block-size: 1.4rem;
   border-radius: 50%;
   background: #fff;
-  animation: cursor-bob 1.8s ease-in-out infinite alternate;
 }
 .canvas-cursor.is-moving .canvas-cursor__char {
   animation: cursor-wiggle 280ms ease-in-out infinite alternate;
 }
 
-/* The animator's pointer wears a crown and a darker, squarer tag so it reads as the one leading. */
+/* The animator's pointer wears a crown and a squarer tag so it reads as the one leading. */
 .canvas-cursor.is-animator .canvas-cursor__tag {
   padding-inline-end: 0.7rem;
   border-radius: var(--r-md);
   box-shadow:
     0 0 0 2px #fff,
-    0 2px 6px rgb(15 37 55 / 0.3);
+    var(--shadow-raised);
 }
 .canvas-cursor__crown {
   flex: none;
@@ -361,7 +366,7 @@
   margin-inline-start: -0.35rem;
 }
 .presence__person {
-  --ring: var(--border-strong);
+  --ring: var(--hairline-strong);
   position: relative;
   display: grid;
   place-items: center;
@@ -370,13 +375,13 @@
   padding: 0;
   border: 2px solid var(--ring);
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--paper);
   color: inherit;
   opacity: 0.45;
   filter: grayscale(0.7);
   transition:
-    opacity 200ms var(--ease-out),
-    transform 160ms var(--ease-out);
+    opacity var(--dur-state) var(--ease-out),
+    transform var(--dur-state) var(--ease-out);
 }
 .presence__person--c0 { --cursor: #d9480f; }
 .presence__person--c1 { --cursor: #0b5bd3; }
@@ -399,13 +404,14 @@ button.presence__person:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
+/* Live on the canvas right now: a ring that breathes out (a live indicator; it stops when they stop). */
 .presence__person.is-live::after {
   content: '';
   position: absolute;
   inset: -5px;
   border: 2px solid var(--cursor);
   border-radius: 50%;
-  animation: presence-live 1.2s ease-out infinite;
+  animation: presence-live var(--dur-orbit) ease-out infinite;
 }
 .presence__char {
   inline-size: 1.5rem;
@@ -417,8 +423,8 @@ button.presence__person:focus-visible {
   inset-inline-end: -0.25rem;
   padding: 2px;
   border-radius: 50%;
-  background: var(--warning-subtle);
-  color: var(--warning-text);
+  background: var(--paper);
+  color: var(--brass);
   box-sizing: content-box;
 }
 .presence__more {
@@ -427,16 +433,16 @@ button.presence__person:focus-visible {
   min-inline-size: 2rem;
   block-size: 2rem;
   padding-inline: 0.3rem;
-  border: 2px solid var(--border);
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-ring);
+  background: var(--paper-sunken);
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .presence__count {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   white-space: nowrap;
 }
 @keyframes presence-live {
@@ -473,13 +479,13 @@ button.presence__person:focus-visible {
   inline-size: max-content;
   max-inline-size: calc(100% - 2rem);
   padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
   box-shadow: var(--shadow-overlay);
   translate: -50% 0;
   cursor: auto;
-  animation: pop-in 160ms var(--ease-out);
+  animation: pop-in var(--dur-state) var(--ease-out);
 }
 .canvas__style-group {
   display: flex;
@@ -488,24 +494,24 @@ button.presence__person:focus-visible {
 }
 .canvas__style-group + .canvas__style-group {
   padding-inline-start: var(--s-2);
-  border-inline-start: 1px solid var(--border);
+  border-inline-start: 1px solid var(--hairline);
 }
 .canvas__chip {
   min-inline-size: 1.75rem;
   min-block-size: 1.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text-subtle);
+  background: var(--paper);
+  color: var(--ink-soft);
   font-size: var(--fs-xs);
   font-weight: 700;
   cursor: pointer;
 }
 .canvas__chip[aria-pressed='true'],
 .canvas__style .icon-btn[aria-pressed='true'] {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
-  color: var(--primary-text);
+  border-color: var(--beam);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
 }
 
 /* Bring in content from the circle. */
@@ -523,19 +529,19 @@ button.presence__person:focus-visible {
   max-block-size: 22rem;
   padding: var(--s-3);
   overflow-y: auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
   box-shadow: var(--shadow-overlay);
 }
 .canvas__bring-title {
   font-size: var(--fs-xs);
   font-weight: 600;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .canvas__bring-empty {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .canvas__bring-list {
   display: grid;
@@ -551,7 +557,7 @@ button.presence__person:focus-visible {
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
-  color: var(--text);
+  color: var(--ink);
   font: inherit;
   font-size: var(--fs-sm);
   text-align: start;
@@ -559,14 +565,14 @@ button.presence__person:focus-visible {
 }
 .canvas__bring-item:hover,
 .canvas__bring-item:focus-visible {
-  background: var(--surface-hover);
+  background: var(--paper-hover);
 }
 .canvas__bring-dot {
   flex: none;
   inline-size: 0.8rem;
   block-size: 0.8rem;
   margin-block-start: 0.25rem;
-  border: 1px solid rgb(15 37 55 / 0.25);
+  border: 1px solid rgb(23 41 58 / 0.25);
   border-radius: 3px;
   background: var(--note);
 }
@@ -575,7 +581,7 @@ button.presence__person:focus-visible {
 .canvas__list {
   display: grid;
   gap: var(--s-2);
-  padding: var(--s-4) var(--s-5) var(--s-5);
+  padding: var(--s-4) var(--s-2) var(--s-5);
 }
 .canvas__list-title {
   font-size: var(--fs-sm);
@@ -596,24 +602,19 @@ button.presence__person:focus-visible {
 }
 .canvas__list-by {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 
 @keyframes canvas-drop {
   from {
     opacity: 0;
-    scale: 1.15;
+    scale: 1.1;
   }
 }
 @keyframes canvas-stick {
   from {
     scale: 0.3;
     rotate: -30deg;
-  }
-}
-@keyframes cursor-bob {
-  to {
-    translate: 0 -2px;
   }
 }
 @keyframes cursor-wiggle {

@@ -361,7 +361,8 @@
     "orrery": "Your circles, in orbit",
     "orreryLead": "Open a circle to go back into its room.",
     "live": "Live now",
-    "today": "Today in your circles"
+    "today": "Today in your circles",
+    "phaseNote": "Only on this device for now: daily check-ins for the whole circle are coming."
   },
   "settings": {
     "title": "Settings",
@@ -787,6 +788,7 @@
       "startedBy": "started by <name>{{name}}</name>",
       "roundOpen": "{{activity}} is open",
       "roundEnded": "The round ended.",
+      "elapsed": "Running for {{time}}",
       "connection": "Connection: {{status}}",
       "peopleStrip_one": "{{count}} person in the circle. Show the list",
       "peopleStrip_other": "{{count}} people in the circle. Show the list",
@@ -840,6 +842,7 @@
       "isOff": "Live discussion is off.",
       "stage": "Stage",
       "stageBody": "Audio and video arrive next. Chat and raise your hand meanwhile.",
+      "floor": "has the floor",
       "errors": {
         "failed": "That did not work. Try again in a moment.",
         "offline": "You are offline. It will work again once the room reconnects.",

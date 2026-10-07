@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { AnimatePresence, motion } from 'motion/react'
 import { CalendarHeart, Home, LogOut, Menu, MessagesSquare, Plug, Plus, Presentation, Settings, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
 import { ButtonLink } from '../../components/Button'
-import { usePopover } from '../../components/usePopover'
+import { popoverMotion, usePopover } from '../../components/usePopover'
+import { useReducedMotion } from '../../lib/motion'
 import { Bird } from '../pirikoo/Bird'
 import { PirikooChat } from '../pirikoo/PirikooChat'
 import { usePirikoo } from '../../stores/pirikoo'
@@ -79,6 +81,7 @@ function AccountMenu() {
   const { data: me } = useMe()
   const signOut = useSignOut()
   const { open: menuOpen, toggle, close, triggerRef, panelRef, panelProps } = usePopover()
+  const reduced = useReducedMotion()
   const id = useId()
   const [failed, setFailed] = useState(false)
   const name = me?.displayName ?? me?.email ?? ''
@@ -96,45 +99,56 @@ function AccountMenu() {
       >
         <Avatar name={name} />
       </button>
-      <div ref={panelRef} id={id} className="dropdown__panel dropdown__panel--end account__panel" hidden={!menuOpen} {...panelProps}>
-        <div className="account__who">
-          <Avatar name={name} size="lg" />
-          <div className="account__id">
-            <p className="account__label">{t('common.signedInAs')}</p>
-            <p className="account__name"><bdi>{name}</bdi></p>
-            {me?.email && me.displayName ? <p className="account__email" dir="ltr">{me.email}</p> : null}
-          </div>
-        </div>
-        <ul className="dropdown__list">
-          <li>
-            <Link to="/app/settings" className="dropdown__item" onClick={() => close(false)} viewTransition>
-              <Settings size={16} aria-hidden="true" />
-              <span className="dropdown__item-text">{t('common.settings')}</span>
-            </Link>
-          </li>
-          <li>
-            <button
-              type="button"
-              className="dropdown__item account__signout"
-              aria-busy={signOut.isPending || undefined}
-              onClick={async () => {
-                if (signOut.isPending) return
-                setFailed(false)
-                try {
-                  await signOut.mutateAsync()
-                  // Router-level navigate still works after the guard unmounts the shell.
-                  navigate('/', { replace: true })
-                } catch {
-                  setFailed(true)
-                }
-              }}
-            >
-              <LogOut className="flip-rtl" size={16} aria-hidden="true" />
-              <span className="dropdown__item-text">{t('common.signOut')}</span>
-            </button>
-          </li>
-        </ul>
-      </div>
+      <AnimatePresence>
+        {menuOpen ? (
+          <motion.div
+            ref={panelRef}
+            id={id}
+            className="dropdown__panel dropdown__panel--end account__panel"
+            data-motion=""
+            {...popoverMotion(reduced)}
+            {...panelProps}
+          >
+            <div className="account__who">
+              <Avatar name={name} size="lg" />
+              <div className="account__id">
+                <p className="account__label">{t('common.signedInAs')}</p>
+                <p className="account__name"><bdi>{name}</bdi></p>
+                {me?.email && me.displayName ? <p className="account__email" dir="ltr">{me.email}</p> : null}
+              </div>
+            </div>
+            <ul className="dropdown__list">
+              <li>
+                <Link to="/app/settings" className="dropdown__item" onClick={() => close(false)} viewTransition>
+                  <Settings size={16} aria-hidden="true" />
+                  <span className="dropdown__item-text">{t('common.settings')}</span>
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="dropdown__item account__signout"
+                  aria-busy={signOut.isPending || undefined}
+                  onClick={async () => {
+                    if (signOut.isPending) return
+                    setFailed(false)
+                    try {
+                      await signOut.mutateAsync()
+                      // Router-level navigate still works after the guard unmounts the shell.
+                      navigate('/', { replace: true })
+                    } catch {
+                      setFailed(true)
+                    }
+                  }}
+                >
+                  <LogOut className="flip-rtl" size={16} aria-hidden="true" />
+                  <span className="dropdown__item-text">{t('common.signOut')}</span>
+                </button>
+              </li>
+            </ul>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       {failed ? <p className="toast toast--error" role="alert">{t('common.signOutFailed')}</p> : null}
     </div>
   )

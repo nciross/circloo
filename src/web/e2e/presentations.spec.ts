@@ -168,7 +168,8 @@ test('questions: add a poll and a quiz, reorder by keyboard, keep it all after r
   await form.locator('.qform__question').fill(quiz)
 
   // The presentation-wide podium setting (on by default), now that there is a quiz.
-  const podium = page.locator('.deck-settings [role=switch]')
+  // Two presentation-wide switches live here since #171 (auto-open, then podium); the podium is the last.
+  const podium = page.locator('.deck-settings .deck-setting:last-child [role=switch]')
   await expect(podium).toHaveAttribute('aria-checked', 'true')
   await podium.click()
   await expect(podium).toHaveAttribute('aria-checked', 'false')
@@ -180,7 +181,7 @@ test('questions: add a poll and a quiz, reorder by keyboard, keep it all after r
   await expect(thumbs).toHaveCount(14)
   await expect(thumbs.nth(2)).toContainText(quiz)
   await expect(thumbs.nth(3)).toContainText(poll)
-  await expect(page.locator('.deck-settings [role=switch]')).toHaveAttribute('aria-checked', 'false')
+  await expect(page.locator('.deck-settings .deck-setting:last-child [role=switch]')).toHaveAttribute('aria-checked', 'false')
   await thumbs.nth(2).click()
   await expect(form.locator('.qform__question')).toHaveValue(quiz)
   await expect(form.locator('.qform__option').nth(1)).toHaveClass(/is-correct/)
