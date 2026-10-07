@@ -585,14 +585,14 @@
 }
 /* The dome: the Night values of tokens.css, fixed, so the stage is a night scene in both themes. */
 .call__stage {
-  --dome: #070e1a;
-  --dome-paper: #0f182a;
-  --dome-ink: #f1ecdf;
-  --dome-ink-soft: #b9b3a5;
-  --dome-hairline: #1f2b40;
+  --dome: #0a0a0b;
+  --dome-paper: #111318;
+  --dome-ink: #fafafa;
+  --dome-ink-soft: #b3b8c2;
+  --dome-hairline: #24272e;
   --dome-neutral: #1b2639;
-  --dome-brass: #d9b45c;
-  --dome-brass-faint: #3a3220;
+  --dome-brass: #6b8cff;
+  --dome-brass-faint: #2a3566;
   --hand: 1.75rem;
   --arc-r: 4.25rem;
   --dir: 1;

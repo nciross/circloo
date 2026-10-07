@@ -10,7 +10,7 @@ import type { QuestionSlide, Results } from './presentation'
 
 /** Read from the theme (present.css sets them to the skies and brass), so a question style (#168) can change them. */
 const CONFETTI_VARS = ['--confetti-1', '--confetti-2', '--confetti-3', '--confetti-4', '--confetti-5', '--confetti-6'] as const
-const CONFETTI_FALLBACK = ['#f2c14e', '#8cc4f5', '#8c6a1f', '#c6cdd8', '#1c7c52', '#a3adbd']
+const CONFETTI_FALLBACK = ['#ffc53d', '#7fb8ff', '#1f4fff', '#cfd6e2', '#1c7c52', '#aab4c3']
 
 /** Milliseconds since the reveal mounted, ticking each frame until `duration`; the full duration at once when still. */
 function useElapsed(duration: number, still: boolean) {
@@ -49,7 +49,7 @@ function Confetti({ delay }: { delay: number }) {
     ctx.scale(ratio, ratio)
     const style = getComputedStyle(el)
     const rtl = style.direction === 'rtl'
-    const colors = CONFETTI_VARS.map((v, i) => style.getPropertyValue(v).trim() || CONFETTI_FALLBACK[i] || '#8c6a1f')
+    const colors = CONFETTI_VARS.map((v, i) => style.getPropertyValue(v).trim() || CONFETTI_FALLBACK[i] || '#1f4fff')
     const pieces = confetti(width < 600 ? 32 : 64, colors)
     const duration = 1200
     let frame = 0

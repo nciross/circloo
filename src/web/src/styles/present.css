@@ -9,51 +9,51 @@
 .presenter,
 .audience {
   color-scheme: dark;
-  --ground: #070e1a;
-  --paper: #0f182a;
-  --paper-sunken: #0a1222;
-  --paper-hover: #162238;
-  --paper-pressed: #1d2c45;
-  --hairline: #1f2b40;
-  --hairline-strong: #34445e;
-  --ink: #f1ecdf;
-  --ink-soft: #b9b3a5;
-  --ink-faint: #8f8a7e;
-  --on-ink: #070e1a;
-  --brass: #d9b45c;
-  --brass-faint: #3a3220;
-  --beam: #6ea8ff;
-  --beam-hover: #8dbbff;
-  --beam-pressed: #a9caff;
-  --beam-subtle: #15284a;
-  --beam-subtle-hover: #1b3360;
-  --beam-text: #9cc4ff;
-  --on-beam: #070e1a;
-  --focus: #85b8ff;
-  --sky-stormy: #2b3650;
-  --sky-foggy: #7d8aa3;
-  --sky-cloudy: #8b97ad;
-  --sky-bright: #4a97e8;
-  --sky-sunny: #e0b23f;
-  --on-sky: #070e1a;
-  --on-sky-stormy: #f1ecdf;
+  --ground: #0a0a0b;
+  --paper: #111318;
+  --paper-sunken: #0a0b0f;
+  --paper-hover: #1a1d24;
+  --paper-pressed: #23272f;
+  --hairline: #24272e;
+  --hairline-strong: #3a3f4a;
+  --ink: #fafafa;
+  --ink-soft: #b3b8c2;
+  --ink-faint: #858b96;
+  --on-ink: #0a0a0b;
+  --brass: #6b8cff;
+  --brass-faint: #2a3566;
+  --beam: #6b8cff;
+  --beam-hover: #87a2ff;
+  --beam-pressed: #a3b8ff;
+  --beam-subtle: #1a2446;
+  --beam-subtle-hover: #223060;
+  --beam-text: #9db0ff;
+  --on-beam: #0a0a0b;
+  --focus: #8fa6ff;
+  --sky-stormy: #2a3450;
+  --sky-foggy: #7f8ca6;
+  --sky-cloudy: #8e9bb2;
+  --sky-bright: #3f8ff0;
+  --sky-sunny: #e6b534;
+  --on-sky: #0a0a0b;
+  --on-sky-stormy: #fafafa;
   --live: #4bce97;
   --live-subtle: #12301f;
   --live-text: #7ee2b8;
-  --on-live: #070e1a;
+  --on-live: #0a0a0b;
   --danger: #ff8f86;
   --danger-hover: #ffa8a1;
   --danger-subtle: #3a1512;
   --danger-text: #ffa8a1;
-  --on-danger: #070e1a;
+  --on-danger: #0a0a0b;
   --warning-subtle: #3a2d0a;
   --warning-text: #f0c75e;
-  --info-subtle: #15284a;
-  --info-text: #9cc4ff;
+  --info-subtle: #1a2446;
+  --info-text: #9db0ff;
   --neutral-subtle: #1b2639;
-  --neutral-text: #b9b3a5;
-  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(241 236 223 / 0.18);
-  --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(241 236 223 / 0.22);
+  --neutral-text: #b3b8c2;
+  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(250 250 250 / 0.18);
+  --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(250 250 250 / 0.22);
   --bg: var(--ground);
   --surface: var(--paper);
   --surface-sunken: var(--paper-sunken);
@@ -326,7 +326,7 @@
 .follow__frame.is-filled {
   display: grid;
   place-items: center;
-  background: #070e1a;
+  background: #0a0a0b;
 }
 .follow__frame.is-filled {
   position: fixed;
@@ -494,7 +494,7 @@
   padding: 2vmin;
   border-radius: var(--r-lg);
   background: #ffffff;
-  color: #0b1320;
+  color: #0a0a0a;
 }
 .audience__join-title {
   margin: 0;

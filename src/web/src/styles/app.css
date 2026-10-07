@@ -223,7 +223,7 @@ a.navitem:hover {
   animation-name: slide-in-rtl;
 }
 .drawer::backdrop {
-  background: rgb(7 14 26 / 0.5);
+  background: rgb(10 10 11 / 0.5);
   animation: fade-in var(--dur-enter) var(--ease-out);
 }
 .drawer__head {

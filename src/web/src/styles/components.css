@@ -528,10 +528,10 @@
   box-shadow: inset 0 0 0 1px var(--hairline-strong);
 }
 .swatch--day {
-  background: #f1ede4;
+  background: #ffffff;
 }
 .swatch--night {
-  background: #070e1a;
+  background: #0a0a0b;
 }
 /* "Match my device": both grounds, overlapping like two bodies. */
 .swatch-pair {
@@ -1190,4 +1190,64 @@
 .mood:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* ---------- Premium pass (#250, Pure Signal): spring curve, pill actions, bezel shells ---------- */
+:root {
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+.btn {
+  border-radius: var(--r-ring);
+  padding-inline: 1.1rem;
+  transition:
+    background-color var(--dur-move) var(--ease-spring),
+    box-shadow var(--dur-move) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn--sm {
+  padding-inline: 0.85rem;
+}
+.btn--lg {
+  padding-inline: 1.4rem;
+}
+/* The one primary action per view sits in a soft cobalt bezel, like a key in its housing. */
+.btn:not(.btn--default):not(.btn--subtle):not(.btn--danger):not(.btn--ai) {
+  box-shadow:
+    0 0 0 1px var(--beam),
+    0 6px 14px -8px var(--beam);
+}
+/* Bezel shells: a sunken tray with a hairline around the containers that matter, concentric radii. */
+.auth__card,
+.orbit--lead,
+.phase,
+.pkc--panel,
+.room__centre .canvas__viewport {
+  box-shadow:
+    var(--shadow-overlay),
+    0 0 0 6px var(--paper-sunken),
+    0 0 0 7px var(--hairline);
+}
+.page-header__title,
+.hello .page-header__title {
+  font-size: var(--fs-4xl);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+/* Pages arrive: each top-level block rises 8px in turn, nothing waits for a scroll. */
+.page > * {
+  animation: rise-in var(--dur-enter) var(--ease-spring) backwards;
+}
+.page > :nth-child(2) { animation-delay: 60ms; }
+.page > :nth-child(3) { animation-delay: 120ms; }
+.page > :nth-child(4) { animation-delay: 180ms; }
+.page > :nth-child(n + 5) { animation-delay: 240ms; }
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover { transform: none; }
+  .page > * { animation: none; }
 }

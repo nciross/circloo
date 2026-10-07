@@ -51,17 +51,17 @@
 /* ---------- The dome: the first and the last band, in both themes ---------- */
 .console,
 .again {
-  --dome: #070e1a;
-  --on-dome: #f1ecdf;
-  --on-dome-soft: #b9b3a5;
-  --dome-line: #1f2b40;
-  --dome-line-strong: #34445e;
-  --dome-hover: #162238;
-  --dome-brass: #d9b45c;
-  --dome-beam: #6ea8ff;
-  --on-dome-beam: #070e1a;
+  --dome: #0a0a0b;
+  --on-dome: #fafafa;
+  --on-dome-soft: #b3b8c2;
+  --dome-line: #24272e;
+  --dome-line-strong: #3a3f4a;
+  --dome-hover: #1a1d24;
+  --dome-brass: #6b8cff;
+  --dome-beam: #6b8cff;
+  --on-dome-beam: #0a0a0b;
   --dome-live: #4bce97;
-  --focus: #85b8ff;
+  --focus: #8fa6ff;
   position: relative;
   isolation: isolate;
   overflow: clip;
@@ -173,7 +173,7 @@
   background: var(--paper);
   color: var(--ink);
   box-shadow: var(--shadow-overlay);
-  --focus: #2a73e8;
+  --focus: #3b66ff;
   transition:
     border-color var(--dur-state),
     box-shadow var(--dur-state);
@@ -303,36 +303,36 @@
 .say__box,
 .made {
   color-scheme: light;
-  --ground: #f1ede4;
+  --ground: #ffffff;
   --paper: #ffffff;
-  --paper-sunken: #e7e2d7;
-  --paper-hover: #dfd9cc;
-  --paper-pressed: #d5cfc1;
-  --hairline: #d9d4c8;
-  --hairline-strong: #aba496;
-  --ink: #0b1320;
-  --ink-soft: #3d4756;
-  --ink-faint: #5d6675;
-  --brass: #8c6a1f;
-  --brass-faint: #e4d6b4;
-  --beam: #1d5fd6;
-  --beam-hover: #164db4;
-  --beam-pressed: #113d90;
-  --beam-subtle: #e4edfc;
-  --beam-text: #1550bd;
+  --paper-sunken: #f2f4f7;
+  --paper-hover: #e9ecf1;
+  --paper-pressed: #dde1e8;
+  --hairline: #e4e7ec;
+  --hairline-strong: #9aa3b0;
+  --ink: #0a0a0a;
+  --ink-soft: #4d5560;
+  --ink-faint: #737b86;
+  --brass: #1f4fff;
+  --brass-faint: #d6dfff;
+  --beam: #1f4fff;
+  --beam-hover: #1740d6;
+  --beam-pressed: #1233ad;
+  --beam-subtle: #eaf0ff;
+  --beam-text: #1a44db;
   --on-beam: #ffffff;
-  --sky-stormy: #3b4660;
-  --sky-foggy: #a3adbd;
-  --sky-cloudy: #c6cdd8;
-  --sky-bright: #8cc4f5;
-  --sky-sunny: #f2c14e;
-  --on-sky: #0b1320;
+  --sky-stormy: #2f3a52;
+  --sky-foggy: #aab4c3;
+  --sky-cloudy: #cfd6e2;
+  --sky-bright: #7fb8ff;
+  --sky-sunny: #ffc53d;
+  --on-sky: #0a0a0a;
   --on-sky-stormy: #ffffff;
   --coral: #ef4a32;
   --neutral-subtle: #e9ebe6;
-  --neutral-text: #3d4756;
-  --shadow-raised: 0 1px 1px rgb(7 14 26 / 0.08), 0 0 1px rgb(7 14 26 / 0.2);
-  --shadow-overlay: 0 8px 12px rgb(7 14 26 / 0.12), 0 0 1px rgb(7 14 26 / 0.28);
+  --neutral-text: #4d5560;
+  --shadow-raised: 0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2);
+  --shadow-overlay: 0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28);
   /* The earlier names, for the shared components inside (buttons, lozenges, the face). */
   --surface: var(--paper);
   --surface-sunken: var(--paper-sunken);
@@ -363,7 +363,7 @@
   background: var(--paper);
   color: var(--ink);
   box-shadow: var(--shadow-overlay);
-  --focus: #2a73e8;
+  --focus: #3b66ff;
 }
 .made__head {
   display: flex;
@@ -659,16 +659,16 @@
   block-size: 2.75rem;
   border: 0;
   border-radius: var(--r-ring);
-  background: rgb(7 14 26 / 0.84);
-  color: #f1ecdf;
+  background: rgb(10 10 11 / 0.84);
+  color: #fafafa;
   cursor: pointer;
   transition: background-color var(--dur-state);
 }
 .film__toggle:hover {
-  background: rgb(7 14 26 / 0.96);
+  background: rgb(10 10 11 / 0.96);
 }
 .film__toggle:focus-visible {
-  outline: 2px solid #85b8ff;
+  outline: 2px solid #8fa6ff;
   outline-offset: 2px;
 }
 /* The chapters are a dial: the chosen one carries a brass mark, and the clip's time runs as a brass rule. */

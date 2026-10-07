@@ -2,38 +2,38 @@
 name: circloo
 description: An orrery of people. Two grounds (Day and the dome at Night), ink, brass marks that measure, one beam of blue for action, violet only for AI, five skies for the moods, and a face that feels what the circle feels.
 colors:
-  ground: "#f1ede4"
+  ground: "#ffffff"
   paper: "#ffffff"
-  paper-sunken: "#e7e2d7"
-  paper-hover: "#dfd9cc"
-  paper-pressed: "#d5cfc1"
-  hairline: "#d9d4c8"
-  hairline-strong: "#aba496"
-  ink: "#0b1320"
-  ink-soft: "#3d4756"
-  ink-faint: "#5d6675"
-  on-ink: "#f1ecdf"
-  brass: "#8c6a1f"
-  brass-faint: "#e4d6b4"
-  beam: "#1d5fd6"
-  beam-hover: "#164db4"
-  beam-pressed: "#113d90"
-  beam-subtle: "#e4edfc"
-  beam-text: "#1550bd"
+  paper-sunken: "#f2f4f7"
+  paper-hover: "#e9ecf1"
+  paper-pressed: "#dde1e8"
+  hairline: "#e4e7ec"
+  hairline-strong: "#9aa3b0"
+  ink: "#0a0a0a"
+  ink-soft: "#4d5560"
+  ink-faint: "#737b86"
+  on-ink: "#fafafa"
+  brass: "#1f4fff"
+  brass-faint: "#d6dfff"
+  beam: "#1f4fff"
+  beam-hover: "#1740d6"
+  beam-pressed: "#1233ad"
+  beam-subtle: "#eaf0ff"
+  beam-text: "#1a44db"
   on-beam: "#ffffff"
-  focus: "#2a73e8"
+  focus: "#3b66ff"
   ai: "#6a4fd1"
   ai-hover: "#5a40bd"
   ai-subtle: "#f2efff"
   ai-border: "#d9d0fb"
   ai-text: "#5638c2"
   on-ai: "#ffffff"
-  sky-stormy: "#3b4660"
-  sky-foggy: "#a3adbd"
-  sky-cloudy: "#c6cdd8"
-  sky-bright: "#8cc4f5"
-  sky-sunny: "#f2c14e"
-  on-sky: "#0b1320"
+  sky-stormy: "#2f3a52"
+  sky-foggy: "#aab4c3"
+  sky-cloudy: "#cfd6e2"
+  sky-bright: "#7fb8ff"
+  sky-sunny: "#ffc53d"
+  on-sky: "#0a0a0a"
   on-sky-stormy: "#ffffff"
   coral: "#ef4a32"
   live: "#1c7c52"
@@ -44,19 +44,19 @@ colors:
   danger-text: "#ae2a19"
   warning-subtle: "#fff2cf"
   warning-text: "#7a4f01"
-  neutral-subtle: "#e7e2d7"
-  neutral-text: "#3d4756"
+  neutral-subtle: "#f2f4f7"
+  neutral-text: "#4d5560"
   body-1: "#1d4ed8"
   body-2: "#c2410c"
   body-3: "#15803d"
   body-4: "#9d174d"
   body-5: "#0e7490"
   brand-ink: "#0f2537"
-  night-ground: "#070e1a"
-  night-paper: "#0f182a"
-  night-ink: "#f1ecdf"
-  night-brass: "#d9b45c"
-  night-beam: "#6ea8ff"
+  night-ground: "#0a0a0b"
+  night-paper: "#111318"
+  night-ink: "#fafafa"
+  night-brass: "#6b8cff"
+  night-beam: "#6b8cff"
   night-ai: "#9f8fef"
 typography:
   family: "'Readex Pro Variable', 'Readex Pro', system-ui, sans-serif"
@@ -162,7 +162,7 @@ components:
 
 circloo is an orrery of people. A circle is a ring, its members are bodies on that ring, and a round is a
 transit everyone watches together. The world is built from the orrery's materials and nothing else: two
-grounds (a cool off-white by Day, the dome `#070e1a` by Night), ink for everything that is read, brass for
+grounds (a cool off-white by Day, the dome `#0a0a0b` by Night), ink for everything that is read, brass for
 every mark that measures something, one beam of blue for the one thing to do, violet only where AI wrote
 something, and the five mood skies as fills. It refuses the SaaS dashboard (white cards on grey, one accent)
 and the enterprise sidebar-as-identity it replaced (issue #250).
@@ -192,7 +192,7 @@ follows.
 The palette is the orrery's materials: grounds, paper, ink, brass, one beam, violet for AI, five skies and one coral.
 
 ### Primary
-- **Beam** (`beam`, `#1d5fd6`; Night `#6ea8ff`): the one colour that means "do this". The primary button, the
+- **Beam** (`beam`, `#1f4fff`; Night `#6b8cff`): the one colour that means "do this". The primary button, the
   caret in every field, the switch when on, the picked option (`beam-subtle` fill with a `beam` border on
   character and activity pickers), the "you" outline on a ring body (3px), the hover arrow on an orbit card.
   `beam-text` is the link colour on ground and paper. Text on beam is `on-beam`, which flips to the dome at Night.
@@ -203,7 +203,7 @@ The palette is the orrery's materials: grounds, paper, ink, brass, one beam, vio
   words stream), the AI panel head, the Suggested by AI lozenge, the plan step that asks the AI.
 
 ### Tertiary
-- **Brass** (`brass`, `#8c6a1f`; Night `#d9b45c`) and **brass faint** (`brass-faint`): the instrument. The
+- **Brass** (`brass`, `#1f4fff`; Night `#6b8cff`) and **brass faint** (`brass-faint`): the instrument. The
   idle ring track is brass faint; the running arc, the top tick, the round's time rule in the work bar, the
   filled code tile's rule, the selected segment's and nav item's tick, the chosen dropdown item's icon, the
   table head's rule, upload progress and the Pirikoo launcher's "something to say" ring are brass. Brass is
@@ -215,14 +215,14 @@ The palette is the orrery's materials: grounds, paper, ink, brass, one beam, vio
   sky it is `on-sky`. A sky fill always sits beside the mood's icon and word.
 
 ### Neutral
-- **Ground** (`ground`, `#f1ede4`; Night the dome `#070e1a`): the page and the navigation rail. The two
+- **Ground** (`ground`, `#ffffff`; Night the dome `#0a0a0b`): the page and the navigation rail. The two
   theme swatches in Settings are these two literals.
-- **Paper** (`paper`, `#ffffff`; Night `#0f182a`): every panel, bar, card, input and ring body. `paper-sunken`
+- **Paper** (`paper`, `#ffffff`; Night `#111318`): every panel, bar, card, input and ring body. `paper-sunken`
   is wells, tracks, panel feet, the Ask bar and the default button; `paper-hover` and `paper-pressed` are one and
   two steps down.
-- **Hairline** (`hairline`, `#d9d4c8`) for every 1px border, row divider and grid gap; `hairline-strong`
-  (`#aba496`) for inputs, chips, dashed drop zones, the switch track and the scrollbar thumb.
-- **Ink** (`ink`, `#0b1320`; Night bone `#f1ecdf`) for everything that matters; `ink-soft` for leads and
+- **Hairline** (`hairline`, `#e4e7ec`) for every 1px border, row divider and grid gap; `hairline-strong`
+  (`#9aa3b0`) for inputs, chips, dashed drop zones, the switch track and the scrollbar thumb.
+- **Ink** (`ink`, `#0a0a0a`; Night bone `#fafafa`) for everything that matters; `ink-soft` for leads and
   secondary text; `ink-faint` for hints, placeholders, column heads and the idle status dot. `on-ink` is the
   text on an ink block (the toast).
 - **Status**: `live` for what is happening now (the status dot, the Live lozenge, kept cards, the Connected
@@ -336,16 +336,16 @@ and lozenges).
 
 A hybrid: flat by default with hairlines doing the separating, and three soft, offset shadows tinted from the
 dome for the few things that lift. Depth also comes from tonal steps on paper (sunken, hover, pressed) and from
-the dome bands and dialog backdrop (`rgb(7 14 26 / 0.5)`) that sit the content a layer above the night.
+the dome bands and dialog backdrop (`rgb(10 10 11 / 0.5)`) that sit the content a layer above the night.
 
 ### Shadow Vocabulary
-- **Raised** (`0 1px 1px rgb(7 14 26 / 0.08), 0 0 1px rgb(7 14 26 / 0.2)`): panels and orbit cards on ground,
+- **Raised** (`0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2)`): panels and orbit cards on ground,
   ring bodies, the selected segment and the selected nav item, the switch knob, a plan step's icon.
-- **Overlay** (`0 8px 12px rgb(7 14 26 / 0.12), 0 0 1px rgb(7 14 26 / 0.28)`): dropdown panels, toasts, the
+- **Overlay** (`0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28)`): dropdown panels, toasts, the
   skip link, the auth card, the dealt icebreaker, the landing's composition card, the Send status.
-- **Float** (`0 24px 48px -12px rgb(7 14 26 / 0.25), 0 0 1px rgb(7 14 26 / 0.25)`): the drawer, dialogs, the
+- **Float** (`0 24px 48px -12px rgb(10 10 11 / 0.25), 0 0 1px rgb(10 10 11 / 0.25)`): the drawer, dialogs, the
   Pirikoo panel, the canvas's selected-note style bar, the room's bottom sheet.
-- At Night the three use black offsets with a 1px bone edge (`rgb(241 236 223 / 0.18–0.25)`) so paper still
+- At Night the three use black offsets with a 1px bone edge (`rgb(250 250 250 / 0.18–0.25)`) so paper still
   parts from the dome.
 
 ### Named Rules
@@ -487,7 +487,7 @@ stops blinking and gaze (the landing can force gaze back on with its "Play anima
 always coral; eyes take the current text colour (ink, or `on-ink` on the dome; the auth watermark draws the
 mouth in ink too, at 5% opacity). The wordmark is 700, -0.02em, with the face at 1.3em wide. Static assets
 (`favicon.svg`, `logo-mark.svg`, `icon-maskable.svg`, PNG icons rendered from them) use the same geometry on
-`brand-ink`; the page's theme colours are `#f1ede4` (light) and `#070e1a` (dark).
+`brand-ink`; the page's theme colours are `#ffffff` (light) and `#0a0a0b` (dark).
 
 ## The cast (characters)
 
