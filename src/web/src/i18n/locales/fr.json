@@ -695,7 +695,7 @@
       "none": "Personne ne porte ce nom.",
       "groupHere": "Ici ({{count}})",
       "groupAway": "Absents ({{count}})",
-      "sideLabel": "Personnes et conversation",
+      "sideLabel": "Personnes, conversation et appel",
       "openSide": "Personnes et chat",
       "collapseSide": "Replier la colonne",
       "expandSheet": "Agrandir le panneau",
@@ -744,7 +744,21 @@
         "one": "{{name}} écrit",
         "two": "{{a}} et {{b}} écrivent",
         "many": "Plusieurs personnes écrivent"
-      }
+      },
+      "workbar": "Salle",
+      "skipToBoard": "Aller au tableau",
+      "centre": "Espace de travail",
+      "startedBy": "lancé par {{name}}",
+      "roundOpen": "{{activity}} est ouvert",
+      "roundEnded": "Le tour est terminé.",
+      "connection": "Connexion : {{status}}",
+      "peopleStrip_one": "{{count}} personne dans le cercle. Voir la liste",
+      "peopleStrip_other": "{{count}} personnes dans le cercle. Voir la liste",
+      "more": "Actions du cercle",
+      "expandSide": "Ouvrir la colonne",
+      "callTab": "Appel",
+      "openWhiteboard": "Ouvrir le tableau blanc",
+      "otherRounds": "Autres activités"
     },
     "missing": {
       "title": "Cercle introuvable",
@@ -780,6 +794,21 @@
       "already-open": "Les réponses sont déjà ouvertes sur cette question.",
       "not-answering": "Les réponses ne sont pas ouvertes sur cette question.",
       "not-open": "Ouvre les réponses à cette question avant d’afficher ses résultats."
+    },
+    "call": {
+      "switch": "Discussion en direct",
+      "switchHelp": "On se parle sur une scène, au micro et, si tu l’autorises, en caméra. C’est désactivé par défaut : rien ne change pour le cercle tant que tu ne l’actives pas.",
+      "cameras": "Autoriser les caméras",
+      "camerasHelp": "Décoche pour garder seulement l’audio et le chat, par exemple avec des enfants dans le cercle.",
+      "isOn": "La discussion en direct est activée.",
+      "isOff": "La discussion en direct est désactivée.",
+      "stage": "Scène",
+      "stageBody": "L’audio et la vidéo arrivent bientôt. En attendant, écris dans le chat et lève la main.",
+      "errors": {
+        "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+        "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
+        "animator-only": "Seul l’animateur peut changer ce réglage."
+      }
     }
   },
   "boards": {

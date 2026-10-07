@@ -2,8 +2,9 @@ import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 're
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Hand, MessageCircle, Users, X } from 'lucide-react'
 import { activeTab, type SideState } from './useSide'
+import { Count } from './Count'
 
-/** One tab of the sidebar. Spec 008 adds Chat and the hands queue; spec 009 adds nothing here (its stage lives in the main area). */
+/** One tab of the sidebar: People, Chat and Call today; the hands queue (#184) joins the same list. */
 export interface SideTab {
   id: string
   label: string
@@ -15,10 +16,10 @@ export interface SideTab {
 }
 
 /**
- * The room's side area. From 960 px: a column on the inline end, collapsible to a narrow handle that still shows unread
- * messages and raised hands. Below 960 px: a bottom sheet, half height by default, expandable, closable; the page keeps
- * room below the content for it, so it never covers the answer pad or the presenter controls (FR-807).
- * Tabs are data: People now, Chat and Hands as their tasks land.
+ * The room's side area, on the inline end like a meeting rail. From 960 px: a column, collapsible to an icon rail with one
+ * button per tab (and its count) that opens the column on that tab. Below 960 px: a bottom sheet, half height by default,
+ * expandable, closable to a pill; the page keeps room below the content for it, so it never covers the answer pad or the
+ * presenter controls (FR-807). Tabs are data.
  */
 export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { tabs: SideTab[]; side: SideState; unread?: number; hands?: number; announce?: string }) {
   const { t } = useTranslation()
@@ -29,11 +30,19 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
   const was = useRef(open)
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  // Closing from inside the sidebar would drop focus; the handle that replaces it takes it.
+  // Closing from inside the sidebar would drop focus; the rail (or the phone pill) that replaces it takes it.
   useEffect(() => {
     if (was.current && !open) handle.current?.focus()
     was.current = open
   }, [open])
+
+  // Opened from the rail or the people strip: the focus goes to the tab that was asked for.
+  const { focusTab, focused } = side
+  useEffect(() => {
+    if (!focusTab || !open) return
+    tabRefs.current[active]?.focus()
+    focused()
+  }, [focusTab, open, active, focused])
 
   const onTabKey = (e: KeyboardEvent) => {
     const i = tabs.findIndex((x) => x.id === active)
@@ -56,32 +65,68 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
   }
 
   const flip = 'room-side__flip'
+  const railName = (x: SideTab) => (x.badge && x.badgeLabel ? `${x.label}, ${x.badgeLabel}` : x.label)
   return (
     <aside className={`room-side${open ? ' is-open' : ' is-closed'}${!wide && sheet === 'full' ? ' is-full' : ''}`} aria-label={t('circles.room.sideLabel')} data-slot="room-side">
-      <button
-        ref={handle}
-        type="button"
-        className="room-side__handle"
-        aria-expanded={open}
-        aria-controls={`${base}-body`}
-        hidden={open}
-        onClick={() => setOpen(true)}
-      >
-        <span className="room-side__handle-icon" aria-hidden="true">{wide ? <ChevronsLeft size={18} className={flip} /> : <Users size={18} />}</span>
-        <span className="room-side__handle-label">{t('circles.room.openSide')}</span>
-        {unread > 0 ? (
-          <span className="room-side__count" title={t('circles.room.unread', { count: unread })}>
-            <MessageCircle size={13} aria-hidden="true" />{unread > 99 ? '99+' : unread}
-            <span className="visually-hidden"> {t('circles.room.unread', { count: unread })}</span>
-          </span>
-        ) : null}
-        {hands > 0 ? (
-          <span className="room-side__count room-side__count--hand" title={t('circles.room.hands', { count: hands })}>
-            <Hand size={13} aria-hidden="true" />{hands}
-            <span className="visually-hidden"> {t('circles.room.hands', { count: hands })}</span>
-          </span>
-        ) : null}
-      </button>
+      {wide ? (
+        <div className="room-side__rail" hidden={open}>
+          <button
+            ref={handle}
+            type="button"
+            className="room-side__handle room-side__rail-btn"
+            aria-expanded={open}
+            aria-controls={`${base}-body`}
+            aria-label={t('circles.room.expandSide')}
+            title={t('circles.room.expandSide')}
+            onClick={() => side.openTab(active)}
+          >
+            <ChevronsLeft size={20} aria-hidden="true" className={flip} />
+          </button>
+          <span className="room-side__rail-sep" aria-hidden="true" />
+          {tabs.map((x) => (
+            <button
+              key={x.id}
+              type="button"
+              className="room-side__rail-btn"
+              data-tab={x.id}
+              aria-controls={`${base}-body`}
+              aria-label={railName(x)}
+              title={railName(x)}
+              onClick={() => side.openTab(x.id)}
+            >
+              <span className="room-side__rail-icon" aria-hidden="true">{x.icon}</span>
+              {x.badge ? <Count value={x.badge} className={`room-side__rail-count${x.id === 'chat' ? ' is-strong' : ''}`} /> : null}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <button
+          ref={handle}
+          type="button"
+          className="room-side__handle"
+          aria-expanded={open}
+          aria-controls={`${base}-body`}
+          hidden={open}
+          onClick={() => side.openTab(active)}
+        >
+          <span className="room-side__handle-icon" aria-hidden="true"><Users size={18} /></span>
+          <span className="room-side__handle-label">{t('circles.room.openSide')}</span>
+          {unread > 0 ? (
+            <span className="room-side__count" title={t('circles.room.unread', { count: unread })}>
+              <MessageCircle size={13} aria-hidden="true" />
+              <Count value={unread} className="room-side__count-n" />
+              <span className="visually-hidden"> {t('circles.room.unread', { count: unread })}</span>
+            </span>
+          ) : null}
+          {hands > 0 ? (
+            <span className="room-side__count room-side__count--hand" title={t('circles.room.hands', { count: hands })}>
+              <Hand size={13} aria-hidden="true" />
+              <Count value={hands} className="room-side__count-n" />
+              <span className="visually-hidden"> {t('circles.room.hands', { count: hands })}</span>
+            </span>
+          ) : null}
+        </button>
+      )}
 
       <div className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
         <div className="room-side__bar">
@@ -103,10 +148,9 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
                 <span className="room-side__tab-icon" aria-hidden="true">{x.icon}</span>
                 {x.label}
                 {x.badge ? (
-                  <span className="room-side__badge">
-                    {x.badge > 999 ? '999+' : x.badge}
+                  <Count value={x.badge} className="room-side__badge">
                     <span className="visually-hidden"> {x.badgeLabel}</span>
-                  </span>
+                  </Count>
                 ) : null}
               </button>
             ))}
@@ -139,8 +183,9 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
             {x.panel}
           </div>
         ))}
-        <p className="visually-hidden" aria-live="polite">{announce ?? ''}</p>
       </div>
+      {/* Outside the body, so an arrival is still announced while the sidebar is collapsed. */}
+      <p className="visually-hidden" aria-live="polite">{announce ?? ''}</p>
     </aside>
   )
 }

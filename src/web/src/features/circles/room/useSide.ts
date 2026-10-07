@@ -22,6 +22,8 @@ export function useSideState() {
   const [sideOpen, setSideOpen] = useState(loadSideOpen)
   const [sheet, setSheet] = useState<SheetSize>('half')
   const [tab, setTab] = useState('people')
+  // A tab opened from outside its tab list (the rail, the work bar's people strip) takes the focus once it shows.
+  const [focusTab, setFocusTab] = useState<string | null>(null)
   const open = wide ? sideOpen : sheet !== 'closed'
   const setOpen = (next: boolean) => {
     if (wide) {
@@ -29,7 +31,17 @@ export function useSideState() {
       saveSideOpen(next)
     } else setSheet(next ? 'half' : 'closed')
   }
-  return { wide, open, setOpen, sheet, setSheet, tab, setTab, state: wide ? (sideOpen ? 'open' : 'closed') : sheet }
+  /** Opens the side area on that tab and moves the focus to it. */
+  const openTab = (id: string) => {
+    setTab(id)
+    if (!open) setOpen(true)
+    setFocusTab(id)
+  }
+  return {
+    wide, open, setOpen, sheet, setSheet, tab, setTab, openTab, focusTab,
+    focused: () => setFocusTab(null),
+    state: wide ? (sideOpen ? 'open' : 'closed') : sheet,
+  }
 }
 
 /** The tab shown: the picked one, or the first when it is gone (Chat ends with its activity). */

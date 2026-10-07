@@ -106,6 +106,11 @@
   --gutter: clamp(1rem, 3vw, 2rem);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion durations: press feedback, state change, movement, entrance. */
+  --dur-press: 120ms;
+  --dur-state: 160ms;
+  --dur-move: 240ms;
+  --dur-enter: 300ms;
 }
 
 :root[data-theme='dark'] {

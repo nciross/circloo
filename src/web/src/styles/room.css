@@ -1,6 +1,7 @@
 /*
- * The room layout (spec 008 T804): the main area and one side area for every activity, the presenting layout included.
- * From 960 px the side area is a column on the inline end (320 to 360 px), collapsible to a narrow handle.
+ * The room layout (spec 008 T804, #244): a work bar on top, then the centre and one side area for every activity, the
+ * presenting layout included. From 960 px both are app height (a workspace, not a page) and the side area is a column on
+ * the inline end (280 to 360 px), collapsible to an icon rail.
  * Below 960 px it is a bottom sheet; the page keeps the sheet's height free below the content, so the sheet never
  * covers the answer pad or the presenter controls. Logical properties only, so Arabic mirrors without extra rules.
  * Slots in the side area: tabs in RoomSidebar.tsx (People today; Chat, Hands as they land). The stage (spec 009)
@@ -25,30 +26,18 @@
     grid-template-columns: minmax(0, 1fr) 3.25rem;
   }
   .room-side {
-    position: sticky;
-    inset-block-start: calc(var(--topbar-h) + var(--s-5));
+    position: relative;
     display: flex;
     flex-direction: column;
-    /* Ends above the bottom corner, which belongs to Pirikoo's button (3.75rem plus its offset), so the send button stays clear. */
-    block-size: calc(100dvh - var(--topbar-h) - var(--s-5) - 6rem);
-    min-block-size: 24rem;
+    align-self: stretch;
+    min-block-size: 0;
+    /* Ends above the bottom corner, which belongs to Pirikoo's button, so the chat's send button stays clear of it. */
+    margin-block-end: var(--corner-clear);
     border: 1px solid var(--border);
     border-radius: var(--r-md);
     background: var(--surface);
     box-shadow: var(--shadow-raised);
     overflow: clip;
-  }
-  .room-side.is-closed {
-    block-size: auto;
-    min-block-size: 0;
-    align-self: start;
-  }
-  .room-side__handle {
-    flex-direction: column;
-    padding-block: var(--s-3);
-  }
-  .room-side__handle-label {
-    writing-mode: vertical-rl;
   }
   .room-side__grip {
     display: none;
@@ -408,9 +397,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .room-side {
-    transition: block-size 200ms var(--ease-out);
-  }
   .people__row {
     transition: background-color 600ms ease;
   }

@@ -1,31 +1,31 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
-import { DoorClosed } from 'lucide-react'
 import { useCircle, useCloseCircle } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
 import { PageHeader } from '../../components/PageHeader'
-import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
 import { Panda } from '../../components/Panda'
-import { ActivityGrid } from './parts'
-import { SendResults } from './SendResults'
 import { Chat } from './Chat'
 import { Board } from './Board'
 import { Canvas } from './Canvas'
-import { BOARD_COLUMNS, CANVAS, PRESENTATION } from './catalog'
+import { BOARD_COLUMNS, CANVAS, PRESENTATION, activityById } from './catalog'
 import { useLive } from './present/presentation'
 import { PresenterView } from './present/PresenterView'
 import { ParticipantView } from './present/ParticipantView'
 import { PresentationPicker } from './present/PresentationPicker'
 import { useCircleConnection, useRoom } from './room'
 import { RoomPanels } from './room/RoomPanels'
+import { useSideState } from './room/useSide'
+import { WorkBar } from './room/WorkBar'
+import { WorkspaceDock } from './room/WorkspaceDock'
 import '../../styles/circles.css'
 import '../../styles/integrations.css'
 import '../../styles/present.css'
 import '../../styles/room.css'
+import '../../styles/workspace.css'
 
-const STATUS_KEY = { connecting: 'connecting', live: 'live', reconnecting: 'reconnecting', offline: 'offline' } as const
+const CENTRE_ID = 'room-centre'
 
 /** The live room, for the animator (inside the app) and for participants (guest or signed in). */
 export default function CircleRoom() {
@@ -41,8 +41,9 @@ export default function CircleRoom() {
   // A reload while presenting: the state arrives right after entering; until then show a wait, not the picker
   // (whose "Present" would replace the running session). After a few seconds the picker appears as a way out.
   const [stateLate, setStateLate] = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const [starting, setStarting] = useState(false)
+  const [starting, setStarting] = useState<string | null>(null)
+  // Lifted here so the work bar's people strip can open the People tab, like the rail does.
+  const side = useSideState()
   useDocumentTitle('circles.room.title')
 
   useEffect(() => {
@@ -81,61 +82,57 @@ export default function CircleRoom() {
       setPicking(true)
       return
     }
-    setStarting(true)
+    setStarting(activityId)
     try {
       await room.start(activityId)
     } catch {
       // The room shows the error code.
     } finally {
-      setStarting(false)
+      setStarting(null)
     }
   }
 
+  const members = ready ? room.members : view.members
+  const centreLabel = activity && activityById(activity) ? t(`activities.${activity}.title`) : t('circles.room.centre')
+  const presenting = activity === PRESENTATION
+
   return (
     <div className="page room">
-      <PageHeader
-        crumbs={isAnimator ? [{ to: '/app', label: t('common.nav.home') }] : []}
-        title={<bdi>{view.name}</bdi>}
-        lead={
-          <span className="room__status">
-            <span className={`dot dot--${closed ? 'offline' : room.status}`} aria-hidden="true" />
-            {closed ? t('circles.room.closed') : t(`circles.status.${STATUS_KEY[room.status]}`)}
-          </span>
-        }
-        actions={
-          isAnimator && !closed ? (
-            confirming ? (
-              <>
-                <Button variant="subtle" onClick={() => setConfirming(false)}>{t('common.cancel')}</Button>
-                <Button variant="danger" busy={close.isPending} onClick={async () => { await close.mutateAsync(view.id); navigate('/app', { replace: true }) }}>
-                  {t('circles.room.closeConfirm')}
-                </Button>
-              </>
-            ) : (
-              <>
-                <SendResults circleId={view.id} />
-                <Button variant="default" className="room__close" icon={<DoorClosed size={16} />} onClick={() => setConfirming(true)}>{t('circles.room.close')}</Button>
-              </>
-            )
-          ) : isAnimator ? (
-            <SendResults circleId={view.id} />
-          ) : null
-        }
+      <WorkBar
+        circleId={view.id}
+        name={view.name}
+        isAnimator={isAnimator}
+        closed={closed}
+        status={room.status}
+        activity={activity}
+        startedBy={ready ? room.startedBy : null}
+        members={members}
+        online={room.online}
+        meId={view.me.id}
+        centreId={CENTRE_ID}
+        onPeople={() => side.openTab('people')}
+        closing={close.isPending}
+        onClose={async () => {
+          await close.mutateAsync(view.id)
+          navigate('/app', { replace: true })
+        }}
       />
 
       {closed ? (
-        <section className="panel room__ended">
-          <div className="panel__body">
-            <Panda className="room__ended-panda" />
-            <h2 className="panel__title">{t('circles.room.closedTitle')}</h2>
-            <p className="field__help">{t('circles.room.closedBody')}</p>
-            <Link to="/">{t('notFound.home')}</Link>
-          </div>
-        </section>
+        <div className="room__closed">
+          <section className="panel room__ended">
+            <div className="panel__body">
+              <Panda className="room__ended-panda" />
+              <h2 className="panel__title">{t('circles.room.closedTitle')}</h2>
+              <p className="field__help">{t('circles.room.closedBody')}</p>
+              <Link to="/">{t('notFound.home')}</Link>
+            </div>
+          </section>
+        </div>
       ) : (
-        <div className={['room__grid', activity === PRESENTATION && isAnimator && live ? 'is-presenting' : '', activity === PRESENTATION && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
-          <div className="room__main">
-            {activity === PRESENTATION ? (
+        <div className={['room__grid', presenting && isAnimator && live ? 'is-presenting' : '', presenting && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
+          <section id={CENTRE_ID} className="room__main room__centre" aria-label={centreLabel} tabIndex={-1}>
+            {presenting ? (
               <div className="room__reveal">
                 {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
               </div>
@@ -152,16 +149,7 @@ export default function CircleRoom() {
                 <Chat activityId={activity} />
               </div>
             ) : isAnimator ? (
-              <section className="panel" aria-labelledby="pick-title" data-perch="pick">
-                <div className="panel__head">
-                  <h2 id="pick-title" className="panel__title">{t('circles.room.pickTitle')}</h2>
-                </div>
-                <div className="panel__body">
-                  <p className="field__help">{t('circles.room.pickBody')}</p>
-                  <ActivityGrid ids={view.activities} mode="start" onStart={start} busy={starting} />
-                  {room.error ? <p className="field__error" role="alert">{t(`circles.errors.${room.error}`, { defaultValue: t('circles.errors.failed') })}</p> : null}
-                </div>
-              </section>
+              <WorkspaceDock activities={view.activities} onStart={(a) => void start(a)} starting={starting} error={room.error} />
             ) : (
               <section className="panel room__wait" aria-live="polite">
                 <div className="panel__body">
@@ -171,9 +159,11 @@ export default function CircleRoom() {
                 </div>
               </section>
             )}
-          </div>
+          </section>
           <RoomPanels
-            members={ready ? room.members : view.members}
+            side={side}
+            isAnimator={isAnimator}
+            members={members}
             online={room.online}
             meId={view.me.id}
             arrivals={room.arrivals}
