@@ -22,12 +22,13 @@ const MOUTHS: Record<Mood, string> = {
   5: 'M13 40 Q20 51 29.5 51 Q39 51 46 40',
 }
 
-/** Pupils look toward the pointer (decorative; still when reduced motion is on). */
-function useGaze(enabled: boolean) {
+/** Pupils look toward the pointer (decorative; still when reduced motion is on, unless the page forces it). */
+export type Gaze = boolean | 'force'
+function useGaze(enabled: Gaze) {
   const ref = useRef<SVGSVGElement>(null)
   useEffect(() => {
     const svg = ref.current
-    if (!svg || !enabled || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!svg || !enabled || (enabled !== 'force' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) return
     let frame = 0
     const onMove = (e: PointerEvent) => {
       cancelAnimationFrame(frame)
@@ -51,7 +52,7 @@ function useGaze(enabled: boolean) {
 }
 
 /** The two eyes and the mouth on their own: the mark (favicon, avatar of circloo, watermark). */
-export function FaceMark({ mood = 4, className, interactive = false, title }: { mood?: Mood; className?: string; interactive?: boolean; title?: string }) {
+export function FaceMark({ mood = 4, className, interactive = false, title }: { mood?: Mood; className?: string; interactive?: Gaze; title?: string }) {
   const ref = useGaze(interactive)
   return (
     <svg

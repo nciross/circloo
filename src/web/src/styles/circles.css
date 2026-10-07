@@ -1165,3 +1165,26 @@
     animation: none;
   }
 }
+
+/* Describe it (#247): one line, a Suggest button beside it on wide screens, under it on phones. */
+.create__describe {
+  display: grid;
+  gap: var(--s-3);
+}
+.create__line {
+  display: grid;
+  gap: var(--s-2);
+  max-inline-size: 40rem;
+}
+.create__line-field {
+  min-block-size: 3.5rem;
+  resize: vertical;
+  font: inherit;
+  line-height: 1.4;
+}
+@media (min-width: 40rem) {
+  .create__line {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+}

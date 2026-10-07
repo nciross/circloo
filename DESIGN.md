@@ -110,9 +110,11 @@ chrome competes with the work. The warmth lives in exactly three places, and now
 2. **The people.** Avatars, fun characters and names carry colour. The interface around them stays grey.
 3. **The content.** Icebreakers, jokes and riddles are set large and given room.
 
-The public site (landing, pricing) uses the same system at a larger scale: a big confident headline,
-a real preview of the product in its app frame instead of an illustration, white bands alternating with
-the canvas grey, and one dark navy band for the final call.
+The public site uses the same system at a larger scale (#247): the first and the last band are the brand navy
+with the whiteboard's dotted paper, the console (one line, the bird, a Build button) is the one light box on it,
+and the circle composes itself from that line in a white card beside it. Everything else runs on white and the
+canvas grey: a single player for the six story clips, three rows that show each job by the real thing, the four
+languages set large, one honest list of integrations, the free plan, a plain FAQ, and one more line to type.
 
 ## Colour
 
@@ -158,8 +160,9 @@ Hierarchy comes from size and weight, never from a second face.
   actions. Panels never nest.
 - **Home** is a dashboard: today's icebreaker (wide), suggestions and favourites at the side, then a
   workspace table.
-- **Public site:** 74rem column, generous bands (6rem), two-column feature rows that alternate sides,
-  a single pricing card beside its pitch.
+- **Public site:** mobile first, one column; from 60rem the console and the composition sit side by side and the
+  job rows alternate sides. 74rem column, 3–6rem bands. No eyebrows, section numbers, metric rows, marquees,
+  carousels, comparison tables or same-size card grids (Impeccable craft floor).
 - Spacing is a 4px grid. Logical properties everywhere; RTL mirrors automatically.
 
 ## Elevation
@@ -294,15 +297,17 @@ hidden from screen readers because it changes too often to announce, and the dot
 
 ## Motion
 
-- **Focal moments**: the landing circle (people join, then play: bob, blink, jump, spin, wiggle, hearts, a
-  cheering face); Pirikoo's moods while it listens, thinks and talks; someone arriving in a room (they hop onto the ring with hearts, and screen
-  readers hear "Mia joined the circle").
+- **Focal moments**: the landing's composition (#247: the bird thinks, the name types itself, the seats hop in
+  one by one, the activity chips drop, Pirikoo's line streams, the bird hops once and the Create button rises,
+  under three seconds and cancelled by a new line); Pirikoo's moods while it listens, thinks and talks; someone
+  arriving in a room (they hop onto the ring with hearts, and screen readers hear "Mia joined the circle").
 - **Continuity**: an activity opens with a short clip-path reveal and its chip slides into the room's work bar
   from the inline end; the rail and its panel swap without animating any size (the panel fades and shifts 8px,
   tabs cross-fade); the whiteboard's dots settle in as it opens; page changes cross-fade.
 - **Feedback**: a new circle's invite card glows twice; a vote count pops once, and so does any room count that
   goes up (unread, people); the room's status dot pulses once on going live, never in a loop; notes drop in.
-- **Durations** are tokens: `--dur-press` 120ms, `--dur-state` 160ms, `--dur-move` 240ms, `--dur-enter` 300ms.
+- **Durations** are tokens: `--dur-press` 120ms, `--dur-state` 160ms, `--dur-move` 240ms, `--dur-enter` 300ms,
+  `--dur-focal` 600ms for the one authored entrance of a surface.
 - Easing is exponential ease-out (no bounce or elastic; the Impeccable detector checks it).
 
 ## Video
@@ -315,8 +320,10 @@ motion, and describes it in text below the player.
 ## Motion (details)
 
 Short and functional: 120–200ms state changes, 300ms entrances on `ease-out`, page cross-fades through
-view transitions, progressive scroll reveals on the public site where scroll timelines exist. The one
-expressive moment is the face. Everything collapses under `prefers-reduced-motion`.
+view transitions. No generic scroll reveals: on the public site a demo plays once when its row enters the screen
+(votes drop, the cursor drags, jokes land) and the story clips play only while on screen. Under
+`prefers-reduced-motion` the landing is still and shows every finished state at once, with a visible "Play
+animations" opt-in and a "Pause animations" control that stops everything, the auto-demo included.
 
 ## Accessibility
 

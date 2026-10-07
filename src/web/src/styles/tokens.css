@@ -111,6 +111,8 @@
   --dur-state: 160ms;
   --dur-move: 240ms;
   --dur-enter: 300ms;
+  /* One authored focal entrance (the landing's composition, a round opening). */
+  --dur-focal: 600ms;
 }
 
 :root[data-theme='dark'] {

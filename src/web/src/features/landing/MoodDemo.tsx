@@ -6,14 +6,14 @@ import { MoodIcon, type Mood } from '../../components/MoodIcon'
 const MOODS: Mood[] = [1, 2, 3, 4, 5]
 
 /** Pick a mood and the circloo face feels it with you: the logo explains the daily check-in. */
-export function MoodDemo() {
+export function MoodDemo({ motion = true }: { motion?: boolean }) {
   const { t } = useTranslation()
   const [mood, setMood] = useState<Mood>(4)
   const word = t(`landing.feel.moods.${mood}`)
   return (
     <div className="mood-demo">
       <div className="mood-demo__stage">
-        <FaceMark mood={mood} interactive className={`mood-demo__face mood-demo__face--m${mood}`} />
+        <FaceMark mood={mood} interactive={motion ? 'force' : false} className={`mood-demo__face mood-demo__face--m${mood}`} />
         <p className="mood-demo__says" aria-live="polite">{t('landing.feel.faceSays', { mood: word.toLocaleLowerCase() })}</p>
       </div>
       <div className="mood-demo__pick" role="group" aria-label={t('landing.feel.tryIt')}>

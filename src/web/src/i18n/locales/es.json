@@ -45,157 +45,66 @@
   },
   "landing": {
     "title": "circloo · tu círculo, en un espacio privado",
-    "headline": "Tu círculo, en un espacio privado.",
-    "sub": "Saber cómo está cada uno, empezar las reuniones con una risa y decidir juntos. Un pequeño espacio privado para tu familia, tus amigos o tu equipo.",
-    "languagesLine": "Habla English, français, العربية y español.",
     "cta": "Crea tu círculo",
-    "ctaSecondary": "Mira cómo funciona",
-    "teaser": {
-      "title": "El rompehielos de hoy",
-      "shake": "Otra carta",
-      "shaking": "Repartiendo…",
-      "answerLabel": "Tu respuesta",
-      "answerPlaceholder": "Escríbela en la tarjeta…",
-      "answerHint": "Se queda en tu pantalla. No se envía nada.",
-      "error": "No pudimos cargar esta tarjeta. Saca otra."
-    },
-    "checkins": {
-      "title": "Estados de hoy",
-      "items": [
-        {
-          "name": "Amina",
-          "mood": "Soleado",
-          "need": "Lista para todo"
-        },
-        {
-          "name": "Théo",
-          "mood": "Nublado",
-          "need": "Necesita café"
-        },
-        {
-          "name": "Lucía",
-          "mood": "Despejado",
-          "need": "Orgullosa de ayer"
-        },
-        {
-          "name": "Youssef",
-          "mood": "Niebla",
-          "need": "Necesita un abrazo"
-        }
-      ]
-    },
-    "feel": {
-      "title": "Sentir juntos",
-      "body": "Un toque por la mañana y tu círculo sabe cómo estás. Palabras y caras, nunca solo colores. Una nota o una pequeña necesidad si quieres, y listo.",
-      "moods": {
-        "1": "Tormenta",
-        "2": "Niebla",
-        "3": "Nublado",
-        "4": "Despejado",
-        "5": "Soleado"
-      },
-      "weather": "Tiempo del círculo: casi despejado, alguien necesita café.",
-      "tryIt": "Pruébalo: ¿cómo te sientes?",
-      "faceSays": "circloo también se siente {{mood}}."
-    },
-    "work": {
-      "title": "Trabajar juntos",
-      "body": "Tableros en directo para lluvias de ideas, retros y decisiones. Pega notas, muévelas, vota con puntos y mira el cursor de cada uno. En el móvil o en la pantalla grande.",
-      "columns": {
-        "well": "Lo que fue bien",
-        "improve": "A mejorar",
-        "actions": "Acciones"
-      },
-      "notes": [
-        "Comida del domingo en casa de la abuela",
-        "Demasiadas reuniones el lunes",
-        "Reservar los billetes de tren",
-        "Cafetera nueva",
-        "Reuniones diarias más cortas"
-      ],
-      "votes_one": "{{count}} voto",
-      "votes_other": "{{count}} votos"
-    },
-    "fun": {
-      "title": "Divertirse juntos",
-      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, nunca traducidos por una máquina. ¿Quieres más? Pide a circloo tarjetas nuevas para tu círculo, revisadas para que sean amables."
-    },
-    "integrations": {
-      "title": "Conectado a tu semana",
-      "body": "circloo envía lo que decide tu círculo adonde tu equipo ya trabaja. Salesforce llegará pronto.",
-      "items": {
-        "teams": "Empezar las reuniones de Teams con un rompehielos",
-        "salesforce": "Celebrar los acuerdos que gana tu equipo",
-        "jira": "Convertir las acciones de la retro en tareas",
-        "confluence": "Publicar un tablero como página",
-        "notion": "Enviar tableros y notas a tu espacio"
-      },
-      "stamp": "Próximamente",
-      "available": "Disponible"
-    },
-    "how": {
-      "title": "Tres pasos, sin contraseña",
-      "steps": [
-        {
-          "title": "Escribe tu correo",
-          "body": "Te enviamos un código de seis cifras. Ninguna contraseña que recordar."
-        },
-        {
-          "title": "Crea tu círculo",
-          "body": "Familia, amigos o equipo. Invita por correo o con un código sencillo."
-        },
-        {
-          "title": "Avancen juntos",
-          "body": "Estados de ánimo, rompehielos y tableros, todo en un solo lugar."
-        }
-      ]
-    },
-    "final": {
-      "title": "Listo cuando tu círculo lo esté.",
-      "body": "Privado por defecto. Solo las personas que invitas ven lo que pasa en tu círculo.",
-      "cta": "Crea tu círculo"
-    },
-    "footer": {
-      "private": "Privado por defecto. Sin anuncios.",
-      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas.",
-      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence y Notion son marcas de sus propietarios. circloo no está afiliado a ellas."
-    },
-    "preview": "Una vista previa de circloo",
-    "features": "Sentir, trabajar y jugar juntos",
-    "pricing": {
-      "title": "Un solo plan. Todo incluido.",
-      "body": "Sin planes que comparar y sin funciones tras un muro de pago. Empieza hoy, gratis durante el acceso anticipado.",
-      "plan": "Círculo",
-      "price": "Gratis",
-      "period": "durante el acceso anticipado",
-      "features": [
-        "Círculos y miembros ilimitados",
-        "Catálogo de rompehielos en cuatro idiomas",
-        "Tarjetas nuevas de IA con circloo, revisadas para que sean amables",
-        "Rondas en vivo con animador y participantes",
-        "Privado por defecto, sin anuncios, nunca"
-      ],
-      "cta": "Crea tu círculo",
-      "note": "Si algún día añadimos un plan de pago, te avisaremos mucho antes de cobrar nada. Tu círculo sigue funcionando."
-    },
-    "stage": {
-      "joined_one": "{{count}} persona en el círculo",
-      "joined_other": "{{count}} personas en el círculo"
-    },
-    "inside": {
-      "title": "Dentro de circloo",
-      "body": "Un espacio tranquilo para tu círculo: rompehielos en vivo, estados de ánimo y tableros, con circloo listo para ayudar."
-    },
-    "tour": {
-      "title": "circloo en 20 segundos",
-      "lead": "Se forma un círculo, circloo dirige un rompehielos, el equipo decide en un tablero en vivo y los resultados van a Teams, Jira o Notion.",
-      "description": "Vídeo sin sonido. La cara de circloo sonríe; ocho amigos entran en un círculo como personajes; circloo hace una pregunta y dos personas responden; notas y votos llenan un tablero Empezar, Dejar, Continuar; los resultados se envían a Teams, Jira y Notion; Pirikoo el periquito se posa junto a la cara."
-    },
     "nav": {
       "label": "En esta página",
       "story": "Cómo funciona",
-      "pricing": "Precio",
-      "integrations": "Integraciones"
+      "jobs": "Qué hace",
+      "free": "Gratis",
+      "faq": "Preguntas"
+    },
+    "hero": {
+      "title": "Di qué necesita tu círculo.",
+      "title2": "circloo lo prepara.",
+      "facts": [
+        "Sin contraseña: un código de seis dígitos por correo.",
+        "Privado por defecto. Sin anuncios.",
+        "English, français, العربية, español."
+      ]
+    },
+    "say": {
+      "label": "¿Para qué es?",
+      "placeholder": "Una retro para mi equipo de 6, en francés",
+      "build": "Prepararlo",
+      "hint": "Prueba una de estas líneas o escribe la tuya. Nada sale de tu navegador hasta que lo crees.",
+      "examples": "Ejemplos",
+      "list": [
+        "Una retro para mi equipo de 6, en francés",
+        "Comida del domingo en familia, algo gracioso para los niños",
+        "Noche de juegos con 5 amigos: chistes y un «qué prefieres»"
+      ]
+    },
+    "made": {
+      "preview": "Vista previa",
+      "empty": "Tu círculo aparece aquí.",
+      "people_one": "{{count}} persona",
+      "people_other": "{{count}} personas",
+      "more": "+{{count}}",
+      "line": "Listo. Abrimos con {{first}} y luego {{rest}}.",
+      "lineOne": "Listo. Abrimos con {{first}}.",
+      "create": "Crear este círculo",
+      "byHand": "Prepararlo a mano",
+      "announce": "Vista previa: {{name}}, {{people}}, con {{activities}}.",
+      "names": {
+        "retro": "Retro del equipo",
+        "brainstorm": "Lluvia de ideas",
+        "decide": "Decisión rápida",
+        "present": "Día de presentación",
+        "feedback": "Ronda de opiniones",
+        "kudos": "Ronda de agradecimientos",
+        "kids": "Juegos en familia",
+        "mood": "Cómo estamos",
+        "family": "Domingo en familia",
+        "friends": "Noche de juegos",
+        "team": "Reunión de equipo"
+      }
+    },
+    "motion": {
+      "pause": "Pausar las animaciones",
+      "play": "Reproducir las animaciones",
+      "respect": "Respetar mi ajuste del sistema",
+      "playing": "Las animaciones se están reproduciendo.",
+      "following": "Las animaciones siguen el ajuste de tu sistema."
     },
     "story": {
       "title": "Mira cómo cobra vida un círculo",
@@ -242,20 +151,133 @@
         }
       }
     },
-    "rotator": {
-      "prefix": "Hecho para tu",
-      "words": [
-        "familia",
-        "grupo de amigos",
-        "equipo",
-        "clase",
-        "club"
+    "jobs": {
+      "title": "Qué hace un círculo"
+    },
+    "feel": {
+      "title": "Sentir juntos",
+      "body": "Un toque por la mañana y tu círculo sabe cómo estás. Palabras y caras, nunca solo colores. Una nota o una pequeña necesidad si quieres, y listo.",
+      "moods": {
+        "1": "Tormenta",
+        "2": "Niebla",
+        "3": "Nublado",
+        "4": "Despejado",
+        "5": "Soleado"
+      },
+      "weather": "Tiempo del círculo: casi despejado, alguien necesita café.",
+      "tryIt": "Pruébalo: ¿cómo te sientes?",
+      "faceSays": "circloo también se siente {{mood}}."
+    },
+    "work": {
+      "title": "Trabajar juntos",
+      "body": "Tableros en directo para lluvias de ideas, retros y decisiones. Pega notas, muévelas, vota con puntos y mira el cursor de cada uno. En el móvil o en la pantalla grande.",
+      "columns": {
+        "well": "Lo que fue bien",
+        "improve": "A mejorar",
+        "actions": "Acciones"
+      },
+      "notes": [
+        "Comida del domingo en casa de la abuela",
+        "Demasiadas reuniones el lunes",
+        "Reservar los billetes de tren",
+        "Cafetera nueva",
+        "Reuniones diarias más cortas"
+      ],
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos"
+    },
+    "fun": {
+      "title": "Divertirse juntos",
+      "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, nunca traducidos por una máquina. ¿Quieres más? Pide a circloo tarjetas nuevas para tu círculo, revisadas para que sean amables."
+    },
+    "tongues": {
+      "label": "Cuatro idiomas",
+      "line": "El árabe se lee de derecha a izquierda con un diseño de verdad. Los chistes los escriben personas en cada idioma, nunca una máquina."
+    },
+    "integrations": {
+      "title": "Conectado a tu semana",
+      "body": "circloo envía lo que decide tu círculo adonde tu equipo ya trabaja. Salesforce llegará pronto.",
+      "items": {
+        "teams": "Empezar las reuniones de Teams con un rompehielos",
+        "salesforce": "Celebrar los acuerdos que gana tu equipo",
+        "jira": "Convertir las acciones de la retro en tareas",
+        "confluence": "Publicar un tablero como página",
+        "notion": "Enviar tableros y notas a tu espacio"
+      },
+      "stamp": "Próximamente",
+      "available": "Disponible"
+    },
+    "free": {
+      "title": "Gratis mientras lo construimos",
+      "facts": [
+        "Todas las actividades, todos los idiomas y todas las integraciones que ya funcionan.",
+        "Sin tarjeta y sin cuenta atrás de prueba.",
+        "Si algún día llega un plan de pago, lo sabrás mucho antes de cualquier cobro."
+      ],
+      "cta": "Empezar gratis"
+    },
+    "faq": {
+      "title": "Preguntas, respondidas",
+      "items": [
+        {
+          "q": "¿Necesito una contraseña?",
+          "a": "No. Escribes tu correo y te enviamos un código de seis dígitos. Quien llega por enlace solo necesita un nombre."
+        },
+        {
+          "q": "¿Quién ve lo que pasa en mi círculo?",
+          "a": "Solo sus miembros y las personas que invites. Los círculos son privados por defecto y no hay anuncios."
+        },
+        {
+          "q": "¿De verdad es gratis?",
+          "a": "Sí, durante el acceso anticipado. Si algún día hay un plan de pago, te avisaremos mucho antes de cobrar nada."
+        },
+        {
+          "q": "¿Puede mi empresa usar su propio inicio de sesión?",
+          "a": "Todavía no: hoy todo el mundo entra con un código que recibe por correo. El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML está previsto, y se configurará sin código a medida."
+        },
+        {
+          "q": "¿Qué idiomas habla?",
+          "a": "Inglés, francés, árabe (con diseño real de derecha a izquierda) y español. Los chistes se escriben de forma nativa en cada uno, nunca traducidos literalmente."
+        }
       ]
     },
-    "float": {
-      "checkin": "ha saludado",
-      "note": "Nueva nota: reuniones más cortas",
-      "typing": "está escribiendo…"
+    "final": {
+      "title": "Una línea basta.",
+      "body": "Privado por defecto. Solo las personas que invitas ven tu círculo."
+    },
+    "footer": {
+      "private": "Privado por defecto. Sin anuncios.",
+      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas.",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence y Notion son marcas de sus propietarios. circloo no está afiliado a ellas.",
+      "label": "Pie de página",
+      "links": [
+        {
+          "label": "Cómo funciona",
+          "href": "#story"
+        },
+        {
+          "label": "Preguntas",
+          "href": "#faq"
+        },
+        {
+          "label": "Iniciar sesión",
+          "href": "/signin"
+        }
+      ]
+    },
+    "teaser": {
+      "title": "El rompehielos de hoy",
+      "shake": "Otra carta",
+      "shaking": "Repartiendo…",
+      "answerLabel": "Tu respuesta",
+      "answerPlaceholder": "Escríbela en la tarjeta…",
+      "answerHint": "Se queda en tu pantalla. No se envía nada.",
+      "error": "No pudimos cargar esta tarjeta. Saca otra."
+    },
+    "tour": {
+      "title": "circloo en 20 segundos",
+      "lead": "Se forma un círculo, circloo dirige un rompehielos, el equipo decide en un tablero en vivo y los resultados van a Teams, Jira o Notion.",
+      "description": "Vídeo sin sonido. La cara de circloo sonríe; ocho amigos entran en un círculo como personajes; circloo hace una pregunta y dos personas responden; notas y votos llenan un tablero Empezar, Dejar, Continuar; los resultados se envían a Teams, Jira y Notion; Pirikoo el periquito se posa junto a la cara."
     }
   },
   "auth": {
@@ -650,7 +672,17 @@
       "errors": {
         "name": "Ponle un nombre a tu círculo.",
         "activities": "Elige al menos una actividad."
-      }
+      },
+      "mode": "¿Cómo quieres empezar?",
+      "describe": "Describirlo",
+      "byHand": "A mano",
+      "describeLabel": "Di para qué es el círculo",
+      "describePlaceholder": "Una retro para mi equipo de 6, en francés",
+      "suggest": "Sugerir",
+      "suggestAgain": "Sugerir otra vez",
+      "suggested": "Sugerido",
+      "suggestHelp": "Una sugerencia rápida a partir de tus palabras, nada más: cambia lo que quieras abajo. La composición con IA de circloo está en camino.",
+      "applied": "Nombre y actividades rellenados a partir de tu línea."
     },
     "invite": {
       "title": "Invitar",
@@ -1339,350 +1371,5 @@
       "build": "Crear el mío"
     },
     "person": "Persona {{n}}"
-  },
-  "landing2": {
-    "nav": {
-      "audience": "Para quién",
-      "product": "Funciones",
-      "faq": "Preguntas"
-    },
-    "hero": {
-      "madeFor": "Hecho para tu",
-      "kindLabel": "¿Para quién?",
-      "note": "Sin contraseña: te enviamos un código de seis dígitos por correo. Privado por defecto.",
-      "kinds": [
-        {
-          "id": "family",
-          "label": "Familia",
-          "word": "familia"
-        },
-        {
-          "id": "friends",
-          "label": "Amigos",
-          "word": "grupo de amigos"
-        },
-        {
-          "id": "team",
-          "label": "Equipo",
-          "word": "equipo"
-        }
-      ]
-    },
-    "logos": {
-      "eyebrow": "Se conecta con las herramientas que tu equipo ya usa"
-    },
-    "audience": {
-      "eyebrow": "Para quién",
-      "title": "Un espacio pequeño, tres tipos de personas",
-      "lead": "Elige el tuyo. El espacio se adapta, los rituales siguen siendo ligeros.",
-      "items": [
-        {
-          "id": "family",
-          "tab": "Familia",
-          "title": "Cerca, viva cada uno donde viva",
-          "body": "Saluda con un toque, ríe en tu idioma y planea la próxima cena juntos. Árabe, francés, español e inglés lado a lado.",
-          "bullets": [
-            "Estado de ánimo diario con un toque",
-            "Chistes escritos de forma nativa en cuatro idiomas",
-            "Invita a la abuela con un enlace, sin correo"
-          ],
-          "cta": "Crear un círculo familiar"
-        },
-        {
-          "id": "friends",
-          "tab": "Amigos",
-          "title": "Un grupo de chat que se volvió un lugar",
-          "body": "Empieza la noche con un rompehielos, suelta ideas en un lienzo compartido y vota el plan. No hace falta cuenta.",
-          "bullets": [
-            "Rompehielos, adivinanzas y chistes",
-            "Lienzo compartido con punteros en vivo",
-            "Únete con un nombre y un personaje"
-          ],
-          "cta": "Crear un círculo de amigos"
-        },
-        {
-          "id": "team",
-          "tab": "Equipo",
-          "title": "Rituales de equipo sin otra herramienta pesada",
-          "body": "Abre la semana con un estado de ánimo y haz la retro en un tablero en vivo. El inicio de sesión único con tu propio proveedor llegará pronto.",
-          "bullets": [
-            "Tableros de retro y lluvia de ideas con votos",
-            "Tu propio SSO: Entra ID, Google, Okta (próximamente)",
-            "Resultados a Teams, Jira o Notion"
-          ],
-          "cta": "Crear un círculo de equipo"
-        }
-      ]
-    },
-    "jobs": {
-      "eyebrow": "Tres tareas",
-      "title": "Sentir, trabajar y jugar en un solo lugar",
-      "lead": "El mismo círculo gestiona tu ánimo, tus decisiones y tus risas.",
-      "items": [
-        {
-          "id": "feel",
-          "label": "Sentir juntos",
-          "status": "Estado de ánimo",
-          "title": "Mira cómo está tu círculo",
-          "body": "Un toque por la mañana dice a todos cómo estás. Caras y palabras, nunca solo colores.",
-          "bullets": [
-            "Una nota o una pequeña necesidad, si quieres",
-            "El tiempo del círculo de un vistazo",
-            "Segundos, nunca minutos"
-          ]
-        },
-        {
-          "id": "work",
-          "label": "Trabajar juntos",
-          "status": "Tableros en vivo",
-          "title": "Decide en un tablero compartido",
-          "body": "Pega notas, arrástralas entre columnas, vota con puntos y mira moverse el puntero de cada uno.",
-          "bullets": [
-            "En el móvil o en la pantalla grande",
-            "Votos y columnas para retros",
-            "Fija las respuestas del chat en el tablero"
-          ]
-        },
-        {
-          "id": "fun",
-          "label": "Divertirse juntos",
-          "status": "Disponible",
-          "title": "Empieza cada reunión con una risa",
-          "body": "Rompehielos y chistes escritos por personas en cada idioma. Pide otros nuevos a circloo, revisados por su amabilidad.",
-          "bullets": [
-            "English, français, العربية, español",
-            "Etiquetas aptas para niños",
-            "Nunca traducidos por una máquina"
-          ]
-        }
-      ],
-      "pause": "Detener el avance automático"
-    },
-    "platform": {
-      "title": "Se conecta con tu semana",
-      "pills": [
-        "Microsoft Teams",
-        "Jira",
-        "Confluence",
-        "Notion",
-        "Salesforce (próximamente)",
-        "Tu propio SSO (próximamente)"
-      ]
-    },
-    "facts": {
-      "eyebrow": "En cifras",
-      "title": "Pequeño a propósito, hecho para círculos reales",
-      "lead": "Cuatro datos sencillos de lo que hay hoy en la caja.",
-      "items": [
-        {
-          "n": 4,
-          "label": "idiomas",
-          "body": "English, français, العربية con derecha a izquierda completa, y español."
-        },
-        {
-          "n": 209,
-          "label": "personajes para elegir",
-          "body": "Animales, héroes, plantas y 160 personas, más un creador."
-        },
-        {
-          "n": 100,
-          "label": "personas por círculo",
-          "body": "Los círculos son privados; solo los miembros y los invitados ven algo."
-        },
-        {
-          "n": 0,
-          "label": "contraseñas",
-          "body": "Regístrate con un código de seis dígitos por correo, o entra por enlace."
-        }
-      ]
-    },
-    "principles": {
-      "eyebrow": "En qué creemos",
-      "title": "Cinco promesas con las que construimos",
-      "who": "El equipo de circloo",
-      "prev": "Anterior",
-      "next": "Siguiente",
-      "items": [
-        {
-          "title": "Segundos, no minutos",
-          "body": "Saludar o reaccionar lleva uno o dos toques. Todo lo que sea más largo es opcional."
-        },
-        {
-          "title": "Las personas antes que la productividad",
-          "body": "Los sentimientos y la diversión son funciones centrales, no adornos de una herramienta de trabajo."
-        },
-        {
-          "title": "Un círculo, muchas culturas",
-          "body": "Cada pantalla funciona igual en los cuatro idiomas y de derecha a izquierda. Ningún idioma es un añadido."
-        },
-        {
-          "title": "Privado por defecto, abierto por invitación",
-          "body": "Nada es público. Invitar es fácil, con o sin correo."
-        },
-        {
-          "title": "Simple para familias, configurable para empresas",
-          "body": "El SSO y las políticas son ajustes, nunca versiones aparte."
-        }
-      ]
-    },
-    "compare": {
-      "eyebrow": "Un solo espacio",
-      "title": "Un espacio en lugar de cuatro herramientas",
-      "lead": "Lo que un círculo suele necesitar y dónde suele vivir.",
-      "yes": "Incluido",
-      "no": "No incluido",
-      "cols": [
-        "Un grupo de chat",
-        "Una herramienta de pizarra",
-        "Una app de rompehielos",
-        "circloo"
-      ],
-      "rows": [
-        {
-          "label": "Estado de ánimo diario",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Tablero compartido en vivo con votos",
-          "has": [
-            false,
-            true,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Rompehielos y chistes",
-          "has": [
-            false,
-            false,
-            true,
-            true
-          ]
-        },
-        {
-          "label": "Entrar sin cuenta",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Familia, amigos y equipos en un solo lugar",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        }
-      ],
-      "feature": "Función"
-    },
-    "pricing": {
-      "status": "Acceso anticipado",
-      "tag": "Gratis por ahora"
-    },
-    "faq": {
-      "eyebrow": "Preguntas",
-      "title": "Preguntas, respondidas",
-      "lead": "¿Aún con curiosidad? Crea un círculo y compruébalo.",
-      "items": [
-        {
-          "q": "¿Necesito una contraseña?",
-          "a": "No. Escribes tu correo y te enviamos un código de seis dígitos. Quien llega por enlace solo necesita un nombre."
-        },
-        {
-          "q": "¿Quién ve lo que pasa en mi círculo?",
-          "a": "Solo sus miembros y las personas que invites. Los círculos son privados por defecto y no hay anuncios."
-        },
-        {
-          "q": "¿De verdad es gratis?",
-          "a": "Sí, durante el acceso anticipado. Si algún día hay un plan de pago, te avisaremos mucho antes de cobrar nada."
-        },
-        {
-          "q": "¿Puede mi empresa usar su propio inicio de sesión?",
-          "a": "Todavía no: hoy todo el mundo entra con un código que recibe por correo. El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML está previsto, y se configurará sin código a medida."
-        },
-        {
-          "q": "¿Qué idiomas habla?",
-          "a": "Inglés, francés, árabe (con diseño real de derecha a izquierda) y español. Los chistes se escriben de forma nativa en cada uno, nunca traducidos literalmente."
-        }
-      ]
-    },
-    "final": {
-      "eyebrow": "Listos cuando tú lo estés",
-      "note": "Gratis durante el acceso anticipado. Sin tarjeta, sin contraseña."
-    },
-    "footer": {
-      "cols": [
-        {
-          "title": "Producto",
-          "links": [
-            {
-              "label": "Cómo funciona",
-              "href": "#story"
-            },
-            {
-              "label": "Funciones",
-              "href": "#product"
-            },
-            {
-              "label": "Comparar",
-              "href": "#compare"
-            },
-            {
-              "label": "Precios",
-              "href": "#pricing"
-            }
-          ]
-        },
-        {
-          "title": "circloo",
-          "links": [
-            {
-              "label": "Principios",
-              "href": "#principles"
-            },
-            {
-              "label": "Integraciones",
-              "href": "#integrations"
-            },
-            {
-              "label": "Preguntas",
-              "href": "#faq"
-            }
-          ]
-        },
-        {
-          "title": "Empezar",
-          "links": [
-            {
-              "label": "Iniciar sesión",
-              "href": "/signin"
-            },
-            {
-              "label": "Crea tu círculo",
-              "href": "/signin"
-            }
-          ]
-        }
-      ],
-      "label": "Pie de página"
-    },
-    "motion": {
-      "pause": "Pausar las animaciones",
-      "play": "Reproducir las animaciones",
-      "respect": "Respetar mi ajuste del sistema",
-      "playing": "Las animaciones se están reproduciendo.",
-      "following": "Las animaciones siguen el ajuste de tu sistema."
-    }
   }
 }
