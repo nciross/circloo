@@ -544,7 +544,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  min-block-size: 2rem;
+  /* 44 px on phones (the brief's touch target), quieter from 40rem where a pointer is likely. */
+  min-block-size: 2.75rem;
   padding: 0.2rem 0.75rem;
   border: 1px solid var(--on-navy-line);
   border-radius: var(--r-pill);
@@ -566,6 +567,11 @@
 .motion-toggle:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+@media (min-width: 40rem) {
+  .motion-toggle {
+    min-block-size: 2rem;
+  }
 }
 
 /* ---------- The film: one player, six chapters ---------- */
