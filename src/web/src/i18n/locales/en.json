@@ -357,7 +357,11 @@
       "module": "Module",
       "status": "Status",
       "about": "What it does"
-    }
+    },
+    "orrery": "Your circles, in orbit",
+    "orreryLead": "Open a circle to go back into its room.",
+    "live": "Live now",
+    "today": "Today in your circles"
   },
   "settings": {
     "title": "Settings",
@@ -841,6 +845,12 @@
         "offline": "You are offline. It will work again once the room reconnects.",
         "animator-only": "Only the animator can change this."
       }
+    },
+    "ring": {
+      "empty": "Nobody yet",
+      "label": "{{name}}: {{count}} people",
+      "labelMood": "{{name}}: {{count}} people, mostly {{mood}}",
+      "running": "a round is running"
     }
   },
   "boards": {

@@ -1,74 +1,93 @@
-/* circloo · enterprise workspace. Calm neutral surfaces, one blue for action, violet only for AI,
-   the brand navy as ink. Every text pair is AA or better in both themes. */
+/* circloo · the orrery. Two grounds (bone by day, the dome by night), ink, brass for instrument
+   marks, one beam of blue for action, violet only for AI, coral only in the face's mouth, and the
+   five skies for the moods. Every text pair is AA or better in both themes (charte graphique, #250).
+   The older names (--bg, --surface, --primary, --text…) stay as aliases so every stylesheet keeps
+   working while it moves to the new vocabulary. */
 :root {
   color-scheme: light;
 
-  /* Surfaces */
-  --bg: #f5f7f9; /* app canvas */
-  --surface: #ffffff; /* panels, bars */
-  --surface-sunken: #eef1f4; /* wells, tracks, table heads */
-  --surface-hover: #e8ecf0;
-  --surface-pressed: #dce2e8;
-  --border: #dfe3e8;
-  --border-strong: #b9c2cc;
+  /* Grounds */
+  --ground: #f3f4f1;
+  --paper: #ffffff;
+  --paper-sunken: #e9ebe6;
+  --paper-hover: #e2e5df;
+  --paper-pressed: #d8dcd4;
+  --hairline: #d6d9d3;
+  --hairline-strong: #a9afa7;
 
-  /* Text */
-  --text: #0f2537; /* brand navy ink, 15.4:1 on white */
-  --text-subtle: #45576a; /* 7.6:1 on white */
-  --text-subtlest: #5f6f82; /* 5.2:1 on white, 4.9:1 on canvas */
-  --text-inverse: #ffffff;
+  /* Ink */
+  --ink: #0b1320; /* 17:1 on paper */
+  --ink-soft: #3d4756; /* 8:1 */
+  --ink-faint: #5d6675; /* 4.9:1 on paper, 4.6:1 on ground */
+  --on-ink: #f1ecdf;
 
-  /* Action blue */
-  --primary: #0d5bd7; /* white text 6.0:1 */
-  --primary-hover: #0a4cb6;
-  --primary-pressed: #083d93;
-  --primary-subtle: #e8f0fe;
-  --primary-subtle-hover: #d6e4fd;
-  --primary-text: #0b4fb8; /* links, 7.4:1 */
-  --on-primary: #ffffff;
+  /* Brass: the instrument. Tracks, ticks, the running-time rule. */
+  --brass: #8c6a1f; /* 5:1 on paper */
+  --brass-faint: #e4d6b4;
+
+  /* Beam: the one action colour */
+  --beam: #1d5fd6; /* white text 5.8:1 */
+  --beam-hover: #164db4;
+  --beam-pressed: #113d90;
+  --beam-subtle: #e4edfc;
+  --beam-subtle-hover: #d2e1fa;
+  --beam-text: #1550bd; /* links, 7:1 */
+  --on-beam: #ffffff;
   --focus: #2a73e8;
 
   /* AI: violet, never used for anything else */
-  --ai: #6a4fd1; /* white text 6.0:1 */
+  --ai: #6a4fd1;
   --ai-hover: #5a40bd;
   --ai-subtle: #f2efff;
   --ai-border: #d9d0fb;
-  --ai-text: #5638c2; /* 7.2:1 */
+  --ai-text: #5638c2;
   --on-ai: #ffffff;
 
+  /* The five skies (moods). Always with the icon and the word. */
+  --sky-stormy: #3b4660;
+  --sky-foggy: #a3adbd;
+  --sky-cloudy: #c6cdd8;
+  --sky-bright: #8cc4f5;
+  --sky-sunny: #f2c14e;
+  --on-sky: #0b1320;
+  --on-sky-stormy: #ffffff;
+
+  /* The face's mouth, nowhere else */
+  --coral: #ef4a32;
+
   /* Status */
-  --success: #1c7c52;
-  --on-success: #ffffff;
-  /* Rings of people sharing a character (spec 008): at least 3:1 on the surfaces they sit on. */
-  --ring-1: #1d4ed8;
-  --ring-2: #c2410c;
-  --ring-3: #15803d;
-  --ring-4: #9d174d;
-  --ring-5: #0e7490;
-  --on-ring: #ffffff;
-  --success-subtle: #dcf5e8;
-  --success-text: #145c3b;
-  --danger: #c9372c; /* white text 5.2:1 */
+  --live: #1c7c52;
+  --live-subtle: #dcf5e8;
+  --live-text: #145c3b;
+  --on-live: #ffffff;
+  --danger: #c9372c;
   --danger-hover: #ae2e24;
-  --on-danger: #ffffff;
   --danger-subtle: #ffeceb;
   --danger-text: #ae2a19;
-  --warning-subtle: #fff4d6;
+  --on-danger: #ffffff;
+  --warning-subtle: #fff2cf;
   --warning-text: #7a4f01;
-  --info-subtle: #e8f0fe;
-  --info-text: #0b4fb8;
-  --neutral-subtle: #e6eaef;
-  --neutral-text: #3d4f62;
+  --info-subtle: #e4edfc;
+  --info-text: #1550bd;
+  --neutral-subtle: #e9ebe6;
+  --neutral-text: #3d4756;
 
-  /* Brand accents (logo, illustrations) */
-  --brand-ink: #062a40;
+  /* Bodies sharing a character (spec 008): at least 3:1 on the surfaces they sit on. */
+  --body-1: #1d4ed8;
+  --body-2: #c2410c;
+  --body-3: #15803d;
+  --body-4: #9d174d;
+  --body-5: #0e7490;
+  --on-body: #ffffff;
+
+  /* Brand accents (icons, illustrations) */
+  --brand-ink: #0f2537;
   --brand-aqua: #22b8cc;
-  --brand-coral: #ef4a32;
 
-  /* Elevation: offset + soft blur, tinted from the navy */
-  --shadow-raised: 0 1px 1px rgb(15 37 55 / 0.08), 0 0 1px rgb(15 37 55 / 0.2);
-  --shadow-overlay: 0 8px 12px rgb(15 37 55 / 0.12), 0 0 1px rgb(15 37 55 / 0.28);
-  --shadow-float: 0 24px 48px -12px rgb(15 37 55 / 0.25), 0 0 1px rgb(15 37 55 / 0.25);
+  /* Elevation: offset + soft blur, tinted from the dome */
+  --shadow-raised: 0 1px 1px rgb(7 14 26 / 0.08), 0 0 1px rgb(7 14 26 / 0.2);
+  --shadow-overlay: 0 8px 12px rgb(7 14 26 / 0.12), 0 0 1px rgb(7 14 26 / 0.28);
+  --shadow-float: 0 24px 48px -12px rgb(7 14 26 / 0.25), 0 0 1px rgb(7 14 26 / 0.25);
 
   /* Type: one family for Latin and Arabic */
   --font: 'Readex Pro Variable', 'Readex Pro', system-ui, sans-serif;
@@ -80,6 +99,9 @@
   --fs-2xl: 1.5rem;
   --fs-3xl: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
   --fs-4xl: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --fs-reading: clamp(2.5rem, 2rem + 2vw, 4.5rem);
+  /* The instrument numeral's weight follows the circle's mood (300 stormy … 700 sunny). */
+  --reading-weight: 600;
 
   /* Space: 4px grid */
   --s-1: 0.25rem;
@@ -97,6 +119,8 @@
   --r-sm: 6px;
   --r-md: 8px;
   --r-lg: 12px;
+  --r-xl: 20px;
+  --r-ring: 999px;
   --r-pill: 999px;
 
   --topbar-h: 3.5rem;
@@ -105,122 +129,174 @@
   --site-max: 74rem;
   --gutter: clamp(1rem, 3vw, 2rem);
 
+  /* Motion: one grammar. Durations by consequence, exponential ease-out for arrivals. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  /* Motion durations: press feedback, state change, movement, entrance. */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-press: 120ms;
   --dur-state: 160ms;
   --dur-move: 240ms;
   --dur-enter: 300ms;
-  /* One authored focal entrance (the landing's composition, a round opening). */
   --dur-focal: 600ms;
+  --dur-orbit: 1200ms;
+
+  /* ---- Aliases for the earlier vocabulary. Prefer the names above in new code. ---- */
+  --bg: var(--ground);
+  --surface: var(--paper);
+  --surface-sunken: var(--paper-sunken);
+  --surface-hover: var(--paper-hover);
+  --surface-pressed: var(--paper-pressed);
+  --border: var(--hairline);
+  --border-strong: var(--hairline-strong);
+  --text: var(--ink);
+  --text-subtle: var(--ink-soft);
+  --text-subtlest: var(--ink-faint);
+  --text-inverse: var(--on-ink);
+  --primary: var(--beam);
+  --primary-hover: var(--beam-hover);
+  --primary-pressed: var(--beam-pressed);
+  --primary-subtle: var(--beam-subtle);
+  --primary-subtle-hover: var(--beam-subtle-hover);
+  --primary-text: var(--beam-text);
+  --on-primary: var(--on-beam);
+  --success: var(--live);
+  --success-subtle: var(--live-subtle);
+  --success-text: var(--live-text);
+  --on-success: var(--on-live);
+  --brand-coral: var(--coral);
+  --ring-1: var(--body-1);
+  --ring-2: var(--body-2);
+  --ring-3: var(--body-3);
+  --ring-4: var(--body-4);
+  --ring-5: var(--body-5);
+  --on-ring: var(--on-body);
 }
 
+/* Night: a full theme. Surfaces step up from the dome, beam and violet lighten so text on them
+   flips to dark, brass warms. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0c141b;
-  --surface: #131e27;
-  --surface-sunken: #0f1820;
-  --surface-hover: #1b2833;
-  --surface-pressed: #22313d;
-  --border: #253441;
-  --border-strong: #3a4c5c;
-  --text: #e3ebf2;
-  --text-subtle: #a9b8c6;
-  --text-subtlest: #8d9eae;
-  --text-inverse: #0c141b;
-  --primary: #5b9bff;
-  --primary-hover: #7aafff;
-  --primary-pressed: #93bfff;
-  --primary-subtle: #172a45;
-  --primary-subtle-hover: #1d3557;
-  --primary-text: #8cbaff;
-  --on-primary: #0c141b;
+  --ground: #070e1a;
+  --paper: #0f182a;
+  --paper-sunken: #0a1222;
+  --paper-hover: #162238;
+  --paper-pressed: #1d2c45;
+  --hairline: #1f2b40;
+  --hairline-strong: #34445e;
+  --ink: #f1ecdf;
+  --ink-soft: #b9b3a5;
+  --ink-faint: #8f8a7e;
+  --on-ink: #070e1a;
+  --brass: #d9b45c;
+  --brass-faint: #3a3220;
+  --beam: #6ea8ff;
+  --beam-hover: #8dbbff;
+  --beam-pressed: #a9caff;
+  --beam-subtle: #15284a;
+  --beam-subtle-hover: #1b3360;
+  --beam-text: #9cc4ff;
+  --on-beam: #070e1a;
   --focus: #85b8ff;
   --ai: #9f8fef;
   --ai-hover: #b3a6f4;
   --ai-subtle: #201b3a;
   --ai-border: #3b3266;
   --ai-text: #c0b4f8;
-  --on-ai: #0c141b;
-  --success: #4bce97;
-  --on-success: #0c141b;
-  --ring-1: #60a5fa;
-  --ring-2: #fb923c;
-  --ring-3: #4ade80;
-  --ring-4: #f472b6;
-  --ring-5: #22d3ee;
-  --on-ring: #0c141b;
-  --success-subtle: #133528;
-  --success-text: #7ee2b8;
-  --danger: #f87168;
-  --danger-hover: #fd9891;
-  --on-danger: #0c141b;
-  --danger-subtle: #3a1714;
-  --danger-text: #fd9891;
+  --on-ai: #070e1a;
+  --sky-stormy: #2b3650;
+  --sky-foggy: #7d8aa3;
+  --sky-cloudy: #8b97ad;
+  --sky-bright: #4a97e8;
+  --sky-sunny: #e0b23f;
+  --on-sky: #070e1a;
+  --on-sky-stormy: #f1ecdf;
+  --live: #4bce97;
+  --live-subtle: #12301f;
+  --live-text: #7ee2b8;
+  --on-live: #070e1a;
+  --danger: #ff8f86;
+  --danger-hover: #ffa8a1;
+  --danger-subtle: #3a1512;
+  --danger-text: #ffa8a1;
+  --on-danger: #070e1a;
   --warning-subtle: #3a2d0a;
-  --warning-text: #f5cd47;
-  --info-subtle: #172a45;
-  --info-text: #8cbaff;
-  --neutral-subtle: #22303c;
-  --neutral-text: #b6c4d1;
-  --brand-ink: #e3ebf2;
-  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(0 0 0 / 0.6);
-  --shadow-overlay: 0 8px 12px rgb(0 0 0 / 0.45), 0 0 1px rgb(255 255 255 / 0.12);
-  --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.6), 0 0 1px rgb(255 255 255 / 0.12);
+  --warning-text: #f0c75e;
+  --info-subtle: #15284a;
+  --info-text: #9cc4ff;
+  --neutral-subtle: #1b2639;
+  --neutral-text: #b9b3a5;
+  --body-1: #60a5fa;
+  --body-2: #fb923c;
+  --body-3: #4ade80;
+  --body-4: #f472b6;
+  --body-5: #22d3ee;
+  --on-body: #070e1a;
+  --brand-ink: #f1ecdf;
+  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(241 236 223 / 0.18);
+  --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(241 236 223 / 0.22);
+  --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 1px rgb(241 236 223 / 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     color-scheme: dark;
-    --bg: #0c141b;
-    --surface: #131e27;
-    --surface-sunken: #0f1820;
-    --surface-hover: #1b2833;
-    --surface-pressed: #22313d;
-    --border: #253441;
-    --border-strong: #3a4c5c;
-    --text: #e3ebf2;
-    --text-subtle: #a9b8c6;
-    --text-subtlest: #8d9eae;
-    --text-inverse: #0c141b;
-    --primary: #5b9bff;
-    --primary-hover: #7aafff;
-    --primary-pressed: #93bfff;
-    --primary-subtle: #172a45;
-    --primary-subtle-hover: #1d3557;
-    --primary-text: #8cbaff;
-    --on-primary: #0c141b;
+    --ground: #070e1a;
+    --paper: #0f182a;
+    --paper-sunken: #0a1222;
+    --paper-hover: #162238;
+    --paper-pressed: #1d2c45;
+    --hairline: #1f2b40;
+    --hairline-strong: #34445e;
+    --ink: #f1ecdf;
+    --ink-soft: #b9b3a5;
+    --ink-faint: #8f8a7e;
+    --on-ink: #070e1a;
+    --brass: #d9b45c;
+    --brass-faint: #3a3220;
+    --beam: #6ea8ff;
+    --beam-hover: #8dbbff;
+    --beam-pressed: #a9caff;
+    --beam-subtle: #15284a;
+    --beam-subtle-hover: #1b3360;
+    --beam-text: #9cc4ff;
+    --on-beam: #070e1a;
     --focus: #85b8ff;
     --ai: #9f8fef;
     --ai-hover: #b3a6f4;
     --ai-subtle: #201b3a;
     --ai-border: #3b3266;
     --ai-text: #c0b4f8;
-  --on-ai: #0c141b;
-    --success: #4bce97;
-    --on-success: #0c141b;
-    --ring-1: #60a5fa;
-    --ring-2: #fb923c;
-    --ring-3: #4ade80;
-    --ring-4: #f472b6;
-    --ring-5: #22d3ee;
-    --on-ring: #0c141b;
-    --success-subtle: #133528;
-    --success-text: #7ee2b8;
-    --danger: #f87168;
-    --danger-hover: #fd9891;
-  --on-danger: #0c141b;
-    --danger-subtle: #3a1714;
-    --danger-text: #fd9891;
+    --on-ai: #070e1a;
+    --sky-stormy: #2b3650;
+    --sky-foggy: #7d8aa3;
+    --sky-cloudy: #8b97ad;
+    --sky-bright: #4a97e8;
+    --sky-sunny: #e0b23f;
+    --on-sky: #070e1a;
+    --on-sky-stormy: #f1ecdf;
+    --live: #4bce97;
+    --live-subtle: #12301f;
+    --live-text: #7ee2b8;
+    --on-live: #070e1a;
+    --danger: #ff8f86;
+    --danger-hover: #ffa8a1;
+    --danger-subtle: #3a1512;
+    --danger-text: #ffa8a1;
+    --on-danger: #070e1a;
     --warning-subtle: #3a2d0a;
-    --warning-text: #f5cd47;
-    --info-subtle: #172a45;
-    --info-text: #8cbaff;
-    --neutral-subtle: #22303c;
-    --neutral-text: #b6c4d1;
-    --brand-ink: #e3ebf2;
-    --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(0 0 0 / 0.6);
-    --shadow-overlay: 0 8px 12px rgb(0 0 0 / 0.45), 0 0 1px rgb(255 255 255 / 0.12);
-    --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.6), 0 0 1px rgb(255 255 255 / 0.12);
+    --warning-text: #f0c75e;
+    --info-subtle: #15284a;
+    --info-text: #9cc4ff;
+    --neutral-subtle: #1b2639;
+    --neutral-text: #b9b3a5;
+    --body-1: #60a5fa;
+    --body-2: #fb923c;
+    --body-3: #4ade80;
+    --body-4: #f472b6;
+    --body-5: #22d3ee;
+    --on-body: #070e1a;
+    --brand-ink: #f1ecdf;
+    --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(241 236 223 / 0.18);
+    --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(241 236 223 / 0.22);
+    --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 1px rgb(241 236 223 / 0.25);
   }
 }

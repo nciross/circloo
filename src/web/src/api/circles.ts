@@ -102,6 +102,8 @@ export interface CircleSummary {
   status: 'open' | 'closed'
   createdAt: string
   people: number
+  /** The first members, in arrival order, as bodies on the circle's ring. */
+  bodies: { id: string; name: string; character: AnyCharacter; ring: number; me: boolean }[]
 }
 
 export interface CircleView {

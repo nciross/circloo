@@ -357,7 +357,11 @@
       "module": "Módulo",
       "status": "Estado",
       "about": "Para qué sirve"
-    }
+    },
+    "orrery": "Tus círculos, en órbita",
+    "orreryLead": "Abre un círculo para volver a su sala.",
+    "live": "En directo",
+    "today": "Hoy en tus círculos"
   },
   "settings": {
     "title": "Ajustes",
@@ -841,6 +845,12 @@
         "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",
         "animator-only": "Solo el animador puede cambiar esto."
       }
+    },
+    "ring": {
+      "empty": "Nadie todavía",
+      "label": "{{name}}: {{count}} personas",
+      "labelMood": "{{name}}: {{count}} personas, casi todo {{mood}}",
+      "running": "hay una actividad en marcha"
     }
   },
   "boards": {

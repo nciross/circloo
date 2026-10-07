@@ -707,29 +707,140 @@
   }
 }
 
-/* ---------- Home: my circles ---------- */
-.circle-list {
+/* ---------- Home: my circles as rings (the orrery) ---------- */
+.orrery {
   display: grid;
+  gap: var(--s-5);
 }
-.circle-list__item {
+.orrery__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-4);
+}
+.orrery__title {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.orrery__lead {
+  color: var(--ink-soft);
+}
+.orbits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--s-4);
+  align-items: stretch;
+}
+.orbits__item {
+  display: grid;
+  min-inline-size: 0;
+}
+/* The lead orbit (the newest open circle) takes two columns and the large ring. */
+.orbits__item:has(.orbit--lead) {
+  grid-column: span 2;
+}
+.orbit {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-raised);
+  text-decoration: none;
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    transform var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-state) var(--ease-out);
+}
+.orbit:hover {
+  border-color: var(--brass);
+  text-decoration: none;
+}
+.orbit:active {
+  transform: scale(0.99);
+}
+.orbit--lead {
+  padding: var(--s-5) var(--s-6);
+  gap: var(--s-6);
+}
+.orbit__text {
+  display: grid;
+  gap: var(--s-1);
+  min-inline-size: 0;
+}
+.orbit__name {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.orbit--lead .orbit__name {
+  font-size: var(--fs-2xl);
+  letter-spacing: -0.01em;
+  white-space: normal;
+}
+.orbit__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-2) var(--s-3);
-  padding: var(--s-3) var(--s-5);
-  border-block-end: 1px solid var(--border);
+  gap: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
 }
-.circle-list__item:last-child {
-  border-block-end: 0;
+.orbit__open {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  margin-block-start: var(--s-2);
+  border-radius: var(--r-ring);
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
+  transition: transform var(--dur-move) var(--ease-out), color var(--dur-state) var(--ease-out), border-color var(--dur-state) var(--ease-out);
 }
+.orbit:hover .orbit__open {
+  color: var(--beam);
+  border-color: var(--beam);
+  transform: translateX(2px);
+}
+[dir='rtl'] .orbit:hover .orbit__open {
+  transform: translateX(-2px);
+}
+.orbit.is-closed {
+  color: var(--ink-soft);
+}
+@media (max-width: 40rem) {
+  .orbits {
+    grid-template-columns: 1fr;
+  }
+  .orbits__item:has(.orbit--lead) {
+    grid-column: auto;
+  }
+  .orbit--lead {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .orbit--lead .orbit__meta {
+    justify-content: center;
+  }
+}
+/* Kept for the specs and older pages that still list circles as rows. */
 .circle-list__name {
   font-weight: 600;
-  color: var(--text);
+  color: var(--ink);
 }
 .circle-list__meta {
   margin-inline-start: auto;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .circles-empty {
   display: flex;

@@ -357,7 +357,11 @@
       "module": "Module",
       "status": "Statut",
       "about": "À quoi ça sert"
-    }
+    },
+    "orrery": "Tes cercles, en orbite",
+    "orreryLead": "Ouvre un cercle pour revenir dans sa salle.",
+    "live": "En direct",
+    "today": "Aujourd’hui dans tes cercles"
   },
   "settings": {
     "title": "Réglages",
@@ -841,6 +845,12 @@
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
         "animator-only": "Seul l’animateur peut changer ce réglage."
       }
+    },
+    "ring": {
+      "empty": "Personne pour l’instant",
+      "label": "{{name}} : {{count}} personnes",
+      "labelMood": "{{name}} : {{count}} personnes, plutôt {{mood}}",
+      "running": "une activité est en cours"
     }
   },
   "boards": {
