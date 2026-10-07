@@ -31,11 +31,15 @@ export function Player({ still }: { still: boolean }) {
   const [visible, setVisible] = useState(false)
   // A press overrides the page default until motion turns on or off again.
   const [choice, setChoice] = useState<{ on: boolean; stopped: boolean } | null>(null)
-  const [playing, setPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
+  // Both belong to the clip on screen: the element remounts per chapter and language, and the old one never reports
+  // that it stopped, so a blocked autoplay on the next clip must not inherit "playing" or a full progress line.
+  const clip = `${active}-${locale}`
+  const [playingClip, setPlayingClip] = useState<string | null>(null)
+  const [progress, setProgress] = useState({ clip: '', p: 0 })
+  const playing = playingClip === clip
   const auto = on && !still
   const stopped = choice && choice.on === auto ? choice.stopped : !auto
-  const file = `/video/story/${WORDLESS.has(active) ? active : `${active}-${locale}`}`
+  const file = `/video/story/${WORDLESS.has(active) ? active : clip}`
 
   useEffect(() => {
     const el = stageRef.current
@@ -83,7 +87,7 @@ export function Player({ still }: { still: boolean }) {
         </div>
         <div ref={stageRef} className="film__stage">
           <video
-            key={`${active}-${locale}`}
+            key={clip}
             ref={videoRef}
             className="film__video"
             src={near ? `${file}.mp4` : undefined}
@@ -94,14 +98,13 @@ export function Player({ still }: { still: boolean }) {
             width={960}
             height={540}
             aria-describedby={descId}
-            onPlay={() => setPlaying(true)}
-            onPause={() => setPlaying(false)}
+            onPlay={() => setPlayingClip(clip)}
+            onPause={() => setPlayingClip((c) => (c === clip ? null : c))}
             onTimeUpdate={(e) => {
               const v = e.currentTarget
-              if (v.duration) setProgress(v.currentTime / v.duration)
+              if (v.duration) setProgress({ clip, p: v.currentTime / v.duration })
             }}
             onEnded={() => {
-              setProgress(1)
               if (!stopped) setActive(STORY[(STORY.indexOf(active) + 1) % STORY.length]!)
             }}
           />
@@ -119,11 +122,8 @@ export function Player({ still }: { still: boolean }) {
                   type="button"
                   className="film__pick"
                   aria-current={current ? 'true' : undefined}
-                  style={{ '--p': current ? progress : 0 } as CSSProperties}
-                  onClick={() => {
-                    setProgress(0)
-                    setActive(id)
-                  }}
+                  style={{ '--p': current && progress.clip === clip ? progress.p : 0 } as CSSProperties}
+                  onClick={() => setActive(id)}
                 >
                   <span className="film__label">{steps[id].label}</span>
                   <span className="film__line">{steps[id].title}</span>
@@ -133,7 +133,7 @@ export function Player({ still }: { still: boolean }) {
             )
           })}
         </ol>
-        <p className="film__body" aria-live="polite">{steps[active].body}</p>
+        <p className="film__body">{steps[active].body}</p>
       </div>
     </section>
   )

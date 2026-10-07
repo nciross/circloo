@@ -284,6 +284,34 @@
   }
 }
 
+/* The console box and the composition are the one light box on the navy, in both themes (#247): their tokens stay on
+   the light values, since the band itself is pinned navy and the dark surface would sit below it. */
+.say__box,
+.made {
+  color-scheme: light;
+  --surface: #ffffff;
+  --surface-sunken: #eef1f4;
+  --surface-hover: #e8ecf0;
+  --surface-pressed: #dce2e8;
+  --border: #dfe3e8;
+  --border-strong: #b9c2cc;
+  --text: #0f2537;
+  --text-subtle: #45576a;
+  --text-subtlest: #5f6f82;
+  --primary: #0d5bd7;
+  --primary-hover: #0a4cb6;
+  --primary-pressed: #083d93;
+  --primary-subtle: #e8f0fe;
+  --primary-text: #0b4fb8;
+  --on-primary: #ffffff;
+  --success-text: #145c3b;
+  --warning-text: #7a4f01;
+  --danger-text: #ae2a19;
+  --neutral-subtle: #e6eaef;
+  --neutral-text: #3d4f62;
+  --brand-ink: #062a40;
+}
+
 /* ---------- Made: the circle, composing ---------- */
 .made {
   display: grid;
@@ -781,6 +809,9 @@
   font-size: var(--fs-xs);
   font-weight: 500;
   text-align: center;
+  /* Five columns at 360 px leave ~57 px a label: a long word (es "Despejado") breaks instead of overflowing. */
+  hyphens: auto;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition:
     border-color var(--dur-state),

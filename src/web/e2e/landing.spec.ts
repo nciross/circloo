@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { localeOf, pickLanguage } from './helpers'
+import { codeFor, localeOf, pickLanguage } from './helpers'
 
 const axe = async (page: import('@playwright/test').Page) => {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
@@ -29,7 +29,7 @@ test('the landing composes a circle from one line and hands it to the new-circle
   await expect(made).toHaveClass(/is-done/, { timeout: 8000 })
   await expect(made.locator('.made__seat.is-in')).toHaveCount(6)
   await expect(made.locator('.made__chip')).toHaveCount(3) // two activities and the language
-  await expect(made.locator('.made__chip--lang')).toHaveText(locale === 'ar' ? 'Français' : 'Français')
+  await expect(made.locator('.made__chip--lang')).toHaveText('Français')
   await expect(made.locator('.made__say-text')).not.toBeEmpty()
   await expect(page.getByRole('status').filter({ hasText: /Preview|معاينة/ })).toHaveCount(1)
   await axe(page)
@@ -79,7 +79,6 @@ test('the line from the landing fills the new-circle form, and By hand stays pla
   await expect(page).toHaveURL(/\/signin/)
 
   // Sign up through the real email code; the return path lands on the new-circle page.
-  const { codeFor } = await import('./helpers')
   const email = `e2e-landing-${locale}-${Date.now()}@example.test`
   await page.locator('input[type=email]').fill(email)
   await page.locator('form button[type=submit]').click()

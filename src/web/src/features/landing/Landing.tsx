@@ -53,18 +53,19 @@ export function Landing() {
 
   const build = (line: string) => {
     touched.current = true
+    if (!line.trim()) return
     start(line)
     // On a phone the composition sits under the console: bring it into view so the line is seen becoming a circle.
     const made = document.getElementById('made')
-    if (made && window.innerWidth < 960) made.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'start' })
+    if (made && !window.matchMedia('(min-width: 60rem)').matches) made.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'start' })
   }
 
   // Nobody touched the console: the first example composes itself, so the page moves on arrival. Pause stops it.
+  // The field stays as the visitor left it (the placeholder already shows that line): nobody finds words they did not type.
   useEffect(() => {
     if (!playing || run || touched.current) return
     const id = window.setTimeout(() => {
       if (touched.current) return
-      setText(examples[0] ?? '')
       start(examples[0] ?? '')
     }, AUTO_DEMO_MS)
     return () => window.clearTimeout(id)
@@ -122,7 +123,7 @@ export function Landing() {
             </div>
             <div className="console__foot">
               <ul className="console__facts">
-                {facts.map((f) => <li key={f}><Check size={16} aria-hidden="true" /> {f}</li>)}
+                {facts.map((f) => <li key={f}><Check size={16} aria-hidden="true" /> <bdi>{f}</bdi></li>)}
               </ul>
               <div className="hero__motion">
                 {motion.offered ? (

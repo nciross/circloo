@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { ArrowRight, Wand2 } from 'lucide-react'
+import { ArrowRight, ListChecks } from 'lucide-react'
 import { ApiError } from '../../api/client'
 import { useCreateCircle } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
@@ -53,10 +53,11 @@ export default function CreateCircle() {
     setErrors({})
   }
 
-  // The line from the landing fills the form once, on arrival.
+  // The line from the landing fills the form once, on arrival, and is then forgotten: a later New circle starts plain.
   useEffect(() => {
     if (seeded.current || !line) return
     seeded.current = true
+    clearPrompt()
     suggest(line)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -119,7 +120,7 @@ export default function CreateCircle() {
                   }
                 }}
               />
-              <Button type="button" variant="default" icon={<Wand2 size={16} aria-hidden="true" />} onClick={() => suggest(line)}>
+              <Button type="button" variant="default" icon={<ListChecks size={16} aria-hidden="true" />} onClick={() => suggest(line)}>
                 {suggested ? t('circles.create.suggestAgain') : t('circles.create.suggest')}
               </Button>
             </div>

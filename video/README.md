@@ -78,4 +78,4 @@ node render-clips.mjs              # every clip and poster → ../src/web/public
 node render-clips.mjs canvas chat  # only these steps
 ```
 
-When you add words to a wordless scene, remove it from `WORDLESS` here and in `src/web/src/features/landing/Story.tsx`.
+When you add words to a wordless scene, remove it from `WORDLESS` here and in `src/web/src/features/landing/Player.tsx`.

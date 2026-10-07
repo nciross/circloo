@@ -7,7 +7,7 @@ import { Character } from '../../components/Character'
 import type { CharacterId } from '../../components/characters'
 import { Bird } from '../pirikoo/Bird'
 import { activityById } from '../circles/catalog'
-import { keepPrompt } from '../../lib/circlePrompt'
+import { clearPrompt, keepPrompt } from '../../lib/circlePrompt'
 import { seatsFor } from './compose'
 import type { Run } from './useCompose'
 
@@ -47,9 +47,9 @@ export function Made({ run, motion }: { run: Run | null; motion: boolean }) {
         <span className="lozenge lozenge--neutral">{t('landing.made.preview')}</span>
       </div>
 
-      <div className="made__ring" aria-hidden="true" style={{ '--n': seats.shown } as CSSProperties}>
+      <div className="made__ring" style={{ '--n': seats.shown } as CSSProperties}>
         {Array.from({ length: seats.shown }, (_, i) => (
-          <div key={i} className={`made__seat${i < shown ? ' is-in' : ''}`} style={{ '--i': i } as CSSProperties}>
+          <div key={i} className={`made__seat${i < shown ? ' is-in' : ''}`} aria-hidden="true" style={{ '--i': i } as CSSProperties}>
             <span className="made__seat-body">
               {i < shown ? <Character id={CAST[i % CAST.length]!} className="made__char" tag={false} /> : <span className="made__empty-seat" />}
             </span>
@@ -108,7 +108,7 @@ export function Made({ run, motion }: { run: Run | null; motion: boolean }) {
           <span className="btn__label">{t('landing.made.create')}</span>
           <span className="btn__icon" aria-hidden="true"><ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} /></span>
         </button>
-        <Link className="made__byhand" to={NEXT} tabIndex={done ? 0 : -1} viewTransition>{t('landing.made.byHand')}</Link>
+        <Link className="made__byhand" to={NEXT} tabIndex={done ? 0 : -1} onClick={clearPrompt} viewTransition>{t('landing.made.byHand')}</Link>
       </div>
     </div>
   )

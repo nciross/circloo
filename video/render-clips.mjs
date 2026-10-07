@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 const CLIPS = { circle: 120, chat: 115, canvas: 120, board: 110, send: 85, pirikoo: 125 }
 const LANGS = ['en', 'fr', 'ar', 'es']
-// Scenes with no words once captions are off: one file serves every language (keep in sync with Story.tsx).
+// Scenes with no words once captions are off: one file serves every language (keep in sync with WORDLESS in src/web/src/features/landing/Player.tsx).
 const WORDLESS = ['circle', 'send']
 const OUT = '../src/web/public/video/story'
 const cli = new URL('./node_modules/@remotion/cli/remotion-cli.js', import.meta.url)

@@ -89,10 +89,17 @@ export function useCompose(locale: Locale, motion: boolean, words: (c: Compositi
     [locale],
   )
 
-  // Motion switched off mid-run: the timers stop and the finished circle shows at once.
+  // Motion switched off mid-run: the timers stop and the finished circle shows at once. The stored run is finished
+  // too (adjusted while rendering, not in an effect), so it stays whole when motion comes back: no timer would ever
+  // advance a half-typed run.
+  const [lastMotion, setLastMotion] = useState(motion)
+  if (lastMotion !== motion) {
+    setLastMotion(motion)
+    if (!motion && run && run.phase !== 'settled') setRun(finished(run))
+  }
   useEffect(() => {
     if (!motion) stop()
   }, [motion])
 
-  return { run: run && !motion && run.phase !== 'settled' ? finished(run) : run, start }
+  return { run, start }
 }
