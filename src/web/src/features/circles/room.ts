@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection } from '@microsoft/signalr'
 import { api } from '../../api/client'
 import { bindPresentation, useLive } from './present/presentation'
+import { bindStage, configureStage, resetStage, useStage } from './stage/stage'
 import { PRESENTATION } from './catalog'
 import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
 
@@ -25,6 +26,8 @@ interface RoomState {
   /** A short sentence for screen readers about the latest arrival. */
   announcement: string
   activity: string | null
+  /** Who started the current round (member id), when known: the work bar names them. */
+  startedBy: string | null
   /** Others writing in the chat right now ("Kenji is typing…"). */
   typing: string[]
   thinking: boolean
@@ -87,17 +90,34 @@ function clearTyping() {
   useRoom.setState({ typing: [] })
 }
 
-const invoke = async (method: string, ...args: unknown[]) => {
+/** Hub errors carry a short code (animator-only, message-unsafe…) after "HubException: ". */
+export const hubCode = (e: unknown) => (e instanceof Error ? (e.message.split('HubException: ')[1] ?? (e.message === 'offline' ? 'offline' : 'failed')) : 'failed')
+
+/** Calls the room's hub; the caller decides what to show when it refuses. */
+const call = async (method: string, ...args: unknown[]) => {
   const { connection } = useRoom.getState()
   if (!connection || connection.state !== HubConnectionState.Connected) throw new Error('offline')
+  await connection.invoke(method, ...args)
+}
+
+const invoke = async (method: string, ...args: unknown[]) => {
   try {
-    await connection.invoke(method, ...args)
+    await call(method, ...args)
   } catch (e) {
-    // Hub errors carry a short code (animator-only, message-unsafe…) after "HubException: ".
-    const code = e instanceof Error ? (e.message.split('HubException: ')[1] ?? 'failed') : 'failed'
-    useRoom.setState({ error: code })
+    if (e instanceof Error && e.message === 'offline') throw e
+    useRoom.setState({ error: hubCode(e) })
     throw e
   }
+}
+
+/** The member who started the round, from its "start:" system line (the page load does not carry it otherwise). */
+export function starterOf(messages: Message[], activity: string | null): string | null {
+  if (!activity) return null
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i]!
+    if (m.kind === 'system' && m.text === `start:${activity}`) return m.memberId
+  }
+  return null
 }
 
 /** Live state of the circle you are in (one at a time). */
@@ -115,6 +135,7 @@ export const useRoom = create<RoomState>()((set) => ({
   arrivals: [],
   announcement: '',
   activity: null,
+  startedBy: null,
   typing: [],
   thinking: false,
   draft: '',
@@ -122,7 +143,9 @@ export const useRoom = create<RoomState>()((set) => ({
   status: 'connecting',
   error: null,
   connection: null,
-  load: (view) =>
+  load: (view) => {
+    // The circle view carries the live discussion setting; the stage store keeps it from here on (spec 009).
+    useStage.setState({ discussion: view.discussion ?? null })
     set({
       circleId: view.id,
       joinCode: view.joinCode,
@@ -134,13 +157,15 @@ export const useRoom = create<RoomState>()((set) => ({
       canvas: view.canvas,
       cursors: {},
       activity: view.currentActivity,
+      startedBy: starterOf(view.messages, view.currentActivity),
       closed: view.status === 'closed',
       online: [],
       typing: [],
       thinking: false,
       draft: '',
       error: null,
-    }),
+    })
+  },
   say: async (text) => {
     await invoke('Say', text)
     lastTyping = 0
@@ -195,16 +220,19 @@ async function resync(id: string) {
     notes: view.notes,
     canvas: view.canvas,
     activity: view.currentActivity,
+    startedBy: starterOf(view.messages, view.currentActivity),
     closed: view.status === 'closed',
   })
+  if (view.discussion) useStage.setState({ discussion: view.discussion })
 }
 
 /** Opens the room's real-time connection for as long as the component lives. */
 export function useCircleConnection(view: CircleView | undefined) {
   const id = view?.id
+  const selfId = view?.me.id
   const isClosed = view?.status === 'closed'
   useEffect(() => {
-    if (!id || isClosed) return
+    if (!id || !selfId || isClosed) return
     const connection = new HubConnectionBuilder()
       .withUrl('/hubs/circle')
       .withAutomaticReconnect()
@@ -227,15 +255,21 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState((s) => (s.members.some((x) => x.id === m.id) ? s : { members: [...s.members, m], arrivals: [...s.arrivals, m.id], announcement: m.name }))
       window.setTimeout(() => useRoom.setState((s) => ({ arrivals: s.arrivals.filter((x) => x !== m.id) })), 1600)
     })
-    connection.on('Activity', (a: { activityId: string | null }) => {
-      useRoom.setState({ activity: a.activityId })
+    connection.on('Activity', (a: { activityId: string | null; startedBy?: string | null }) => {
+      useRoom.setState({ activity: a.activityId, startedBy: a.activityId ? (a.startedBy ?? null) : null })
       if (a.activityId !== PRESENTATION) useLive.getState().reset()
     })
     bindPresentation(connection, () => useRoom.getState().connection === connection)
+    // The live discussion (spec 009 T905/T906): the stage store reaches the hub only through this connection.
+    configureStage({ circleId: id, selfId, deps: { invoke: (method, ...args) => call(method, ...args) } })
+    bindStage(connection, () => useRoom.getState().connection === connection)
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))
     connection.on('AiDelta', (d: { text: string }) => useRoom.setState((s) => ({ draft: s.draft + d.text })))
-    connection.on('Closed', () => useRoom.setState({ closed: true, status: 'offline' }))
+    connection.on('Closed', () => {
+      useRoom.setState({ closed: true, status: 'offline' })
+      resetStage()
+    })
     connection.on('NoteChanged', (n: BoardNote) =>
       useRoom.setState((s) => ({ notes: s.notes.some((x) => x.id === n.id) ? s.notes.map((x) => (x.id === n.id ? n : x)) : [...s.notes, n] })))
     connection.on('NoteDeleted', (id: number) => useRoom.setState((s) => ({ notes: s.notes.filter((x) => x.id !== id) })))
@@ -275,8 +309,9 @@ export function useCircleConnection(view: CircleView | undefined) {
       cancelled = true
       clearTyping()
       useLive.getState().reset()
+      resetStage()
       useRoom.setState({ connection: null })
       void connection.stop()
     }
-  }, [id, isClosed])
+  }, [id, selfId, isClosed])
 }
