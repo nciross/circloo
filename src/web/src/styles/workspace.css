@@ -134,11 +134,12 @@
   gap: var(--s-3);
   min-inline-size: min(10rem, 100%);
 }
+/* Sized by the bar's own width (it is a container), not the screen's: the sidebar takes part of the screen. */
 .workbar__name {
   min-inline-size: 0;
   margin: 0;
   overflow: hidden;
-  font-size: clamp(1.75rem, 1.25rem + 1.4vw, 2.5rem);
+  font-size: clamp(1.375rem, 0.85rem + 1.9cqi, 2.25rem);
   font-weight: var(--w-display);
   letter-spacing: -0.035em;
   line-height: 0.95;
@@ -212,9 +213,10 @@
   line-height: 1;
 }
 /* The round that runs: who started it, how long it has run (tabular), with a small meter of the usual length under it. */
+/* It gives way before the circle's name (shrinks four times faster): the name is the bar's loudest thing. */
 .workbar__round {
   display: flex;
-  flex: 0 1 auto;
+  flex: 0 4 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem var(--s-2);
@@ -324,7 +326,7 @@
 .workbar__menu-panel .send__panel {
   inset-inline: 0;
 }
-@container workbar (max-width: 56rem) {
+@container workbar (max-width: 72rem) {
   .workbar__round-by {
     display: none;
   }
@@ -361,8 +363,10 @@
     inline-size: 2.75rem;
     padding: 0;
   }
+  /* In the column the name would take its full text width and run under the people: cap it to the column. */
   .workbar__name {
-    font-size: var(--fs-2xl);
+    max-inline-size: 100%;
+    font-size: var(--fs-xl);
   }
   .workbar__id {
     flex-direction: column;
