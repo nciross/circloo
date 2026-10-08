@@ -132,6 +132,10 @@
 .sitebar--site .lang-menu__trigger[aria-expanded='true'] {
   border-color: var(--ink);
 }
+/* The wordmark leads the bar: bigger than the app's, so the face reads at a glance. */
+.sitebar--site .brand {
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.125rem);
+}
 .sitebar--site .btn--sm {
   min-block-size: 2.5rem;
   padding-inline: 1.1rem;
@@ -143,7 +147,7 @@
     gap: var(--s-2);
   }
   .sitebar--site .brand {
-    font-size: 1.15rem;
+    font-size: 1.6rem;
   }
   .sitebar--site .lang-menu__trigger {
     padding-inline: 0.6rem;
@@ -2250,7 +2254,7 @@
   align-items: baseline;
   gap: var(--s-3);
   margin: 0;
-  font-size: 1.35rem;
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
 }
 .footer .wordmark {
   color: var(--on-charcoal);
