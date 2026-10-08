@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { CSSProperties } from 'react'
+import { Heart, MessageCircleQuestion } from 'lucide-react'
 import { Character } from '../../components/Character'
 import type { CharacterId } from '../../components/characters'
 import { Loop, MusicNote, Squiggle, Star } from './Doodles'
@@ -11,6 +12,29 @@ const SHAPES = {
   c: 'M44 40 C 90 6 176 4 210 48 C 240 90 226 160 176 182 C 124 204 48 190 24 142 C 2 98 8 66 44 40 Z',
   d: 'M22 84 C 30 28 104 6 160 12 C 214 18 236 70 230 124 C 224 178 160 198 104 190 C 46 182 14 140 22 84 Z',
 } as const
+/**
+ * What each picture does in step with the board's loop (Scene.tsx, 14 s): the panda posts a note as the first notes
+ * pop in, the fox slides one across while Karim drags the peach note, the owl votes while Lucía drops the dots, and
+ * the robot asks with the panda, then sends the heart. Each reaction sits on the side facing the board.
+ */
+function Fx({ id }: { id: keyof typeof SHAPES }) {
+  if (id === 'a') return <span className="blob__fx blob__fx--note blob__fx--mint" />
+  if (id === 'b') return <span className="blob__fx blob__fx--note blob__fx--peach" />
+  if (id === 'c') {
+    return (
+      <span className="blob__fx blob__fx--votes">
+        <i /><i /><i />
+      </span>
+    )
+  }
+  return (
+    <>
+      <span className="blob__fx blob__fx--ask"><MessageCircleQuestion size={20} strokeWidth={2.25} /></span>
+      <span className="blob__fx blob__fx--heart"><Heart size={16} strokeWidth={2.5} fill="currentColor" /></span>
+    </>
+  )
+}
+
 /** The cast is clipped by the blob below this line and free above it: heads rise over the shape, feet stop at its edge. */
 const ABOVE = 'M0 0 H236 V118 H0 Z '
 
@@ -40,6 +64,7 @@ function Blob({ spec, index }: { spec: BlobSpec; index: number }) {
       <span className="blob__cast">
         {spec.cast.map((c, i) => <Character key={c} id={c} tag={false} className={`blob__char blob__char--${i + 1}`} />)}
       </span>
+      <Fx id={spec.id} />
       <figcaption className={`blob__tag blob__tag--${spec.tag}`}>{t(`landing.blobs.${spec.id}`)}</figcaption>
     </figure>
   )
@@ -47,7 +72,8 @@ function Blob({ spec, index }: { spec: BlobSpec; index: number }) {
 
 /**
  * The hero's two wings (#250): two blobs each side with characters cut out over them and a handwritten tag, plus a
- * few doodles. Decorative; hidden under 64rem, floating only while the visitor allows motion.
+ * few doodles. Decorative; hidden under 64rem. While the visitor allows motion they play along with the board in
+ * the centre (same 14 s loop); still, they show the finished moment.
  */
 export function Blobs() {
   return (

@@ -584,10 +584,153 @@
     inset-inline-end: 11rem;
   }
 }
-/* The blobs drift a little while the visitor allows motion. */
-.site[data-motion='on']:not(.is-still) .blob {
-  animation: blob-float 6s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * -1.5s);
+/* The pictures play along with the board (Scene.tsx): the same 14 s loop, started by the same rule, so each
+   reaction lands on its moment in the centre. Transform properties only; still, the finished moment shows. */
+.blob__char,
+.blob__fx {
+  --dir: 1;
+}
+:dir(rtl) .blob__char,
+:dir(rtl) .blob__fx {
+  --dir: -1;
+}
+.blob__fx {
+  position: absolute;
+  z-index: 2;
+}
+/* Each reaction sits on the picture's own space, toward the board but never under it. */
+.blob--a .blob__fx {
+  inset-block-start: 24px;
+  inset-inline-end: -6px;
+}
+.blob--b .blob__fx {
+  inset-block-start: -6px;
+  inset-inline-end: 34px;
+}
+.blob--c .blob__fx {
+  inset-block-start: 128px;
+  inset-inline-start: 6px;
+}
+.blob--d .blob__fx {
+  inset-block-start: -18px;
+}
+.blob--d .blob__fx--ask {
+  inset-inline-start: 26px;
+}
+.blob--d .blob__fx--heart {
+  inset-inline-start: 72px;
+}
+.blob__fx--note {
+  inline-size: 40px;
+  block-size: 34px;
+  border-radius: 4px;
+  rotate: 8deg;
+}
+.blob__fx--note::before,
+.blob__fx--note::after {
+  content: '';
+  position: absolute;
+  inset-inline: 7px 12px;
+  block-size: 3px;
+  border-radius: 2px;
+  background: var(--on-sun);
+  opacity: 0.35;
+}
+.blob__fx--note::before {
+  inset-block-start: 10px;
+}
+.blob__fx--note::after {
+  inset-block-start: 18px;
+  inset-inline-end: 18px;
+}
+.blob__fx--mint {
+  background: var(--mint);
+  box-shadow: 0 0 0 2px var(--on-field), 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.blob__fx--peach {
+  background: var(--peach);
+  rotate: -6deg;
+  box-shadow: 0 0 0 2px var(--on-field), 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.blob__fx--votes {
+  display: flex;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: var(--r-pill);
+  background: var(--on-field);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.blob__fx--votes i {
+  inline-size: 9px;
+  block-size: 9px;
+  border-radius: 50%;
+  background: var(--on-sun);
+}
+.blob__fx--ask,
+.blob__fx--heart {
+  display: grid;
+  place-items: center;
+  inline-size: 38px;
+  block-size: 38px;
+  border-radius: 50%;
+  background: var(--on-field);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.blob__fx--ask {
+  color: var(--on-sun);
+}
+.blob__fx--heart {
+  color: var(--pink);
+}
+.site[data-motion='on']:not(.is-still) {
+  .blob {
+    /* Half the board's loop, so the drift stays in step with it. */
+    animation: blob-float 7s ease-in-out infinite;
+  }
+  .blob__char,
+  .blob__fx,
+  .blob__fx--votes i {
+    animation: 14s var(--ease-settle) infinite both;
+  }
+  .blob__char--2 {
+    animation-delay: 0.12s;
+  }
+  .blob--a .blob__char {
+    animation-name: blob-hop-a;
+  }
+  .blob--a .blob__fx {
+    animation-name: blob-fx-a;
+  }
+  .blob--b .blob__char {
+    animation-name: blob-lean-b;
+  }
+  .blob--b .blob__fx {
+    animation-name: blob-fx-b;
+  }
+  .blob--c .blob__char {
+    animation-name: blob-hop-c;
+  }
+  .blob--c .blob__fx {
+    animation-name: blob-fx-c;
+  }
+  .blob--c .blob__fx--votes i {
+    animation-name: blob-fx-c;
+  }
+  .blob--c .blob__fx--votes i:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .blob--c .blob__fx--votes i:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  .blob--d .blob__char {
+    animation-name: blob-hop-d;
+  }
+  .blob--d .blob__fx--ask {
+    animation-name: blob-fx-ask;
+  }
+  .blob--d .blob__fx--heart {
+    animation-name: blob-fx-heart;
+  }
 }
 @keyframes blob-float {
   0%,
@@ -597,6 +740,63 @@
   50% {
     translate: 0 -8px;
   }
+}
+/* Notes pop onto the board at 4–20 %: the panda and the bunny hop twice and post the mint note. */
+@keyframes blob-hop-a {
+  0%, 4% { translate: 0 0; }
+  6% { translate: 0 -14px; }
+  8% { translate: 0 0; }
+  11% { translate: 0 -8px; }
+  14%, 100% { translate: 0 0; }
+}
+@keyframes blob-fx-a {
+  0%, 5% { scale: 0; translate: 0 10px; }
+  9%, 94% { scale: 1; translate: 0 0; }
+  98%, 100% { scale: 0; translate: 0 0; }
+}
+/* Karim drags the peach note at 28–48 %: the fox leans toward the board and its note slides along. */
+@keyframes blob-lean-b {
+  0%, 26% { translate: 0 0; rotate: 0deg; }
+  30% { translate: 0 -10px; rotate: 0deg; }
+  38%, 48% { translate: calc(8px * var(--dir)) -4px; rotate: calc(5deg * var(--dir)); }
+  54%, 100% { translate: 0 0; rotate: 0deg; }
+}
+@keyframes blob-fx-b {
+  0%, 24% { scale: 0; translate: 0 0; }
+  28% { scale: 1; translate: 0 0; }
+  48%, 94% { scale: 1; translate: calc(14px * var(--dir)) -12px; }
+  98%, 100% { scale: 0; translate: calc(14px * var(--dir)) -12px; }
+}
+/* Lucía votes at 54–60 % and 68–74 %: the owl and the frog bounce with each round of dots. */
+@keyframes blob-hop-c {
+  0%, 56% { translate: 0 0; }
+  58% { translate: 0 -12px; }
+  61%, 70% { translate: 0 0; }
+  72% { translate: 0 -12px; }
+  75%, 100% { translate: 0 0; }
+}
+@keyframes blob-fx-c {
+  0%, 56% { scale: 0; translate: 0 -10px; }
+  61%, 94% { scale: 1; translate: 0 0; }
+  98%, 100% { scale: 0; translate: 0 0; }
+}
+/* The panda asks at 76–82 % and a heart lands at 84–88 %: the robot asks along, then sends the heart. */
+@keyframes blob-hop-d {
+  0%, 78% { translate: 0 0; }
+  80% { translate: 0 -12px; }
+  83%, 84% { translate: 0 0; }
+  86% { translate: 0 -10px; }
+  89%, 100% { translate: 0 0; }
+}
+@keyframes blob-fx-ask {
+  0%, 77% { scale: 0; }
+  82%, 94% { scale: 1; }
+  98%, 100% { scale: 0; }
+}
+@keyframes blob-fx-heart {
+  0%, 84% { scale: 0; rotate: -30deg; }
+  88%, 94% { scale: 1; rotate: 0deg; }
+  98%, 100% { scale: 0; rotate: 0deg; }
 }
 
 /* ---------- Build: the console under the hero, the composition right below it ---------- */
@@ -2340,6 +2540,9 @@
 :where(.site[data-motion='off'], .site.is-still) {
   .made__caret,
   .blob,
+  .blob__char,
+  .blob__fx,
+  .blob__fx--votes i,
   .scene__note,
   .scene__bubble,
   .scene__vote,
