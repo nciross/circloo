@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-08T06:01:05Z",
+  "generatedAt": "2026-10-08T13:27:42Z",
   "title": "Design System: circloo",
   "extensions": {
     "colorMeta": {
@@ -8,476 +8,588 @@
         "role": "neutral",
         "displayName": "ground",
         "canonical": "#ffffff",
-        "night": "#0f0f10",
-        "note": "The canvas: white by day, near-black at night."
+        "night": "#131317"
       },
       "paper": {
         "role": "neutral",
         "displayName": "paper",
         "canonical": "#ffffff",
-        "night": "#161616"
+        "night": "#18181d"
       },
       "paper-sunken": {
         "role": "neutral",
         "displayName": "paper-sunken",
         "canonical": "#f4f4f4",
-        "night": "#1e1e1f"
+        "night": "#1f1f25"
       },
       "paper-hover": {
         "role": "neutral",
         "displayName": "paper-hover",
         "canonical": "#ededed",
-        "night": "#242425"
+        "night": "#26262d"
       },
       "paper-pressed": {
         "role": "neutral",
         "displayName": "paper-pressed",
         "canonical": "#e0e0e0",
-        "night": "#2c2c2d"
+        "night": "#2e2e36"
       },
       "hairline": {
         "role": "neutral",
         "displayName": "hairline",
         "canonical": "#e6e6e6",
-        "night": "#2a2a2a"
+        "night": "#2c2c34"
       },
       "hairline-strong": {
         "role": "neutral",
         "displayName": "hairline-strong",
         "canonical": "#c4c4c4",
-        "night": "#3f3f41"
+        "night": "#4a4a55"
       },
       "ink": {
         "role": "neutral",
         "displayName": "ink",
         "canonical": "#111111",
-        "night": "#f5f5f5"
+        "night": "#f4f3f7"
       },
       "ink-soft": {
         "role": "neutral",
         "displayName": "ink-soft",
         "canonical": "#5b5f66",
-        "night": "#b5b5b8"
+        "night": "#c9c6d1"
       },
       "ink-faint": {
         "role": "neutral",
         "displayName": "ink-faint",
         "canonical": "#6b6b6b",
-        "night": "#9a9a9a"
+        "night": "#a5a2af"
       },
       "on-ink": {
         "role": "neutral",
         "displayName": "on-ink",
         "canonical": "#ffffff",
-        "night": "#111111"
+        "night": "#131317"
       },
       "beam": {
-        "role": "primary",
+        "role": "accent",
         "displayName": "beam",
-        "canonical": "#2b6bf3",
-        "night": "#6d9bff",
-        "note": "The one blue: links, the lead line, the picked option, one button per view."
+        "canonical": "#d6276b",
+        "night": "#ff6fa3"
       },
       "beam-hover": {
-        "role": "primary",
+        "role": "accent",
         "displayName": "beam-hover",
-        "canonical": "#1f5be0",
-        "night": "#85acff"
+        "canonical": "#c01f5e",
+        "night": "#ff8ab5"
       },
       "beam-pressed": {
-        "role": "primary",
+        "role": "accent",
         "displayName": "beam-pressed",
-        "canonical": "#1a4fc7",
-        "night": "#9dbcff"
+        "canonical": "#a81a52",
+        "night": "#ffa3c5"
       },
       "beam-subtle": {
-        "role": "primary",
+        "role": "link",
         "displayName": "beam-subtle",
-        "canonical": "#e8effe",
-        "night": "#1c2a4d"
+        "canonical": "#f1ebfd",
+        "night": "#2a2140"
       },
       "beam-subtle-hover": {
-        "role": "tertiary",
+        "role": "link",
         "displayName": "beam-subtle-hover",
-        "canonical": "#d6e2fd",
-        "night": "#253766"
+        "canonical": "#e6dcfb",
+        "night": "#352a50"
       },
       "beam-text": {
-        "role": "primary",
+        "role": "link",
         "displayName": "beam-text",
-        "canonical": "#1d5be3",
-        "night": "#8fb0ff"
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd"
       },
       "on-beam": {
-        "role": "primary",
+        "role": "accent",
         "displayName": "on-beam",
         "canonical": "#ffffff",
-        "night": "#111111"
+        "night": "#1a0610"
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "accent",
+        "canonical": "#2e2e36",
+        "night": "#f1eef5"
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "accent-hover",
+        "canonical": "#1f1f25",
+        "night": "#ffffff"
+      },
+      "accent-pressed": {
+        "role": "primary",
+        "displayName": "accent-pressed",
+        "canonical": "#15151a",
+        "night": "#dcd8e3"
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "on-accent",
+        "canonical": "#ffffff",
+        "night": "#131317"
       },
       "focus": {
-        "role": "primary",
+        "role": "link",
         "displayName": "focus",
-        "canonical": "#2b6bf3",
-        "night": "#8fb0ff"
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd"
       },
       "card": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "card",
-        "canonical": "#161616",
-        "night": "#f5f5f5",
-        "note": "The one dark card per view; light at night."
+        "canonical": "#ece2f6",
+        "night": "#2b2238",
+        "note": "The focal card: light mauve by day, deep plum by night. No black backgrounds anywhere."
       },
       "card-line": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "card-line",
-        "canonical": "#2a2a2a",
-        "night": "#e0e0e0"
+        "canonical": "#d6c6e8",
+        "night": "#43365a"
       },
       "card-sunken": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "card-sunken",
-        "canonical": "#222222",
-        "night": "#ebebeb"
+        "canonical": "#e1d3f0",
+        "night": "#221a2e"
       },
       "card-hover": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "card-hover",
-        "canonical": "#262626",
-        "night": "#e6e6e6"
+        "canonical": "#e5d9f2",
+        "night": "#34293f"
       },
       "on-card": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "on-card",
-        "canonical": "#ffffff",
-        "night": "#111111"
+        "canonical": "#16161b",
+        "night": "#f6f1fb"
       },
       "on-card-soft": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "on-card-soft",
-        "canonical": "#cfcfcf",
-        "night": "#3a3a3a"
+        "canonical": "#3a3a43",
+        "night": "#ddd3ea"
       },
       "on-card-faint": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "on-card-faint",
-        "canonical": "#9a9a9a",
-        "night": "#666666"
+        "canonical": "#55555f",
+        "night": "#bfb2d1"
       },
       "seg-empty": {
-        "role": "neutral",
+        "role": "focal-card",
         "displayName": "seg-empty",
-        "canonical": "#3c3c3c",
-        "night": "#d4d4d4"
+        "canonical": "#d3c2e6",
+        "night": "#43365a"
       },
       "ok": {
-        "role": "tertiary",
+        "role": "focal-card",
         "displayName": "ok",
-        "canonical": "#2fd6c3",
-        "night": "#0f9f8e",
-        "note": "Only inside the dark card: here, healthy, done."
+        "canonical": "#126b4f",
+        "night": "#bfe8d9",
+        "note": "Inside the focal card only: here, done (deep green by day, mint by night)."
       },
       "mid": {
-        "role": "tertiary",
+        "role": "focal-card",
         "displayName": "mid",
-        "canonical": "#f4623a",
-        "night": "#d2491f",
-        "note": "Only inside the dark card: partial, a second source."
+        "canonical": "#7a5800",
+        "night": "#f7d873",
+        "note": "Inside the focal card only: partial (amber by day, butter by night)."
       },
       "low": {
-        "role": "tertiary",
+        "role": "focal-card",
         "displayName": "low",
-        "canonical": "#e5484d",
-        "night": "#d1343a",
-        "note": "Only inside the dark card: away, late, empty."
+        "canonical": "#a3123f",
+        "night": "#ffb3c8",
+        "note": "Inside the focal card only: away, late (berry by day, pink by night)."
+      },
+      "charcoal": {
+        "role": "primary",
+        "displayName": "charcoal",
+        "canonical": "#2e2e36",
+        "night": "#f1eef5",
+        "note": "Every primary pill (buttons, the current nav item, picked states). Light at night."
+      },
+      "charcoal-hover": {
+        "role": "primary",
+        "displayName": "charcoal-hover",
+        "canonical": "#1f1f25",
+        "night": "#ffffff"
+      },
+      "on-charcoal": {
+        "role": "primary",
+        "displayName": "on-charcoal",
+        "canonical": "#ffffff",
+        "night": "#131317"
+      },
+      "pink": {
+        "role": "accent",
+        "displayName": "pink",
+        "canonical": "#d12a6c",
+        "night": "#ff6fa3",
+        "note": "Cerise, a small accent only (a crest, a heart, a calling ring)."
+      },
+      "violet-link": {
+        "role": "link",
+        "displayName": "violet-link",
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd",
+        "note": "Text links, the lead line under a title, focus rings."
+      },
+      "meta": {
+        "role": "other",
+        "displayName": "meta",
+        "canonical": "#6b6b72",
+        "night": "#b3b0bc"
+      },
+      "mint": {
+        "role": "pastel",
+        "displayName": "mint",
+        "canonical": "#bfe8d9",
+        "night": "#bfe8d9"
+      },
+      "sky-pastel": {
+        "role": "pastel",
+        "displayName": "sky-pastel",
+        "canonical": "#a9d9f5",
+        "night": "#a9d9f5"
+      },
+      "peach": {
+        "role": "pastel",
+        "displayName": "peach",
+        "canonical": "#f6a46b",
+        "night": "#f6a46b"
+      },
+      "butter": {
+        "role": "pastel",
+        "displayName": "butter",
+        "canonical": "#f7d873",
+        "night": "#f7d873"
+      },
+      "lavender": {
+        "role": "pastel",
+        "displayName": "lavender",
+        "canonical": "#b39ddb",
+        "night": "#b39ddb"
+      },
+      "blush": {
+        "role": "pastel",
+        "displayName": "blush",
+        "canonical": "#ffc9db",
+        "night": "#ffc9db"
+      },
+      "mauve": {
+        "role": "pastel",
+        "displayName": "mauve",
+        "canonical": "#e9dcf3",
+        "night": "#2a1f35",
+        "note": "Light mauve surfaces: the sign-in bar, the create card, the landing footer."
+      },
+      "mauve-deep": {
+        "role": "pastel",
+        "displayName": "mauve-deep",
+        "canonical": "#d6c3ea",
+        "night": "#3a2b48"
       },
       "field": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "field",
         "canonical": "#2b5cf0",
-        "night": "#2b5cf0",
-        "note": "The public hero's cobalt field."
+        "night": "#2b5cf0"
       },
       "field-deep": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "field-deep",
         "canonical": "#1e45c4",
         "night": "#1e45c4"
       },
       "on-field": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "on-field",
         "canonical": "#ffffff",
         "night": "#ffffff"
       },
+      "on-field-soft": {
+        "role": "other",
+        "displayName": "on-field-soft",
+        "canonical": "rgb(255 255 255 / 0.9)",
+        "night": "rgb(255 255 255 / 0.9)"
+      },
       "field-shade": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "field-shade",
         "canonical": "#6d28d9",
         "night": "#6d28d9"
       },
       "sun": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "sun",
         "canonical": "#ffd23f",
-        "night": "#ffd23f",
-        "note": "The hero's yellow: the Build button and the underline."
+        "night": "#ffd23f"
       },
       "sun-hover": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "sun-hover",
         "canonical": "#f5c62a",
         "night": "#f5c62a"
       },
       "on-sun": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "on-sun",
         "canonical": "#111111",
         "night": "#111111"
       },
       "note": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "note",
         "canonical": "#fff3b0",
         "night": "#fff3b0"
       },
       "note-ink": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "note-ink",
         "canonical": "#111111",
         "night": "#111111"
       },
       "brass": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "brass",
         "canonical": "#111111",
-        "night": "#f5f5f5"
+        "night": "#f4f3f7"
       },
       "brass-faint": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "brass-faint",
         "canonical": "#e6e6e6",
-        "night": "#2a2a2a"
+        "night": "#2c2c34"
       },
       "ai": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "ai",
         "canonical": "#6a4fd1",
-        "night": "#9f8fef",
-        "note": "Only for AI-made or AI-making things, always labelled."
+        "night": "#9f8fef"
       },
       "ai-hover": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "ai-hover",
         "canonical": "#5a40bd",
         "night": "#b3a6f4"
       },
       "ai-subtle": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "ai-subtle",
         "canonical": "#f2efff",
         "night": "#201b3a"
       },
       "ai-border": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "ai-border",
         "canonical": "#d9d0fb",
         "night": "#3b3266"
       },
       "ai-text": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "ai-text",
         "canonical": "#5638c2",
         "night": "#c0b4f8"
       },
       "on-ai": {
-        "role": "secondary",
+        "role": "ai",
         "displayName": "on-ai",
         "canonical": "#ffffff",
         "night": "#111111"
       },
       "sky-stormy": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "sky-stormy",
         "canonical": "#2f3a52",
         "night": "#2a3450"
       },
       "sky-foggy": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "sky-foggy",
         "canonical": "#aab4c3",
         "night": "#7f8ca6"
       },
       "sky-cloudy": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "sky-cloudy",
         "canonical": "#d6d6d6",
         "night": "#8e9bb2"
       },
       "sky-bright": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "sky-bright",
         "canonical": "#7fb8ff",
         "night": "#3f8ff0"
       },
       "sky-sunny": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "sky-sunny",
         "canonical": "#ffd23f",
         "night": "#e6b534"
       },
       "on-sky": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "on-sky",
         "canonical": "#111111",
         "night": "#111111"
       },
       "on-sky-stormy": {
-        "role": "tertiary",
+        "role": "mood",
         "displayName": "on-sky-stormy",
         "canonical": "#ffffff",
         "night": "#f5f5f5"
       },
       "coral": {
-        "role": "tertiary",
+        "role": "other",
         "displayName": "coral",
         "canonical": "#ef4a32",
-        "night": "#ef4a32",
-        "note": "The face's mouth. Nowhere else."
+        "night": "#ef4a32"
       },
       "live": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "live",
         "canonical": "#178a66",
         "night": "#4bce97"
       },
       "live-subtle": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "live-subtle",
         "canonical": "#dcf5ec",
         "night": "#12301f"
       },
       "live-text": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "live-text",
         "canonical": "#126b4f",
         "night": "#7ee2b8"
       },
       "on-live": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "on-live",
         "canonical": "#ffffff",
         "night": "#111111"
       },
       "danger": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "danger",
         "canonical": "#d93a3f",
         "night": "#ff8f86"
       },
       "danger-hover": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "danger-hover",
         "canonical": "#c22f34",
         "night": "#ffa8a1"
       },
       "danger-subtle": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "danger-subtle",
         "canonical": "#ffecec",
         "night": "#3a1512"
       },
       "danger-text": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "danger-text",
         "canonical": "#b4262b",
         "night": "#ffa8a1"
       },
       "on-danger": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "on-danger",
         "canonical": "#ffffff",
         "night": "#111111"
       },
       "warning-subtle": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "warning-subtle",
         "canonical": "#fff4cc",
         "night": "#3a2d0a"
       },
       "warning-text": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "warning-text",
         "canonical": "#6e4a00",
         "night": "#f0c75e"
       },
       "info-subtle": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "info-subtle",
-        "canonical": "#e8effe",
-        "night": "#1c2a4d"
+        "canonical": "#f1ebfd",
+        "night": "#2a2140"
       },
       "info-text": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "info-text",
-        "canonical": "#1d5be3",
-        "night": "#8fb0ff"
+        "canonical": "#5b21b6",
+        "night": "#c4b5fd"
       },
       "neutral-subtle": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "neutral-subtle",
         "canonical": "#f4f4f4",
-        "night": "#1e1e1f"
+        "night": "#1f1f25"
       },
       "neutral-text": {
-        "role": "tertiary",
+        "role": "status",
         "displayName": "neutral-text",
         "canonical": "#5b5f66",
-        "night": "#b5b5b8"
+        "night": "#c9c6d1"
       },
       "body-1": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "body-1",
         "canonical": "#1d4ed8",
         "night": "#60a5fa"
       },
       "body-2": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "body-2",
         "canonical": "#c2410c",
         "night": "#fb923c"
       },
       "body-3": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "body-3",
         "canonical": "#15803d",
         "night": "#4ade80"
       },
       "body-4": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "body-4",
         "canonical": "#9d174d",
         "night": "#f472b6"
       },
       "body-5": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "body-5",
         "canonical": "#0e7490",
         "night": "#22d3ee"
       },
       "on-body": {
-        "role": "tertiary",
+        "role": "body",
         "displayName": "on-body",
         "canonical": "#ffffff",
-        "night": "#111111"
+        "night": "#131317"
       },
       "brand-ink": {
-        "role": "tertiary",
+        "role": "neutral",
         "displayName": "brand-ink",
         "canonical": "#111111",
-        "night": "#f5f5f5"
+        "night": "#f4f3f7"
       },
       "brand-aqua": {
-        "role": "tertiary",
+        "role": "neutral",
         "displayName": "brand-aqua",
         "canonical": "#22b8cc",
         "night": "#22b8cc"
@@ -493,7 +605,8 @@
     "shadows": {
       "raised": "0 1px 2px rgb(0 0 0 / 0.06)",
       "overlay": "0 12px 28px -12px rgb(0 0 0 / 0.28), 0 0 0 1px rgb(0 0 0 / 0.04)",
-      "card": "0 40px 80px -30px rgb(0 0 0 / 0.45), 0 18px 36px -24px rgb(0 0 0 / 0.4)"
+      "card": "0 1px 2px rgb(40 20 60 / 0.06), 0 12px 32px -18px rgb(40 20 60 / 0.25)",
+      "hover": "0 2px 8px rgb(0 0 0 / 0.08)"
     },
     "motion": {
       "dur-press": "120ms",
@@ -516,14 +629,20 @@
     }
   },
   "components": {
-    "button-primary": "ink pill 44px",
-    "panel": "white, 2px hairline, 22px",
-    "panel-dark": "card, 28px, shadow-card",
+    "button-primary": "charcoal pill 44px; light pill at night",
+    "button-charcoal": "the same pill by name, for markup that must stay charcoal",
+    "panel": "white, 2px hairline, 22px; lifts 2px with the hover shadow when it is a link",
+    "panel-dark": "the focal card (historic name): light mauve, 28px, a soft shadow; plum at night",
+    "sidebar": "left navigation: icon pill rows, the current one charcoal; a drawer under 62rem",
+    "search-ask": "the header field that asks Pirikoo (Ctrl/Cmd K)",
+    "circle-row": "white rounded row, Live or Closed lozenge, people, character stack",
+    "quick-chip": "pastel pill with near-black ink",
     "buddy": "character 44px, name, status, value, meter",
     "meter": "10 segments",
     "stack": "32px characters",
     "lozenge": "tracked pill",
-    "mood-tile": "outlined 18px, picked = ink"
+    "mood-tile": "outlined 18px, picked = charcoal",
+    "pirikoo": "flat parakeet mark: green, butter mask, ring eyes, cerise crest; alive when idle"
   },
-  "narrative": "A buddy list: a white canvas, one blue, one dark card per view with your people as characters in rows and every count as a ten-segment meter; a cobalt field with a yellow sun on the public hero."
+  "narrative": "A white canvas with near-black ink, charcoal pills for every primary action, violet links and focus, pastels (mint, butter, peach, sky, lavender, blush) for chips, covers and notes, one light mauve focal card per view, and no black backgrounds and no gradients anywhere. Cerise is a small accent. A left sidebar for the app, a header that searches by asking Pirikoo; the public site shares the language with pastel blobs, the cast and a live board."
 }

@@ -210,22 +210,41 @@
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: border-color var(--dur-state) var(--ease-settle);
+  transition:
+    border-color var(--dur-state) var(--ease-settle),
+    box-shadow var(--dur-move) var(--ease-settle);
 }
 .activity:hover {
   border-color: var(--hairline-strong);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .activity.is-on {
   border-color: var(--ink);
+}
+/* Each kind has its pastel, as on the site's round covers: the icon sits on it; picked, the chip turns charcoal. */
+.activity {
+  --kind: var(--mint);
+}
+.activity--energizers {
+  --kind: var(--butter);
+}
+.activity--retro {
+  --kind: var(--lavender);
+}
+.activity--decide {
+  --kind: var(--sky-pastel);
+}
+.activity--present {
+  --kind: var(--peach);
 }
 .activity__icon {
   display: grid;
   place-items: center;
   inline-size: 2.75rem;
   block-size: 2.75rem;
-  border-radius: var(--r-pill);
-  background: var(--paper-sunken);
-  color: var(--ink);
+  border-radius: var(--r-sm);
+  background: var(--kind);
+  color: var(--on-sun);
 }
 .activity.is-on .activity__icon {
   background: var(--accent);
@@ -599,13 +618,13 @@
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-/* A new circle's invite card glows twice in the one blue, so the next step is obvious, then rests. */
+/* A new circle's invite card glows twice in the violet, so the next step is obvious, then rests. */
 .invite.is-fresh {
   animation: invite-glow var(--dur-orbit) var(--ease-in-out) 2;
 }
 @keyframes invite-glow {
   50% {
-    border-color: var(--beam);
+    border-color: var(--beam-text);
     background: var(--beam-subtle);
   }
 }
@@ -806,13 +825,13 @@
   block-size: 2.25rem;
   flex: none;
   border: 0;
-  border-radius: var(--r-md);
-  background: var(--beam);
-  color: var(--on-beam);
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
   transition: background-color var(--dur-press) var(--ease-out);
 }
 .composer__send:hover {
-  background: var(--beam-hover);
+  background: var(--accent-hover);
 }
 .composer__send:focus-visible {
   outline: 2px solid var(--focus);
@@ -890,10 +909,16 @@
   }
 }
 
-/* ---------- Home: the live circle as the dark card, the others as rows, today's feel beside (buddy list, #250) ---------- */
+/* ---------- Home (#250, charcoal): start a circle on the view's one charcoal card, then My circles by role (the
+   circles I run, the circles I joined) as white rounded rows that lift; today's mood and the icebreaker beside.
+   Phones first: one column, the two groups stacked; two columns from 60rem, the groups side by side from 48rem. ---------- */
+/* Home lays itself out by its own width (the sidebar takes part of the screen): container queries, not the viewport. */
+.page:has(> .home-grid) {
+  container-type: inline-size;
+}
 .home-grid {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: var(--s-7) var(--s-6);
 }
@@ -903,94 +928,216 @@
   gap: var(--s-6);
   min-inline-size: 0;
 }
-/* The lead circle: its people as buddy rows, one meter, one white pill. */
-.lead .panel__title {
-  flex-wrap: wrap;
-  gap: var(--s-3);
-  font-size: var(--fs-3xl);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
+.home-grid__main {
+  container-type: inline-size;
 }
-:lang(ar) .lead .panel__title {
+/* The side column joins only when the main one keeps room for the two groups side by side. */
+@container (min-width: 70rem) {
+  .home-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+/* Below that, the side panels sit in a row of their own under the circles. */
+@container (min-width: 44rem) and (max-width: 69.99rem) {
+  .home-grid__side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .home-grid__side > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Start a circle: a light mauve card (no black, no gradient), the title, one line, the charcoal pill, quick starts on
+   pastel chips, the cast at the end. --mauve flips to a deep plum at night, the ink with it. */
+.create-card {
+  display: grid;
+  gap: var(--s-5);
+  padding: var(--s-6);
+  border: 0;
+  border-radius: var(--r-xl);
+  background: var(--mauve);
+}
+.create-card__copy {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  min-inline-size: 0;
+}
+.create-card__title {
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+:lang(ar) .create-card__title {
   letter-spacing: 0;
   line-height: 1.3;
 }
-/* "Live": the canvas pair, which clears 4.5:1 on the card by day and by night (the --ok text does not at night). */
-.lead .lozenge--success {
-  background: var(--live-subtle);
-  color: var(--live-text);
+.create-card__lead {
+  max-inline-size: 36ch;
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--ink-soft);
 }
-.lead__people {
-  display: grid;
+.create-card__go {
+  margin-block-start: var(--s-2);
 }
-.buddy__text {
-  display: grid;
-  gap: 1px;
-  min-inline-size: 0;
-}
-.buddy__name {
-  overflow-wrap: anywhere;
-}
-.buddy__you {
-  font-weight: 500;
-  color: var(--on-card-faint);
-}
-/* The value sits at 19px bold so the status colours clear 3:1 in both themes. */
-.lead .buddy__value {
-  font-size: 1.1875rem;
-  text-transform: lowercase;
-}
-.lead__meter {
+.create-card__quick {
   display: grid;
   gap: var(--s-2);
-  padding-block-start: var(--s-4);
-  border-block-start: 1px solid var(--card-line);
+  margin-block-start: var(--s-3);
 }
-.lead__count {
+/* --ink-soft, not --meta: on mauve the 12px label needs the darker grey to clear 4.5:1. */
+.create-card__quick-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.create-card__chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
   gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Pastel chips with near-black ink, theme-stable like every pastel. */
+.quick {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--r-pill);
+  color: var(--on-sun);
   font-size: var(--fs-sm);
-  color: var(--on-card-soft);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform var(--dur-move) var(--ease-settle);
 }
-.lead__count strong {
-  font-size: var(--fs-lg);
-  font-weight: 800;
-  color: var(--on-card);
-  font-variant-numeric: tabular-nums;
+.quick:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
 }
-.lead .panel__actions .btn {
-  inline-size: 100%;
+.quick:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.quick--mint {
+  background: var(--mint);
+}
+.quick--butter {
+  background: var(--butter);
+}
+.quick--lavender {
+  background: var(--lavender);
+}
+.create-card__cast {
+  display: none;
+}
+@container (min-width: 36rem) {
+  .create-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    padding: var(--s-7);
+  }
+  .quick {
+    min-block-size: 2.25rem;
+  }
+  .create-card__cast {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--s-2);
+  }
+  .create-card__cast .ground {
+    inline-size: 4.5rem;
+    block-size: 4.5rem;
+  }
+  .create-card__cast .ground:nth-child(2) {
+    translate: 0 -0.75rem;
+  }
 }
 
-/* The other circles: outlined rows. */
-.circles {
+/* My circles: one title, then the two groups by role. */
+.mine {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-4);
 }
-.circles__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding-inline: var(--s-1);
-}
-.circles__title {
-  font-size: var(--fs-xl);
+.mine__title {
+  font-size: var(--fs-2xl);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+:lang(ar) .mine__title {
+  letter-spacing: 0;
+}
+.mine__groups {
+  display: grid;
+  gap: var(--s-6);
+}
+@container (min-width: 40rem) {
+  .mine__groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+.circles {
+  display: grid;
+  align-content: start;
+  gap: var(--s-3);
+  min-inline-size: 0;
+}
+.circles__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.circles__icon {
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  flex: none;
+  border-radius: var(--r-sm);
+  color: var(--on-sun);
+}
+.circles__icon--animator {
+  background: var(--butter);
+}
+.circles__icon--participant {
+  background: var(--sky-pastel);
+}
+.circles__title {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
 .circles__count {
-  font-size: var(--fs-sm);
+  margin-inline-start: auto;
+  padding: 0 0.55rem;
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
   font-weight: 700;
-  color: var(--ink-faint);
+  line-height: 1.5rem;
   font-variant-numeric: tabular-nums;
+}
+.circles__empty {
+  padding: var(--s-4);
+  border: 2px dashed var(--hairline);
+  border-radius: var(--r-lg);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
 .circle-list {
   display: grid;
   gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .circle-list__item {
   display: grid;
@@ -998,10 +1145,10 @@
 }
 .circle-list__link {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--s-4);
-  padding: var(--s-4) var(--s-5);
+  gap: var(--s-3);
+  padding: var(--s-4);
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
@@ -1009,23 +1156,32 @@
   text-decoration: none;
   transition:
     border-color var(--dur-state) var(--ease-settle),
+    box-shadow var(--dur-move) var(--ease-settle),
     transform var(--dur-move) var(--ease-settle);
 }
 .circle-list__link:hover {
-  border-color: var(--ink);
+  border-color: var(--hairline-strong);
   text-decoration: none;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .circle-list__link:active {
   transform: scale(0.99);
 }
+.circle-list__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.circle-list__link .stack {
+  display: none;
+}
 .circle-list__text {
   display: grid;
-  gap: 2px;
+  gap: var(--s-1);
   min-inline-size: 0;
 }
 .circle-list__name {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -1038,8 +1194,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-2);
-  font-size: var(--fs-sm);
-  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  color: var(--meta);
 }
 .circle-list__go {
   color: var(--ink-faint);
@@ -1052,18 +1208,25 @@
 [dir='rtl'] .circle-list__link:hover .circle-list__go {
   transform: translateX(-3px);
 }
-/* Closed circles step back: grey text, a neutral lozenge, the cast dimmed. */
+/* Closed circles step back: softer name, the neutral lozenge says Closed in words. */
 .circle-list__item.is-closed .circle-list__name {
   color: var(--ink-soft);
 }
-.circle-list__item.is-closed .stack {
-  opacity: 0.55;
+@media (min-width: 30rem) {
+  .circle-list__link {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    padding: var(--s-4) var(--s-5);
+  }
+  .circle-list__link .stack {
+    display: flex;
+  }
 }
 
-/* Today's feel: the title, the five tiles, the weather line, the note. */
+/* Today's feel: a white panel with the five tiles, the weather line and the note. */
 .feel {
   display: grid;
   gap: var(--s-3);
+  padding: var(--s-5);
 }
 .feel__title {
   font-size: var(--fs-xl);
@@ -1079,63 +1242,46 @@
   font-weight: 700;
 }
 .feel__note {
-  font-size: var(--fs-sm);
-  color: var(--ink-faint);
+  font-size: var(--fs-xs);
+  color: var(--meta);
 }
 
-/* Before the first circle: a headline, the cast on the ground, one pill. */
+/* Before the first circle: a short headline and one line under the create card. */
 .circles-empty {
   display: grid;
   justify-items: start;
-  gap: var(--s-4);
-  padding-block: var(--s-4) var(--s-6);
-}
-.circles-empty__cast {
-  display: flex;
-  gap: var(--s-5);
-  margin-block-end: var(--s-3);
-}
-.circles-empty__cast .ground:nth-child(2) {
-  translate: 0 -0.5rem;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border: 2px dashed var(--hairline);
+  border-radius: var(--r-lg);
 }
 .circles-empty__title {
-  font-size: var(--fs-3xl);
-  font-weight: var(--w-display);
-  letter-spacing: -0.035em;
-  line-height: 0.98;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 :lang(ar) .circles-empty__title {
   letter-spacing: 0;
-  line-height: 1.3;
 }
 .circles-empty__body {
-  max-inline-size: 34rem;
-  font-size: var(--fs-lg);
+  max-inline-size: 40rem;
+  font-size: var(--fs-md);
+  line-height: 1.55;
   color: var(--ink-soft);
 }
-@media (max-width: 60rem) {
-  .home-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
+
+/* Buddy rows (the room's people list): the name and the status line under it. */
+.buddy__text {
+  display: grid;
+  gap: 1px;
+  min-inline-size: 0;
 }
-@media (max-width: 40rem) {
-  .circle-list__link {
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding: var(--s-4);
-  }
-  .circle-list__link .stack {
-    display: none;
-  }
-  .circles-empty__cast {
-    gap: var(--s-3);
-  }
-  .circles-empty__cast .ground {
-    inline-size: 4.5rem;
-    block-size: 4.5rem;
-  }
-  .lead .panel__title {
-    font-size: var(--fs-2xl);
-  }
+.buddy__name {
+  overflow-wrap: anywhere;
+}
+.buddy__you {
+  font-weight: 500;
+  color: var(--on-card-faint);
 }
 
 /* ---------- Live board (spec 004) ---------- */
@@ -1190,7 +1336,7 @@
 }
 .board__col.is-over {
   background: var(--beam-subtle);
-  box-shadow: inset 0 0 0 2px var(--beam);
+  box-shadow: inset 0 0 0 2px var(--beam-text);
 }
 .board__col--stop,
 .board__col--improve,
@@ -1234,13 +1380,13 @@
 }
 
 .note-card {
-  --note: #fff3b0;
+  --note: var(--butter);
   display: grid;
   gap: var(--s-2);
   padding: var(--s-3);
   border-radius: var(--r-sm);
   background: var(--note);
-  color: #0f2537;
+  color: var(--note-ink);
   box-shadow: var(--shadow-raised);
   cursor: grab;
   animation: rise-in var(--dur-move) var(--ease-out);
@@ -1249,19 +1395,19 @@
   cursor: grabbing;
 }
 .note-card--pink {
-  --note: #ffd6e7;
+  --note: var(--blush);
 }
 .note-card--blue {
-  --note: #d6e9ff;
+  --note: var(--sky-pastel);
 }
 .note-card--green {
-  --note: #d4f5df;
+  --note: var(--mint);
 }
 .note-card--violet {
-  --note: #e6dcff;
+  --note: var(--lavender);
 }
 .note-card.is-voted {
-  box-shadow: 0 0 0 2px var(--beam), var(--shadow-raised);
+  box-shadow: 0 0 0 2px var(--charcoal), var(--shadow-raised);
 }
 .note-card__text {
   font-size: var(--fs-md);
@@ -1299,10 +1445,10 @@
   gap: var(--s-1);
   min-block-size: 1.75rem;
   padding: 0.1rem 0.5rem;
-  border: 1px solid rgb(15 37 55 / 0.2);
+  border: 1px solid color-mix(in srgb, var(--note-ink) 20%, transparent);
   border-radius: var(--r-pill);
   background: rgb(255 255 255 / 0.6);
-  color: #0f2537;
+  color: var(--note-ink);
   font-size: var(--fs-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1311,9 +1457,9 @@
   background: #ffffff;
 }
 .note-card__vote[aria-pressed='true'] {
-  border-color: var(--beam);
-  background: var(--beam);
-  color: var(--on-beam);
+  border-color: var(--charcoal);
+  background: var(--charcoal);
+  color: var(--on-charcoal);
 }
 .note-card__vote:focus-visible {
   outline: 2px solid var(--focus);
@@ -1348,17 +1494,17 @@
 }
 .note-card__tools .icon-btn:hover {
   background: rgb(255 255 255 / 0.6);
-  color: #0f2537;
+  color: var(--note-ink);
 }
 .note-card__move {
   flex: 1;
   min-inline-size: 0;
   min-block-size: 1.75rem;
   padding: 0 0.4rem;
-  border: 1px solid rgb(15 37 55 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--note-ink) 18%, transparent);
   border-radius: var(--r-xs);
   background: rgb(255 255 255 / 0.55);
-  color: #0f2537;
+  color: var(--note-ink);
   font-size: var(--fs-xs);
 }
 .note-card__edit {
@@ -1368,10 +1514,10 @@
 .note-card__edit textarea {
   inline-size: 100%;
   padding: var(--s-2);
-  border: 1px solid rgb(15 37 55 / 0.3);
+  border: 1px solid color-mix(in srgb, var(--note-ink) 30%, transparent);
   border-radius: var(--r-xs);
   background: #ffffff;
-  color: #0f2537;
+  color: var(--note-ink);
   resize: vertical;
 }
 .note-card__edit-actions {
@@ -1387,10 +1533,10 @@
 .add-note__input {
   inline-size: 100%;
   padding: var(--s-2) var(--s-3);
-  border: 1px dashed rgb(15 37 55 / 0.35);
+  border: 1px dashed color-mix(in srgb, var(--note-ink) 35%, transparent);
   border-radius: var(--r-sm);
   background: var(--note);
-  color: #0f2537;
+  color: var(--note-ink);
   resize: none;
   animation: none;
   cursor: text;
@@ -1418,21 +1564,21 @@
 .swatch {
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  border: 1px solid rgb(15 37 55 / 0.25);
+  border: 1px solid color-mix(in srgb, var(--note-ink) 25%, transparent);
   border-radius: 50%;
-  background: #fff3b0;
+  background: var(--butter);
 }
 .swatch--pink {
-  background: #ffd6e7;
+  background: var(--blush);
 }
 .swatch--blue {
-  background: #d6e9ff;
+  background: var(--sky-pastel);
 }
 .swatch--green {
-  background: #d4f5df;
+  background: var(--mint);
 }
 .swatch--violet {
-  background: #e6dcff;
+  background: var(--lavender);
 }
 .swatch[aria-checked='true'] {
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);

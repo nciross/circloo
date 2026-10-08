@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
-import { ArrowRight, ChevronRight, Heart, Plus } from 'lucide-react'
+import { ChevronRight, Crown, Heart, Plus, UsersRound } from 'lucide-react'
 import { useMe } from '../../api/hooks'
 import { useFavourites } from '../../api/sparks'
-import { useMyCircles, type CircleSummary } from '../../api/circles'
+import { useMyCircles, type CircleSummary, type Role } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
 import { ButtonLink } from '../../components/Button'
 import { FaceMark } from '../../components/Brand'
 import { Character } from '../../components/Character'
-import { Meter, type MeterTone } from '../../components/Meter'
 import { MoodScale } from '../../components/MoodScale'
 import type { Mood } from '../../components/MoodIcon'
 import { TourVideo } from '../../components/TourVideo'
 import { useDeckStore } from '../../stores/deck'
+import { keepPrompt } from '../../lib/circlePrompt'
 import { enterVariants, listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
 import { IcebreakerCard } from '../landing/IcebreakerCard'
 import '../../styles/app.css'
@@ -29,17 +29,22 @@ const readPhase = (): Mood | null => {
     return null
   }
 }
-const moodTone = (mood: Mood): MeterTone => (mood >= 4 ? 'ok' : mood === 3 ? 'mid' : 'low')
 
-/** The cast on the empty Home: three friends on the ground, waiting for the first circle. */
+/** The cast on the create card: three friends waiting for the next circle. */
 const CAST = ['fox', 'panda', 'owl'] as const
+/** Quick starts: each hands a line to the new-circle page, which fills the form from it ("Describe it"). */
+const QUICK = [
+  { id: 'family', tone: 'mint' },
+  { id: 'friends', tone: 'butter' },
+  { id: 'team', tone: 'lavender' },
+] as const
 
 /** Today's phase: the person's mood, one tap, kept on this device until the circle-wide check-in ships. */
 function TodayPhase({ mood, onPick }: { mood: Mood | null; onPick: (m: Mood) => void }) {
   const { t } = useTranslation()
   const word = mood ? t(`landing.feel.moods.${mood}`).toLocaleLowerCase() : null
   return (
-    <section className="feel" aria-labelledby="feel-title">
+    <section className="panel feel" aria-labelledby="feel-title">
       <h2 id="feel-title" className="feel__title">{t('home.feelTitle')}</h2>
       <MoodScale mood={mood} onPick={onPick} label={t('home.feelTitle')} />
       <p className="feel__weather" aria-live="polite">
@@ -50,100 +55,99 @@ function TodayPhase({ mood, onPick }: { mood: Mood | null; onPick: (m: Mood) => 
   )
 }
 
-/** The lead circle: the newest open one, as the view's dark card with its people as buddy rows and one meter. */
-function LeadCard({ circle, mood }: { circle: CircleSummary; mood: Mood | null }) {
+/**
+ * Start a circle, on a light mauve card (the founder preferred it to black): the title and one line, the charcoal pill,
+ * three quick starts that hand a line to the new-circle page, and the cast waiting at the end.
+ */
+function CreateCard({ first }: { first: boolean }) {
   const { t } = useTranslation()
   const reduced = useReducedMotion()
-  const here = circle.bodies.length
-  const word = mood ? t(`landing.feel.moods.${mood}`).toLocaleLowerCase() : null
   return (
-    <motion.section className="panel panel--dark lead" aria-labelledby="lead-title" variants={enterVariants(reduced)} initial="hidden" animate="show">
-      <div className="panel__head">
-        <h2 id="lead-title" className="panel__title">
-          <bdi>{circle.name}</bdi>
-          <span className="lozenge lozenge--success">{t('circles.status.live')}</span>
-        </h2>
-      </div>
-      <div className="panel__body">
-        <motion.ul className="lead__people" variants={listVariants(reduced, 0.05)} initial="hidden" animate="show">
-          {circle.bodies.map((b) => (
-            <motion.li key={b.id} className="buddy" variants={rowVariants(reduced)}>
-              <span className="buddy__char"><Character id={b.character} ring={b.ring} tag={false} /></span>
-              <span className="buddy__text">
-                <span className="buddy__name">
-                  <bdi>{b.name}</bdi>
-                  {b.me ? <span className="buddy__you"> ({t('circles.you')})</span> : null}
-                </span>
-                <span className="buddy__status">{b.me ? t(`circles.roles.${circle.role}`) : t('home.here')}</span>
-              </span>
-              <span className={`buddy__value is-${b.me && mood ? moodTone(mood) : 'ok'}`}>{b.me && word ? word : t('home.here')}</span>
-            </motion.li>
-          ))}
-        </motion.ul>
-        <div className="lead__meter">
-          <p className="lead__count">
-            <strong>{t('home.hereOf', { value: here, max: circle.people })}</strong>
-            <span>{t('home.hereToday')}</span>
-          </p>
-          <Meter value={here} max={circle.people} label={t('home.hereToday')} />
+    <motion.section className="panel create-card" aria-labelledby="create-title" variants={enterVariants(reduced)} initial="hidden" animate="show">
+      <div className="create-card__copy">
+        <h2 id="create-title" className="create-card__title">{t(first ? 'home.firstTitle' : 'home.create.title')}</h2>
+        <p className="create-card__lead">{t('home.create.lead')}</p>
+        <ButtonLink to="/app/circles/new" size="lg" className="create-card__go" icon={<Plus size={18} strokeWidth={2.5} />}>
+          {t(first ? 'circles.mine.create' : 'home.create.cta')}
+        </ButtonLink>
+        <div className="create-card__quick">
+          <p className="create-card__quick-label" id="quick-label">{t('home.create.quick')}</p>
+          <ul className="create-card__chips" aria-labelledby="quick-label">
+            {QUICK.map((q) => (
+              <li key={q.id}>
+                <Link
+                  to="/app/circles/new"
+                  className={`quick quick--${q.tone}`}
+                  onClick={() => keepPrompt(t(`home.create.lines.${q.id}`))}
+                  viewTransition
+                >
+                  {t(`home.create.kinds.${q.id}`)}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <div className="panel__actions">
-        <ButtonLink to={`/app/circles/${circle.id}`} size="lg" className="lead__open" icon={<ArrowRight className="flip-rtl" size={18} />}>
-          {t('home.openRoom')}
-        </ButtonLink>
+      <div className="create-card__cast" aria-hidden="true">
+        {CAST.map((c) => <span key={c} className="ground"><Character id={c} tag={false} /></span>)}
       </div>
     </motion.section>
   )
 }
 
-/** The other circles as outlined rows: name, what it is, who is in it, and the way in. */
-function CircleRows({ circles, title }: { circles: CircleSummary[]; title: string }) {
+/** One group of circles, by the role the person has in them: rows with the name, live or closed, people, the way in. */
+function CircleGroup({ role, circles }: { role: Role; circles: CircleSummary[] }) {
   const { t } = useTranslation()
   const reduced = useReducedMotion()
+  const Icon = role === 'animator' ? Crown : UsersRound
+  const id = `circles-${role}`
   return (
-    <section className="circles" aria-labelledby="circles-title">
+    <section className={`circles circles--${role}`} aria-labelledby={id}>
       <div className="circles__head">
-        <h2 id="circles-title" className="circles__title">{title}</h2>
+        <span className={`circles__icon circles__icon--${role}`} aria-hidden="true"><Icon size={18} strokeWidth={2.25} /></span>
+        <h3 id={id} className="circles__title">{t(`home.groups.${role}.title`)}</h3>
         <span className="circles__count" aria-hidden="true">{circles.length}</span>
       </div>
-      <motion.ul className="circle-list" variants={listVariants(reduced, 0.05)} initial="hidden" animate="show">
-        {circles.map((c) => {
-          const open = c.status === 'open'
-          return (
-            <motion.li key={c.id} className={`circle-list__item${open ? '' : ' is-closed'}`} variants={rowVariants(reduced)}>
-              <Link className="circle-list__link" to={`/app/circles/${c.id}`} viewTransition>
-                <span className="circle-list__text">
-                  <span className="circle-list__name"><bdi>{c.name}</bdi></span>
-                  <span className="circle-list__meta">
-                    {open ? null : <span className="lozenge">{t('circles.status.closed')}</span>}
-                    {t(`circles.roles.${c.role}`)} · {t('circles.people', { count: c.people })}
+      {circles.length === 0 ? (
+        <p className="circles__empty">{t(`home.groups.${role}.empty`)}</p>
+      ) : (
+        <motion.ul className="circle-list" variants={listVariants(reduced, 0.05)} initial="hidden" animate="show">
+          {circles.map((c) => {
+            const open = c.status === 'open'
+            return (
+              <motion.li key={c.id} className={`circle-list__item${open ? ' is-open' : ' is-closed'}`} variants={rowVariants(reduced)}>
+                <Link className="circle-list__link" to={`/app/circles/${c.id}`} viewTransition>
+                  <span className="circle-list__text">
+                    <span className="circle-list__name"><bdi>{c.name}</bdi></span>
+                    <span className="circle-list__meta">
+                      <span className={`lozenge${open ? ' lozenge--success' : ''}`}>{t(open ? 'circles.status.live' : 'circles.status.closed')}</span>
+                      {t('circles.people', { count: c.people })}
+                    </span>
                   </span>
-                </span>
-                <span className="stack" aria-hidden="true">
-                  {c.bodies.slice(0, 4).map((b) => <Character key={b.id} id={b.character} tag={false} />)}
-                </span>
-                <ChevronRight className="circle-list__go flip-rtl" size={20} aria-hidden="true" />
-              </Link>
-            </motion.li>
-          )
-        })}
-      </motion.ul>
+                  <span className="stack" aria-hidden="true">
+                    {c.bodies.slice(0, 4).map((b) => <Character key={b.id} id={b.character} tag={false} />)}
+                  </span>
+                  <ChevronRight className="circle-list__go flip-rtl" size={20} aria-hidden="true" />
+                </Link>
+              </motion.li>
+            )
+          })}
+        </motion.ul>
+      )}
     </section>
   )
 }
 
-/** Before the first circle: a headline, the cast on the ground, one pill. */
-function EmptyHome() {
+/** My circles: the ones the person runs and the ones they joined, side by side on wide screens. */
+function MyCircles({ circles }: { circles: CircleSummary[] }) {
   const { t } = useTranslation()
   return (
-    <section className="circles-empty" aria-labelledby="empty-title">
-      <div className="circles-empty__cast" aria-hidden="true">
-        {CAST.map((c) => <span key={c} className="ground"><Character id={c} tag={false} /></span>)}
+    <section className="mine" aria-labelledby="mine-title">
+      <h2 id="mine-title" className="mine__title">{t('circles.mine.title')}</h2>
+      <div className="mine__groups">
+        <CircleGroup role="animator" circles={circles.filter((c) => c.role === 'animator')} />
+        <CircleGroup role="participant" circles={circles.filter((c) => c.role === 'participant')} />
       </div>
-      <h2 id="empty-title" className="circles-empty__title">{t('home.firstTitle')}</h2>
-      <p className="circles-empty__body">{t('circles.mine.emptyBody')}</p>
-      <ButtonLink to="/app/circles/new" size="lg" icon={<Plus size={18} strokeWidth={2.5} />}>{t('circles.mine.create')}</ButtonLink>
     </section>
   )
 }
@@ -196,6 +200,11 @@ function KeepersSummary() {
   )
 }
 
+/**
+ * Home (#250, charcoal): two things lead. Start a circle, on a light mauve card, and My circles, split by
+ * the person's role: the circles they run and the circles they joined. Today's mood, the icebreaker of the day and
+ * the favourites sit beside, secondary.
+ */
 export default function Home() {
   const { t } = useTranslation()
   useDocumentTitle('common.home')
@@ -211,12 +220,11 @@ export default function Home() {
     }
   }
 
-  // Open circles first, the newest open one leads; closed ones follow, newest first.
+  // Open circles first, newest first; closed ones follow, newest first.
   const list = [...(circles.data ?? [])].sort(
     (a, b) => Number(b.status === 'open') - Number(a.status === 'open') || b.createdAt.localeCompare(a.createdAt),
   )
-  const lead = list[0]?.status === 'open' ? list[0] : null
-  const others = lead ? list.slice(1) : list
+  const live = list.find((c) => c.status === 'open')
   const empty = circles.isSuccess && list.length === 0
 
   return (
@@ -228,48 +236,37 @@ export default function Home() {
             <Trans i18nKey="home.greeting" values={{ name: me?.displayName ?? '' }} components={{ name: <bdi /> }} />
           </h1>
           <p className="page-header__lead">
-            {lead ? t('home.liveLine', { name: lead.name, count: lead.people }) : t('home.lead')}
+            {live ? t('home.liveLine', { name: live.name, count: live.people }) : t('home.lead')}
           </p>
         </div>
       </header>
 
       <div className="home-grid" data-perch="circles">
         <div className="home-grid__main">
+          <CreateCard first={empty} />
           {circles.isPending ? (
             <p className="panel__empty" role="status">{t('common.loading')}</p>
           ) : circles.isError ? (
             <p className="field__error panel__empty" role="alert">{t('common.errorGeneric')}</p>
           ) : empty ? (
-            <EmptyHome />
-          ) : (
-            <>
-              {lead ? <LeadCard circle={lead} mood={mood} /> : null}
-              {others.length > 0 ? <CircleRows circles={others} title={lead ? t('home.otherCircles') : t('circles.mine.title')} /> : null}
-            </>
-          )}
-          {empty ? (
-            <section className="panel" aria-labelledby="today-title">
-              <div className="panel__head">
-                <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
-              </div>
-              <div className="panel__body">
-                <IcebreakerCard bare />
-              </div>
+            <section className="circles-empty" aria-labelledby="empty-title">
+              <h2 id="empty-title" className="circles-empty__title">{t('circles.mine.emptyTitle')}</h2>
+              <p className="circles-empty__body">{t('circles.mine.emptyBody')}</p>
             </section>
-          ) : null}
+          ) : (
+            <MyCircles circles={list} />
+          )}
         </div>
         <aside className="home-grid__side">
           {empty ? <FirstTour /> : <TodayPhase mood={mood} onPick={pick} />}
-          {empty ? null : (
-            <section className="panel" aria-labelledby="today-title">
-              <div className="panel__head">
-                <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
-              </div>
-              <div className="panel__body">
-                <IcebreakerCard bare />
-              </div>
-            </section>
-          )}
+          <section className="panel" aria-labelledby="today-title">
+            <div className="panel__head">
+              <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
+            </div>
+            <div className="panel__body">
+              <IcebreakerCard bare />
+            </div>
+          </section>
           <KeepersSummary />
         </aside>
       </div>

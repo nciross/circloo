@@ -13,11 +13,11 @@ export function Squiggle({ className }: Props) {
   )
 }
 
-/** A four-point star. */
-export function Star({ className, tone = 'butter' }: Props & { tone?: 'butter' | 'peach' | 'mint' | 'sky-pastel' | 'lavender' }) {
+/** Three short strokes bursting out, the hand-drawn mark beside a face (never a sparkle: that reads as AI). */
+export function Burst({ className, tone = 'butter' }: Props & { tone?: 'butter' | 'peach' | 'mint' | 'sky-pastel' | 'lavender' }) {
   return (
     <svg className={['doodle', className].filter(Boolean).join(' ')} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M12 0 C 13 8 16 11 24 12 C 16 13 13 16 12 24 C 11 16 8 13 0 12 C 8 11 11 8 12 0 Z" fill={`var(--${tone})`} />
+      <path d="M4 9 L 9 11 M 12 3 L 12.5 8.5 M 20 6 L 16 10.5" fill="none" stroke={`var(--${tone})`} strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   )
 }

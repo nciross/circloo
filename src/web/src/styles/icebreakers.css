@@ -60,9 +60,9 @@
 .toolbar .switch:hover {
   border-color: var(--hairline-strong);
 }
-/* On: the picked-option look, the one blue. */
+/* On: the picked-option look, the violet. */
 .toolbar .switch[aria-pressed='true'] {
-  border-color: var(--beam);
+  border-color: var(--beam-text);
   background: var(--beam-subtle);
   color: var(--beam-text);
 }
@@ -294,9 +294,9 @@
   inline-size: 100%;
   block-size: 100%;
 }
-/* Whose turn it is: the picked-option blue. */
+/* Whose turn it is: the picked-option violet. */
 .swimmer.is-now {
-  border-color: var(--beam);
+  border-color: var(--beam-text);
   background: var(--beam-subtle);
   color: var(--beam-text);
 }

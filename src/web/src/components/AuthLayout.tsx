@@ -22,7 +22,7 @@ function Side({ end }: { end?: boolean }) {
         {cast.map((c) => <Character key={c} id={c} tag={false} className="auth__char" />)}
       </span>
       <svg className="auth__doodle" viewBox="0 0 24 24" focusable="false">
-        <path d="M12 0 C 13 8 16 11 24 12 C 16 13 13 16 12 24 C 11 16 8 13 0 12 C 8 11 11 8 12 0 Z" fill={end ? 'var(--peach)' : 'var(--butter)'} />
+        <path d="M4 9 L 9 11 M 12 3 L 12.5 8.5 M 20 6 L 16 10.5" fill="none" stroke={end ? 'var(--peach)' : 'var(--butter)'} strokeWidth="3.2" strokeLinecap="round" />
       </svg>
     </div>
   )
@@ -30,7 +30,7 @@ function Side({ end }: { end?: boolean }) {
 
 /**
  * Sign-in, first-run, join and not-found screens, in the public site's language (#250): the light mauve bar with the
- * site's wordmark, then one white card with 32px corners and soft pastel corners, flanked on wide screens by two still
+ * site's wordmark, then one flat white card with 32px corners, flanked on wide screens by two still
  * pictures of the cast. The card rises on the soft spring, on transform only (axe reads it on arrival).
  * `plain` drops the card for pages that are a headline and a character rather than a form (404).
  * `action` is the bar's one call at the end (the join page's Log in for visitors).

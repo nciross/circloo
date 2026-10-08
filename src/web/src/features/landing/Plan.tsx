@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { ArrowRight, Check } from 'lucide-react'
-import { Star } from './Doodles'
+import { Burst } from './Doodles'
 
 /**
  * The plan (#250): one plan, and it is free for now. No invented tiers, no prices to come: one card with what is
@@ -40,7 +40,7 @@ export function Plan() {
           <p className="plan__later">{t('landing.plan.later')}</p>
         </article>
         <p className="hand hand--pink plan__note">
-          <Star className="plan__star" tone="peach" />
+          <Burst className="plan__star" tone="peach" />
           <span>{t('landing.plan.note')}</span>
         </p>
       </div>

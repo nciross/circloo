@@ -93,13 +93,6 @@
   display: block;
   overflow: visible;
 }
-/* The charcoal pill: the site's primary (the bar, the join panel). */
-.btn--charcoal {
-  --btn-bg: var(--charcoal);
-  --btn-bg-hover: var(--charcoal-hover);
-  --btn-bg-active: var(--charcoal-hover);
-  --btn-fg: var(--on-charcoal);
-}
 
 /* ---------- The top bar: sticky, white, a hairline under it; the wordmark, the language menu and the Log in pill.
    Mobile first: one tight row on phones, roomier from 34rem. ---------- */
@@ -1913,13 +1906,7 @@
   padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
   border: 2px solid var(--hairline);
   border-radius: 32px;
-  background-color: var(--paper);
-  background-image:
-    radial-gradient(farthest-side at 100% 0, var(--mint), transparent),
-    radial-gradient(farthest-side at 0 100%, var(--lavender), transparent);
-  background-position: 100% 0, 0 100%;
-  background-size: 14rem 12rem, 14rem 12rem;
-  background-repeat: no-repeat;
+  background: var(--paper);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .plan__top {
@@ -2190,7 +2177,7 @@
   }
 }
 
-/* ---------- Footer: one charcoal panel inset by the page gutter ---------- */
+/* ---------- Footer: one light mauve panel inset by the page gutter (no black backgrounds) ---------- */
 .footer {
   max-inline-size: var(--site-max);
   margin-inline: auto;
@@ -2201,8 +2188,8 @@
   gap: var(--s-7);
   padding: clamp(1.5rem, 1rem + 2.5vw, 3rem);
   border-radius: 32px;
-  background: var(--charcoal);
-  color: var(--on-charcoal);
+  background: var(--mauve);
+  color: var(--ink);
 }
 .footer__top {
   display: flex;
@@ -2211,7 +2198,7 @@
   justify-content: space-between;
   gap: var(--s-4) var(--s-6);
   padding-block-end: var(--s-6);
-  border-block-end: 1px solid color-mix(in srgb, var(--on-charcoal) 18%, transparent);
+  border-block-end: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
 }
 .footer__brand {
   display: flex;
@@ -2222,7 +2209,7 @@
   font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
 }
 .footer .wordmark {
-  color: var(--on-charcoal);
+  color: var(--ink);
 }
 .footer__tag {
   font-size: var(--fs-sm);
@@ -2237,7 +2224,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  color: var(--on-charcoal);
+  color: var(--ink);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.2em;
@@ -2266,7 +2253,7 @@
 }
 .footer__list a:focus-visible,
 .footer__start:focus-visible {
-  outline: 2px solid var(--on-charcoal);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
   border-radius: var(--r-xs);
 }
@@ -2276,7 +2263,7 @@
   align-items: center;
   gap: var(--s-3) var(--s-6);
   padding-block-start: var(--s-5);
-  border-block-start: 1px solid color-mix(in srgb, var(--on-charcoal) 18%, transparent);
+  border-block-start: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
   font-size: var(--fs-xs);
 }
 .footer__bar p {
@@ -2327,4 +2314,122 @@
   .motion-toggle {
     transition: none;
   }
+}
+
+/* ---------- Log in in the hero: the board steps aside and the sign-in form takes its place ---------- */
+.hero__stage {
+  inline-size: 100%;
+}
+.hero__login {
+  position: relative;
+  display: grid;
+  gap: var(--s-4);
+  inline-size: min(28rem, 100%);
+  padding: var(--s-5);
+  border: 2px solid var(--hairline);
+  border-radius: 32px;
+  background: var(--paper);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+  text-align: start;
+}
+.hero__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: start;
+  min-block-size: 2.25rem;
+  margin-inline-start: calc(-1 * var(--s-2));
+  padding: 0.2rem 0.75rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--violet-link);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.hero__back:hover {
+  background: var(--paper-sunken);
+}
+.hero__back:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* The form's fields are the site's pills, as on the sign-in page. */
+.hero__login .field input {
+  min-block-size: 3rem;
+  padding-inline: 1.1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+}
+.hero__login .field input:hover {
+  border-color: var(--ink);
+}
+.hero__login .field input:focus-visible {
+  border-color: var(--focus);
+  outline-offset: 2px;
+}
+.hero__login .authform__title {
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.125rem);
+}
+@media (min-width: 30rem) {
+  .hero__login {
+    padding: var(--s-6) var(--s-7) var(--s-7);
+  }
+}
+/* The swap, choreographed while motion runs: the board tips back in perspective, the form springs in, its title,
+   field and button rise one after another, and the four pictures hop once toward it. Transform only; with Pause or
+   reduced motion the form is simply there. */
+.hero__copy {
+  perspective: 1200px;
+}
+.site[data-motion='on']:not(.is-still) {
+  .hero__login > *,
+  .hero__login .authform > * {
+    animation: login-rise 520ms var(--ease-settle) both;
+  }
+  .hero__login .authform > :nth-child(1) {
+    animation-delay: 90ms;
+  }
+  .hero__login .authform > :nth-child(2) {
+    animation-delay: 150ms;
+  }
+  .hero__login .authform > :nth-child(3) {
+    animation-delay: 210ms;
+  }
+  .hero__login .authform > :nth-child(4) {
+    animation-delay: 270ms;
+  }
+  .hero__login .authform > :nth-child(n + 5) {
+    animation-delay: 330ms;
+  }
+  .hero.is-login .blob__cast {
+    animation: login-hop 700ms var(--ease-settle) both;
+  }
+  .hero.is-login .blob--b .blob__cast,
+  .hero.is-login .blob--d .blob__cast {
+    animation-delay: 120ms;
+  }
+}
+@keyframes login-rise {
+  from {
+    translate: 0 14px;
+  }
+}
+@keyframes login-hop {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  35% {
+    translate: 0 -16px;
+  }
+  65% {
+    translate: 0 2px;
+  }
+}
+/* Signing in, the page is the form: the hero fills the screen under the bar. */
+.hero.is-login {
+  min-block-size: calc(100dvh - 4.5rem);
 }

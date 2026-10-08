@@ -36,7 +36,7 @@ function Column({ group, links }: { group: string; links: FooterLink[] }) {
   )
 }
 
-/** The footer: one charcoal panel inset by the page gutter, the brand line, three columns and the legal row. */
+/** The footer: one light mauve panel inset by the page gutter, the brand line, three columns and the legal row. */
 export function Footer() {
   const { t } = useTranslation()
   return (

@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 import { Heart, MessageCircleQuestion } from 'lucide-react'
 import { Character } from '../../components/Character'
 import type { CharacterId } from '../../components/characters'
-import { Loop, MusicNote, Squiggle, Star } from './Doodles'
+import { Loop, MusicNote, Squiggle, Burst } from './Doodles'
 
 /* Organic blob shapes in a 236 × 196 box, all drawn clockwise so the clip union with the rectangle above works. */
 const SHAPES = {
@@ -86,7 +86,7 @@ export function Blobs() {
       </div>
       <div className="hero__side hero__side--end" aria-hidden="true">
         <Blob spec={END[0]!} index={2} />
-        <Star className="hero__doodle hero__doodle--star" />
+        <Burst className="hero__doodle hero__doodle--star" />
         <Blob spec={END[1]!} index={3} />
         <Loop className="hero__doodle hero__doodle--loop" />
       </div>

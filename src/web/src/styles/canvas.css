@@ -116,8 +116,7 @@
 /* Notes: paper colours fixed in both themes (a note is a thing on the board, not chrome), a hand-placed tilt, centred on
    their point, a soft shadow. */
 .canvas-note {
-  --note: #fff3b0;
-  --note-ink: #17293a;
+  --note: var(--butter);
   --w: 10rem;
   position: absolute;
   top: 0;
@@ -128,16 +127,16 @@
   animation: canvas-drop var(--dur-move) var(--ease-out);
 }
 .canvas-note--pink {
-  --note: #ffd6e7;
+  --note: var(--blush);
 }
 .canvas-note--blue {
-  --note: #d6e9ff;
+  --note: var(--sky-pastel);
 }
 .canvas-note--green {
-  --note: #d4f5df;
+  --note: var(--mint);
 }
 .canvas-note--violet {
-  --note: #e6dcff;
+  --note: var(--lavender);
 }
 .canvas-note--white {
   --note: #ffffff;
@@ -247,7 +246,6 @@
 
 /* Writing a note in place. */
 .canvas-draft {
-  --note-ink: #17293a;
   position: absolute;
   top: 0;
   left: 0;
@@ -327,12 +325,38 @@
 .canvas-cursor.is-idle {
   opacity: 0;
 }
+/* Each friend's pointer is a name pill in their own colour, like the board on the public site: one of the five body
+   colours or charcoal, picked from the member id (Canvas.tsx sets canvas-cursor--c0…c5). White text, 4.5:1 or more. */
+.canvas-cursor {
+  --cursor: var(--charcoal);
+  --on-cursor: var(--on-charcoal);
+}
+.canvas-cursor--c0 {
+  --cursor: var(--body-1);
+  --on-cursor: var(--on-body);
+}
+.canvas-cursor--c1 {
+  --cursor: var(--body-2);
+  --on-cursor: var(--on-body);
+}
+.canvas-cursor--c2 {
+  --cursor: var(--body-3);
+  --on-cursor: var(--on-body);
+}
+.canvas-cursor--c3 {
+  --cursor: var(--body-4);
+  --on-cursor: var(--on-body);
+}
+.canvas-cursor--c4 {
+  --cursor: var(--body-5);
+  --on-cursor: var(--on-body);
+}
 .canvas-cursor__arrow {
   flex: none;
   inline-size: 1.15rem;
   block-size: 1.15rem;
-  fill: var(--card);
-  stroke: var(--on-card);
+  fill: var(--cursor);
+  stroke: var(--paper);
   stroke-width: 1.4;
   stroke-linejoin: round;
 }
@@ -345,18 +369,18 @@
   margin-inline-start: -0.2rem;
   padding: 3px 0.7rem 3px 3px;
   border-radius: var(--r-pill);
-  background: var(--card);
-  color: var(--on-card);
+  background: var(--cursor);
+  color: var(--on-cursor);
   font-size: var(--fs-xs);
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: var(--shadow-overlay);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
 }
 .canvas-cursor__char {
   inline-size: 1.375rem;
   block-size: 1.375rem;
   border-radius: 50%;
-  background: var(--on-card);
+  background: var(--on-field);
 }
 .canvas-cursor.is-moving .canvas-cursor__char {
   animation: cursor-wiggle 280ms ease-in-out infinite alternate;
@@ -643,7 +667,6 @@ button.presence__person:focus-visible {
 
 @keyframes canvas-drop {
   from {
-    opacity: 0;
     scale: 1.1;
   }
 }
@@ -748,9 +771,9 @@ button.presence__person:focus-visible {
     0 10px 24px -12px rgb(0 0 0 / 0.3);
 }
 .room__centre .board .note-card__vote[aria-pressed='true'] {
-  border-color: #0f2537;
-  background: #0f2537;
-  color: #ffffff;
+  border-color: var(--note-ink);
+  background: var(--note-ink);
+  color: var(--on-field);
 }
 .room__centre .board .board__col .add-note__input {
   border-radius: var(--r-md);

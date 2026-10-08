@@ -1,7 +1,8 @@
-/* circloo · the buddy list (#250). A white canvas, near-black ink, exactly one colour (cerise), and one cerise card per view
-   as the second read. Status colours (ok, mid, low) live only inside that card, as meters and values. The public
-   site's hero is a cobalt field with a yellow sun for its one button. Violet stays AI, coral stays the face's mouth,
-   the five skies stay the moods. Every text pair is AA or better in both themes.
+/* circloo · the charcoal app (#250). A white canvas, near-black ink, charcoal pills for every primary action, purple
+   text links and focus, pastels (mint, butter, peach, sky, lavender) only for chips, covers and accents, and one
+   charcoal card per view as the second read. Status colours (ok mint, mid butter, low pink) live only inside that
+   card. Cerise stays as a small accent (the pink tokens). Violet AI, the face's coral mouth and the five skies keep
+   their jobs. Every text pair is AA or better in both themes.
    The older names (--bg, --surface, --primary, --text, --brass…) stay as aliases so every stylesheet keeps working. */
 :root {
   color-scheme: light;
@@ -21,36 +22,39 @@
   --ink-faint: #6b6b6b; /* 5.3:1 on paper, 4.7:1 on paper-sunken */
   --on-ink: #ffffff;
 
-  /* The one colour, cerise: links, the lead line under a title, the picked option, primary pills */
+  /* Cerise: now a small accent only (a dot, a sticker, a heart). Links, the lead line and focus are violet; the
+     picked option is a light violet fill with violet text; primary pills are charcoal (--accent below). */
   --beam: #d6276b; /* white text 4.8:1 */
   --beam-hover: #c01f5e;
   --beam-pressed: #a81a52;
-  --beam-subtle: #fde8ef;
-  --beam-subtle-hover: #fbd3e0;
-  --beam-text: #b81b58; /* 6.2:1 */
+  --beam-subtle: #f1ebfd;
+  --beam-subtle-hover: #e6dcfb;
+  --beam-text: #6d28d9; /* the violet of links and the lead line: 7.1:1 on white, 6:1 on --beam-subtle */
   --on-beam: #ffffff;
-  --accent: var(--beam);
-  --accent-hover: var(--beam-hover);
-  --accent-pressed: var(--beam-pressed);
-  --on-accent: var(--on-beam);
-  --focus: #d6276b;
+  /* Primary actions: the charcoal pill (the public site's pill, now the whole app's). */
+  --accent: var(--charcoal);
+  --accent-hover: var(--charcoal-hover);
+  --accent-pressed: #15151a;
+  --on-accent: var(--on-charcoal);
+  --focus: #6d28d9;
 
-  /* The cerise card: the one focal object of a view. Its own small palette. */
-  --card: #9c1242;
-  --card-line: #b8305f;
-  --card-sunken: #850d37;
-  --card-hover: #a9174b;
-  --on-card: #ffffff; /* 8.1:1 */
-  --on-card-soft: #ffe6ee; /* 6.9:1 */
-  --on-card-faint: #ffd5e2; /* 6:1 */
-  --seg-empty: #7a0d33;
-  --ok: #ffd23f; /* healthy, here, done: 5.7:1 */
-  --mid: #ffffff; /* partial, a second source */
-  --low: #ffb3c8; /* empty, away, late: 4:1 */
-  --shadow-card: 0 40px 80px -30px rgb(156 18 66 / 0.55), 0 18px 36px -24px rgb(156 18 66 / 0.45);
+  /* The focal card: the one object a view leads with, on a light mauve (the founder ruled out black backgrounds).
+     Dark ink on it; the status colours are the deep green, amber and berry so they read on the light ground. */
+  --card: #ece2f6;
+  --card-line: #d6c6e8;
+  --card-sunken: #e1d3f0;
+  --card-hover: #e5d9f2;
+  --on-card: #16161b; /* 15:1 */
+  --on-card-soft: #3a3a43; /* 9.6:1 */
+  --on-card-faint: #55555f; /* 6.2:1 */
+  --seg-empty: #d3c2e6;
+  --ok: #126b4f; /* healthy, here, done: 5.3:1 */
+  --mid: #7a5800; /* partial, a second source: 5.2:1 */
+  --low: #a3123f; /* empty, away, late: 6.4:1 */
+  --shadow-card: 0 1px 2px rgb(40 20 60 / 0.06), 0 12px 32px -18px rgb(40 20 60 / 0.25);
 
-  /* The public site (third reference): charcoal pills, purple links, hot pink sparingly, pastels only in doodles,
-     chips and gradient corners; a light mauve bar on the sign-in pages. */
+  /* The charcoal family (the public site first, now the app): pills, purple links, hot pink sparingly, pastels only in
+     doodles, chips and covers (never as gradients); a light mauve bar on the sign-in pages. */
   --charcoal: #2e2e36;
   --charcoal-hover: #1f1f25;
   --on-charcoal: #ffffff;
@@ -62,6 +66,7 @@
   --peach: #f6a46b;
   --butter: #f7d873;
   --lavender: #b39ddb;
+  --blush: #ffc9db; /* the pastel pink of notes and chips */
   --mauve: #e9dcf3;
   --mauve-deep: #d6c3ea;
 
@@ -113,8 +118,8 @@
   --on-danger: #ffffff;
   --warning-subtle: #fff4cc;
   --warning-text: #6e4a00;
-  --info-subtle: #e8effe;
-  --info-text: #1d5be3;
+  --info-subtle: #f1ebfd;
+  --info-text: #5b21b6;
   --neutral-subtle: #f4f4f4;
   --neutral-text: #5b5f66;
 
@@ -174,7 +179,7 @@
   --r-ring: 999px;
   --r-pill: 999px;
 
-  --topbar-h: 3.75rem;
+  --topbar-h: 4rem;
   --sidebar-w: 15.5rem;
   --content-max: 76rem;
   --site-max: 78rem;
@@ -235,53 +240,58 @@
   --on-dome-soft: var(--on-card-soft);
 }
 
-/* Night: the canvas goes near-black and the focal card goes light, so the figure keeps its contrast.
-   Blue lightens and its text flips to dark. */
+/* Night: a near-black charcoal canvas; the focal card is a lifted charcoal with a hairline; the pill turns light. */
 :root[data-theme='dark'] {
   color-scheme: dark;
+  /* Night (#250, charcoal): a near-black charcoal canvas, light ink, the charcoal pill turns light, links and
+     focus a light violet; the focal card is a lifted charcoal with a hairline, the pastels unchanged. */
   --charcoal: #f1eef5;
   --charcoal-hover: #ffffff;
-  --on-charcoal: #160810;
+  --on-charcoal: #131317;
   --pink: #ff6fa3;
   --violet-link: #c4b5fd;
-  --meta: #b8b3c2;
+  --meta: #b3b0bc;
   --mauve: #2a1f35;
   --mauve-deep: #3a2b48;
-  --ground: #160810;
-  --paper: #1d0b14;
-  --paper-sunken: #26101b;
-  --paper-hover: #2e1421;
-  --paper-pressed: #381928;
-  --hairline: #36182a;
-  --hairline-strong: #4f2540;
-  --ink: #fff5f8;
-  --ink-soft: #d9b8c6;
-  --ink-faint: #b58fa1;
-  --on-ink: #160810;
+  --ground: #131317;
+  --paper: #18181d;
+  --paper-sunken: #1f1f25;
+  --paper-hover: #26262d;
+  --paper-pressed: #2e2e36;
+  --hairline: #2c2c34;
+  --hairline-strong: #4a4a55;
+  --ink: #f4f3f7;
+  --ink-soft: #c9c6d1;
+  --ink-faint: #a5a2af;
+  --on-ink: #131317;
   --beam: #ff6fa3;
   --beam-hover: #ff8ab5;
   --beam-pressed: #ffa3c5;
-  --beam-subtle: #3d1024;
-  --beam-subtle-hover: #4f1630;
-  --beam-text: #ff9ec0;
+  --beam-subtle: #2a2140;
+  --beam-subtle-hover: #352a50;
+  --beam-text: #c4b5fd;
   --on-beam: #1a0610;
-  --focus: #ff9ec0;
-  --card: #ffe6ee;
-  --card-line: #f3c6d4;
-  --card-sunken: #fbd3e0;
-  --card-hover: #f7cbd9;
-  --on-card: #2a0613;
-  --on-card-soft: #5c1a33;
-  --on-card-faint: #7a2b47;
-  --seg-empty: #efb9ca;
-  --ok: #8a6400;
-  --mid: #9c1242;
-  --low: #5c1a33;
-  --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --accent: var(--charcoal);
+  --accent-hover: var(--charcoal-hover);
+  --accent-pressed: #dcd8e3;
+  --on-accent: var(--on-charcoal);
+  --focus: #c4b5fd;
+  --card: #2b2238;
+  --card-line: #43365a;
+  --card-sunken: #221a2e;
+  --card-hover: #34293f;
+  --on-card: #f6f1fb;
+  --on-card-soft: #ddd3ea;
+  --on-card-faint: #bfb2d1;
+  --seg-empty: #43365a;
+  --ok: #bfe8d9;
+  --mid: #f7d873;
+  --low: #ffb3c8;
+  --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.07);
   --field: #2b5cf0;
   --field-deep: #1e45c4;
-  --brass: #f5f5f5;
-  --brass-faint: #2a2a2a;
+  --brass: #f4f3f7;
+  --brass-faint: #2c2c34;
   --ai: #9f8fef;
   --ai-hover: #b3a6f4;
   --ai-subtle: #201b3a;
@@ -306,17 +316,17 @@
   --on-danger: #111111;
   --warning-subtle: #3a2d0a;
   --warning-text: #f0c75e;
-  --info-subtle: #3d1024;
-  --info-text: #ff9ec0;
-  --neutral-subtle: #26101b;
-  --neutral-text: #d9b8c6;
+  --info-subtle: #2a2140;
+  --info-text: #c4b5fd;
+  --neutral-subtle: #1f1f25;
+  --neutral-text: #c9c6d1;
   --body-1: #60a5fa;
   --body-2: #fb923c;
   --body-3: #4ade80;
   --body-4: #f472b6;
   --body-5: #22d3ee;
-  --on-body: #160810;
-  --brand-ink: #fff5f8;
+  --on-body: #131317;
+  --brand-ink: #f4f3f7;
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
   --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
 }
@@ -324,49 +334,55 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     color-scheme: dark;
+    /* Night (#250, charcoal): a near-black charcoal canvas, light ink, the charcoal pill turns light, links and
+       focus a light violet; the focal card is a lifted charcoal with a hairline, the pastels unchanged. */
     --charcoal: #f1eef5;
     --charcoal-hover: #ffffff;
-    --on-charcoal: #160810;
+    --on-charcoal: #131317;
     --pink: #ff6fa3;
     --violet-link: #c4b5fd;
-    --meta: #b8b3c2;
+    --meta: #b3b0bc;
     --mauve: #2a1f35;
     --mauve-deep: #3a2b48;
-    --ground: #160810;
-    --paper: #1d0b14;
-    --paper-sunken: #26101b;
-    --paper-hover: #2e1421;
-    --paper-pressed: #381928;
-    --hairline: #36182a;
-    --hairline-strong: #4f2540;
-    --ink: #fff5f8;
-    --ink-soft: #d9b8c6;
-    --ink-faint: #b58fa1;
-    --on-ink: #160810;
+    --ground: #131317;
+    --paper: #18181d;
+    --paper-sunken: #1f1f25;
+    --paper-hover: #26262d;
+    --paper-pressed: #2e2e36;
+    --hairline: #2c2c34;
+    --hairline-strong: #4a4a55;
+    --ink: #f4f3f7;
+    --ink-soft: #c9c6d1;
+    --ink-faint: #a5a2af;
+    --on-ink: #131317;
     --beam: #ff6fa3;
     --beam-hover: #ff8ab5;
     --beam-pressed: #ffa3c5;
-    --beam-subtle: #3d1024;
-    --beam-subtle-hover: #4f1630;
-    --beam-text: #ff9ec0;
+    --beam-subtle: #2a2140;
+    --beam-subtle-hover: #352a50;
+    --beam-text: #c4b5fd;
     --on-beam: #1a0610;
-    --focus: #ff9ec0;
-    --card: #ffe6ee;
-    --card-line: #f3c6d4;
-    --card-sunken: #fbd3e0;
-    --card-hover: #f7cbd9;
-    --on-card: #2a0613;
-    --on-card-soft: #5c1a33;
-    --on-card-faint: #7a2b47;
-    --seg-empty: #efb9ca;
-    --ok: #8a6400;
-    --mid: #9c1242;
-    --low: #5c1a33;
-    --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --accent: var(--charcoal);
+    --accent-hover: var(--charcoal-hover);
+    --accent-pressed: #dcd8e3;
+    --on-accent: var(--on-charcoal);
+    --focus: #c4b5fd;
+    --card: #2b2238;
+    --card-line: #43365a;
+    --card-sunken: #221a2e;
+    --card-hover: #34293f;
+    --on-card: #f6f1fb;
+    --on-card-soft: #ddd3ea;
+    --on-card-faint: #bfb2d1;
+    --seg-empty: #43365a;
+    --ok: #bfe8d9;
+    --mid: #f7d873;
+    --low: #ffb3c8;
+    --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.07);
     --field: #2b5cf0;
     --field-deep: #1e45c4;
-    --brass: #f5f5f5;
-    --brass-faint: #2a2a2a;
+    --brass: #f4f3f7;
+    --brass-faint: #2c2c34;
     --ai: #9f8fef;
     --ai-hover: #b3a6f4;
     --ai-subtle: #201b3a;
@@ -391,17 +407,17 @@
     --on-danger: #111111;
     --warning-subtle: #3a2d0a;
     --warning-text: #f0c75e;
-    --info-subtle: #3d1024;
-    --info-text: #ff9ec0;
-    --neutral-subtle: #26101b;
-    --neutral-text: #d9b8c6;
+    --info-subtle: #2a2140;
+    --info-text: #c4b5fd;
+    --neutral-subtle: #1f1f25;
+    --neutral-text: #c9c6d1;
     --body-1: #60a5fa;
     --body-2: #fb923c;
     --body-3: #4ade80;
     --body-4: #f472b6;
     --body-5: #22d3ee;
-    --on-body: #160810;
-    --brand-ink: #fff5f8;
+    --on-body: #131317;
+    --brand-ink: #f4f3f7;
     --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
     --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
   }

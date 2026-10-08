@@ -457,13 +457,13 @@
   align-content: start;
   gap: var(--s-4);
 }
-/* The whiteboard leads: an outlined panel with the one ink pill. */
+/* The whiteboard leads: an outlined panel with the one charcoal pill. Phones first: tighter padding, roomier from 60rem. */
 .dock__paper {
   align-content: center;
   justify-items: start;
   gap: var(--s-3);
   min-block-size: clamp(14rem, 36dvh, 22rem);
-  padding: var(--s-7);
+  padding: var(--s-5);
 }
 .dock__title {
   margin: 0;
@@ -488,7 +488,7 @@
 .dock__paper .field__error {
   margin: 0;
 }
-/* The other rounds as rows: the icon in ink, the title heavy on one line, its category as a lozenge, Start at the end. */
+/* The other rounds as rows: the icon on its kind's pastel, the title heavy on one line, the kind as a lozenge, Start at the end. */
 .dock .activities__grid {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -508,25 +508,44 @@
 .dock .activity:last-child {
   border-block-end: 0;
 }
+/* The icon on a pastel chip and the kind on the same pastel, as on the site's round covers: one tone per kind. */
+.dock .activity {
+  --kind: var(--mint);
+}
+.dock .activity--energizers {
+  --kind: var(--butter);
+}
+.dock .activity--retro {
+  --kind: var(--lavender);
+}
+.dock .activity--decide {
+  --kind: var(--sky-pastel);
+}
+.dock .activity--present {
+  --kind: var(--peach);
+}
 .dock .activity__icon {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink);
+  display: grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--r-sm);
+  background: var(--kind);
+  color: var(--on-sun);
 }
 .dock .activity__icon svg {
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
 }
 .dock .activity__copy {
   display: grid;
-  grid-template-columns: minmax(0, auto) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    'title cat'
-    'body body';
+    'title'
+    'cat';
   align-items: center;
   justify-content: start;
+  justify-items: start;
   gap: var(--s-1) var(--s-3);
 }
 .dock .activity__title {
@@ -539,6 +558,7 @@
 }
 .dock .activity__body {
   grid-area: body;
+  display: none;
   overflow: hidden;
   color: var(--ink-soft);
   text-overflow: ellipsis;
@@ -550,8 +570,8 @@
   align-items: center;
   padding: 0 0.6rem;
   border-radius: var(--r-pill);
-  background: var(--neutral-subtle);
-  color: var(--neutral-text);
+  background: var(--kind);
+  color: var(--on-sun);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -570,21 +590,22 @@
   padding-inline: 1.2rem;
   font-size: var(--fs-md);
 }
-@media (max-width: 59.99rem) {
-  .dock__paper {
-    padding: var(--s-5);
-  }
-}
-@media (max-width: 36rem) {
+/* From 36rem the kind sits beside the title and the one-line description returns; from 60rem the panel breathes. */
+@media (min-width: 36rem) {
   .dock .activity__copy {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, auto) auto;
     grid-template-areas:
-      'title'
-      'cat';
-    justify-items: start;
+      'title cat'
+      'body body';
+    justify-items: stretch;
   }
   .dock .activity__body {
-    display: none;
+    display: block;
+  }
+}
+@media (min-width: 60rem) {
+  .dock__paper {
+    padding: var(--s-7);
   }
 }
 
@@ -829,11 +850,9 @@
 }
 @keyframes round-open {
   from {
-    opacity: 0.4;
     clip-path: circle(0 at var(--reveal-x, 1.5rem) var(--reveal-y, -1rem));
   }
   to {
-    opacity: 1;
     clip-path: circle(160% at var(--reveal-x, 1.5rem) var(--reveal-y, -1rem));
   }
 }
@@ -848,16 +867,16 @@
   }
 }
 @keyframes side-fade {
-  from { opacity: 0; }
+  from { translate: 0 6px; }
 }
 @keyframes side-in {
-  from { opacity: 0; translate: calc(8px * var(--flow, 1)) 0; }
+  from { translate: calc(8px * var(--flow, 1)) 0; }
 }
 @keyframes sheet-in {
-  from { opacity: 0; translate: 0 8px; }
+  from { translate: 0 8px; }
 }
 @keyframes round-in {
-  from { opacity: 0; translate: calc(16px * var(--flow, 1)) 0; }
+  from { translate: calc(16px * var(--flow, 1)) 0; }
 }
 @keyframes dot-pulse {
   from { opacity: 0.6; transform: scale(1); }

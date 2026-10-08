@@ -1,4 +1,4 @@
-/* Presenting in a circle (spec 006 US3–US6), in the buddy-list language (#250): a white slide stage with an ink
+/* Presenting in a circle (spec 006 US3–US6), in the charcoal language (#250): a white slide stage with an ink
    outline, the presenter's notes as a plain column, the picker as rows, the audience's phone answering with big outlined
    pills, and the results on the view's one dark card with a meter per option. Logical properties only; deck pictures are
    never mirrored in RTL. */
@@ -22,25 +22,36 @@
   --on-ink: #0a0a0b;
   --brass: #fafafa;
   --brass-faint: #24272e;
-  --beam: #6b8cff;
-  --beam-hover: #87a2ff;
-  --beam-pressed: #a3b8ff;
-  --beam-subtle: #1a2446;
-  --beam-subtle-hover: #223060;
-  --beam-text: #9db0ff;
-  --on-beam: #0a0a0b;
-  --focus: #8fa6ff;
-  --card: #161616;
-  --card-line: #2a2a2a;
-  --card-sunken: #222222;
-  --card-hover: #262626;
-  --on-card: #ffffff;
-  --on-card-soft: #cfcfcf;
-  --on-card-faint: #9a9a9a;
-  --seg-empty: #3c3c3c;
-  --ok: #2fd6c3;
-  --mid: #f4623a;
-  --low: #e5484d;
+  /* The charcoal app at night (#250): a light pill, violet links and focus, cerise only as an accent, the card a
+     lifted charcoal with the pastel status colours. */
+  --charcoal: #f1eef5;
+  --charcoal-hover: #ffffff;
+  --on-charcoal: #131317;
+  --accent: var(--charcoal);
+  --accent-hover: var(--charcoal-hover);
+  --accent-pressed: #dcd8e3;
+  --on-accent: var(--on-charcoal);
+  --violet-link: #c4b5fd;
+  --meta: #b3b0bc;
+  --beam: #ff6fa3;
+  --beam-hover: #ff8ab5;
+  --beam-pressed: #ffa3c5;
+  --beam-subtle: #2a2140;
+  --beam-subtle-hover: #352a50;
+  --beam-text: #c4b5fd;
+  --on-beam: #1a0610;
+  --focus: #c4b5fd;
+  --card: #26262e;
+  --card-line: #3a3a44;
+  --card-sunken: #1d1d23;
+  --card-hover: #30303a;
+  --on-card: #f4f3f7;
+  --on-card-soft: #dcd9e3;
+  --on-card-faint: #bab6c4;
+  --seg-empty: #3a3a44;
+  --ok: #bfe8d9;
+  --mid: #f7d873;
+  --low: #ffb3c8;
   --sky-stormy: #2a3450;
   --sky-foggy: #7f8ca6;
   --sky-cloudy: #8e9bb2;
@@ -59,8 +70,8 @@
   --on-danger: #0a0a0b;
   --warning-subtle: #3a2d0a;
   --warning-text: #f0c75e;
-  --info-subtle: #1a2446;
-  --info-text: #9db0ff;
+  --info-subtle: #2a2140;
+  --info-text: #c4b5fd;
   --neutral-subtle: #1b2639;
   --neutral-text: #b3b8c2;
   --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(250 250 250 / 0.18);
@@ -77,13 +88,13 @@
   --text-subtle: var(--ink-soft);
   --text-subtlest: var(--ink-faint);
   --text-inverse: var(--on-ink);
-  --primary: var(--beam);
-  --primary-hover: var(--beam-hover);
-  --primary-pressed: var(--beam-pressed);
+  --primary: var(--accent);
+  --primary-hover: var(--accent-hover);
+  --primary-pressed: var(--accent-pressed);
   --primary-subtle: var(--beam-subtle);
   --primary-subtle-hover: var(--beam-subtle-hover);
   --primary-text: var(--beam-text);
-  --on-primary: var(--on-beam);
+  --on-primary: var(--on-accent);
   --success: var(--live);
   --success-subtle: var(--live-subtle);
   --success-text: var(--live-text);

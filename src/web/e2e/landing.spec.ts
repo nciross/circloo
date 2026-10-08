@@ -4,7 +4,7 @@ import { codeFor, localeOf, pickLanguage } from './helpers'
 
 const axe = async (page: import('@playwright/test').Page) => {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
-  expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([])
+  expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} ${v.nodes.map((n) => n.target.join(' ') + ' ' + (n.any[0]?.message ?? '').slice(0, 90)).join(' || ')}`)).toEqual([])
 }
 
 test('the landing shows a live board, the story, the jobs, the free plan and the FAQ (#250)', async ({ page }, info) => {
@@ -29,13 +29,14 @@ test('the landing shows a live board, the story, the jobs, the free plan and the
   await expect(video).toHaveAttribute('poster', `/video/story/pirikoo-${locale}.jpg`)
   await expect(page.locator('.film__pick[aria-current="true"]')).toHaveCount(1)
 
-  // Looping motion has one visible pause for the whole page (WCAG 2.2.2).
-  const pause = page.locator('.hero__motion .motion-toggle')
-  await expect(pause).toHaveCount(1)
-  await expect(page.locator('.site')).toHaveAttribute('data-motion', 'on')
-  await pause.click()
-  await expect(pause).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.locator('.site')).toHaveClass(/is-still/)
+  // Log in swaps the board for the sign-in form in place; Escape brings the board back and focus to Log in.
+  const login = page.locator('.sitebar__login')
+  await login.click()
+  await expect(page.locator('.hero')).toHaveClass(/is-login/)
+  await expect(page.locator('.hero input[type=email]')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.hero')).not.toHaveClass(/is-login/)
+  await expect(login).toBeFocused()
 
   // The jobs, the free plan and the FAQ; axe once more with everything on screen.
   await expect(page.locator('.job')).toHaveCount(3)
@@ -80,35 +81,25 @@ test('a line kept for the new-circle page fills the form after sign-up, and By h
   await expect(page.locator('.create__name')).not.toHaveValue('')
 })
 
-// The landing animates for every visitor, a reduced-motion system included; one Pause control stills the whole
-// page and is remembered (WCAG 2.2.2, #250: the founder chose motion on by default).
+// The landing animates for every visitor, a reduced-motion system included (#250: the founder chose motion on by
+// default and no page-wide pause); the story clip keeps its own pause button.
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
-  test('the landing animates on arrival, one Pause stills it, and the choice is remembered', async ({ page }) => {
+  test('the landing animates on arrival and the clip has its own pause', async ({ page }) => {
     await page.goto('/')
-    const site = page.locator('.site')
-    await expect(site).toHaveAttribute('data-motion', 'on')
+    await expect(page.locator('.site')).toHaveAttribute('data-motion', 'on')
     await expect.poll(() => page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(true)
 
-    // One control only: Pause.
-    const pause = page.locator('.hero__motion .motion-toggle')
-    await expect(pause).toHaveCount(1)
-    await pause.click()
-    await expect(pause).toHaveAttribute('aria-pressed', 'true')
-    await expect(site).toHaveClass(/is-still/)
-
-    // The clip stays on its poster and plays only on request.
     const video = page.locator('.film__video')
     await video.scrollIntoViewIfNeeded()
     await expect(video).toHaveAttribute('poster', /\/video\/story\/circle\.jpg$/)
-    await page.locator('.film__toggle').click()
+    // With motion on for everyone the clip plays by itself; its own button pauses and resumes it.
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
     await page.locator('.film__toggle').click()
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
-
-    // The pause survives a reload.
-    await page.reload()
-    await expect(site).toHaveClass(/is-still/)
+    await page.locator('.film__toggle').click()
+    // The clips are a few seconds long: the button's label says it is playing again.
+    await expect(page.locator('.film__toggle')).toHaveAttribute('aria-label', /Pause|إيقاف/)
   })
 })

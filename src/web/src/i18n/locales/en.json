@@ -104,9 +104,6 @@
         "team": "Team meeting"
       }
     },
-    "motion": {
-      "pause": "Pause animations"
-    },
     "how": {
       "title": "How it works",
       "note": "one line, one link, one round",
@@ -306,6 +303,9 @@
       "title": "circloo in 20 seconds",
       "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
       "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
+    },
+    "login": {
+      "back": "Back to the board"
     }
   },
   "auth": {
@@ -400,7 +400,33 @@
     "otherCircles": "Your other circles",
     "feelTitle": "How do you feel today?",
     "weather": "Circle weather: <b>{{mood}}</b>.",
-    "firstTitle": "Start your first circle"
+    "firstTitle": "Start your first circle",
+    "create": {
+      "title": "Start a new circle",
+      "lead": "Say what it is for, share the link, and play together. Free, private, in your language.",
+      "cta": "New circle",
+      "quick": "Or start from",
+      "kinds": {
+        "family": "Family Sunday",
+        "friends": "Game night",
+        "team": "Team retro"
+      },
+      "lines": {
+        "family": "Sunday lunch with the family, something silly for the kids",
+        "friends": "Game night with 5 friends: jokes and a would-you-rather",
+        "team": "A retro for my team of 6"
+      }
+    },
+    "groups": {
+      "animator": {
+        "title": "Circles I run",
+        "empty": "You do not run a circle yet. Start one above."
+      },
+      "participant": {
+        "title": "Circles I joined",
+        "empty": "When someone sends you a link, their circle shows up here."
+      }
+    }
   },
   "settings": {
     "title": "Settings",
@@ -1021,6 +1047,7 @@
     "name": "Pirikoo",
     "label": "Pirikoo, your guide",
     "ask": "Ask Pirikoo",
+    "searchAsk": "Search or ask Pirikoo…",
     "notNow": "Not now",
     "hide": "Turn off suggestions",
     "actions": {

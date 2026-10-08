@@ -25,7 +25,9 @@ function useSecondsUntil(at: number) {
   return Math.max(0, Math.ceil((at - now) / 1000))
 }
 
-function EmailStep() {
+type Level = 'h1' | 'h2'
+
+function EmailStep({ level: Title = 'h1' }: { level?: Level }) {
   const { t } = useTranslation()
   const locale = useUiStore((s) => s.locale)
   const { email: savedEmail, codeSent } = useSignInStore()
@@ -55,7 +57,7 @@ function EmailStep() {
 
   return (
     <form className="authform" onSubmit={submit} noValidate>
-      <h1 className="authform__title">{t('auth.title')}</h1>
+      <Title className="authform__title">{t('auth.title')}</Title>
       <p className="authform__lead">{t('auth.lead')}</p>
       <label className="field">
         <span className="field__label">{t('auth.emailLabel')}</span>
@@ -81,7 +83,7 @@ function EmailStep() {
   )
 }
 
-function CodeStep() {
+function CodeStep({ level: Title = 'h1' }: { level?: Level }) {
   const { t } = useTranslation()
   const locale = useUiStore((s) => s.locale)
   const navigate = useNavigate()
@@ -140,7 +142,7 @@ function CodeStep() {
 
   return (
     <form className="authform" onSubmit={submit} noValidate>
-      <h1 className="authform__title">{t('auth.codeTitle')}</h1>
+      <Title className="authform__title">{t('auth.codeTitle')}</Title>
       <p className="authform__lead">
         <Trans i18nKey="auth.codeLead" values={{ email }} components={{ email: <bdi dir="ltr" className="authform__email" /> }} />
       </p>
@@ -184,6 +186,15 @@ function CodeStep() {
       </div>
     </form>
   )
+}
+
+/**
+ * The sign-in form on its own (email, then the six-digit code), for a page that already has its title: the landing
+ * opens it in the hero in place of the live board. A verified code goes on to the return path, as on the page.
+ */
+export function SignInPanel({ level = 'h2' }: { level?: Level }) {
+  const step = useSignInStore((s) => s.step)
+  return step === 'code' ? <CodeStep level={level} /> : <EmailStep level={level} />
 }
 
 export default function SignIn() {

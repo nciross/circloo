@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
-import { CalendarHeart, LogOut, Menu, Plus, Settings, X } from 'lucide-react'
+import { CalendarHeart, House, LogOut, Menu, MessageCircleQuestion, Plug, Plus, Presentation, Search, Settings, X } from 'lucide-react'
 import { useMe, useSignOut } from '../../api/hooks'
 import { Brand } from '../../components/Brand'
 import { Avatar } from '../../components/Avatar'
@@ -19,34 +19,38 @@ const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform || navigator.userA
 const SOON = [{ id: 'checkins', icon: CalendarHeart }] as const
 
 /**
- * The navigation as pills: what is live, what is coming (never a dead link, a tiny "Soon" lozenge instead).
- * In the top bar it runs in a row; in the drawer it stacks, with Settings at the foot.
+ * The navigation as pill rows with their icons: what is live, what is coming (never a dead link, a tiny "Soon"
+ * lozenge instead), Settings at the foot. The same list runs in the left sidebar and, on phones, in the drawer.
  */
 function SideNav({ onNavigate, inDrawer = false }: { onNavigate?: () => void; inDrawer?: boolean }) {
   const { t } = useTranslation()
   const soonId = useId()
   const cls = ({ isActive }: { isActive: boolean }) => `navitem${isActive ? ' is-active' : ''}`
   return (
-    <nav className={`sidenav${inDrawer ? ' sidenav--drawer' : ''}`} aria-label={t('common.nav.label')}>
+    <nav className={`sidenav sidenav--stacked${inDrawer ? ' sidenav--drawer' : ''}`} aria-label={t('common.nav.label')}>
       <ul className="sidenav__list">
         <li>
           <NavLink to="/app" end className={cls} onClick={onNavigate} viewTransition>
-            {t('common.nav.home')}
+            <House size={18} aria-hidden="true" />
+            <span>{t('common.nav.home')}</span>
           </NavLink>
         </li>
         <li>
           <NavLink to="/app/icebreakers" className={cls} onClick={onNavigate} viewTransition>
-            {t('common.nav.icebreakers')}
+            <MessageCircleQuestion size={18} aria-hidden="true" />
+            <span>{t('common.nav.icebreakers')}</span>
           </NavLink>
         </li>
         <li>
           <NavLink to="/app/presentations" className={cls} onClick={onNavigate} viewTransition>
-            {t('presentations.title')}
+            <Presentation size={18} aria-hidden="true" />
+            <span>{t('presentations.title')}</span>
           </NavLink>
         </li>
         <li>
           <NavLink to="/app/integrations" className={cls} onClick={onNavigate} viewTransition>
-            {t('integrations.title')}
+            <Plug size={18} aria-hidden="true" />
+            <span>{t('integrations.title')}</span>
           </NavLink>
         </li>
       </ul>
@@ -55,23 +59,21 @@ function SideNav({ onNavigate, inDrawer = false }: { onNavigate?: () => void; in
         {SOON.map(({ id, icon: Icon }) => (
           <li key={id}>
             <span className="navitem is-soon">
-              {inDrawer ? <Icon size={18} aria-hidden="true" /> : null}
+              <Icon size={18} aria-hidden="true" />
               <span>{t(`home.modules.${id}.title`)}</span>
               <span className="lozenge">{t('common.soon')}</span>
             </span>
           </li>
         ))}
       </ul>
-      {inDrawer ? (
-        <ul className="sidenav__list sidenav__foot">
-          <li>
-            <NavLink to="/app/settings" className={cls} onClick={onNavigate} viewTransition>
-              <Settings size={18} aria-hidden="true" />
-              <span>{t('common.settings')}</span>
-            </NavLink>
-          </li>
-        </ul>
-      ) : null}
+      <ul className="sidenav__list sidenav__foot">
+        <li>
+          <NavLink to="/app/settings" className={cls} onClick={onNavigate} viewTransition>
+            <Settings size={18} aria-hidden="true" />
+            <span>{t('common.settings')}</span>
+          </NavLink>
+        </li>
+      </ul>
     </nav>
   )
 }
@@ -157,8 +159,9 @@ function AccountMenu() {
 }
 
 /**
- * The signed-in shell: one white top bar with the wordmark, the navigation as pills, Ask Pirikoo, New circle
- * and the avatar. No rail: under 62rem the pills fold into a drawer. The page sits on white, 76rem wide at most.
+ * The signed-in shell (#250): a left sidebar with the wordmark and the navigation, and over the page a header with
+ * the search field (it asks Pirikoo, the AI guide; Ctrl/⌘ K), New circle and the avatar. Under 62rem the sidebar
+ * folds into a drawer behind the menu button and the wordmark moves into the header. The page sits on white.
  */
 export function AppShell() {
   const { t } = useTranslation()
@@ -177,40 +180,48 @@ export function AppShell() {
 
   return (
     <div className="shell">
-      <header className="topbar">
-        <div className="topbar__inner">
-          <a className="skip-link" href="#main">{t('common.skipToContent')}</a>
-          <button
-            ref={menuRef}
-            type="button"
-            className="icon-btn topbar__menu"
-            aria-label={t('common.nav.open')}
-            aria-haspopup="dialog"
-            onClick={() => drawerRef.current?.showModal()}
-          >
-            <Menu size={22} aria-hidden="true" />
-          </button>
+      <a className="skip-link" href="#main">{t('common.skipToContent')}</a>
+      <aside className="sidebar">
+        <div className="sidebar__brand">
           <Brand to="/app" />
-          <div className="topbar__nav">
-            <SideNav />
-          </div>
-          <div className="topbar__end">
+        </div>
+        <SideNav />
+      </aside>
+
+      <div className="shell__body">
+        <header className="topbar">
+          <div className="topbar__inner">
+            <button
+              ref={menuRef}
+              type="button"
+              className="icon-btn topbar__menu"
+              aria-label={t('common.nav.open')}
+              aria-haspopup="dialog"
+              onClick={() => drawerRef.current?.showModal()}
+            >
+              <Menu size={22} aria-hidden="true" />
+            </button>
+            <span className="topbar__brand"><Brand to="/app" /></span>
+            {/* Search is asking: Pirikoo finds the page, the circle or the round, and can run it. */}
             <button type="button" className="topbar__ask" onClick={() => usePirikoo.getState().open('center')} aria-keyshortcuts="Control+K Meta+K">
-              <span className="topbar__bird"><Bird /></span>
-              <span className="topbar__ask-text">{t('pirikoo.ask')}</span>
+              <Search className="topbar__search-icon" size={18} strokeWidth={2.25} aria-hidden="true" />
+              <span className="topbar__ask-text">{t('pirikoo.searchAsk')}</span>
+              <span className="topbar__bird" aria-hidden="true"><Bird /></span>
               <kbd className="topbar__kbd" dir="ltr">{shortcut}</kbd>
             </button>
-            <ButtonLink to="/app/circles/new" size="sm" className="topbar__create" icon={<Plus size={16} strokeWidth={2.5} />}>
-              {t('circles.new')}
-            </ButtonLink>
-            <AccountMenu />
+            <div className="topbar__end">
+              <ButtonLink to="/app/circles/new" size="sm" className="topbar__create" icon={<Plus size={16} strokeWidth={2.5} />}>
+                {t('circles.new')}
+              </ButtonLink>
+              <AccountMenu />
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main id="main" className="shell__main">
-        <Outlet />
-      </main>
+        <main id="main" className="shell__main">
+          <Outlet />
+        </main>
+      </div>
 
       <dialog
         ref={drawerRef}

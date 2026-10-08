@@ -41,7 +41,7 @@
 }
 .deck-drop.is-over {
   border-style: solid;
-  border-color: var(--beam);
+  border-color: var(--beam-text);
   background: var(--beam-subtle);
 }
 .deck-drop__icon {
@@ -531,7 +531,7 @@
 }
 .deck-setting .switch[aria-checked='true'],
 .qform__settings .switch[aria-checked='true'] {
-  border-color: var(--beam);
+  border-color: var(--beam-text);
   background: var(--beam-subtle);
   color: var(--beam-text);
 }
@@ -687,7 +687,7 @@
 }
 /* Where a dragged slide will land. */
 .slide-strip li.is-drop-target .slide-thumb {
-  outline: 2px dashed var(--beam);
+  outline: 2px dashed var(--beam-text);
   outline-offset: 2px;
 }
 .move-icon--inline {

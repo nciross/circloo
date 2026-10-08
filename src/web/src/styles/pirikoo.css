@@ -49,7 +49,40 @@
   transform-origin: 0% 0%;
 }
 
-/* Idle: still. The bird only moves when it is doing something. */
+/* Idle: alive (#250). A soft breathing bob, a blink every few seconds, the crest swaying, and now and then a wing
+   flick, a curious tilt of the head and a glance around. Transform only; reduced motion stills it (below). */
+.pk:not([class*='pk--']) .pk__all,
+.pk--idle .pk__all {
+  animation: pk-breathe 3.6s var(--ease-in-out) infinite;
+}
+.pk:not([class*='pk--']) .pk__eye,
+.pk--idle .pk__eye {
+  animation: pk-blink 5.2s infinite;
+}
+.pk:not([class*='pk--']) .pk__eye + .pk__eye,
+.pk--idle .pk__eye + .pk__eye {
+  animation-delay: 40ms;
+}
+.pk:not([class*='pk--']) .pk__crest,
+.pk--idle .pk__crest {
+  animation: pk-sway 4.8s var(--ease-in-out) infinite;
+}
+.pk:not([class*='pk--']) .pk__wing--l,
+.pk--idle .pk__wing--l {
+  animation: pk-flick-l 7.4s var(--ease-out) infinite;
+}
+.pk:not([class*='pk--']) .pk__wing--r,
+.pk--idle .pk__wing--r {
+  animation: pk-flick-r 7.4s var(--ease-out) infinite;
+}
+.pk:not([class*='pk--']) .pk__head,
+.pk--idle .pk__head {
+  animation: pk-curious 9.5s var(--ease-in-out) infinite;
+}
+.pk:not([class*='pk--']) .pk__pupil,
+.pk--idle .pk__pupil {
+  animation: pk-glance 6.5s var(--ease-in-out) infinite;
+}
 
 /* Listening: leans in while you write, crest up, a blink now and then. */
 .pk--listening .pk__head {
@@ -65,7 +98,13 @@
   transform: translate(-0.5px, 1.1px);
 }
 
-/* Thinking: the crest tilts from side to side while the answer is being worked out (the authored loop). */
+/* Thinking: the crest tilts from side to side while the answer is being worked out, the wings shuffle. */
+.pk--thinking .pk__wing--l {
+  animation: pk-shuffle-l 1.2s var(--ease-in-out) infinite alternate;
+}
+.pk--thinking .pk__wing--r {
+  animation: pk-shuffle-r 1.2s var(--ease-in-out) infinite alternate;
+}
 .pk--thinking .pk__head {
   transform: rotate(-4deg);
 }
@@ -76,9 +115,12 @@
   animation: pk-crest 600ms var(--ease-in-out) infinite alternate;
 }
 
-/* Speaking: the beak moves while the words stream in. */
+/* Speaking: the beak moves while the words stream in, the head nods along. */
 .pk--speaking .pk__jaw {
   animation: pk-chatter 210ms ease-in-out infinite alternate;
+}
+.pk--speaking .pk__head {
+  animation: pk-nod 900ms var(--ease-in-out) infinite;
 }
 .pk--speaking .pk__eye {
   animation: pk-blink 3.2s infinite;
@@ -112,6 +154,105 @@
   transform: translateY(1.2px);
 }
 
+@keyframes pk-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-1.5px) scale(1.01, 0.995);
+  }
+}
+@keyframes pk-sway {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes pk-flick-l {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0);
+  }
+  89% {
+    transform: rotate(16deg);
+  }
+  92% {
+    transform: rotate(2deg);
+  }
+  95% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes pk-flick-r {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0);
+  }
+  89% {
+    transform: rotate(-16deg);
+  }
+  92% {
+    transform: rotate(-2deg);
+  }
+  95% {
+    transform: rotate(-12deg);
+  }
+}
+@keyframes pk-curious {
+  0%,
+  62%,
+  92%,
+  100% {
+    transform: rotate(0);
+  }
+  68%,
+  84% {
+    transform: rotate(-11deg);
+  }
+}
+@keyframes pk-glance {
+  0%,
+  20%,
+  100% {
+    transform: translate(0, 0);
+  }
+  26%,
+  42% {
+    transform: translate(1.1px, -0.4px);
+  }
+  50%,
+  64% {
+    transform: translate(-1.1px, 0.3px);
+  }
+  70% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes pk-nod {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  50% {
+    transform: rotate(3deg) translateY(0.6px);
+  }
+}
+@keyframes pk-shuffle-l {
+  to {
+    transform: rotate(7deg);
+  }
+}
+@keyframes pk-shuffle-r {
+  to {
+    transform: rotate(-7deg);
+  }
+}
 @keyframes pk-blink {
   0%,
   93%,
@@ -207,7 +348,7 @@
   translate: 0;
   transition-duration: var(--dur-press);
 }
-/* Something to say: the ring goes blue, the one accent. */
+/* Something to say: the ring goes cerise, the app's one small accent. */
 .pkl__button.is-calling {
   border-width: 3px;
   border-color: var(--beam);
@@ -272,7 +413,6 @@
 }
 @keyframes pk-pop {
   from {
-    opacity: 0;
     transform: scale(0.96) translateY(6px);
   }
 }
@@ -479,7 +619,6 @@
 }
 @keyframes pk-rise {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
 }
@@ -487,14 +626,14 @@
   display: flex;
   justify-content: flex-end;
 }
-/* The person: an ink pill. */
+/* The person: a light mauve bubble (no black backgrounds). */
 .pkc__bubble {
   max-inline-size: 85%;
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-lg);
   border-end-end-radius: var(--r-xs);
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--card);
+  color: var(--on-card);
   font-weight: 500;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

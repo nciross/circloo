@@ -167,6 +167,14 @@
   --btn-bg-active: var(--beam-pressed);
   --btn-fg: var(--on-beam);
 }
+/* The charcoal pill, by name: the same as the primary, for markup that must stay charcoal whatever the context
+   (the site's bars, the public pages). */
+.btn--charcoal {
+  --btn-bg: var(--charcoal);
+  --btn-bg-hover: var(--charcoal-hover);
+  --btn-bg-active: var(--charcoal-hover);
+  --btn-fg: var(--on-charcoal);
+}
 /* The sun: the public hero's primary, yellow with ink text */
 .btn--sun {
   --btn-bg: var(--sun);
@@ -644,11 +652,11 @@
 }
 .switch[aria-pressed='true'] .switch__track,
 .switch[aria-checked='true'] .switch__track {
-  background: var(--beam);
+  background: var(--accent);
 }
 .switch[aria-pressed='true']:hover .switch__track,
 .switch[aria-checked='true']:hover .switch__track {
-  background: var(--beam-hover);
+  background: var(--accent-hover);
 }
 .switch[aria-pressed='true'] .switch__knob,
 .switch[aria-checked='true'] .switch__knob {
@@ -770,7 +778,6 @@
 }
 @keyframes pop-in {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
 }
@@ -898,7 +905,7 @@
 .panel--ai > .panel__head .panel__title {
   color: var(--ai-text);
 }
-/* The dark card: the one focal object of a view. Rows inside it are buddies. */
+/* The focal card (named dark for history): the one object a view leads with, light mauve by day, plum by night. */
 .panel--dark,
 .card--dark {
   border: 0;
@@ -1103,8 +1110,8 @@
   max-inline-size: min(26rem, calc(100% - 2 * var(--s-4)));
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-md);
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--card);
+  color: var(--on-card);
   font-size: var(--fs-md);
   font-weight: 500;
   box-shadow: var(--shadow-overlay);

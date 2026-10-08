@@ -104,9 +104,6 @@
         "team": "Réunion d'équipe"
       }
     },
-    "motion": {
-      "pause": "Mettre les animations en pause"
-    },
     "how": {
       "title": "Comment ça marche",
       "note": "une ligne, un lien, un round",
@@ -306,6 +303,9 @@
       "title": "circloo en 20 secondes",
       "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
       "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
+    },
+    "login": {
+      "back": "Revenir au tableau"
     }
   },
   "auth": {
@@ -400,7 +400,33 @@
     "otherCircles": "Tes autres cercles",
     "feelTitle": "Comment tu te sens aujourd’hui ?",
     "weather": "Météo du cercle : <b>{{mood}}</b>.",
-    "firstTitle": "Lance ton premier cercle"
+    "firstTitle": "Lance ton premier cercle",
+    "create": {
+      "title": "Créer un nouveau cercle",
+      "lead": "Dites à quoi il sert, partagez le lien et jouez ensemble. Gratuit, privé, dans votre langue.",
+      "cta": "Nouveau cercle",
+      "quick": "Ou partez de",
+      "kinds": {
+        "family": "Dimanche en famille",
+        "friends": "Soirée jeux",
+        "team": "Rétro d’équipe"
+      },
+      "lines": {
+        "family": "Déjeuner du dimanche en famille, un truc rigolo pour les enfants",
+        "friends": "Soirée jeux avec 5 amis : des blagues et un « tu préfères »",
+        "team": "Une rétro pour mon équipe de 6"
+      }
+    },
+    "groups": {
+      "animator": {
+        "title": "Les cercles que j’anime",
+        "empty": "Vous n’animez pas encore de cercle. Créez-en un juste au-dessus."
+      },
+      "participant": {
+        "title": "Les cercles que j’ai rejoints",
+        "empty": "Quand quelqu’un vous envoie un lien, son cercle apparaît ici."
+      }
+    }
   },
   "settings": {
     "title": "Réglages",
@@ -1021,6 +1047,7 @@
     "name": "Pirikoo",
     "label": "Pirikoo, ton guide",
     "ask": "Demander à Pirikoo",
+    "searchAsk": "Chercher ou demander à Pirikoo…",
     "notNow": "Pas maintenant",
     "hide": "Désactiver les suggestions",
     "actions": {

@@ -1,7 +1,42 @@
-/* ---------- Shell: one white top bar, pills for the navigation, the page under it (buddy list, #250) ---------- */
+/* ---------- Shell (#250): a left sidebar with the wordmark and the navigation (the current item a charcoal pill), and
+   over the page a white header with the search field that asks Pirikoo, New circle and the avatar. Phones first:
+   no sidebar, the menu button opens it as a drawer and the wordmark sits in the header; from 62rem the sidebar. ---------- */
 .shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   min-block-size: 100dvh;
   background: var(--ground);
+}
+.shell__body {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-inline-size: 0;
+}
+.sidebar {
+  display: none;
+}
+@media (min-width: 62rem) {
+  .shell {
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  }
+  .sidebar {
+    position: sticky;
+    inset-block-start: 0;
+    display: flex;
+    flex-direction: column;
+    block-size: 100dvh;
+    border-inline-end: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .sidebar__brand {
+    display: flex;
+    align-items: center;
+    min-block-size: var(--topbar-h);
+    padding-inline: var(--s-5);
+  }
+  .sidebar__brand .brand {
+    font-size: 1.5rem;
+  }
 }
 .topbar {
   position: sticky;
@@ -13,22 +48,21 @@
 .topbar__inner {
   display: flex;
   align-items: center;
-  gap: var(--s-4);
-  max-inline-size: var(--content-max);
+  gap: var(--s-2);
   min-block-size: var(--topbar-h);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: var(--s-2) var(--s-3);
 }
 .topbar__menu {
-  display: none;
+  display: inline-grid;
   inline-size: 2.75rem;
   block-size: 2.75rem;
   color: var(--ink);
 }
-.topbar__nav {
-  display: flex;
-  min-inline-size: 0;
-  margin-inline-start: var(--s-2);
+.topbar__brand {
+  display: inline-flex;
+}
+.topbar__brand .brand {
+  font-size: 1.35rem;
 }
 .topbar__end {
   display: flex;
@@ -36,48 +70,118 @@
   gap: var(--s-3);
   margin-inline-start: auto;
 }
-/* Ask Pirikoo: an outlined pill that reads like a field. */
+/* The search field: an outlined pill that reads like a field; it opens Pirikoo, who searches and can act.
+   Phones show the magnifier alone (the words stay for screen readers). */
 .topbar__ask {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s-2);
-  inline-size: clamp(9rem, 14vw, 14rem);
-  min-block-size: 2.5rem;
-  padding-block: 0.3rem;
-  padding-inline: 0.75rem 0.4rem;
+  inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  margin-inline-start: auto;
+  padding: 0;
   border: 2px solid var(--hairline);
   border-radius: var(--r-pill);
-  background: var(--paper);
+  background: var(--paper-sunken);
   color: var(--ink-faint);
   font-size: var(--fs-sm);
   font-weight: 500;
   text-align: start;
   transition:
     border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out),
     color var(--dur-state) var(--ease-out);
 }
 .topbar__ask:hover {
   border-color: var(--ink);
+  background: var(--paper);
   color: var(--ink);
 }
 .topbar__ask:focus-visible {
   border-radius: var(--r-pill);
 }
+.topbar__search-icon {
+  flex: none;
+  color: var(--ink-soft);
+}
 .topbar__bird {
+  display: none;
   flex: none;
   inline-size: 1.3rem;
   block-size: 1.45rem;
   margin-block-start: -2px;
 }
-.topbar__ask-text {
-  flex: 1;
+.topbar__ask-text,
+.topbar__kbd {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 .topbar__kbd {
-  background: var(--paper-sunken);
+  background: var(--paper);
   border-color: transparent;
+}
+/* Icon-only on phones, but the label still names the link. */
+.topbar__create {
+  padding-inline: 0.65rem;
+}
+.topbar__create .btn__label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (min-width: 40rem) {
+  .topbar__inner {
+    gap: var(--s-4);
+    padding-inline: var(--gutter);
+  }
+  .topbar__ask {
+    flex: 1;
+    justify-content: flex-start;
+    inline-size: auto;
+    max-inline-size: 34rem;
+    margin-inline-start: 0;
+    padding-inline: 1rem 0.45rem;
+  }
+  .topbar__ask-text,
+  .topbar__kbd {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+  .topbar__ask-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar__bird {
+    display: block;
+  }
+  .topbar__create {
+    padding-inline: 1rem;
+  }
+  .topbar__create .btn__label {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+}
+@media (min-width: 62rem) {
+  .topbar__menu,
+  .topbar__brand {
+    display: none;
+  }
 }
 
 /* The account: the person's body in the bar, 36px round. Open, it carries an ink ring. */
@@ -142,40 +246,56 @@
 .shell__main {
   min-inline-size: 0;
   /* Room at the end so the last content scrolls clear of Pirikoo's corner button. */
-  padding: var(--s-7) var(--gutter) calc(var(--s-9) + 2.5rem);
+  padding: var(--s-5) var(--gutter) calc(var(--s-9) + 2.5rem);
 }
 
-/* ---------- The navigation: pills. The current one is ink; the others sink on hover. ---------- */
+/* ---------- The navigation: pill rows with icons, stacked in the sidebar and in the drawer. The current one is the
+   charcoal pill; the others sink on hover. "Coming soon" sits under its own small label; Settings at the foot. ---------- */
 .sidenav {
   display: flex;
-  align-items: center;
-  gap: var(--s-1);
-  min-inline-size: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-2);
+  min-block-size: 0;
+  padding: var(--s-3);
+  overflow-y: auto;
 }
 .sidenav__list {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: var(--s-1);
 }
 .sidenav__group {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  margin-block: var(--s-4) var(--s-1);
+  padding-inline: var(--s-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+:lang(ar) .sidenav__group {
+  letter-spacing: 0;
+  text-transform: none;
+}
+.sidenav__foot {
+  margin-block-start: auto;
+  padding-block-start: var(--s-3);
+  border-block-start: 1px solid var(--hairline);
 }
 .navitem {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--s-2);
-  min-block-size: 2.5rem;
-  padding: 0.35rem 1rem;
+  gap: var(--s-3);
+  min-block-size: 2.75rem;
+  padding: 0.4rem var(--s-4);
   border-radius: var(--r-pill);
   color: var(--ink);
   font-size: var(--fs-md);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
@@ -184,17 +304,25 @@
     color var(--dur-state) var(--ease-settle),
     transform var(--dur-move) var(--ease-settle);
 }
+.navitem svg {
+  flex: none;
+  color: var(--ink-soft);
+}
 a.navitem:hover {
   background: var(--paper-sunken);
   color: var(--ink);
   text-decoration: none;
 }
 a.navitem:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 .navitem.is-active,
 .navitem.is-active:hover {
   background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+.navitem.is-active svg {
   color: var(--on-accent);
 }
 .navitem.is-soon {
@@ -202,12 +330,13 @@ a.navitem:active {
   cursor: default;
 }
 .navitem.is-soon .lozenge {
+  margin-inline-start: auto;
   font-size: 0.625rem;
   line-height: 1.25rem;
   padding-inline: 0.45rem;
 }
 
-/* The drawer: a white sheet with big pill rows, from the inline start. */
+/* The drawer (phones): the same navigation on a white sheet from the inline start, rows a size up. */
 .drawer {
   inline-size: min(20rem, 88vw);
   max-inline-size: none;
@@ -231,7 +360,6 @@ a.navitem:active {
 }
 .drawer::backdrop {
   background: rgb(17 17 17 / 0.5);
-  animation: fade-in var(--dur-enter) var(--ease-out);
 }
 .drawer__head {
   display: flex;
@@ -246,44 +374,8 @@ a.navitem:active {
   block-size: 2.75rem;
   color: var(--ink);
 }
-.drawer .sidenav {
-  flex: 1;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--s-2);
-  padding: var(--s-4) var(--s-3);
-  overflow-y: auto;
-}
-.drawer .sidenav__list {
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--s-1);
-}
-.drawer .sidenav__group {
-  position: static;
-  inline-size: auto;
-  block-size: auto;
-  clip-path: none;
-  margin-block: var(--s-4) var(--s-1);
-  padding-inline: var(--s-4);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-:lang(ar) .drawer .sidenav__group {
-  letter-spacing: 0;
-}
-.drawer .sidenav__foot {
-  margin-block-start: auto;
-  padding-block-start: var(--s-3);
-  border-block-start: 1px solid var(--hairline);
-}
 .drawer .navitem {
-  display: flex;
   min-block-size: 3.25rem;
-  padding-inline: var(--s-4);
   font-size: var(--fs-lg);
 }
 @keyframes slide-in {
@@ -298,70 +390,21 @@ a.navitem:active {
 }
 @keyframes fade-in {
   from {
-    opacity: 0;
+    translate: 0 6px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* The drawer appears in place; the backdrop still fades so the change reads. */
   .drawer[open]:not(:where(.site[data-motion='on'] *)) {
-    animation: fade-in var(--dur-state) var(--ease-out);
+    animation: none;
   }
   .account__trigger:hover .avatar,
   a.navitem:active {
     transform: none;
   }
 }
-
-@media (max-width: 62rem) {
-  .topbar__nav {
-    display: none;
-  }
-  .topbar__menu {
-    display: inline-grid;
-  }
-  .topbar__inner {
-    gap: var(--s-2);
-  }
-}
-/* Narrower bars drop the coming-soon pill from the bar (the drawer keeps it). */
-@media (max-width: 84rem) {
-  .topbar__nav .sidenav__group,
-  .topbar__nav .navitem.is-soon {
-    display: none;
-  }
-}
-@media (max-width: 40rem) {
-  .topbar__inner {
-    padding-inline: var(--s-2) var(--s-3);
-  }
-  .topbar__ask {
-    inline-size: 2.75rem;
-    padding-inline: 0;
-    justify-content: center;
-  }
-  .topbar__ask-text,
-  .topbar__kbd {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  /* Icon-only on phones, but the label still names the link */
-  .topbar__create .btn__label {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .topbar__create {
-    padding-inline: 0.65rem;
-  }
+@media (min-width: 40rem) {
   .shell__main {
-    padding-block-start: var(--s-5);
+    padding-block-start: var(--s-7);
   }
 }
 
@@ -484,7 +527,7 @@ a.navitem:active {
 }
 
 /* ---------- Auth (sign in, profile setup, join, not found), in the public site's language (#250): the light mauve
-   bar with the site's larger wordmark and pills, one white card with 32px corners and soft pastel corners, the cast
+   bar with the site's larger wordmark and pills, one flat white card with 32px corners (no gradients), the cast
    beside it on wide screens. Phones first. ---------- */
 .auth {
   min-block-size: 100dvh;
@@ -552,15 +595,6 @@ a.navitem:active {
     font-size: var(--fs-sm);
   }
 }
-/* These pages are part of the site: their one primary action is the charcoal pill (the app keeps cerise). */
-.auth .btn--primary,
-.auth .btn--charcoal,
-.guest .sitebar .btn--charcoal {
-  --btn-bg: var(--charcoal);
-  --btn-bg-hover: var(--charcoal-hover);
-  --btn-bg-active: var(--charcoal-hover);
-  --btn-fg: var(--on-charcoal);
-}
 /* Secondary actions read as the site's purple links. */
 .auth .btn--subtle {
   --btn-fg: var(--violet-link);
@@ -581,13 +615,7 @@ a.navitem:active {
   padding: var(--s-5);
   border: 2px solid var(--hairline);
   border-radius: 32px;
-  background-color: var(--paper);
-  background-image:
-    radial-gradient(farthest-side at 100% 0, color-mix(in srgb, var(--mint) 70%, transparent), transparent),
-    radial-gradient(farthest-side at 0 100%, color-mix(in srgb, var(--lavender) 45%, transparent), transparent);
-  background-position: 100% 0, 0 100%;
-  background-size: 12rem 10rem, 12rem 10rem;
-  background-repeat: no-repeat;
+  background: var(--paper);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .auth__card--plain {
