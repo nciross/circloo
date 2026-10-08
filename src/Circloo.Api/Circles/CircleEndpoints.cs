@@ -19,7 +19,10 @@ public sealed record JoinCircle(string? Name, string? Character, int? Ring = nul
 
 /// <summary>One character on the join screen: how many people use it and which rings are still free (spec 008).</summary>
 public sealed record CharacterUse(string Id, int Used, int[] FreeRings);
-public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, string Role, string Status, DateTimeOffset CreatedAt, int People);
+public sealed record CircleSummary(Guid Id, string Name, string? JoinCode, string Role, string Status, DateTimeOffset CreatedAt, int People, IReadOnlyList<CircleBody> Bodies);
+
+/// <summary>A member as a body on the circle's ring (the first few, in arrival order) for the Home orrery.</summary>
+public sealed record CircleBody(Guid Id, string Name, string Character, int Ring, bool Me);
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
     MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide,
@@ -79,7 +82,7 @@ public static class CircleEndpoints
                 ExpiresAt = now + CircleAccess.Lifetime,
             };
             db.Circles.Add(circle);
-            db.CircleMembers.Add(new CircleMember
+            var animator = new CircleMember
             {
                 CircleId = circle.Id,
                 Role = Roles.Animator,
@@ -87,11 +90,13 @@ public static class CircleEndpoints
                 Name = user.DisplayName ?? "circloo",
                 Character = body.Character!,
                 JoinedAt = now,
-            });
+            };
+            db.CircleMembers.Add(animator);
             audit.Add(AuditTypes.CircleCreated, userId, detail: new { circle = circle.Id, activities = activities.Length });
             await db.SaveChangesAsync(ct);
             return Results.Created($"/api/circles/{circle.Id}",
-                new CircleSummary(circle.Id, circle.Name, JoinCodes.Display(circle.JoinCode), Roles.Animator, "open", circle.CreatedAt, 1));
+                new CircleSummary(circle.Id, circle.Name, JoinCodes.Display(circle.JoinCode), Roles.Animator, "open", circle.CreatedAt, 1,
+                    [new CircleBody(animator.Id, animator.Name, animator.Character, animator.Ring, true)]));
         }).RequireAuthorization().RequireRateLimiting(RateLimits.CircleCreate);
 
         circles.MapGet("/", async (HttpContext ctx, CirclooDbContext db, TimeProvider clock, CancellationToken ct) =>
@@ -106,11 +111,14 @@ public static class CircleEndpoints
                 {
                     m.Circle!.Id, m.Circle.Name, m.Circle.JoinCode, m.Role, m.Circle.CreatedAt, m.Circle.ClosedAt, m.Circle.ExpiresAt,
                     People = db.CircleMembers.Count(x => x.CircleId == m.CircleId && x.LeftAt == null),
+                    Bodies = db.CircleMembers.Where(x => x.CircleId == m.CircleId && x.LeftAt == null)
+                        .OrderBy(x => x.JoinedAt).ThenBy(x => x.Id).Take(8)
+                        .Select(x => new CircleBody(x.Id, x.Name, x.Character, x.Ring, x.UserId == userId)).ToList(),
                 })
                 .ToListAsync(ct);
             return Results.Ok(rows.Select(r => new CircleSummary(
                 r.Id, r.Name, r.Role == Roles.Animator ? JoinCodes.Display(r.JoinCode) : null, r.Role,
-                r.ClosedAt is null && r.ExpiresAt > now ? "open" : "closed", r.CreatedAt, r.People)));
+                r.ClosedAt is null && r.ExpiresAt > now ? "open" : "closed", r.CreatedAt, r.People, r.Bodies)));
         }).RequireAuthorization();
 
         circles.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, TimeProvider clock, Polls polls, Qa qa, IOptions<DiscussionOptions> discussion, CancellationToken ct) =>

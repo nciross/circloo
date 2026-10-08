@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MessageCircle, Phone, Users } from 'lucide-react'
-import type { Member } from '../../../api/circles'
+import type { HandsView, Member } from '../../../api/circles'
 import { Chat } from '../Chat'
 import { InviteCard } from '../parts'
 import { PRESENTATION } from '../catalog'
@@ -17,7 +17,7 @@ import { unreadCount } from './sidebar'
  * (the Live discussion switch and the stage to come). The hands queue (#184) joins as another tab with its count passed as `hands`.
  * The side state lives in the room, so the work bar can open a tab too.
  */
-export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite }: {
+export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite, hands }: {
   side: SideState
   isAnimator: boolean
   members: Member[]
@@ -28,6 +28,8 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
   /** The activity whose conversation goes in the sidebar; null when the main area already is the chat, or nothing runs. */
   chatActivity: string | null
   invite?: { code: string; fresh: boolean }
+  /** The raised hands and the floor, for the Call tab's stage. */
+  hands?: HandsView
 }) {
   const { t } = useTranslation()
   const messages = useRoom((s) => s.messages)
@@ -65,7 +67,7 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
     id: 'call',
     label: t('circles.room.callTab'),
     icon: <Phone size={15} />,
-    panel: <CallPanel isAnimator={isAnimator} />,
+    panel: <CallPanel isAnimator={isAnimator} members={members} hands={hands} />,
   })
   const chatShown = !!chatActivity && side.open && activeTab(tabs, side.tab) === 'chat'
   if (chatShown && (seenRaw.of !== chatActivity || seenRaw.n !== mine.length)) setSeen({ of: chatActivity, n: mine.length })

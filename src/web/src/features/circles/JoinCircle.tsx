@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ArrowRight } from 'lucide-react'
 import { ApiError } from '../../api/client'
 import { useMe } from '../../api/hooks'
@@ -64,6 +64,11 @@ export default function JoinCircle() {
     )
   }
 
+  // Visitors can join as guests; the bar offers Log in to come back to this link signed in.
+  const signIn = me ? undefined : (
+    <Link to={`/signin?returnTo=${encodeURIComponent(`/join/${code}`)}`} className="btn btn--sm btn--charcoal" viewTransition>{t('common.signIn')}</Link>
+  )
+
   const use = character ? circle.characters?.find((u) => u.id === character) : undefined
   const freeRings = use?.freeRings ?? [0]
   const chosenRing = ring !== null && freeRings.includes(ring) ? ring : (freeRings[0] ?? 0)
@@ -97,7 +102,7 @@ export default function JoinCircle() {
   }
 
   return (
-    <AuthLayout note={false}>
+    <AuthLayout note={false} action={signIn}>
       <form className="authform join" onSubmit={submit} noValidate>
         <div className="join__host">
           <Character id={circle.animatorCharacter} className="join__host-char" />
@@ -105,7 +110,9 @@ export default function JoinCircle() {
             <Trans i18nKey="circles.join.invitedBy" values={{ name: circle.animatorName }} components={{ b: <bdi className="join__host-name" /> }} />
           </p>
         </div>
-        <h1 className="authform__title"><bdi>{circle.name}</bdi></h1>
+        <h1 className="authform__title">
+          <Trans i18nKey="circles.join.heading" values={{ name: circle.name }} components={{ name: <bdi /> }} />
+        </h1>
         {circle.full ? <p className="authform__notice">{t('circles.join.errors.full')}</p> : null}
 
         <label className="field" htmlFor={nameId}>

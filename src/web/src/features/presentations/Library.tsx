@@ -1,7 +1,9 @@
 import { useId, useRef, useState, type DragEvent } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'motion/react'
 import { AlertTriangle, FileUp, Loader2, Trash2 } from 'lucide-react'
+import { listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
 import { ApiError } from '../../api/client'
 import {
   ACCEPT, MAX_UPLOAD_BYTES, errorKey, useDeletePresentation, usePresentations, useUpload, type PresentationSummary,
@@ -10,6 +12,7 @@ import { useDocumentTitle } from '../../app/locale'
 import { Button } from '../../components/Button'
 import { Character } from '../../components/Character'
 import { Loading } from '../../components/Loading'
+import { Meter } from '../../components/Meter'
 import { PageHeader } from '../../components/PageHeader'
 import '../../styles/app.css'
 import '../../styles/presentations.css'
@@ -73,13 +76,12 @@ function Uploader() {
           aria-hidden="true"
           onChange={(e) => void send(e.target.files?.[0])}
         />
-        <Button variant="default" icon={<FileUp size={16} />} busy={busy} aria-describedby={hintId} onClick={() => input.current?.click()}>
-          {t('presentations.upload.choose')}
+        <Button variant="primary" icon={<FileUp size={16} />} busy={busy} aria-describedby={hintId} onClick={() => input.current?.click()}>
+          {t('presentations.upload.pick')}
         </Button>
         {busy ? (
-          <div className="deck-drop__progress" role="progressbar" aria-label={t('presentations.upload.sending')}
-            aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round((progress ?? 0) * 100)}>
-            <span style={{ inlineSize: `${Math.round((progress ?? 0) * 100)}%` }} />
+          <div className="deck-drop__progress">
+            <Meter value={Math.round((progress ?? 0) * 100)} max={100} tone="ink" size="sm" label={t('presentations.upload.sending')} />
           </div>
         ) : null}
       </div>
@@ -88,32 +90,41 @@ function Uploader() {
   )
 }
 
+/* The status line: an ink meter while the deck converts (the number said in words next to it), a lozenge once done. */
 function Status({ deck }: { deck: PresentationSummary }) {
   const { t } = useTranslation()
   if (deck.status === 'processing') {
     return (
-      <span className="lozenge lozenge--info deck-card__status">
-        <Loader2 size={12} aria-hidden="true" className="spin" />
-        {t('presentations.converting', { done: deck.processedSlides, total: deck.slideCount })}
-      </span>
+      <>
+        <Meter value={deck.processedSlides} max={deck.slideCount} tone="ink" size="sm" />
+        <span className="deck-card__state">
+          <Loader2 size={14} aria-hidden="true" className="spin" />
+          {t('presentations.converting', { done: deck.processedSlides, total: deck.slideCount })}
+        </span>
+      </>
     )
   }
   if (deck.status === 'failed') {
-    return <span className="lozenge lozenge--danger deck-card__status">{t('presentations.failed')}</span>
+    return <span className="lozenge lozenge--danger">{t('presentations.failed')}</span>
   }
-  return null
+  return <span className="lozenge lozenge--success">{t('presentations.ready')}</span>
 }
 
-function DeckCard({ deck }: { deck: PresentationSummary }) {
+function DeckCard({ deck, reduced }: { deck: PresentationSummary; reduced: boolean }) {
   const { t } = useTranslation()
   const remove = useDeletePresentation()
   const [confirming, setConfirming] = useState(false)
   const titleId = useId()
   return (
-    <li className="deck-card" aria-labelledby={titleId}>
+    <motion.li className="deck-card" aria-labelledby={titleId} variants={rowVariants(reduced)}>
       <Link to={`/app/presentations/${deck.id}`} className="deck-card__link" viewTransition>
         <span className="deck-card__thumb">
-          {deck.thumbnail ? <img src={deck.thumbnail} alt="" loading="lazy" width={480} height={270} /> : null}
+          {deck.thumbnail ? (
+            <img src={deck.thumbnail} alt="" loading="lazy" width={480} height={270} />
+          ) : (
+            // Until the first slide is converted, the deck shows its initial.
+            <span className="deck-card__title-large" aria-hidden="true" dir="auto">{deck.name.trim().slice(0, 1)}</span>
+          )}
         </span>
         <span className="deck-card__body">
           <span id={titleId} className="deck-card__name" dir="auto">{deck.name}</span>
@@ -124,13 +135,6 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
         </span>
       </Link>
       <div className="deck-card__foot">
-        <Status deck={deck} />
-        {deck.status === 'failed' ? <span className="deck-card__why">{t(errorKey(deck.error))}</span> : null}
-        {deck.deletesInDays !== null ? (
-          <span className="lozenge lozenge--warning">
-            <AlertTriangle size={12} aria-hidden="true" /> {t('presentations.deletesIn', { count: deck.deletesInDays })}
-          </span>
-        ) : null}
         <span className="deck-card__actions">
           {confirming ? (
             <>
@@ -140,12 +144,21 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
             </>
           ) : (
             <Button size="sm" variant="subtle" icon={<Trash2 size={14} />} aria-label={t('presentations.deleteNamed', { name: deck.name })}
-              onClick={() => setConfirming(true)} />
+              onClick={() => setConfirming(true)}>{t('presentations.delete')}</Button>
           )}
         </span>
       </div>
+      <div className="deck-card__status">
+        <Status deck={deck} />
+        {deck.status === 'failed' ? <span className="deck-card__why">{t(errorKey(deck.error))}</span> : null}
+        {deck.deletesInDays !== null ? (
+          <span className="lozenge lozenge--warning">
+            <AlertTriangle size={12} aria-hidden="true" /> {t('presentations.deletesIn', { count: deck.deletesInDays })}
+          </span>
+        ) : null}
+      </div>
       {remove.isError ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
-    </li>
+    </motion.li>
   )
 }
 
@@ -153,6 +166,7 @@ function DeckCard({ deck }: { deck: PresentationSummary }) {
 export default function Library() {
   const { t } = useTranslation()
   useDocumentTitle('presentations.title')
+  const reduced = useReducedMotion()
   const list = usePresentations()
   if (list.isPending) return <Loading />
   const decks = list.data ?? []
@@ -163,14 +177,14 @@ export default function Library() {
       {list.isError ? <p className="field__error" role="alert">{t('common.errorGeneric')}</p> : null}
       {decks.length === 0 ? (
         <div className="deck-empty">
-          <Character id="owl" className="deck-empty__char" />
+          <span className="deck-empty__figure"><Character id="owl" className="deck-empty__char" /></span>
           <p className="deck-empty__title">{t('presentations.empty.title')}</p>
           <p className="field__help">{t('presentations.empty.body')}</p>
         </div>
       ) : (
-        <ul className="deck-grid">
-          {decks.map((d) => <DeckCard key={d.id} deck={d} />)}
-        </ul>
+        <motion.ul className="deck-grid" variants={listVariants(reduced, 0.04)} initial="hidden" animate="show">
+          {decks.map((d) => <DeckCard key={d.id} deck={d} reduced={reduced} />)}
+        </motion.ul>
       )}
     </div>
   )

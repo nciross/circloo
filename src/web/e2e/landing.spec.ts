@@ -1,133 +1,154 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { localeOf, pickLanguage } from './helpers'
+import { codeFor, localeOf, pickLanguage } from './helpers'
 
-test('landing explains circloo, deals icebreakers and stays in the chosen language (US1)', async ({ page }, info) => {
+const axe = async (page: import('@playwright/test').Page) => {
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
+  expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} ${v.nodes.map((n) => n.target.join(' ') + ' ' + (n.any[0]?.message ?? '').slice(0, 90)).join(' || ')}`)).toEqual([])
+}
+
+test('the landing shows a live board, the story, the jobs, the free plan and the FAQ (#250)', async ({ page }, info) => {
   const locale = localeOf(info)
   await page.goto('/')
   await pickLanguage(page, locale)
-
   await expect(page.locator('html')).toHaveAttribute('lang', locale)
   await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar' ? 'rtl' : 'ltr')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2 })).toHaveCount(12)
+  // No horizontal overflow, whatever the width.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true)
 
-  // Integrations are honest: every one carries a "coming soon" lozenge (US1-4).
-  await expect(page.locator('.integration')).toHaveCount(5)
-  await expect(page.locator('.integration__soon')).toHaveCount(5)
+  // The hero is a live board; it plays on its own and is decorative for screen readers.
+  await expect(page.locator('.scene')).toHaveAttribute('aria-hidden', 'true')
+  await axe(page)
 
-  // Deal another brings another real spark in the current language (US1-3).
-  const question = page.locator('.preview .teaser__question')
-  await expect(question).toHaveAttribute('lang', locale)
-  const first = await question.textContent()
-  await page.locator('.preview .teaser .btn').click()
-  await expect(question).not.toHaveText(first ?? '')
-  await expect(question).toHaveAttribute('lang', locale)
+  // Chapters: the player swaps the clip, lazily and in the visitor's language.
+  const video = page.locator('.film__video')
+  await page.locator('#story-pirikoo .film__pick').click()
+  await video.scrollIntoViewIfNeeded()
+  await expect(video).toHaveAttribute('src', `/video/story/pirikoo-${locale}.mp4`)
+  await expect(video).toHaveAttribute('poster', `/video/story/pirikoo-${locale}.jpg`)
+  await expect(page.locator('.film__pick[aria-current="true"]')).toHaveCount(1)
 
-  // Looping motion has one visible pause for the whole page (WCAG 2.2.2, #207).
+  // Looping motion has one visible pause for the whole page (WCAG 2.2.2), remembered in the browser.
   const pause = page.locator('.hero__motion .motion-toggle')
-  await expect(pause).toHaveCount(1) // the opt-in below is only offered when the system asks for reduced motion
+  await expect(pause).toHaveCount(1)
   await expect(page.locator('.site')).toHaveAttribute('data-motion', 'on')
   await pause.click()
   await expect(pause).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.site')).toHaveClass(/is-still/)
-
-  // The choice survives a reload (US1-2).
+  await expect(page.locator('.scene__note').first()).toHaveCSS('animation-name', 'none')
   await page.reload()
-  await expect(page.locator('html')).toHaveAttribute('lang', locale)
+  await expect(page.locator('.site')).toHaveClass(/is-still/)
+  await pause.click()
+  await expect(page.locator('.site')).not.toHaveClass(/is-still/)
 
-  // Accessibility floor: no WCAG 2.2 A/AA violations (SC-005).
-  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
-  expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([])
+  // Log in swaps the board for the sign-in form in place; Escape brings the board back and focus to Log in.
+  const login = page.locator('.sitebar__login')
+  await login.click()
+  await expect(page.locator('.hero')).toHaveClass(/is-login/)
+  await expect(page.locator('.hero input[type=email]')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.hero')).not.toHaveClass(/is-login/)
+  await expect(login).toBeFocused()
 
-  // The story: six chapters, each with its clip in the visitor's language, loaded only once it gets close (#95).
-  const chapters = page.locator('.chapter')
-  await expect(chapters).toHaveCount(6)
-  const last = page.locator('#story-pirikoo .chapter__video')
-  await expect(last).not.toHaveAttribute('src', /.+/)
-  await last.scrollIntoViewIfNeeded()
-  await expect(last).toHaveAttribute('src', `/video/story/pirikoo-${locale}.mp4`)
-  await expect(last).toHaveAttribute('poster', `/video/story/pirikoo-${locale}.jpg`)
-  await expect(page.locator('.story__step[aria-current="step"]')).toHaveAttribute('href', '#story-pirikoo')
+  // The jobs, the free plan and the FAQ; axe once more with everything on screen.
+  await expect(page.locator('.job')).toHaveCount(3)
+  await expect(page.locator('#free .plan__card')).toBeVisible()
+  await page.locator('.faqrow').nth(1).locator('summary').click()
+  await axe(page)
 
-  // The call to action leads to sign-in.
-  await page.evaluate(() => window.scrollTo(0, 0))
-  await page.locator('.heroform__row .btn').click()
-  await expect(page).toHaveURL(/\/signin$/)
+  // The plan's button goes to sign-in.
+  await page.locator('#free .plan__cta').click()
+  await expect(page).toHaveURL(/\/signin/)
 })
 
-test('story clips stay on their poster under reduced motion and play only on request (#95)', async ({ page }, info) => {
+test('a line kept for the new-circle page fills the form after sign-up, and By hand stays plain (#247)', async ({ page }, info) => {
   const locale = localeOf(info)
-  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const line = locale === 'ar' ? 'مراجعة لفريقي المكوّن من 6 أشخاص، بالفرنسية' : 'A retro for my team of 6, in French'
   await page.goto('/')
   await pickLanguage(page, locale)
+  // The kept line is how the site hands a description to the new-circle page.
+  await page.evaluate((l) => sessionStorage.setItem('circloo-circle-prompt', l), line)
+  await page.goto('/signin?returnTo=%2Fapp%2Fcircles%2Fnew')
 
-  const clip = page.locator('#story-canvas .chapter__video')
-  await clip.scrollIntoViewIfNeeded()
-  await expect(clip).toHaveAttribute('poster', `/video/story/canvas-${locale}.jpg`)
-  // Give an autoplay every chance to happen: it must not. A visible clip would start within this time otherwise.
-  await page.waitForTimeout(1500)
-  expect(await clip.evaluate((v: HTMLVideoElement) => v.paused && v.currentTime === 0)).toBe(true)
+  // Sign up through the real email code; the return path lands on the new-circle page.
+  const email = `e2e-landing-${locale}-${Date.now()}@example.test`
+  await page.locator('input[type=email]').fill(email)
+  await page.locator('form button[type=submit]').click()
+  await page.locator('input[autocomplete=one-time-code]').fill(await codeFor(email))
+  await page.locator('form button[type=submit]').click()
+  await page.locator('input[name=displayName]').fill(locale === 'ar' ? 'نادية' : 'Nadia')
+  await page.locator('form button[type=submit]').click()
+  await page.waitForURL(/\/app\/circles\/new$/)
 
-  // The button plays it, and pausing it again keeps it paused.
-  const toggle = page.locator('#story-canvas .chapter__toggle')
-  await toggle.click()
-  await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
-  await toggle.click()
-  await expect.poll(() => clip.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+  // Describe it is on, the line is there, the name and the activities are filled in and labelled Suggested.
+  await expect(page.locator('.create__line-field')).toHaveValue(line)
+  await expect(page.locator('.create__name')).not.toHaveValue('')
+  await expect(page.locator('.lozenge', { hasText: /Suggested|مقترح/ })).toHaveCount(1)
+  await expect(page.locator('.activity.is-on')).toHaveCount(2)
+  await axe(page)
+
+  // By hand keeps the same form; the suggested values stay, the person can change anything.
+  await page.getByRole('button', { name: /By hand|يدويًا/ }).click()
+  await expect(page.locator('.create__line-field')).toHaveCount(0)
+  await expect(page.locator('.create__name')).not.toHaveValue('')
 })
 
-test('story clips follow a language switch without a reload, shared clips included (#95)', async ({ page }, info) => {
+test('story clips follow a language switch without a reload, wordless clips included (#95)', async ({ page }, info) => {
   const locale = localeOf(info)
   const other = locale === 'ar' ? 'en' : 'ar'
   await page.goto('/')
   await pickLanguage(page, locale)
 
-  // A clip already loaded swaps to the new language.
-  const chat = page.locator('#story-chat .chapter__video')
-  await chat.scrollIntoViewIfNeeded()
-  await expect(chat).toHaveAttribute('src', `/video/story/chat-${locale}.mp4`)
+  // The open clip swaps to the new language.
+  const video = page.locator('.film__video')
+  await page.locator('#story-chat .film__pick').click()
+  await video.scrollIntoViewIfNeeded()
+  await expect(video).toHaveAttribute('src', `/video/story/chat-${locale}.mp4`)
   await pickLanguage(page, other)
   await expect(page.locator('html')).toHaveAttribute('lang', other)
-  await expect(chat).toHaveAttribute('src', `/video/story/chat-${other}.mp4`)
-
-  // A clip still far away when the language changed loads in the new language once it gets close.
-  const last = page.locator('#story-pirikoo .chapter__video')
-  await last.scrollIntoViewIfNeeded()
-  await expect(last).toHaveAttribute('src', `/video/story/pirikoo-${other}.mp4`)
-  await expect(last).toHaveAttribute('poster', `/video/story/pirikoo-${other}.jpg`)
+  await expect(video).toHaveAttribute('src', `/video/story/chat-${other}.mp4`)
 
   // Wordless clips are one file for every language.
   for (const id of ['circle', 'send']) {
-    const clip = page.locator(`#story-${id} .chapter__video`)
-    await clip.scrollIntoViewIfNeeded()
-    await expect(clip).toHaveAttribute('src', `/video/story/${id}.mp4`)
+    await page.locator(`#story-${id} .film__pick`).click()
+    await expect(video).toHaveAttribute('src', `/video/story/${id}.mp4`)
   }
 })
 
-// A system set to reduce motion keeps the landing still, and offers a way to play it (#234).
+// A system set to reduce motion keeps the landing still (constitution IV, WCAG 2.2), and offers a way to play it.
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
-  test('the landing stays still, can be played, and remembers the choice', async ({ page }) => {
+  test('the landing stays still, the clip waits for a press, motion can be played and the choice is kept', async ({ page }) => {
     await page.goto('/')
     const site = page.locator('.site')
     await expect(site).toHaveAttribute('data-motion', 'off')
-    await expect(page.locator('.marquee__track')).toHaveCSS('animation-name', 'none')
+    await expect(page.locator('.scene__note').first()).toHaveCSS('animation-name', 'none')
 
-    // One control, whose label says what a press does; the pause control joins it once motion runs.
+    // The clip stays on its poster and plays only on request.
+    const video = page.locator('.film__video')
+    await video.scrollIntoViewIfNeeded()
+    await expect(video).toHaveAttribute('poster', /\/video\/story\/circle\.jpg$/)
+    await page.waitForTimeout(1200)
+    expect(await video.evaluate((v: HTMLVideoElement) => v.paused && v.currentTime === 0)).toBe(true)
+    await page.locator('.film__toggle').click()
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
+    await page.locator('.film__toggle').click()
+    await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
+
+    // One control, whose label says what a press does; the pause joins it once motion runs.
+    await page.evaluate(() => window.scrollTo(0, 0))
     const play = page.locator('.hero__motion .motion-optin')
     await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(1)
-    await expect(play).toHaveText(/Play animations/)
+    await expect(play).toHaveText(/Play animations|تشغيل الحركات/)
     await play.click()
     await expect(site).toHaveAttribute('data-motion', 'on')
-    await expect(play).toHaveText(/Respect my system setting/)
+    await expect(play).toHaveText(/Respect my system setting|احترام إعداد نظامي/)
     await expect(play).toBeFocused()
-    await expect(page.getByRole('status').filter({ hasText: 'Animations are playing.' })).toHaveCount(1)
+    await expect(page.getByRole('status').filter({ hasText: /Animations are playing\.|الحركات قيد التشغيل\./ })).toHaveCount(1)
     await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(2)
-    await expect(page.locator('.marquee__track')).not.toHaveCSS('animation-name', 'none')
-    const running = await page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))
-    expect(running).toBe(true)
+    await expect.poll(() => page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(true)
 
     // The choice survives a reload, and going back to the system setting stills the page again.
     await page.reload()

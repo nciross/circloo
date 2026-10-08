@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
+import { dur, spring } from '../lib/motion'
 
 const ITEMS = 'a[href], button:not([disabled])'
+
+/**
+ * How a popover panel arrives and leaves: it rises 8px on the soft spring (moving only, never fading in, since axe
+ * reads it on arrival) and leaves faster than it came, fading out. Under reduced motion it appears in place.
+ * Spread onto a `motion.div` inside an `AnimatePresence`.
+ */
+export const popoverMotion = (reduced: boolean) => ({
+  // Arrives by moving only (axe reads menus on arrival); it may fade on the way out.
+  initial: { y: reduced ? 0 : 8 },
+  animate: { opacity: 1, y: 0, transition: reduced ? { duration: dur.state } : spring.soft },
+  exit: { opacity: 0, y: reduced ? 0 : 4, transition: { duration: dur.press } },
+})
 
 /**
  * A disclosure popover (button + panel): opens on activation, closes on Escape, outside press or

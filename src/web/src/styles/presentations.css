@@ -1,4 +1,8 @@
-/* ---------- Presentations library and editor (spec 006) ---------- */
+/* ---------- Presentations library and editor (spec 006, the buddy list #250) ----------
+   The library is a list of outlined rows, one per deck: a small thumbnail, the name heavy, a status line with an ink
+   meter while it converts and a lozenge once it is ready, text pills at the end. The upload zone is a big dashed
+   panel with one ink pill. The editor keeps its strip of outlined thumbnails (the chosen one has the ink outline),
+   pill toggles for the settings, and a question form with pill answers. No dark card here: nothing is live yet. */
 .lozenge--danger {
   background: var(--danger-subtle);
   color: var(--danger-text);
@@ -7,6 +11,7 @@
   background: var(--warning-subtle);
   color: var(--warning-text);
 }
+/* The one allowed loop: a conversion still running. */
 .spin {
   animation: deck-spin 0.9s linear infinite;
 }
@@ -16,7 +21,7 @@
   }
 }
 
-/* Upload */
+/* ---------- Upload: a big dashed panel, one ink pill ---------- */
 .deck-upload {
   display: grid;
   gap: var(--s-2);
@@ -25,76 +30,92 @@
   display: grid;
   justify-items: center;
   gap: var(--s-2);
-  padding: var(--s-6) var(--s-5);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--r-md);
-  background: var(--surface);
+  padding: var(--s-8) var(--s-5);
+  border: 2px dashed var(--hairline-strong);
+  border-radius: var(--r-xl);
+  background: var(--paper);
   text-align: center;
-  transition: border-color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out);
 }
 .deck-drop.is-over {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
+  border-style: solid;
+  border-color: var(--beam-text);
+  background: var(--beam-subtle);
 }
 .deck-drop__icon {
-  color: var(--text-subtle);
+  color: var(--ink);
 }
 .deck-drop__title {
-  font-weight: 600;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.deck-drop__title:lang(ar) {
+  letter-spacing: 0;
 }
 .deck-drop__hint {
   max-inline-size: 46ch;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .deck-drop .btn {
+  margin-block-start: var(--s-3);
+}
+.deck-drop__progress {
+  inline-size: min(20rem, 100%);
   margin-block-start: var(--s-2);
 }
-.deck-drop__progress,
-.deck-progress__bar {
-  position: relative;
-  inline-size: min(20rem, 100%);
-  block-size: 0.375rem;
-  overflow: hidden;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
-}
-.deck-drop__progress span,
-.deck-progress__bar span {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 0;
-  border-radius: inherit;
-  background: var(--primary);
-  transition: inline-size 300ms var(--ease-out);
-}
 
-/* Library grid */
+/* ---------- Library: outlined rows ---------- */
 .deck-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--s-5);
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .deck-card {
   display: grid;
-  align-content: start;
-  gap: var(--s-2);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
   min-inline-size: 0;
+  padding: var(--s-3) var(--s-4);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  transition: border-color var(--dur-state) var(--ease-out);
+}
+.deck-card:hover {
+  border-color: var(--hairline-strong);
 }
 .deck-card__link {
   display: grid;
-  gap: var(--s-2);
+  grid-template-columns: 5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-3);
+  min-inline-size: 0;
   color: inherit;
   text-decoration: none;
-  border-radius: var(--r-md);
+  border-radius: var(--r-sm);
 }
+.deck-card__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+/* The deck's first slide, 56px tall; its initial until the picture is there. */
 .deck-card__thumb {
-  display: block;
-  aspect-ratio: 16 / 9;
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 5rem;
+  block-size: 3.5rem;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  border-radius: var(--r-sm);
+  background: var(--paper-sunken);
+  color: var(--ink);
 }
 .deck-card__thumb img {
   display: block;
@@ -102,11 +123,17 @@
   block-size: 100%;
   object-fit: cover;
 }
-.deck-card__link:hover .deck-card__thumb {
-  border-color: var(--border-strong);
+.deck-card__title-large {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  line-height: 1;
 }
-.deck-card__link:hover .deck-card__name {
-  text-decoration: underline;
+@media (hover: hover) {
+  .deck-card__link:hover .deck-card__name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
 }
 .deck-card__body {
   display: grid;
@@ -115,29 +142,59 @@
 }
 .deck-card__name {
   overflow: hidden;
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.deck-card__meta,
+.deck-card__meta {
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+/* The status line runs under the name, aligned with it. */
+.deck-card__status {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding-inline-start: calc(5rem + var(--s-3));
+}
+.deck-card__status .meter {
+  inline-size: min(10rem, 100%);
+}
+.deck-card__state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
 .deck-card__why,
 .deck-card__confirm {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .deck-card__foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--s-2);
-  min-block-size: 2rem;
 }
 .deck-card__actions {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--s-2);
-  margin-inline-start: auto;
+}
+.deck-card > .field__error {
+  grid-column: 1 / -1;
 }
 
 .deck-empty {
@@ -145,52 +202,95 @@
   justify-items: center;
   gap: var(--s-2);
   padding: var(--s-8) var(--s-4);
+  border: 2px dashed var(--hairline-strong);
+  border-radius: var(--r-xl);
   text-align: center;
 }
+/* The owl at 96px on a soft ground shadow. */
+.deck-empty__figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-block-end: 0.75rem;
+}
+.deck-empty__figure::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 18%;
+  block-size: 0.6rem;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.12);
+  filter: blur(3px);
+}
 .deck-empty__char {
-  inline-size: 4.5rem;
+  position: relative;
+  z-index: 1;
+  inline-size: 6rem;
+  block-size: 6rem;
 }
 .deck-empty__title {
-  font-size: var(--fs-lg);
-  font-weight: 600;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.deck-empty__title:lang(ar) {
+  letter-spacing: 0;
 }
 
-/* Editor */
+/* ---------- Editor ---------- */
 .deck-rename {
   display: grid;
   gap: var(--s-1);
 }
+/* The name is the page title: a heavy field that only shows its outline when touched. */
 .deck-rename__input {
   max-inline-size: 32rem;
-  border-color: transparent;
-  background: transparent;
-  font: inherit;
-  font-weight: 600;
+  min-block-size: 0;
+  padding-block: 0.1em;
   padding-inline: var(--s-2);
   margin-inline-start: calc(-1 * var(--s-2));
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
 }
 .deck-rename__input:hover {
-  border-color: var(--border);
+  border-color: var(--hairline);
 }
 .deck-rename__input:focus {
-  border-color: var(--primary);
-  background: var(--surface);
+  border-color: var(--ink);
+  background: var(--paper);
 }
 .deck-progress {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-3);
-  color: var(--text-subtle);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+.deck-progress .meter {
+  inline-size: min(16rem, 100%);
 }
 .deck-note {
   display: flex;
   align-items: flex-start;
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-md);
-  background: var(--info-subtle);
-  color: var(--info-text);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+.deck-note > svg {
+  flex: none;
+  margin-block-start: 0.2em;
 }
 .deck-note p {
   flex: 1;
@@ -198,32 +298,45 @@
 .deck-note__close {
   display: grid;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  flex: none;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
   margin: calc(-1 * var(--s-1));
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: 50%;
   background: transparent;
   color: inherit;
   cursor: pointer;
 }
 .deck-note__close:hover {
-  background: rgb(0 0 0 / 0.06);
+  background: var(--paper-hover);
+  color: var(--ink);
+}
+.deck-note__close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .deck-workspace {
   display: grid;
-  grid-template-columns: minmax(10rem, 13rem) minmax(0, 1fr);
+  grid-template-columns: minmax(10rem, 12.5rem) minmax(0, 1fr);
   gap: var(--s-6);
   align-items: start;
 }
+
+/* The strip: outlined thumbnails; the chosen one carries the ink outline. */
 .slide-strip {
+  position: relative;
   display: grid;
   gap: var(--s-3);
   max-block-size: calc(100dvh - 14rem);
+  margin: 0;
+  padding: 3px;
   overflow-y: auto;
-  padding: var(--s-1);
-  margin: calc(-1 * var(--s-1));
+  list-style: none;
+}
+.slide-strip li {
+  position: relative;
 }
 .slide-thumb {
   display: grid;
@@ -231,19 +344,25 @@
   inline-size: 100%;
   padding: 0;
   border: 0;
+  border-radius: var(--r-sm);
   background: none;
   color: inherit;
   text-align: start;
   cursor: pointer;
+}
+.slide-thumb:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
 }
 .slide-thumb__frame {
   position: relative;
   display: block;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 2px solid var(--hairline);
   border-radius: var(--r-sm);
-  background: var(--surface-sunken);
+  background: var(--paper-sunken);
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .slide-thumb__frame img {
   display: block;
@@ -251,15 +370,17 @@
   block-size: 100%;
   object-fit: cover;
 }
-.slide-thumb:hover .slide-thumb__frame {
-  border-color: var(--border-strong);
+@media (hover: hover) {
+  .slide-thumb:hover .slide-thumb__frame {
+    border-color: var(--hairline-strong);
+  }
 }
 .slide-thumb.is-selected .slide-thumb__frame {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary);
+  border-color: var(--ink);
 }
-.slide-thumb.is-hidden .slide-thumb__frame img {
-  opacity: 0.4;
+.slide-thumb.is-hidden .slide-thumb__frame img,
+.slide-thumb.is-hidden .slide-thumb__question {
+  opacity: 0.45;
 }
 .slide-thumb__question {
   position: absolute;
@@ -269,10 +390,13 @@
   justify-items: start;
   gap: var(--s-1);
   padding: var(--s-2);
-  background: var(--surface);
+  background: var(--paper);
   font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--text);
+  font-weight: 700;
+  color: var(--ink);
+}
+.slide-thumb__question > svg {
+  color: var(--ink-faint);
 }
 .slide-thumb__question span {
   display: -webkit-box;
@@ -285,33 +409,34 @@
   align-items: center;
   gap: var(--s-1);
   font-size: var(--fs-xs);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .slide-thumb__num {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
   margin-inline-end: auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
 }
 
 .slide-preview {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-4);
   min-inline-size: 0;
 }
 .slide-preview__frame {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper-sunken);
 }
 .slide-preview__frame img {
   display: block;
   inline-size: 100%;
   block-size: 100%;
   object-fit: contain;
-  background: #ffffff;
+  background: var(--paper);
 }
 .slide-preview__question {
   position: absolute;
@@ -319,9 +444,9 @@
   display: grid;
   place-items: center;
   padding: var(--s-6);
-  background: var(--surface);
+  background: var(--paper);
   font-size: var(--fs-2xl);
-  font-weight: 600;
+  font-weight: 800;
   text-align: center;
 }
 .slide-preview__bar {
@@ -333,68 +458,90 @@
 .slide-notes {
   display: grid;
   gap: var(--s-2);
-  padding: var(--s-4);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  padding-block-start: var(--s-4);
+  border-block-start: 2px solid var(--hairline);
 }
 .slide-notes__title {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--text-subtle);
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 .slide-notes__text {
   white-space: pre-line;
+  line-height: 1.55;
 }
 
 @media (max-width: 48rem) {
   .deck-workspace {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* The strip runs across on phones. */
   .slide-strip {
     grid-auto-flow: column;
     grid-auto-columns: 8rem;
     max-block-size: none;
     overflow-x: auto;
     overflow-y: visible;
-    /* Room for the selection ring without pulling thumbnails to the screen edge */
-    margin: 0;
-    padding: var(--s-1) var(--s-1) var(--s-2);
+    padding: 3px 3px var(--s-2);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .spin {
-    animation: none;
-  }
-  .deck-drop,
-  .deck-drop__progress span,
-  .deck-progress__bar span {
-    transition: none;
-  }
-}
-
-/* Question form (spec 006 US2) */
+/* ---------- Settings and the question form ---------- */
 .deck-settings {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-4) var(--s-6);
+  gap: var(--s-3) var(--s-5);
+  padding: var(--s-4) var(--s-5);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
 }
 /* One setting: its switch, then its explanation and any error, stacked. */
 .deck-setting {
   display: grid;
-  gap: var(--s-1);
+  gap: var(--s-2);
   align-content: start;
+  justify-items: start;
   max-inline-size: 28rem;
 }
 .deck-setting .field__help {
   margin: 0;
 }
+/* Switches here are pill toggles: outlined, the picked-option blue when on. */
+.deck-setting .switch,
+.qform__settings .switch {
+  min-block-size: 2.75rem;
+  padding-block: 0.3rem;
+  padding-inline: 0.6rem 1.1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  font-weight: 700;
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
+}
+.deck-setting .switch:hover,
+.qform__settings .switch:hover {
+  border-color: var(--hairline-strong);
+}
+.deck-setting .switch[aria-checked='true'],
+.qform__settings .switch[aria-checked='true'] {
+  border-color: var(--beam-text);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
+}
 .slide-preview__heading {
-  font-size: var(--fs-lg);
-  font-weight: 600;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.slide-preview__heading:lang(ar) {
+  letter-spacing: 0;
 }
 .slide-preview__add {
   display: inline-flex;
@@ -404,16 +551,24 @@
 }
 .qform {
   display: grid;
-  gap: var(--s-4);
+  gap: var(--s-5);
   padding: var(--s-5);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--paper);
+}
+.qform .input {
+  border-width: 2px;
+  border-color: var(--hairline);
+}
+.qform .input:hover {
+  border-color: var(--hairline-strong);
 }
 .qform__question {
   resize: vertical;
+  border-radius: var(--r-md);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: 700;
 }
 .qform__options {
   display: grid;
@@ -427,12 +582,22 @@
   display: grid;
   gap: var(--s-2);
   inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .qform__option {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) auto 2rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto 2.25rem;
   align-items: center;
   gap: var(--s-2);
+}
+/* Answers are pill fields. */
+.qform__option .input {
+  min-block-size: 2.75rem;
+  padding-inline: 1.1rem;
+  border-radius: var(--r-pill);
+  font-weight: 500;
 }
 .qform__badge {
   grid-column: 3;
@@ -445,36 +610,42 @@
 }
 /* The focus border wins over the correct-answer border. */
 .qform__option.is-correct .input:not(:focus-visible) {
-  border-color: var(--success);
+  border-color: var(--live);
 }
+/* The answer's number in a round outline. */
 .qform__letter {
   display: grid;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
-  border-radius: var(--r-pill);
-  background: var(--surface-sunken);
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 2px solid var(--hairline-strong);
+  border-radius: 50%;
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--text-subtle);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
 }
 .qform__correct,
 .qform__remove {
   display: grid;
   place-items: center;
-  inline-size: 2rem;
-  block-size: 2rem;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
   padding: 0;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: 50%;
   background: none;
-  color: var(--text-subtle);
+  color: var(--ink-soft);
   cursor: pointer;
 }
 .qform__correct:has(:checked) {
-  color: var(--success);
+  color: var(--live);
 }
 .qform__correct:has(:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.qform__remove:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
@@ -482,21 +653,29 @@
   margin-inline-end: auto;
   align-self: center;
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-faint);
 }
 .qform__correct:hover,
 .qform__remove:hover {
-  background: var(--surface-hover);
-  color: var(--text);
+  background: var(--paper-hover);
+  color: var(--ink);
 }
 .qform__settings {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
-  gap: var(--s-3) var(--s-5);
+  gap: var(--s-3) var(--s-4);
+  padding-block-start: var(--s-4);
+  border-block-start: 2px solid var(--hairline);
 }
 .qform__timer {
   min-inline-size: 9rem;
+}
+.qform__timer .input {
+  min-block-size: 2.75rem;
+  padding-inline: 1.1rem;
+  border-radius: var(--r-pill);
+  font-weight: 700;
 }
 .qform__actions {
   display: flex;
@@ -508,7 +687,7 @@
 }
 /* Where a dragged slide will land. */
 .slide-strip li.is-drop-target .slide-thumb {
-  outline: 2px dashed var(--primary);
+  outline: 2px dashed var(--beam-text);
   outline-offset: 2px;
 }
 .move-icon--inline {
@@ -520,9 +699,10 @@
   align-items: center;
   gap: var(--s-2) var(--s-3);
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-md);
-  background: var(--surface-sunken);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  font-weight: 600;
 }
 .deck-unsaved p {
   margin-inline-end: auto;
@@ -541,10 +721,29 @@
   }
 }
 
-/* Narrow phones: the "Correct" label moves under its answer so the field keeps its width. */
-@media (max-width: 30rem) {
+/* Phones: rows stack, the status line loses its indent, every control reaches 44px. */
+@media (max-width: 36rem) {
+  .deck-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .deck-card__status {
+    padding-inline-start: 0;
+  }
+  .deck-card__foot {
+    justify-content: flex-start;
+  }
+  .deck-card .btn--sm,
+  .slide-preview__bar .btn--sm,
+  .qform .btn--sm {
+    min-block-size: 2.75rem;
+  }
+  .qform__correct,
+  .qform__remove {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
   .qform__option {
-    grid-template-columns: 2rem minmax(0, 1fr) 2rem;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
   }
   .qform__remove {
     grid-column: 3;
@@ -553,5 +752,20 @@
     grid-column: 2;
     grid-row: 2;
     justify-self: start;
+  }
+  .deck-note__close {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+  .deck-drop,
+  .deck-card,
+  .slide-thumb__frame {
+    transition: none;
   }
 }

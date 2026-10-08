@@ -1,130 +1,648 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-02T05:14:27.554Z",
+  "generatedAt": "2026-10-08T13:27:42Z",
   "title": "Design System: circloo",
   "extensions": {
     "colorMeta": {
-      "bg": {
+      "ground": {
         "role": "neutral",
-        "displayName": "Canvas",
-        "canonical": "#f5f7f9"
+        "displayName": "ground",
+        "canonical": "#ffffff",
+        "night": "#131317"
       },
-      "surface": {
+      "paper": {
         "role": "neutral",
-        "displayName": "Surface",
-        "canonical": "#ffffff"
+        "displayName": "paper",
+        "canonical": "#ffffff",
+        "night": "#18181d"
       },
-      "surface-sunken": {
+      "paper-sunken": {
         "role": "neutral",
-        "displayName": "Sunken",
-        "canonical": "#eef1f4"
+        "displayName": "paper-sunken",
+        "canonical": "#f4f4f4",
+        "night": "#1f1f25"
       },
-      "border": {
+      "paper-hover": {
         "role": "neutral",
-        "displayName": "Border",
-        "canonical": "#dfe3e8"
+        "displayName": "paper-hover",
+        "canonical": "#ededed",
+        "night": "#26262d"
       },
-      "text": {
+      "paper-pressed": {
         "role": "neutral",
-        "displayName": "Navy ink",
-        "canonical": "#0f2537"
+        "displayName": "paper-pressed",
+        "canonical": "#e0e0e0",
+        "night": "#2e2e36"
       },
-      "text-subtle": {
+      "hairline": {
         "role": "neutral",
-        "displayName": "Subtle ink",
-        "canonical": "#45576a"
+        "displayName": "hairline",
+        "canonical": "#e6e6e6",
+        "night": "#2c2c34"
       },
-      "primary": {
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "hairline-strong",
+        "canonical": "#c4c4c4",
+        "night": "#4a4a55"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "canonical": "#111111",
+        "night": "#f4f3f7"
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "ink-soft",
+        "canonical": "#5b5f66",
+        "night": "#c9c6d1"
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "ink-faint",
+        "canonical": "#6b6b6b",
+        "night": "#a5a2af"
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "on-ink",
+        "canonical": "#ffffff",
+        "night": "#131317"
+      },
+      "beam": {
+        "role": "accent",
+        "displayName": "beam",
+        "canonical": "#d6276b",
+        "night": "#ff6fa3"
+      },
+      "beam-hover": {
+        "role": "accent",
+        "displayName": "beam-hover",
+        "canonical": "#c01f5e",
+        "night": "#ff8ab5"
+      },
+      "beam-pressed": {
+        "role": "accent",
+        "displayName": "beam-pressed",
+        "canonical": "#a81a52",
+        "night": "#ffa3c5"
+      },
+      "beam-subtle": {
+        "role": "link",
+        "displayName": "beam-subtle",
+        "canonical": "#f1ebfd",
+        "night": "#2a2140"
+      },
+      "beam-subtle-hover": {
+        "role": "link",
+        "displayName": "beam-subtle-hover",
+        "canonical": "#e6dcfb",
+        "night": "#352a50"
+      },
+      "beam-text": {
+        "role": "link",
+        "displayName": "beam-text",
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd"
+      },
+      "on-beam": {
+        "role": "accent",
+        "displayName": "on-beam",
+        "canonical": "#ffffff",
+        "night": "#1a0610"
+      },
+      "accent": {
         "role": "primary",
-        "displayName": "Action blue",
-        "canonical": "#0d5bd7"
+        "displayName": "accent",
+        "canonical": "#2e2e36",
+        "night": "#f1eef5"
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "accent-hover",
+        "canonical": "#1f1f25",
+        "night": "#ffffff"
+      },
+      "accent-pressed": {
+        "role": "primary",
+        "displayName": "accent-pressed",
+        "canonical": "#15151a",
+        "night": "#dcd8e3"
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "on-accent",
+        "canonical": "#ffffff",
+        "night": "#131317"
+      },
+      "focus": {
+        "role": "link",
+        "displayName": "focus",
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd"
+      },
+      "card": {
+        "role": "focal-card",
+        "displayName": "card",
+        "canonical": "#ece2f6",
+        "night": "#2b2238",
+        "note": "The focal card: light mauve by day, deep plum by night. No black backgrounds anywhere."
+      },
+      "card-line": {
+        "role": "focal-card",
+        "displayName": "card-line",
+        "canonical": "#d6c6e8",
+        "night": "#43365a"
+      },
+      "card-sunken": {
+        "role": "focal-card",
+        "displayName": "card-sunken",
+        "canonical": "#e1d3f0",
+        "night": "#221a2e"
+      },
+      "card-hover": {
+        "role": "focal-card",
+        "displayName": "card-hover",
+        "canonical": "#e5d9f2",
+        "night": "#34293f"
+      },
+      "on-card": {
+        "role": "focal-card",
+        "displayName": "on-card",
+        "canonical": "#16161b",
+        "night": "#f6f1fb"
+      },
+      "on-card-soft": {
+        "role": "focal-card",
+        "displayName": "on-card-soft",
+        "canonical": "#3a3a43",
+        "night": "#ddd3ea"
+      },
+      "on-card-faint": {
+        "role": "focal-card",
+        "displayName": "on-card-faint",
+        "canonical": "#55555f",
+        "night": "#bfb2d1"
+      },
+      "seg-empty": {
+        "role": "focal-card",
+        "displayName": "seg-empty",
+        "canonical": "#d3c2e6",
+        "night": "#43365a"
+      },
+      "ok": {
+        "role": "focal-card",
+        "displayName": "ok",
+        "canonical": "#126b4f",
+        "night": "#bfe8d9",
+        "note": "Inside the focal card only: here, done (deep green by day, mint by night)."
+      },
+      "mid": {
+        "role": "focal-card",
+        "displayName": "mid",
+        "canonical": "#7a5800",
+        "night": "#f7d873",
+        "note": "Inside the focal card only: partial (amber by day, butter by night)."
+      },
+      "low": {
+        "role": "focal-card",
+        "displayName": "low",
+        "canonical": "#a3123f",
+        "night": "#ffb3c8",
+        "note": "Inside the focal card only: away, late (berry by day, pink by night)."
+      },
+      "charcoal": {
+        "role": "primary",
+        "displayName": "charcoal",
+        "canonical": "#2e2e36",
+        "night": "#f1eef5",
+        "note": "Every primary pill (buttons, the current nav item, picked states). Light at night."
+      },
+      "charcoal-hover": {
+        "role": "primary",
+        "displayName": "charcoal-hover",
+        "canonical": "#1f1f25",
+        "night": "#ffffff"
+      },
+      "on-charcoal": {
+        "role": "primary",
+        "displayName": "on-charcoal",
+        "canonical": "#ffffff",
+        "night": "#131317"
+      },
+      "pink": {
+        "role": "accent",
+        "displayName": "pink",
+        "canonical": "#d12a6c",
+        "night": "#ff6fa3",
+        "note": "Cerise, a small accent only (a crest, a heart, a calling ring)."
+      },
+      "violet-link": {
+        "role": "link",
+        "displayName": "violet-link",
+        "canonical": "#6d28d9",
+        "night": "#c4b5fd",
+        "note": "Text links, the lead line under a title, focus rings."
+      },
+      "meta": {
+        "role": "other",
+        "displayName": "meta",
+        "canonical": "#6b6b72",
+        "night": "#b3b0bc"
+      },
+      "mint": {
+        "role": "pastel",
+        "displayName": "mint",
+        "canonical": "#bfe8d9",
+        "night": "#bfe8d9"
+      },
+      "sky-pastel": {
+        "role": "pastel",
+        "displayName": "sky-pastel",
+        "canonical": "#a9d9f5",
+        "night": "#a9d9f5"
+      },
+      "peach": {
+        "role": "pastel",
+        "displayName": "peach",
+        "canonical": "#f6a46b",
+        "night": "#f6a46b"
+      },
+      "butter": {
+        "role": "pastel",
+        "displayName": "butter",
+        "canonical": "#f7d873",
+        "night": "#f7d873"
+      },
+      "lavender": {
+        "role": "pastel",
+        "displayName": "lavender",
+        "canonical": "#b39ddb",
+        "night": "#b39ddb"
+      },
+      "blush": {
+        "role": "pastel",
+        "displayName": "blush",
+        "canonical": "#ffc9db",
+        "night": "#ffc9db"
+      },
+      "mauve": {
+        "role": "pastel",
+        "displayName": "mauve",
+        "canonical": "#e9dcf3",
+        "night": "#2a1f35",
+        "note": "Light mauve surfaces: the sign-in bar, the create card, the landing footer."
+      },
+      "mauve-deep": {
+        "role": "pastel",
+        "displayName": "mauve-deep",
+        "canonical": "#d6c3ea",
+        "night": "#3a2b48"
+      },
+      "field": {
+        "role": "other",
+        "displayName": "field",
+        "canonical": "#2b5cf0",
+        "night": "#2b5cf0"
+      },
+      "field-deep": {
+        "role": "other",
+        "displayName": "field-deep",
+        "canonical": "#1e45c4",
+        "night": "#1e45c4"
+      },
+      "on-field": {
+        "role": "other",
+        "displayName": "on-field",
+        "canonical": "#ffffff",
+        "night": "#ffffff"
+      },
+      "on-field-soft": {
+        "role": "other",
+        "displayName": "on-field-soft",
+        "canonical": "rgb(255 255 255 / 0.9)",
+        "night": "rgb(255 255 255 / 0.9)"
+      },
+      "field-shade": {
+        "role": "other",
+        "displayName": "field-shade",
+        "canonical": "#6d28d9",
+        "night": "#6d28d9"
+      },
+      "sun": {
+        "role": "other",
+        "displayName": "sun",
+        "canonical": "#ffd23f",
+        "night": "#ffd23f"
+      },
+      "sun-hover": {
+        "role": "other",
+        "displayName": "sun-hover",
+        "canonical": "#f5c62a",
+        "night": "#f5c62a"
+      },
+      "on-sun": {
+        "role": "other",
+        "displayName": "on-sun",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "note": {
+        "role": "other",
+        "displayName": "note",
+        "canonical": "#fff3b0",
+        "night": "#fff3b0"
+      },
+      "note-ink": {
+        "role": "other",
+        "displayName": "note-ink",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "brass": {
+        "role": "other",
+        "displayName": "brass",
+        "canonical": "#111111",
+        "night": "#f4f3f7"
+      },
+      "brass-faint": {
+        "role": "other",
+        "displayName": "brass-faint",
+        "canonical": "#e6e6e6",
+        "night": "#2c2c34"
       },
       "ai": {
-        "role": "secondary",
-        "displayName": "AI violet",
+        "role": "ai",
+        "displayName": "ai",
         "canonical": "#6a4fd1",
-        "note": "Only for AI-made or AI-making things."
+        "night": "#9f8fef"
       },
-      "success": {
+      "ai-hover": {
+        "role": "ai",
+        "displayName": "ai-hover",
+        "canonical": "#5a40bd",
+        "night": "#b3a6f4"
+      },
+      "ai-subtle": {
+        "role": "ai",
+        "displayName": "ai-subtle",
+        "canonical": "#f2efff",
+        "night": "#201b3a"
+      },
+      "ai-border": {
+        "role": "ai",
+        "displayName": "ai-border",
+        "canonical": "#d9d0fb",
+        "night": "#3b3266"
+      },
+      "ai-text": {
+        "role": "ai",
+        "displayName": "ai-text",
+        "canonical": "#5638c2",
+        "night": "#c0b4f8"
+      },
+      "on-ai": {
+        "role": "ai",
+        "displayName": "on-ai",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "sky-stormy": {
+        "role": "mood",
+        "displayName": "sky-stormy",
+        "canonical": "#2f3a52",
+        "night": "#2a3450"
+      },
+      "sky-foggy": {
+        "role": "mood",
+        "displayName": "sky-foggy",
+        "canonical": "#aab4c3",
+        "night": "#7f8ca6"
+      },
+      "sky-cloudy": {
+        "role": "mood",
+        "displayName": "sky-cloudy",
+        "canonical": "#d6d6d6",
+        "night": "#8e9bb2"
+      },
+      "sky-bright": {
+        "role": "mood",
+        "displayName": "sky-bright",
+        "canonical": "#7fb8ff",
+        "night": "#3f8ff0"
+      },
+      "sky-sunny": {
+        "role": "mood",
+        "displayName": "sky-sunny",
+        "canonical": "#ffd23f",
+        "night": "#e6b534"
+      },
+      "on-sky": {
+        "role": "mood",
+        "displayName": "on-sky",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "on-sky-stormy": {
+        "role": "mood",
+        "displayName": "on-sky-stormy",
+        "canonical": "#ffffff",
+        "night": "#f5f5f5"
+      },
+      "coral": {
+        "role": "other",
+        "displayName": "coral",
+        "canonical": "#ef4a32",
+        "night": "#ef4a32"
+      },
+      "live": {
         "role": "status",
-        "displayName": "Success",
-        "canonical": "#1c7c52"
+        "displayName": "live",
+        "canonical": "#178a66",
+        "night": "#4bce97"
+      },
+      "live-subtle": {
+        "role": "status",
+        "displayName": "live-subtle",
+        "canonical": "#dcf5ec",
+        "night": "#12301f"
+      },
+      "live-text": {
+        "role": "status",
+        "displayName": "live-text",
+        "canonical": "#126b4f",
+        "night": "#7ee2b8"
+      },
+      "on-live": {
+        "role": "status",
+        "displayName": "on-live",
+        "canonical": "#ffffff",
+        "night": "#111111"
       },
       "danger": {
         "role": "status",
-        "displayName": "Danger",
-        "canonical": "#c9372c"
+        "displayName": "danger",
+        "canonical": "#d93a3f",
+        "night": "#ff8f86"
       },
-      "brand-coral": {
-        "role": "tertiary",
-        "displayName": "Face coral",
-        "canonical": "#ef4a32",
-        "note": "The mouth of the logo face only."
+      "danger-hover": {
+        "role": "status",
+        "displayName": "danger-hover",
+        "canonical": "#c22f34",
+        "night": "#ffa8a1"
+      },
+      "danger-subtle": {
+        "role": "status",
+        "displayName": "danger-subtle",
+        "canonical": "#ffecec",
+        "night": "#3a1512"
+      },
+      "danger-text": {
+        "role": "status",
+        "displayName": "danger-text",
+        "canonical": "#b4262b",
+        "night": "#ffa8a1"
+      },
+      "on-danger": {
+        "role": "status",
+        "displayName": "on-danger",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "warning-subtle": {
+        "role": "status",
+        "displayName": "warning-subtle",
+        "canonical": "#fff4cc",
+        "night": "#3a2d0a"
+      },
+      "warning-text": {
+        "role": "status",
+        "displayName": "warning-text",
+        "canonical": "#6e4a00",
+        "night": "#f0c75e"
+      },
+      "info-subtle": {
+        "role": "status",
+        "displayName": "info-subtle",
+        "canonical": "#f1ebfd",
+        "night": "#2a2140"
+      },
+      "info-text": {
+        "role": "status",
+        "displayName": "info-text",
+        "canonical": "#5b21b6",
+        "night": "#c4b5fd"
+      },
+      "neutral-subtle": {
+        "role": "status",
+        "displayName": "neutral-subtle",
+        "canonical": "#f4f4f4",
+        "night": "#1f1f25"
+      },
+      "neutral-text": {
+        "role": "status",
+        "displayName": "neutral-text",
+        "canonical": "#5b5f66",
+        "night": "#c9c6d1"
+      },
+      "body-1": {
+        "role": "body",
+        "displayName": "body-1",
+        "canonical": "#1d4ed8",
+        "night": "#60a5fa"
+      },
+      "body-2": {
+        "role": "body",
+        "displayName": "body-2",
+        "canonical": "#c2410c",
+        "night": "#fb923c"
+      },
+      "body-3": {
+        "role": "body",
+        "displayName": "body-3",
+        "canonical": "#15803d",
+        "night": "#4ade80"
+      },
+      "body-4": {
+        "role": "body",
+        "displayName": "body-4",
+        "canonical": "#9d174d",
+        "night": "#f472b6"
+      },
+      "body-5": {
+        "role": "body",
+        "displayName": "body-5",
+        "canonical": "#0e7490",
+        "night": "#22d3ee"
+      },
+      "on-body": {
+        "role": "body",
+        "displayName": "on-body",
+        "canonical": "#ffffff",
+        "night": "#131317"
+      },
+      "brand-ink": {
+        "role": "neutral",
+        "displayName": "brand-ink",
+        "canonical": "#111111",
+        "night": "#f4f3f7"
+      },
+      "brand-aqua": {
+        "role": "neutral",
+        "displayName": "brand-aqua",
+        "canonical": "#22b8cc",
+        "night": "#22b8cc"
       }
     },
     "typographyMeta": {
-      "family": "Readex Pro Variable (Latin + Arabic, self-hosted)",
-      "scale": {
-        "display": "600 clamp(2.25rem,1.5rem+3vw,3.75rem)",
-        "section": "600 clamp(1.75rem,1.4rem+1.4vw,2.5rem)",
-        "page": "600 1.5rem",
-        "panel": "600 1.0625rem",
-        "body": "400 0.9375rem/1.55",
-        "small": "0.8125rem",
-        "lozenge": "700 0.6875rem uppercase"
-      }
+      "family": {
+        "display": "'Rubik Variable', 'Rubik', system-ui, sans-serif",
+        "hand": "'Caveat Variable', 'Caveat', system-ui, sans-serif"
+      },
+      "note": "Rubik 800–900 at the top, 700 for names and buttons, 400 body; Caveat for handwritten asides on the site."
     },
     "shadows": {
-      "raised": "0 1px 1px rgb(15 37 55 / 0.08), 0 0 1px rgb(15 37 55 / 0.2)",
-      "overlay": "0 8px 12px rgb(15 37 55 / 0.12), 0 0 1px rgb(15 37 55 / 0.28)",
-      "float": "0 24px 48px -12px rgb(15 37 55 / 0.25), 0 0 1px rgb(15 37 55 / 0.25)"
+      "raised": "0 1px 2px rgb(0 0 0 / 0.06)",
+      "overlay": "0 12px 28px -12px rgb(0 0 0 / 0.28), 0 0 0 1px rgb(0 0 0 / 0.04)",
+      "card": "0 1px 2px rgb(40 20 60 / 0.06), 0 12px 32px -18px rgb(40 20 60 / 0.25)",
+      "hover": "0 2px 8px rgb(0 0 0 / 0.08)"
     },
     "motion": {
-      "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
-      "state": "120-200ms",
-      "entrance": "300ms",
-      "signature": "The face: gaze, blink, mood mouth morph"
+      "dur-press": "120ms",
+      "dur-state": "160ms",
+      "dur-move": "240ms",
+      "dur-enter": "300ms",
+      "dur-focal": "600ms",
+      "dur-orbit": "1200ms",
+      "ease-out": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "ease-in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+      "ease-settle": "cubic-bezier(0.32, 0.72, 0, 1)",
+      "springs": "snappy | soft | gentle (src/web/src/lib/motion.ts)"
     },
     "breakpoints": {
-      "drawer": "62rem",
       "phone": "40rem",
-      "landingStack": "64rem"
+      "drawer": "62rem",
+      "home-one-column": "60rem",
+      "bar-drops-soon-pill": "84rem",
+      "site-two-columns": "60rem"
     }
   },
   "components": {
-    "button-primary": "Blue, 6px radius, 36px; one per view",
-    "button-ai": "Violet; only for AI actions",
-    "panel": "Surface, 1px border, 8px radius, header + body + sunken footer",
-    "lozenge": "Live / Soon / Example / Suggested by AI",
-    "language-menu": "Globe dropdown, names in own language, browser default",
-    "ask-circloo": "Command palette that shows a plan before running it",
-    "face": "circl + oo eyes + coral mouth following moods 1-5"
+    "button-primary": "charcoal pill 44px; light pill at night",
+    "button-charcoal": "the same pill by name, for markup that must stay charcoal",
+    "panel": "white, 2px hairline, 22px; lifts 2px with the hover shadow when it is a link",
+    "panel-dark": "the focal card (historic name): light mauve, 28px, a soft shadow; plum at night",
+    "sidebar": "left navigation: icon pill rows, the current one charcoal; a drawer under 62rem",
+    "search-ask": "the header field that asks Pirikoo (Ctrl/Cmd K)",
+    "circle-row": "white rounded row, Live or Closed lozenge, people, character stack",
+    "quick-chip": "pastel pill with near-black ink",
+    "buddy": "character 44px, name, status, value, meter",
+    "meter": "10 segments",
+    "stack": "32px characters",
+    "lozenge": "tracked pill",
+    "mood-tile": "outlined 18px, picked = charcoal",
+    "pirikoo": "flat parakeet mark: green, butter mask, ring eyes, cerise crest; alive when idle"
   },
-  "narrative": {
-    "northStar": "A serious tool with a warm face.",
-    "overview": "Enterprise chrome (sidebar, top bar, panels, tables) in calm neutrals; warmth from the face logo, the people and the content.",
-    "keyCharacteristics": [
-      "Neutral surfaces",
-      "One action blue",
-      "Violet means AI",
-      "Face logo that feels moods",
-      "Full dark theme",
-      "Four languages incl. Arabic RTL"
-    ],
-    "rules": [
-      "If it is violet, AI made it; if AI made it, it is labelled.",
-      "One primary action per view.",
-      "Panels never nest."
-    ],
-    "dos": [
-      "Keep the chrome grey and let people and content carry colour",
-      "Underline links in running text",
-      "Clip, never display:none, labels that name controls"
-    ],
-    "donts": [
-      "Second typeface",
-      "Gradients, glass or decorative illustration in the app",
-      "Emoji as icons"
-    ]
-  }
+  "narrative": "A white canvas with near-black ink, charcoal pills for every primary action, violet links and focus, pastels (mint, butter, peach, sky, lavender, blush) for chips, covers and notes, one light mauve focal card per view, and no black backgrounds and no gradients anywhere. Cerise is a small accent. A left sidebar for the app, a header that searches by asking Pirikoo; the public site shares the language with pastel blobs, the cast and a live board."
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { useCircle, useCloseCircle } from '../../api/circles'
@@ -16,6 +16,7 @@ import { ParticipantView } from './present/ParticipantView'
 import { PresentationPicker } from './present/PresentationPicker'
 import { useCircleConnection, useRoom } from './room'
 import { RoomPanels } from './room/RoomPanels'
+import { roundStartedAt } from './room/sidebar'
 import { useSideState } from './room/useSide'
 import { WorkBar } from './room/WorkBar'
 import { WorkspaceDock } from './room/WorkspaceDock'
@@ -44,12 +45,33 @@ export default function CircleRoom() {
   const [starting, setStarting] = useState<string | null>(null)
   // Lifted here so the work bar's people strip can open the People tab, like the rail does.
   const side = useSideState()
+  const roomRef = useRef<HTMLDivElement>(null)
   useDocumentTitle('circles.room.title')
 
   useEffect(() => {
     if (circle.data) useRoom.getState().load(circle.data)
   }, [circle.data])
   useCircleConnection(circle.data)
+
+  // The focal moment: a round opens from the work bar's people stack. Before the centre paints, its reveal gets the
+  // stack's position (relative to the centre) as custom properties; the clip-path circle in workspace.css grows from there.
+  const revealKey = room.circleId === circle.data?.id ? room.activity : circle.data?.currentActivity
+  // On a phone a board or the canvas needs the screen: the sheet folds down when one opens (one tap brings it back).
+  const boardOpen = !!revealKey && (!!BOARD_COLUMNS[revealKey] || revealKey === CANVAS)
+  const { wide: sideWide, setSheet } = side
+  useEffect(() => {
+    if (boardOpen && !sideWide) setSheet('closed')
+  }, [boardOpen, sideWide, setSheet])
+  useLayoutEffect(() => {
+    const root = roomRef.current
+    const centre = root?.querySelector<HTMLElement>('.room__centre')
+    const ring = root?.querySelector<HTMLElement>('.workbar__people')
+    if (!centre || !ring) return
+    const c = centre.getBoundingClientRect()
+    const r = ring.getBoundingClientRect()
+    centre.style.setProperty('--reveal-x', `${r.left + r.width / 2 - c.left}px`)
+    centre.style.setProperty('--reveal-y', `${r.top + r.height / 2 - c.top}px`)
+  }, [revealKey])
 
   useEffect(() => {
     if (live || room.activity !== PRESENTATION) return
@@ -97,7 +119,7 @@ export default function CircleRoom() {
   const presenting = activity === PRESENTATION
 
   return (
-    <div className="page room">
+    <div ref={roomRef} className="page room">
       <WorkBar
         circleId={view.id}
         name={view.name}
@@ -106,6 +128,7 @@ export default function CircleRoom() {
         status={room.status}
         activity={activity}
         startedBy={ready ? room.startedBy : null}
+        startedAt={roundStartedAt(ready ? room.messages : view.messages, activity)}
         members={members}
         online={room.online}
         meId={view.me.id}
@@ -170,6 +193,7 @@ export default function CircleRoom() {
             announcement={room.announcement}
             chatActivity={chatActivity}
             invite={isAnimator && view.joinCode ? { code: view.joinCode, fresh } : undefined}
+            hands={view.hands}
           />
         </div>
       )}

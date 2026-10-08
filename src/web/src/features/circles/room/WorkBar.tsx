@@ -5,20 +5,24 @@ import { DoorClosed, Ellipsis, House } from 'lucide-react'
 import type { Member } from '../../../api/circles'
 import { Button } from '../../../components/Button'
 import { Character } from '../../../components/Character'
+import { Meter } from '../../../components/Meter'
 import { usePopover } from '../../../components/usePopover'
 import { activityById } from '../catalog'
+import { serverNow } from '../present/presentation'
 import { SendResults } from '../SendResults'
-import { useWide } from './useSide'
-import { stripFaces, stripMore } from './sidebar'
+import { useRoomy } from './useSide'
+import { formatElapsed, ROUND_LENGTH_S, stripFaces, stripMore } from './sidebar'
 
 export type RoomStatus = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
 /**
- * The room's work bar, one sticky row under the top bar: circle name, connection status, the round that runs and who
- * started it, the people strip (opens the People tab), and the animator's Send results and Close circle. On phones the
- * animator's actions fold into a "More" menu. A polite status line announces round and connection changes.
+ * The room's work bar, one sticky row under the top bar (buddy list, #250): the circle's name at display size with its
+ * status as an ink lozenge, a stack of the people's characters (it opens the People tab), the round that runs as a chip
+ * with who started it, the time it has run and a small meter under it, and the animator's Send results (outlined) and
+ * Close circle (ink). On phones the animator's actions fold into a "More" menu. A polite status line announces round
+ * and connection changes.
  */
-export function WorkBar({ circleId, name, isAnimator, closed, status, activity, startedBy, members, online, meId, centreId, onPeople, onClose, closing }: {
+export function WorkBar({ circleId, name, isAnimator, closed, status, activity, startedBy, startedAt = null, members, online, meId, centreId, onPeople, onClose, closing }: {
   circleId: string
   name: string
   isAnimator: boolean
@@ -26,6 +30,8 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
   status: RoomStatus
   activity: string | null
   startedBy: string | null
+  /** When the round opened (ISO, server clock); until known the bar counts from when it saw the round. */
+  startedAt?: string | null
   members: Member[]
   online: string[]
   meId: string
@@ -36,13 +42,14 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
   closing: boolean
 }) {
   const { t } = useTranslation()
-  const wide = useWide()
+  const wide = useRoomy()
   const title = activity && activityById(activity) ? t(`activities.${activity}.title`) : ''
   const starter = members.find((m) => m.id === startedBy)
   const word = closed ? t('circles.room.closed') : t(`circles.status.${status}`)
+  const running = !!activity && !!title && !closed
 
   // What changed since the last render, said once: a round opening or ending, the connection dropping or coming back.
-  const [seen, setSeen] = useState({ activity, status, said: '' })
+  const [seen, setSeen] = useState({ activity, status, said: '', openedAt: serverNow() })
   if (seen.activity !== activity || seen.status !== status) {
     let said = seen.said
     if (seen.activity !== activity) {
@@ -53,16 +60,18 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
       // The first "connecting → live" is the page arriving, not news.
       said = t('circles.room.connection', { status: t(`circles.status.${status}`) })
     }
-    setSeen({ activity, status, said })
+    setSeen({ activity, status, said, openedAt: seen.activity !== activity ? serverNow() : seen.openedAt })
   }
 
+  const elapsed = useElapsed(running, startedAt, seen.openedAt)
   const faces = stripFaces(members, online, meId)
   const more = stripMore(members.length)
   const actions = (shown: boolean) => <RoomActions circleId={circleId} closed={closed} onClose={onClose} closing={closing} shown={shown} />
+  const peopleLabel = t('circles.room.peopleStrip', { count: members.length })
 
   return (
     <section className="workbar" aria-label={t('circles.room.workbar')}>
-      {activity && !closed ? <a className="skip-link workbar__skip" href={`#${centreId}`}>{t('circles.room.skipToBoard')}</a> : null}
+      {running ? <a className="skip-link workbar__skip" href={`#${centreId}`}>{t('circles.room.skipToBoard')}</a> : null}
       {isAnimator ? (
         <Link to="/app" className="workbar__home" viewTransition>
           <House size={16} aria-hidden="true" />
@@ -76,7 +85,16 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
           {word}
         </span>
       </div>
-      {activity && title && !closed ? (
+      {/* The circle as a stack of its people, those here first and "+n" past four. Pressing it opens the People tab. */}
+      <button type="button" className="workbar__people" aria-label={peopleLabel} title={peopleLabel} onClick={onPeople}>
+        <span className="stack workbar__stack" aria-hidden="true">
+          {faces.map((m) => (
+            <Character key={m.id} id={m.character} ring={m.ring} tag={false} className={`workbar__face${m.id === meId ? ' is-me' : ''}`} />
+          ))}
+          {more ? <span className="workbar__stack-more">{more}</span> : null}
+        </span>
+      </button>
+      {running ? (
         <span key={activity} className="workbar__round" data-activity={activity}>
           {starter ? <Character id={starter.character} ring={starter.ring} tag={false} className="workbar__round-char" /> : null}
           <span className="workbar__round-title">{title}</span>
@@ -85,28 +103,35 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
               <Trans i18nKey="circles.room.startedBy" values={{ name: starter.name }} components={{ name: <bdi /> }} />
             </span>
           ) : null}
+          <span className="workbar__round-time" role="timer" aria-label={t('circles.room.elapsed', { time: formatElapsed(elapsed) })}>
+            <bdi dir="ltr" aria-hidden="true">{formatElapsed(elapsed)}</bdi>
+          </span>
+          <Meter size="sm" tone="ink" value={elapsed} max={ROUND_LENGTH_S} className="workbar__round-meter" />
         </span>
       ) : null}
       <div className="workbar__end">
-        <button
-          type="button"
-          className="workbar__people"
-          aria-label={t('circles.room.peopleStrip', { count: members.length })}
-          title={t('circles.room.peopleStrip', { count: members.length })}
-          onClick={onPeople}
-        >
-          <span className="workbar__faces" aria-hidden="true">
-            {faces.map((m) => (
-              <Character key={m.id} id={m.character} ring={m.ring} tag={false} className={`workbar__face${m.id === meId || online.includes(m.id) ? '' : ' is-away'}`} />
-            ))}
-          </span>
-          {more ? <span className="workbar__more-count" aria-hidden="true">{more}</span> : null}
-        </button>
         {isAnimator ? (wide ? <div className="workbar__actions">{actions(true)}</div> : <MoreMenu>{actions}</MoreMenu>) : null}
       </div>
       <p className="visually-hidden" role="status">{seen.said}</p>
     </section>
   )
+}
+
+/** Whole seconds the round has run, ticking once a second while it runs; the server's clock when the start is known. */
+function useElapsed(running: boolean, startedAt: string | null, openedAt: number): number {
+  const key = `${running}|${startedAt ?? ''}`
+  // A new round (or a start time arriving) reads the clock at once; the interval keeps it moving from there.
+  const [tick, setTick] = useState({ key, now: serverNow() })
+  if (tick.key !== key) setTick({ key, now: serverNow() })
+  useEffect(() => {
+    if (!running) return
+    const timer = window.setInterval(() => setTick((t) => ({ ...t, now: serverNow() })), 1000)
+    return () => window.clearInterval(timer)
+  }, [running])
+  if (!running) return 0
+  const parsed = startedAt ? Date.parse(startedAt) : NaN
+  const start = Number.isFinite(parsed) ? parsed : openedAt
+  return Math.max(0, Math.floor((tick.now - start) / 1000))
 }
 
 /** Send results, and Close circle with its inline confirmation (as on the page header before). */
@@ -143,7 +168,7 @@ function RoomActions({ circleId, closed, onClose, closing, shown }: { circleId: 
       <SendResults circleId={circleId} />
       <Button
         ref={closeRef}
-        variant="default"
+        variant="primary"
         className="room__close"
         icon={<DoorClosed size={16} />}
         onClick={() => {

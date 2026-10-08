@@ -1,34 +1,88 @@
-/* ---------- Filter toolbar ---------- */
+/* ---------- Icebreakers · the buddy list (#250) ----------
+   A white page: the title and its blue lead, a toolbar of outlined pills, then the one dark card of the view: the
+   dealt card, set in Rubik 800 on --card, with a white "Deal another" pill and the heart. Behind it the rest of the
+   deck shows as two --card-sunken offsets. The line (who is in the room), the Ask panel (AI, violet lozenge) and the
+   keepers are outlined panels. Status colours never leave the card; the meter under the turn timer is ink. */
+
+/* ---------- Filter bar: three outlined pills and a pill toggle ---------- */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--s-3) var(--s-4);
-  padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
+}
+.toolbar .select {
+  min-inline-size: 8.5rem;
+}
+.toolbar .select__label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+:lang(ar) .toolbar .select__label {
+  letter-spacing: 0;
+}
+.toolbar .select select {
+  min-block-size: 2.75rem;
+  padding-block: 0.4rem;
+  padding-inline: 1.1rem 2.5rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.toolbar .select select:hover {
+  border-color: var(--ink);
+  background: var(--paper-sunken);
+}
+.toolbar .select__chevron {
+  inset-inline-end: 1rem;
+  color: var(--ink);
 }
 .toolbar .switch {
   margin-inline-start: auto;
+  min-block-size: 2.75rem;
+  padding-block: 0.3rem;
+  padding-inline: 0.6rem 1.1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  font-weight: 700;
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
+}
+.toolbar .switch:hover {
+  border-color: var(--hairline-strong);
+}
+/* On: the picked-option look, the violet. */
+.toolbar .switch[aria-pressed='true'] {
+  border-color: var(--beam-text);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
 }
 
-/* ---------- Layout: board (card + round) with fresh AI cards at the side ---------- */
+/* ---------- Layout: board (card + line) with the Ask panel at the side ---------- */
 .ice {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
   align-items: start;
-  gap: var(--s-5);
+  gap: var(--s-6);
 }
 .ice__board {
   display: grid;
-  gap: var(--s-5);
+  gap: var(--s-6);
   min-inline-size: 0;
 }
 .ice__board.is-full {
   align-content: center;
   padding: var(--s-8);
-  background: var(--bg);
+  background: var(--ground);
   overflow: auto;
 }
 .ice__side {
@@ -37,101 +91,178 @@
   min-inline-size: 0;
 }
 
-/* ---------- The current card ---------- */
+/* ---------- The deck: two card-coloured offsets under the dealt card ---------- */
+.deck {
+  --deck-1: 8px;
+  --deck-2: 16px;
+  position: relative;
+  display: grid;
+  padding-block-end: var(--deck-2);
+}
+.deck::before,
+.deck::after {
+  content: '';
+  position: absolute;
+  inset: 0 var(--s-4) var(--deck-2);
+  border-radius: var(--r-xl);
+  background: var(--card-sunken);
+  translate: 0 var(--deck-2);
+  transition: translate var(--dur-move) var(--ease-out);
+}
+.deck::after {
+  inset-inline: var(--s-2);
+  translate: 0 var(--deck-1);
+}
+/* While a card drops in, the offsets tuck up under it, then settle back. */
+.deck.is-dealing::before {
+  translate: 0 calc(var(--deck-2) - 4px);
+}
+.deck.is-dealing::after {
+  translate: 0 calc(var(--deck-1) - 2px);
+}
+
+/* ---------- The dealt card: the one dark card ---------- */
+.deck .deal {
+  position: relative;
+  z-index: 1;
+}
+.deck .deal > .panel__head {
+  min-block-size: 0;
+  padding: var(--s-5) var(--s-6) 0;
+  gap: var(--s-2) var(--s-3);
+}
+/* The eyebrow: a tracked label, then the kind and the language as lozenges on the card. */
+.deck .deal .panel__title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-card-faint);
+}
+.deck .deal .panel__title:lang(ar) {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+}
 .deal__meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-2);
 }
 .deal__error {
-  padding: var(--s-3) var(--s-5) 0;
+  padding: var(--s-3) var(--s-6) 0;
+  color: var(--on-card);
+  font-weight: 700;
 }
 .deal__body {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-4);
   align-content: center;
-  min-block-size: 9rem;
-  padding: var(--s-6) var(--s-5);
+  min-block-size: 11rem;
+  padding: var(--s-6) var(--s-6) var(--s-5);
+  transform-origin: 50% 0;
 }
 .deal__question {
-  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--on-card);
   text-wrap: balance;
 }
 .deal__question:lang(ar) {
   letter-spacing: 0;
-  line-height: 1.5;
-}
-.deal__question.is-dealt {
-  animation: rise-in 300ms var(--ease-out);
+  line-height: 1.4;
 }
 .deal--big .deal__question {
-  font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
+  font-size: clamp(2.25rem, 1.5rem + 3.5vw, 4.5rem);
 }
 .deal__message {
-  color: var(--text-subtle);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--on-card-soft);
 }
 .deal__note {
   font-size: var(--fs-sm);
-  color: var(--text-subtlest);
+  color: var(--on-card-faint);
 }
 .deal__answer {
   padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-sm);
-  background: var(--surface-sunken);
-  font-weight: 500;
+  border-radius: var(--r-md);
+  background: var(--card-sunken);
+  color: var(--on-card);
+  font-weight: 600;
 }
-.deal__reveal {
+.deck .deal .deal__reveal {
   justify-self: start;
+  color: var(--on-card);
+  font-weight: 700;
+}
+.deck .deal .deal__reveal:hover {
+  color: var(--on-card-soft);
 }
 .deal__actions {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: var(--s-3) var(--s-5);
-  border-block-start: 1px solid var(--border);
-  background: var(--surface-sunken);
-  border-end-start-radius: var(--r-md);
-  border-end-end-radius: var(--r-md);
+  padding: 0 var(--s-6) var(--s-6);
 }
+.deal__actions .btn--lg {
+  min-inline-size: 10rem;
+}
+
+/* The heart: a white outline on the card; kept = filled white, the heart in the card's colour. */
 .heart {
   display: grid;
   place-items: center;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text-subtle);
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
+  border: 2px solid var(--on-card);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--on-card);
+  transition:
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .heart:hover {
-  background: var(--surface-hover);
-  color: var(--danger-text);
+  background: var(--card-hover);
+  transform: translateY(-1px) scale(1.02);
+}
+.heart:active {
+  transform: scale(0.97);
+}
+.heart:focus-visible {
+  outline: 2px solid var(--on-card);
+  outline-offset: 3px;
 }
 .heart[aria-pressed='true'] {
-  border-color: var(--danger-subtle);
-  background: var(--danger-subtle);
-  color: var(--danger-text);
+  background: var(--on-card);
+  color: var(--card);
 }
 .heart[aria-pressed='true'] svg {
   fill: currentColor;
+  animation: keep-pop var(--dur-move) var(--ease-out);
 }
+@keyframes keep-pop {
+  50% {
+    transform: scale(1.15);
+  }
+}
+/* Arrival moves, never fades: text keeps its contrast while it settles. */
 @keyframes rise-in {
   from {
-    opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
 }
 
-/* ---------- The round ---------- */
+/* ---------- The line: who is in the room, as pills with characters ---------- */
 .line__strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-2);
-  padding: var(--s-4) var(--s-5) 0;
+  padding: var(--s-2) var(--s-5) 0;
 }
 .swimmers {
   display: contents;
@@ -139,64 +270,88 @@
 .swimmer {
   display: inline-flex;
   align-items: center;
-  gap: var(--s-1);
-  min-block-size: 2.25rem;
-  padding-block: 0.15rem;
-  padding-inline: 0.75rem 0.2rem;
-  border: 1px solid var(--border);
+  gap: var(--s-2);
+  min-block-size: 2.75rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.3rem;
+  border: 2px solid var(--hairline);
   border-radius: var(--r-pill);
-  background: var(--surface);
+  background: var(--paper);
+  color: var(--ink);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: 700;
   transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+    background-color var(--dur-state) var(--ease-out),
+    border-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
 }
+.swimmer__char {
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+.swimmer__char > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+/* Whose turn it is: the picked-option violet. */
 .swimmer.is-now {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--on-primary);
+  border-color: var(--beam-text);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
 }
 .swimmer.is-done {
-  background: var(--surface-sunken);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
   text-decoration: line-through;
 }
 .swimmer__remove,
 .swimmer__add {
   display: grid;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: inherit;
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.swimmer__remove:hover,
-.swimmer__add:hover {
-  background: var(--surface-hover);
+.swimmer__remove:hover {
+  background: var(--paper-hover);
 }
-.swimmer.is-now .swimmer__remove:hover {
-  background: rgb(255 255 255 / 0.18);
+.swimmer__remove:active,
+.swimmer__add:active {
+  transform: scale(0.94);
 }
 .swimmer--add {
-  padding-inline: 0.2rem;
+  padding-inline-start: 0.35rem;
   border-style: dashed;
-  border-color: var(--border-strong);
+  border-color: var(--hairline-strong);
 }
 .swimmer--add:focus-within {
   border-style: solid;
   border-color: var(--focus);
-  box-shadow: 0 0 0 1px var(--focus);
 }
 .swimmer--add input {
   inline-size: 9rem;
-  min-block-size: 1.75rem;
-  padding-inline: 0.6rem;
+  min-block-size: 2rem;
+  padding-inline: 0.5rem;
   border: 0;
   background: transparent;
+  color: var(--ink);
+  font-weight: 500;
   outline: none;
+}
+/* The add button is an ink dot. */
+.swimmer__add {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.swimmer__add:hover {
+  background: var(--ink-soft);
 }
 .line > .field__error {
   padding: var(--s-2) var(--s-5) 0;
@@ -209,37 +364,54 @@
   padding: var(--s-4) var(--s-5);
 }
 .line__hint {
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .line__turn {
   margin-inline-end: auto;
   font-size: var(--fs-xl);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.line__turn:lang(ar) {
+  letter-spacing: 0;
 }
 .line__who {
-  color: var(--primary-text);
+  color: var(--beam-text);
 }
+/* The running count, as an outlined pill; the ink meter under it says how much is left. */
 .turn-timer {
   display: inline-grid;
   place-items: center;
-  min-inline-size: 4.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--r-sm);
-  background: var(--surface-sunken);
-  box-shadow: inset 0 0 0 1px var(--border);
+  min-inline-size: 4.75rem;
+  min-block-size: 2.75rem;
+  padding: 0.25rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .turn-timer.is-ringing {
+  border-color: var(--danger);
   background: var(--danger-subtle);
   color: var(--danger-text);
-  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.line__meter {
+  padding: 0 var(--s-5) var(--s-3);
 }
 .line__keys {
   padding: 0 var(--s-5) var(--s-4);
   font-size: var(--fs-sm);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
+}
+.line__keys kbd {
+  padding: 0 0.4em;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-xs);
+  background: var(--paper-sunken);
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 @media (hover: none) and (pointer: coarse) {
   .line__keys {
@@ -247,11 +419,10 @@
   }
 }
 
-/* ---------- Fresh cards (AI) ---------- */
+/* ---------- Fresh cards (AI): an outlined panel, a pill field, a violet Ask ---------- */
 .ask-panel__lead {
-  padding: var(--s-4) var(--s-5) 0;
-  font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  padding: 0 var(--s-5);
+  color: var(--ink-soft);
 }
 .ask-panel__form {
   display: grid;
@@ -260,21 +431,40 @@
 }
 .ask-panel__field {
   display: grid;
-  gap: var(--s-1);
+  gap: var(--s-2);
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--text-subtle);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.ask-panel .ask-panel__field input {
+  min-block-size: 2.75rem;
+  padding-inline: 1.1rem;
+  border: 2px solid var(--field-line);
+  border-radius: var(--r-pill);
+  color: var(--ink);
+  font-weight: 500;
+}
+.ask-panel .ask-panel__field input:hover {
+  border-color: var(--hairline-strong);
+}
+.ask-panel .ask-panel__field input:focus-visible {
+  border-color: var(--focus);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.ask-panel .ask-panel__field input[aria-invalid='true'] {
+  border-color: var(--danger);
+  box-shadow: none;
 }
 .ask-panel__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s-3);
 }
 .ask-panel__allowance {
   font-size: var(--fs-sm);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
   font-variant-numeric: tabular-nums;
 }
 .ask-panel > .field__error {
@@ -282,17 +472,18 @@
 }
 .fresh-list {
   display: grid;
-  border-block-start: 1px solid var(--border);
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-5) var(--s-5);
 }
 .fresh-card {
   display: grid;
   gap: var(--s-2);
-  padding: var(--s-4) var(--s-5);
-  border-block-end: 1px solid var(--border);
-  animation: rise-in 240ms var(--ease-out) backwards;
-}
-.fresh-card:last-child {
-  border-block-end: 0;
+  padding: var(--s-4);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  animation: rise-in var(--dur-enter) var(--ease-settle) backwards;
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .fresh-card:nth-child(2) {
   animation-delay: 40ms;
@@ -306,41 +497,60 @@
 .fresh-card .lozenge {
   justify-self: start;
 }
+.fresh-card p {
+  font-weight: 600;
+  line-height: 1.4;
+}
+.fresh-card.is-kept {
+  border-color: var(--live);
+}
 .fresh-card__actions {
   display: flex;
   gap: var(--s-2);
 }
+/* Keep is an ink pill, dismiss a round text button. */
 .mini-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s-1);
-  min-block-size: 2rem;
-  padding: 0.25rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--surface-sunken);
-  color: var(--text);
+  min-block-size: 2.25rem;
+  padding: 0.25rem 0.9rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
+  color: var(--ink);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 700;
+  transition:
+    background-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .mini-btn:hover {
-  background: var(--surface-hover);
+  background: var(--paper-hover);
+  transform: translateY(-1px) scale(1.02);
+}
+.mini-btn:active {
+  transform: scale(0.97);
+}
+.mini-btn[aria-label] {
+  inline-size: 2.25rem;
+  padding: 0;
 }
 .mini-btn--keep {
-  border-color: transparent;
-  background: var(--ai);
-  color: var(--on-ai);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .mini-btn--keep:hover {
-  background: var(--ai-hover);
+  background: var(--ink-soft);
 }
 .fresh-card.is-kept .mini-btn--keep {
-  background: var(--success-subtle);
-  color: var(--success-text);
+  background: var(--live-subtle);
+  color: var(--live-text);
   cursor: default;
 }
 
-/* ---------- Keepers ---------- */
+/* ---------- Keepers: outlined rows, the text heavy, a small pill to put it on the board ---------- */
 .keepers .seg__track {
   flex-wrap: nowrap;
 }
@@ -349,59 +559,64 @@
 }
 .keepers__empty {
   padding: var(--s-6) var(--s-5);
-  color: var(--text-subtlest);
+  color: var(--ink-faint);
   text-align: center;
 }
 .keepers__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: var(--s-3);
-  padding: var(--s-4) var(--s-5) var(--s-5);
+  gap: var(--s-2);
+  margin: var(--s-2) var(--s-5) var(--s-5);
+  padding: 0;
+  list-style: none;
 }
 .keeper {
   display: flex;
-  align-items: flex-start;
-  gap: var(--s-1);
-  padding: var(--s-1);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding-block: var(--s-3);
+  padding-inline: var(--s-4) var(--s-3);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .keeper:hover {
-  border-color: var(--border-strong);
+  border-color: var(--hairline-strong);
 }
-.keeper__open {
-  flex: 1;
-  padding: var(--s-2) var(--s-3);
-  border: 0;
-  border-radius: var(--r-sm);
-  background: none;
-  color: var(--text);
-  text-align: start;
-  line-height: 1.45;
-}
-.keeper__open:hover {
-  background: var(--surface-hover);
+.keeper__text {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  font-weight: 700;
+  line-height: 1.35;
 }
 .keeper__icon {
   display: grid;
   place-items: center;
-  inline-size: 2rem;
-  block-size: 2rem;
   flex: none;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: 50%;
   background: transparent;
-  color: var(--danger-text);
+  color: var(--live-text);
+  transition: background-color var(--dur-state) var(--ease-out);
 }
 .keeper__icon:hover {
-  background: var(--danger-subtle);
+  background: var(--live-subtle);
 }
 .keeper__icon[aria-pressed='true'] svg {
   fill: currentColor;
 }
+.keeper__icon:not([aria-pressed]) {
+  color: var(--ink-soft);
+}
+.keeper__icon:not([aria-pressed]):hover {
+  background: var(--danger-subtle);
+  color: var(--danger-text);
+}
 
-/* ---------- Adaptive ---------- */
+/* ---------- Adaptive: phones first, every control 44px ---------- */
 @media (max-width: 70rem) {
   .ice {
     grid-template-columns: minmax(0, 1fr);
@@ -419,9 +634,71 @@
     min-inline-size: 0;
   }
   .toolbar .switch {
+    grid-column: 1 / -1;
     margin-inline-start: 0;
+    justify-content: flex-start;
+  }
+  .deck .deal > .panel__head {
+    padding-inline: var(--s-5);
+  }
+  .deal__body {
+    padding: var(--s-5);
+  }
+  .deal__actions {
+    padding-inline: var(--s-5);
   }
   .deal__actions .btn {
     flex: 1;
+    min-inline-size: 0;
+  }
+  .swimmer {
+    padding-block: 0;
+  }
+  .swimmer__remove,
+  .swimmer__add {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+  .swimmer--add input {
+    inline-size: 8rem;
+  }
+  .mini-btn {
+    min-block-size: 2.75rem;
+  }
+  .mini-btn[aria-label] {
+    inline-size: 2.75rem;
+  }
+  .keepers__list {
+    margin-inline: var(--s-4);
+  }
+  .keeper {
+    padding-inline: var(--s-4);
+  }
+  .keeper__open {
+    min-block-size: 2.75rem;
+  }
+}
+
+/* ---------- Reduced motion: everything keeps its meaning, nothing moves ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .deck::before,
+  .deck::after,
+  .deck.is-dealing::before,
+  .deck.is-dealing::after {
+    transition: none;
+  }
+  .deck.is-dealing::before {
+    translate: 0 var(--deck-2);
+  }
+  .deck.is-dealing::after {
+    translate: 0 var(--deck-1);
+  }
+  .fresh-card,
+  .heart[aria-pressed='true'] svg {
+    animation: none;
+  }
+  .heart:hover,
+  .mini-btn:hover {
+    transform: none;
   }
 }

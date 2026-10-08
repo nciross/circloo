@@ -34,7 +34,7 @@ export function fold(text: string): string {
 const ARABIC_PREFIXES = ['وال', 'بال', 'لل', 'ال', 'و', 'ب', 'ل']
 
 /** Words of the folded text, with Arabic articles and conjunctions peeled off as extra forms. */
-function words(folded: string): Set<string> {
+export function words(folded: string): Set<string> {
   const out = new Set<string>()
   for (const w of folded.split(/[^\p{L}\p{N}]+/u).filter(Boolean)) {
     out.add(w)
@@ -45,7 +45,7 @@ function words(folded: string): Set<string> {
 
 type Lexicon<T extends string> = Record<T, string[]>
 
-const AUDIENCE: Lexicon<Audience> = {
+export const AUDIENCE: Lexicon<Audience> = {
   family: ['family', 'families', 'famille', 'familia', 'عائله', 'اسره', 'عيله'],
   friends: ['friend', 'friends', 'ami', 'amis', 'amie', 'amies', 'copains', 'amigo', 'amigos', 'amigas', 'اصدقاء', 'صديق', 'اصحاب'],
   work: ['work', 'team', 'colleagues', 'coworkers', 'office', 'travail', 'equipe', 'collegues', 'boulot', 'trabajo', 'equipo', 'companeros', 'oficina', 'عمل', 'فريق', 'زملاء'],
@@ -55,14 +55,14 @@ const TONE: Lexicon<Tone> = {
   cozy: ['cozy', 'cosy', 'warm', 'gentle', 'douillet', 'doux', 'chaleureux', 'acogedor', 'acogedora', 'calido', 'دافئ', 'دافئه', 'لطيف'],
   deep: ['deep', 'serious', 'profond', 'profonde', 'profundo', 'profunda', 'عميق', 'عميقه'],
 }
-const KIND: Lexicon<Kind> = {
+export const KIND: Lexicon<Kind> = {
   joke: ['joke', 'jokes', 'blague', 'blagues', 'chiste', 'chistes', 'نكته', 'نكت', 'نكات'],
   riddle: ['riddle', 'riddles', 'devinette', 'devinettes', 'enigme', 'adivinanza', 'adivinanzas', 'لغز', 'الغاز'],
   'would-you-rather': ['rather', 'preferes', 'prefieres', 'تفضل'],
   icebreaker: ['icebreaker', 'icebreakers', 'brise', 'rompehielos', 'question', 'questions', 'pregunta', 'preguntas', 'سؤال', 'اسئله', 'الجليد'],
 }
-const KIDS = ['kid', 'kids', 'child', 'children', 'enfant', 'enfants', 'nino', 'ninos', 'ninas', 'اطفال', 'طفل', 'صغار']
-const LOCALE: Lexicon<Locale> = {
+export const KIDS = ['kid', 'kids', 'child', 'children', 'enfant', 'enfants', 'nino', 'ninos', 'ninas', 'اطفال', 'طفل', 'صغار']
+export const LOCALE: Lexicon<Locale> = {
   en: ['english', 'anglais', 'ingles', 'الانجليزيه', 'انجليزي'],
   fr: ['french', 'francais', 'frances', 'الفرنسيه', 'فرنسي'],
   es: ['spanish', 'espagnol', 'espanol', 'الاسبانيه', 'اسباني'],
@@ -82,9 +82,9 @@ const ROUND = ['round', 'tour', 'ronda', 'turns', 'جوله', 'meeting', 'reunio
 const DEAL = ['deal', 'draw', 'another', 'next', 'tire', 'tirer', 'autre', 'saca', 'otra', 'اسحب', 'اخرى']
 
 // Terms are folded the same way as the text (hamza seats lose their hamza, for instance).
-const pick = <T extends string>(w: Set<string>, lex: Lexicon<T>): T | undefined =>
+export const pick = <T extends string>(w: Set<string>, lex: Lexicon<T>): T | undefined =>
   (Object.keys(lex) as T[]).find((k) => has(w, lex[k]))
-const has = (w: Set<string>, list: string[]) => list.some((term) => w.has(fold(term)))
+export const has = (w: Set<string>, list: string[]) => list.some((term) => w.has(fold(term)))
 
 /** "with A, B and C" in four languages; names keep their original spelling. */
 const PEOPLE_RE = /(?:^|\s)(?:with|avec|con|مع)\s+(.+?)(?=\s+(?:about|sur|sobre|عن)\s|$)/iu

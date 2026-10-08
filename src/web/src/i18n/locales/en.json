@@ -41,161 +41,104 @@
     "signedInAs": "Signed in as",
     "startRound": "Start a round",
     "breadcrumb": "Breadcrumb",
-    "languageCurrent": "Language: {{name}}"
+    "languageCurrent": "Language: {{name}}",
+    "meterOf": "{{value}} of {{max}}"
   },
   "landing": {
     "title": "circloo · your circle, in one private space",
-    "headline": "Your circle, in one private space.",
-    "sub": "Check in on how everyone feels, start meetings with a laugh and decide things together. One small private space for your family, your friends or your team.",
-    "languagesLine": "Speaks English, français, العربية and español.",
     "cta": "Start your circle",
-    "ctaSecondary": "See how it works",
-    "teaser": {
-      "title": "Today's icebreaker",
-      "shake": "Deal another",
-      "shaking": "Dealing…",
-      "answerLabel": "Your answer",
-      "answerPlaceholder": "Write it on the card…",
-      "answerHint": "Stays on your screen. Nothing is sent.",
-      "error": "We could not load this card. Deal another one."
+    "tagline1": "Your circle.",
+    "tagline2": "One private space.",
+    "nav": {
+      "login": "Log in"
     },
-    "checkins": {
-      "title": "Today's check-ins",
-      "items": [
-        {
-          "name": "Amina",
-          "mood": "Sunny",
-          "need": "Ready for anything"
-        },
-        {
-          "name": "Théo",
-          "mood": "Cloudy",
-          "need": "Need coffee"
-        },
-        {
-          "name": "Lucía",
-          "mood": "Bright",
-          "need": "Proud of yesterday"
-        },
-        {
-          "name": "Youssef",
-          "mood": "Foggy",
-          "need": "Need a hug"
-        }
-      ]
+    "hero": {
+      "scene": "Your circle, live together.",
+      "live": "Live",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
-    "feel": {
-      "title": "Feel together",
-      "body": "One tap in the morning tells your circle how you are. Words and faces, never just colours. A note or a small need if you want, and that is it.",
-      "moods": {
-        "1": "Stormy",
-        "2": "Foggy",
-        "3": "Cloudy",
-        "4": "Bright",
-        "5": "Sunny"
-      },
-      "weather": "Circle weather: mostly bright, one person needs coffee.",
-      "tryIt": "Try it: how do you feel?",
-      "faceSays": "circloo feels {{mood}} too."
+    "blobs": {
+      "a": "family sunday",
+      "b": "team retro",
+      "c": "game night",
+      "d": "every thursday"
     },
-    "work": {
-      "title": "Work together",
-      "body": "Live boards for brainstorms, retros and decisions. Stick notes, drag them, vote with dots, watch everyone's cursor move. On a phone or on the big screen.",
-      "columns": {
-        "well": "Went well",
-        "improve": "To improve",
-        "actions": "Actions"
-      },
-      "notes": [
-        "Sunday lunch at grandma's",
-        "Too many meetings on Monday",
-        "Book the train tickets",
-        "New coffee machine",
-        "Shorter stand-ups"
-      ],
-      "votes_one": "{{count}} vote",
-      "votes_other": "{{count}} votes"
+    "rounds": {
+      "title1": "Rounds for",
+      "titleLink": "your circle",
+      "lead": "Pick a few and circloo runs them with you. Every round works on a phone or on the big screen.",
+      "all": "See all rounds",
+      "minutes_one": "{{count}} min",
+      "minutes_other": "{{count}} min"
     },
-    "fun": {
-      "title": "Have fun together",
-      "body": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine. Want more? Ask circloo for fresh ones that fit your circle, checked for kindness."
-    },
-    "integrations": {
-      "title": "Plugs into your week",
-      "body": "circloo sends what your circle decides where your team already works. Salesforce is on the way.",
-      "items": {
-        "teams": "Start Teams meetings with an icebreaker",
-        "salesforce": "Celebrate the deals your team wins",
-        "jira": "Turn retro actions into issues",
-        "confluence": "Publish a board as a page",
-        "notion": "Send boards and notes to your workspace"
-      },
-      "stamp": "Coming soon",
-      "available": "Available"
+    "made": {
+      "preview": "Preview",
+      "empty": "Your circle shows up here.",
+      "people_one": "{{count}} person",
+      "people_other": "{{count}} people",
+      "more": "+{{count}}",
+      "line": "All set. We open with {{first}}, then {{rest}}.",
+      "lineOne": "All set. We open with {{first}}.",
+      "create": "Create this circle",
+      "byHand": "Build it by hand",
+      "announce": "Preview: {{name}}, {{people}}, with {{activities}}.",
+      "names": {
+        "retro": "Team retro",
+        "brainstorm": "Brainstorm",
+        "decide": "Quick decision",
+        "present": "Presentation day",
+        "feedback": "Feedback round",
+        "kudos": "Kudos round",
+        "kids": "Family game time",
+        "mood": "Mood check-in",
+        "family": "Family Sunday",
+        "friends": "Game night",
+        "team": "Team meeting"
+      }
     },
     "how": {
-      "title": "Three steps, no password",
-      "steps": [
-        {
-          "title": "Type your email",
-          "body": "We send you a six-digit code. No password to remember."
+      "title": "How it works",
+      "note": "one line, one link, one round",
+      "steps": {
+        "say": {
+          "title": "Say it in one line",
+          "body": "Tell circloo who it is for and what you want to do. It names the circle and picks the first rounds.",
+          "link": "Start your circle"
         },
-        {
-          "title": "Make your circle",
-          "body": "Family, friends or team. Invite people by email or with a simple code."
+        "share": {
+          "title": "Share the link or the code",
+          "body": "Send a link or read out a short code. People join with a first name and a character, no email needed.",
+          "link": "Watch people join"
         },
-        {
-          "title": "Get going together",
-          "body": "Check-ins, icebreakers and boards, all in one place."
+        "play": {
+          "title": "Play together",
+          "body": "Icebreakers, live boards and presentations with polls, in the room or on the big screen.",
+          "link": "See the rounds"
         }
-      ]
+      }
     },
-    "final": {
-      "title": "Ready when your circle is.",
-      "body": "Private by default. Only the people you invite can see what happens in your circle.",
-      "cta": "Start your circle"
-    },
-    "footer": {
-      "private": "Private by default. No ads.",
-      "made": "Made for families, friends and teams in four languages.",
-      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence and Notion are trademarks of their owners. circloo is not affiliated with them."
-    },
-    "preview": "A preview of circloo",
-    "features": "Feel, work and play together",
-    "pricing": {
-      "title": "One plan. Everything in it.",
-      "body": "No tiers to compare and no feature behind a paywall. Start today, free while circloo is in early access.",
-      "plan": "Circle",
-      "price": "Free",
-      "period": "during early access",
-      "features": [
+    "plan": {
+      "title": "One plan, free for now",
+      "lead": "circloo is in early access. Everything that works today is yours, at no cost.",
+      "name": "Free",
+      "badge": "For now",
+      "price": "0",
+      "per": "no card, no trial clock",
+      "items": [
         "Unlimited circles and members",
-        "Icebreaker catalog in four languages",
-        "Fresh AI cards with circloo, checked for kindness",
-        "Live rounds with animator and participants",
-        "Private by default, no ads, ever"
+        "Every round: icebreakers, boards, polls and presentations",
+        "English, French, Arabic and Spanish",
+        "Join by link or code, no password",
+        "Private by default, no ads"
       ],
-      "cta": "Start your circle",
-      "note": "If we ever add a paid plan, we will tell you well before anything is charged. Your circle keeps working."
-    },
-    "stage": {
-      "joined_one": "{{count}} person in the circle",
-      "joined_other": "{{count}} people in the circle"
-    },
-    "inside": {
-      "title": "Inside circloo",
-      "body": "A calm workspace for your circle: live icebreakers, check-ins and boards, with circloo ready to help."
-    },
-    "tour": {
-      "title": "circloo in 20 seconds",
-      "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
-      "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
-    },
-    "nav": {
-      "label": "On this page",
-      "story": "How it works",
-      "pricing": "Pricing",
-      "integrations": "Integrations"
+      "cta": "Start for free",
+      "later": "If a paid plan ever comes, you will hear about it long before any charge.",
+      "note": "free while we build it"
     },
     "story": {
       "title": "Watch a circle come to life",
@@ -242,20 +185,131 @@
         }
       }
     },
-    "rotator": {
-      "prefix": "Made for your",
-      "words": [
-        "family",
-        "friends",
-        "team",
-        "classroom",
-        "club"
+    "jobs": {
+      "title": "What a circle does"
+    },
+    "feel": {
+      "title": "Feel together",
+      "body": "One tap in the morning tells your circle how you are. Words and faces, never just colours. A note or a small need if you want, and that is it.",
+      "moods": {
+        "1": "Stormy",
+        "2": "Foggy",
+        "3": "Cloudy",
+        "4": "Bright",
+        "5": "Sunny"
+      },
+      "weather": "Circle weather: mostly bright, one person needs coffee.",
+      "tryIt": "Try it: how do you feel?",
+      "faceSays": "circloo feels {{mood}} too.",
+      "intro": "One tap in the morning tells your circle how you are. Words and faces, never just colours."
+    },
+    "work": {
+      "title": "Work together",
+      "body": "Live boards for brainstorms, retros and decisions. Stick notes, drag them, vote with dots, watch everyone's cursor move. On a phone or on the big screen.",
+      "columns": {
+        "well": "Went well",
+        "improve": "To improve",
+        "actions": "Actions"
+      },
+      "notes": [
+        "Sunday lunch at grandma's",
+        "Too many meetings on Monday",
+        "Book the train tickets",
+        "New coffee machine",
+        "Shorter stand-ups"
+      ],
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "intro": "Live boards for brainstorms, retros and decisions, on a phone or on the big screen."
+    },
+    "fun": {
+      "title": "Have fun together",
+      "body": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine. Want more? Ask circloo for fresh ones that fit your circle, checked for kindness.",
+      "intro": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine."
+    },
+    "integrations": {
+      "title": "Plugs into your week",
+      "body": "circloo sends what your circle decides where your team already works. Salesforce is on the way.",
+      "items": {
+        "teams": "Start Teams meetings with an icebreaker",
+        "salesforce": "Celebrate the deals your team wins",
+        "jira": "Turn retro actions into issues",
+        "confluence": "Publish a board as a page",
+        "notion": "Send boards and notes to your workspace"
+      },
+      "stamp": "Coming soon",
+      "available": "Available",
+      "eyebrow": "Plugs into your week"
+    },
+    "faq": {
+      "title": "Questions",
+      "items": [
+        {
+          "q": "Do I need a password?",
+          "a": "No. You type your email and we send a six-digit code. People you invite by link only need a first name."
+        },
+        {
+          "q": "Who can see what happens in my circle?",
+          "a": "Only its members and the people you invite. Circles are private by default and there are no ads."
+        },
+        {
+          "q": "Is it really free?",
+          "a": "Yes, while circloo is in early access. If we ever add a paid plan, we will tell you well before anything is charged."
+        },
+        {
+          "q": "Can my company use its own login?",
+          "a": "Not yet: today everyone signs in with a code sent by email. Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is planned, and it will be set up through configuration, not custom code."
+        },
+        {
+          "q": "Which languages does it speak?",
+          "a": "English, French, Arabic (with a full right-to-left layout) and Spanish. Jokes are written natively in each, never translated literally."
+        }
       ]
     },
-    "float": {
-      "checkin": "checked in",
-      "note": "New note: Shorter stand-ups",
-      "typing": "is writing…"
+    "footer": {
+      "tag": "your circle, one private space",
+      "create": "Create your own circle.",
+      "start": "Get started",
+      "account": {
+        "title": "Your account",
+        "login": "Log in",
+        "start": "Start your circle"
+      },
+      "discover": {
+        "title": "Discover",
+        "rounds": "Rounds",
+        "how": "How it works",
+        "faq": "Questions",
+        "free": "Free plan"
+      },
+      "languages": "Languages",
+      "made1": "Made with",
+      "made2": "in four languages",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence and Notion are trademarks of their owners. circloo is not affiliated with them."
+    },
+    "teaser": {
+      "title": "Today's icebreaker",
+      "shake": "Deal another",
+      "shaking": "Dealing…",
+      "answerLabel": "Your answer",
+      "answerPlaceholder": "Write it on the card…",
+      "answerHint": "Stays on your screen. Nothing is sent.",
+      "error": "We could not load this card. Deal another one."
+    },
+    "tour": {
+      "title": "circloo in 20 seconds",
+      "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
+      "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
+    },
+    "login": {
+      "back": "Back to the board"
+    },
+    "motion": {
+      "pause": "Pause animations",
+      "play": "Play animations",
+      "respect": "Respect my system setting",
+      "playing": "Animations are playing.",
+      "following": "Animations follow your system setting."
     }
   },
   "auth": {
@@ -297,7 +351,7 @@
     }
   },
   "home": {
-    "greeting": "Hi <name>{{name}}</name>!",
+    "greeting": "Hi <name>{{name}}</name>.",
     "lead": "Start a circle, or jump back into one.",
     "nextTitle": "Your workspace",
     "modules": {
@@ -335,6 +389,47 @@
       "module": "Module",
       "status": "Status",
       "about": "What it does"
+    },
+    "orrery": "Your circles, in orbit",
+    "orreryLead": "Open a circle to go back into its room.",
+    "live": "Live now",
+    "today": "Today in your circles",
+    "phaseNote": "Only on this device for now: daily check-ins for the whole circle are coming.",
+    "liveLine_one": "{{name}} is live. One person is in.",
+    "liveLine_other": "{{name}} is live. {{count}} people are in.",
+    "hereOf": "{{value}} of {{max}}",
+    "hereToday": "people here today",
+    "here": "here",
+    "openRoom": "Open the room",
+    "otherCircles": "Your other circles",
+    "feelTitle": "How do you feel today?",
+    "weather": "Circle weather: <b>{{mood}}</b>.",
+    "firstTitle": "Start your first circle",
+    "create": {
+      "title": "Start a new circle",
+      "lead": "Say what it is for, share the link, and play together. Free, private, in your language.",
+      "cta": "New circle",
+      "quick": "Or start from",
+      "kinds": {
+        "family": "Family Sunday",
+        "friends": "Game night",
+        "team": "Team retro"
+      },
+      "lines": {
+        "family": "Sunday lunch with the family, something silly for the kids",
+        "friends": "Game night with 5 friends: jokes and a would-you-rather",
+        "team": "A retro for my team of 6"
+      }
+    },
+    "groups": {
+      "animator": {
+        "title": "Circles I run",
+        "empty": "You do not run a circle yet. Start one above."
+      },
+      "participant": {
+        "title": "Circles I joined",
+        "empty": "When someone sends you a link, their circle shows up here."
+      }
     }
   },
   "settings": {
@@ -362,9 +457,9 @@
     "autonomyHelp": "With Suggest, Pirikoo pops up with the next step as you go. Nothing runs until you choose it. You can chat with Pirikoo either way."
   },
   "notFound": {
-    "title": "We can't find this page.",
+    "title": "Nothing here.",
     "body": "The page you are looking for does not exist or moved.",
-    "home": "Back to home"
+    "home": "Back home"
   },
   "ice": {
     "title": "Icebreakers",
@@ -393,7 +488,7 @@
     },
     "card": {
       "label": "Current card",
-      "shake": "Deal",
+      "shake": "Deal another",
       "favourite": "Favourite",
       "showAnswer": "Show the answer",
       "empty": "No card matches these filters. Change one, or ask for fresh cards.",
@@ -650,7 +745,21 @@
       "errors": {
         "name": "Give your circle a name.",
         "activities": "Pick at least one activity."
-      }
+      },
+      "mode": "How do you want to start?",
+      "describe": "Describe it",
+      "byHand": "By hand",
+      "describeLabel": "Say what the circle is for",
+      "describePlaceholder": "A retro for my team of 6, in French",
+      "suggest": "Suggest",
+      "suggestAgain": "Suggest again",
+      "suggested": "Suggested",
+      "suggestHelp": "A quick suggestion from your words, nothing more: change anything below. circloo composing it with AI is on the way.",
+      "applied": "Name and activities filled in from your line.",
+      "preview": "What will open",
+      "seats": "Seats",
+      "seatsNote": "You first. Anyone with the link takes a seat.",
+      "pickedOf": "activities picked"
     },
     "invite": {
       "title": "Invite people",
@@ -684,7 +793,8 @@
       "ringLegend": "Your colour ring",
       "ringHelp": "Others picked this character too. You will wear ring {{n}}, and your name always shows with it. Change it here if you like.",
       "ringOption": "Ring {{n}}",
-      "ringNone": "No ring"
+      "ringNone": "No ring",
+      "heading": "Join <name>{{name}}</name>"
     },
     "room": {
       "title": "Circle",
@@ -751,6 +861,7 @@
       "startedBy": "started by <name>{{name}}</name>",
       "roundOpen": "{{activity}} is open",
       "roundEnded": "The round ended.",
+      "elapsed": "Running for {{time}}",
       "connection": "Connection: {{status}}",
       "peopleStrip_one": "{{count}} person in the circle. Show the list",
       "peopleStrip_other": "{{count}} people in the circle. Show the list",
@@ -758,7 +869,10 @@
       "expandSide": "Open the sidebar",
       "callTab": "Call",
       "openWhiteboard": "Open the whiteboard",
-      "otherRounds": "Other rounds"
+      "otherRounds": "Other rounds",
+      "valueHere": "here",
+      "valueAway": "away",
+      "peopleHere": "People here"
     },
     "missing": {
       "title": "Circle not found",
@@ -804,11 +918,18 @@
       "isOff": "Live discussion is off.",
       "stage": "Stage",
       "stageBody": "Audio and video arrive next. Chat and raise your hand meanwhile.",
+      "floor": "has the floor",
       "errors": {
         "failed": "That did not work. Try again in a moment.",
         "offline": "You are offline. It will work again once the room reconnects.",
         "animator-only": "Only the animator can change this."
       }
+    },
+    "ring": {
+      "empty": "Nobody yet",
+      "label": "{{name}}: {{count}} people",
+      "labelMood": "{{name}}: {{count}} people, mostly {{mood}}",
+      "running": "a round is running"
     }
   },
   "boards": {
@@ -923,12 +1044,14 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
-    }
+    },
+    "connectedTitle": "Connected services"
   },
   "pirikoo": {
     "name": "Pirikoo",
     "label": "Pirikoo, your guide",
     "ask": "Ask Pirikoo",
+    "searchAsk": "Search or ask Pirikoo…",
     "notNow": "Not now",
     "hide": "Turn off suggestions",
     "actions": {
@@ -990,6 +1113,7 @@
       "ai": "AI",
       "open": "Chat with Pirikoo",
       "openUnread": "Chat with Pirikoo, new answer",
+      "openTip": "Chat with Pirikoo, a suggestion is waiting",
       "subtitle": "Your guide in circloo",
       "writing": "Pirikoo is writing",
       "writingShort": "writing…",
@@ -1093,7 +1217,8 @@
       "title": "Drop a PowerPoint file here",
       "hint": "A .pptx file up to 50 MB and 100 slides. Each slide becomes a picture; your speaker notes come along.",
       "choose": "Choose a file",
-      "sending": "Uploading"
+      "sending": "Uploading",
+      "pick": "Upload a PowerPoint"
     },
     "errors": {
       "not-pptx": "This is not a PowerPoint (.pptx) file. In PowerPoint, use Save as and pick .pptx.",
@@ -1179,7 +1304,8 @@
     "movedTo": "Slide moved to place {{number}} of {{count}}.",
     "autoOpen": "Open answers as soon as a question shows",
     "autoOpenOn": "Participants can answer the moment you reach a question.",
-    "autoOpenOff": "You open answers yourself on each question."
+    "autoOpenOff": "You open answers yourself on each question.",
+    "ready": "Ready"
   },
   "present": {
     "pickTitle": "Pick a presentation",
@@ -1335,350 +1461,5 @@
       "build": "Make your own"
     },
     "person": "Person {{n}}"
-  },
-  "landing2": {
-    "nav": {
-      "audience": "Who it's for",
-      "product": "Features",
-      "faq": "FAQ"
-    },
-    "hero": {
-      "madeFor": "Made for your",
-      "kindLabel": "Who is it for?",
-      "note": "No password: we email you a six-digit code. Private by default.",
-      "kinds": [
-        {
-          "id": "family",
-          "label": "Family",
-          "word": "family"
-        },
-        {
-          "id": "friends",
-          "label": "Friends",
-          "word": "friends"
-        },
-        {
-          "id": "team",
-          "label": "Team",
-          "word": "team"
-        }
-      ]
-    },
-    "logos": {
-      "eyebrow": "Plugs into the tools your team already uses"
-    },
-    "audience": {
-      "eyebrow": "Who it's for",
-      "title": "One small space, three kinds of people",
-      "lead": "Pick yours. The space adapts, the rituals stay light.",
-      "items": [
-        {
-          "id": "family",
-          "tab": "Family",
-          "title": "Stay close, wherever everyone lives",
-          "body": "Check in with a tap, share a laugh in your own language and plan the next dinner together. Arabic, French, Spanish and English side by side.",
-          "bullets": [
-            "One-tap daily check-in",
-            "Jokes written natively in four languages",
-            "Invite grandma with a link, no email needed"
-          ],
-          "cta": "Start a family circle"
-        },
-        {
-          "id": "friends",
-          "tab": "Friends",
-          "title": "A group chat that grew into a place",
-          "body": "Start the evening with an icebreaker, drop ideas on a shared canvas and vote on the plan. No account needed to join.",
-          "bullets": [
-            "Icebreakers, riddles and jokes",
-            "Shared canvas with live pointers",
-            "Join with a name and a character"
-          ],
-          "cta": "Start a friends circle"
-        },
-        {
-          "id": "team",
-          "tab": "Team",
-          "title": "Team rituals without another heavy tool",
-          "body": "Open the week with a mood check-in and run the retro on a live board. Single sign-on with your own provider is on the way.",
-          "bullets": [
-            "Retro and brainstorm boards with votes",
-            "Your own SSO: Entra ID, Google, Okta (coming soon)",
-            "Results sent to Teams, Jira or Notion"
-          ],
-          "cta": "Start a team circle"
-        }
-      ]
-    },
-    "jobs": {
-      "eyebrow": "Three jobs",
-      "title": "Feel, work and play in one place",
-      "lead": "The same circle handles your mood, your decisions and your laughs.",
-      "items": [
-        {
-          "id": "feel",
-          "label": "Feel together",
-          "status": "Check-ins",
-          "title": "See how your circle is doing",
-          "body": "One tap in the morning tells everyone how you are. Faces and words, never just colours.",
-          "bullets": [
-            "A note or a small need, if you want",
-            "Circle weather at a glance",
-            "Takes seconds, never minutes"
-          ]
-        },
-        {
-          "id": "work",
-          "label": "Work together",
-          "status": "Live boards",
-          "title": "Decide things on a shared board",
-          "body": "Stick notes, drag them between columns, vote with dots and watch everyone's pointer move.",
-          "bullets": [
-            "Works on a phone or on the big screen",
-            "Votes and columns for retros",
-            "Pin chat answers onto the board"
-          ]
-        },
-        {
-          "id": "fun",
-          "label": "Have fun together",
-          "status": "Available now",
-          "title": "Start every meeting with a laugh",
-          "body": "Icebreakers and jokes written by people in each language. Ask circloo for fresh ones, checked for kindness.",
-          "bullets": [
-            "English, français, العربية, español",
-            "Kids-safe tags",
-            "Never translated by a machine"
-          ]
-        }
-      ],
-      "pause": "Stop auto-play"
-    },
-    "platform": {
-      "title": "Plugs into your week",
-      "pills": [
-        "Microsoft Teams",
-        "Jira",
-        "Confluence",
-        "Notion",
-        "Salesforce (coming soon)",
-        "Your own SSO (coming soon)"
-      ]
-    },
-    "facts": {
-      "eyebrow": "In numbers",
-      "title": "Small on purpose, built for real circles",
-      "lead": "Four plain facts about what is in the box today.",
-      "items": [
-        {
-          "n": 4,
-          "label": "languages",
-          "body": "English, français, العربية with full right-to-left, and español."
-        },
-        {
-          "n": 209,
-          "label": "characters to pick",
-          "body": "Animals, heroes, plants and 160 people, plus a builder."
-        },
-        {
-          "n": 100,
-          "label": "people per circle",
-          "body": "Circles are private; only members and invitees see anything."
-        },
-        {
-          "n": 0,
-          "label": "passwords",
-          "body": "Sign up with a six-digit code by email, or join by link."
-        }
-      ]
-    },
-    "principles": {
-      "eyebrow": "What we believe",
-      "title": "Five promises we build by",
-      "who": "The circloo team",
-      "prev": "Previous",
-      "next": "Next",
-      "items": [
-        {
-          "title": "Seconds, not minutes",
-          "body": "Checking in or reacting takes one or two taps. Anything longer is opt-in."
-        },
-        {
-          "title": "People before productivity",
-          "body": "Feelings and fun are core features, not decorations around a work tool."
-        },
-        {
-          "title": "One circle, many cultures",
-          "body": "Every screen works equally in all four languages and in right-to-left. No language is an afterthought."
-        },
-        {
-          "title": "Private by default, open by invitation",
-          "body": "Nothing is public. Inviting is easy, with or without email."
-        },
-        {
-          "title": "Simple for families, configurable for companies",
-          "body": "SSO and policies are settings, never forks of the product."
-        }
-      ]
-    },
-    "compare": {
-      "eyebrow": "One space",
-      "title": "One space instead of four tools",
-      "lead": "What a circle usually needs, and where it usually lives.",
-      "yes": "Included",
-      "no": "Not included",
-      "cols": [
-        "A group chat",
-        "A whiteboard tool",
-        "An icebreaker app",
-        "circloo"
-      ],
-      "rows": [
-        {
-          "label": "Daily mood check-in",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Live shared board with votes",
-          "has": [
-            false,
-            true,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Icebreakers and jokes",
-          "has": [
-            false,
-            false,
-            true,
-            true
-          ]
-        },
-        {
-          "label": "Join without an account",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Family, friends and teams in one place",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        }
-      ],
-      "feature": "Feature"
-    },
-    "pricing": {
-      "status": "Early access",
-      "tag": "Free for now"
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "title": "Questions, answered",
-      "lead": "Still curious? Start a circle and see for yourself.",
-      "items": [
-        {
-          "q": "Do I need a password?",
-          "a": "No. You type your email and we send a six-digit code. People you invite by link only need a first name."
-        },
-        {
-          "q": "Who can see what happens in my circle?",
-          "a": "Only its members and the people you invite. Circles are private by default and there are no ads."
-        },
-        {
-          "q": "Is it really free?",
-          "a": "Yes, while circloo is in early access. If we ever add a paid plan, we will tell you well before anything is charged."
-        },
-        {
-          "q": "Can my company use its own login?",
-          "a": "Not yet: today everyone signs in with a code sent by email. Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is planned, and it will be set up through configuration, not custom code."
-        },
-        {
-          "q": "Which languages does it speak?",
-          "a": "English, French, Arabic (with a full right-to-left layout) and Spanish. Jokes are written natively in each, never translated literally."
-        }
-      ]
-    },
-    "final": {
-      "eyebrow": "Ready when you are",
-      "note": "Free during early access. No card, no password."
-    },
-    "footer": {
-      "cols": [
-        {
-          "title": "Product",
-          "links": [
-            {
-              "label": "How it works",
-              "href": "#story"
-            },
-            {
-              "label": "Features",
-              "href": "#product"
-            },
-            {
-              "label": "Compare",
-              "href": "#compare"
-            },
-            {
-              "label": "Pricing",
-              "href": "#pricing"
-            }
-          ]
-        },
-        {
-          "title": "Company",
-          "links": [
-            {
-              "label": "Principles",
-              "href": "#principles"
-            },
-            {
-              "label": "Integrations",
-              "href": "#integrations"
-            },
-            {
-              "label": "FAQ",
-              "href": "#faq"
-            }
-          ]
-        },
-        {
-          "title": "Get started",
-          "links": [
-            {
-              "label": "Sign in",
-              "href": "/signin"
-            },
-            {
-              "label": "Start your circle",
-              "href": "/signin"
-            }
-          ]
-        }
-      ],
-      "label": "Footer"
-    },
-    "motion": {
-      "pause": "Pause animations",
-      "play": "Play animations",
-      "respect": "Respect my system setting",
-      "playing": "Animations are playing.",
-      "following": "Animations follow your system setting."
-    }
   }
 }

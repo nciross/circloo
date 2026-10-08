@@ -1,17 +1,31 @@
-/* ---------- Integrations ---------- */
+/* ---------- Integrations · services as rows (buddy list, #250) ----------
+   Connected services sit together in the page's one dark card, each a row with the brand mark at 44px, the
+   name, what it does and a "Connected" lozenge. The others are outlined rows under it, each with its Connect pill;
+   the connect form opens inside the row. The brand marks keep a white tile whatever the theme. */
 .svc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-  gap: var(--s-4);
-  align-items: start;
+  gap: var(--s-6);
+}
+.svc-list {
+  display: grid;
+  gap: var(--s-2);
 }
 .svc {
-  padding: var(--s-5);
+  display: grid;
   gap: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  transition: border-color var(--dur-state) var(--ease-settle);
+}
+.svc:hover,
+.svc:focus-within {
+  border-color: var(--ink);
 }
 .svc__top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--s-4);
 }
 .svc__logos {
@@ -19,35 +33,67 @@
   gap: var(--s-1);
   flex: none;
 }
+/* The real marks on white tiles, day and night. */
 .svc__logos img {
   inline-size: 2.75rem;
   block-size: 2.75rem;
-  padding: 0.45rem;
-  border-radius: var(--r-md);
+  padding: 0.4rem;
+  border-radius: var(--r-pill);
   background: #ffffff;
-  box-shadow: inset 0 0 0 1px var(--border);
+  box-shadow: inset 0 0 0 1px var(--hairline);
   object-fit: contain;
 }
 .svc__copy {
   flex: 1;
   display: grid;
-  gap: var(--s-1);
+  gap: 2px;
   min-inline-size: 0;
+}
+.svc__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-3);
+}
+.svc__name {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.svc__what {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+.svc__meta {
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+/* Connected pops once when it arrives; neutral and Soon stay still. */
+.svc .lozenge--success {
+  animation: svc-pop var(--dur-move) var(--ease-settle);
+}
+@keyframes svc-pop {
+  50% {
+    transform: scale(1.12);
+  }
 }
 .svc__status,
 .svc__form {
   display: grid;
   gap: var(--s-3);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--hairline);
 }
 .svc__hint {
-  font-weight: 600;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .svc__how {
-  padding: var(--s-3);
-  border-radius: var(--r-sm);
-  background: var(--info-subtle);
-  color: var(--info-text);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
 }
 .svc__actions {
   display: flex;
@@ -55,25 +101,92 @@
   justify-content: flex-end;
   gap: var(--s-2);
 }
-.svc__actions--start {
-  justify-content: flex-start;
+.svc__actions--end {
+  flex: none;
+  margin-inline-start: auto;
 }
 .svc__result {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 .svc__result:empty {
   display: none;
 }
 .svc--soon {
-  background: var(--surface-sunken);
+  border-style: dashed;
 }
-@media (max-width: 30rem) {
-  .svc-grid {
-    grid-template-columns: minmax(0, 1fr);
+.svc--soon:hover {
+  border-color: var(--hairline);
+}
+.svc--soon .svc__logos img {
+  opacity: 0.85;
+}
+.svc--soon .svc__name {
+  color: var(--ink-soft);
+}
+
+/* Inside the dark card the rows lose their outline and share one line, like buddies. */
+.svc-live > .panel__body {
+  gap: 0;
+}
+.svc-live .svc {
+  padding: var(--s-4) 0;
+  border: 0;
+  border-block-start: 1px solid var(--card-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--on-card);
+}
+.svc-live .svc:first-child {
+  border-block-start: 0;
+  padding-block-start: var(--s-2);
+}
+.svc-live .svc:last-child {
+  padding-block-end: 0;
+}
+.svc-live .svc__what,
+.svc-live .svc__result,
+.svc-live .svc__how,
+.svc-live .field__label,
+.svc-live .field__help {
+  color: var(--on-card-soft);
+}
+.svc-live .svc__meta {
+  color: var(--on-card-faint);
+}
+.svc-live .svc__status,
+.svc-live .svc__form {
+  border-color: var(--card-line);
+}
+.svc-live .svc__how {
+  background: var(--card-sunken);
+}
+.svc-live .input {
+  border-color: var(--card-line);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.svc-live .input::placeholder {
+  color: var(--on-card-faint);
+}
+.svc-live .svc__logos img {
+  box-shadow: none;
+}
+@media (max-width: 36rem) {
+  .svc {
+    padding: var(--s-4);
+  }
+  .svc__top {
+    flex-wrap: wrap;
+  }
+  .svc__actions--end {
+    inline-size: 100%;
+    justify-content: flex-start;
+    margin-inline-start: 0;
   }
 }
 
@@ -108,9 +221,8 @@
   gap: 2px;
 }
 
-.svc__title {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-1) var(--s-3);
+@media (prefers-reduced-motion: reduce) {
+  .svc .lozenge--success {
+    animation: none;
+  }
 }

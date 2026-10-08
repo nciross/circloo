@@ -149,12 +149,15 @@ function Launcher() {
   }
 
   const open = mode !== 'closed'
+  // Something to say: an unread answer, or a suggestion on show. The brass ring says so (no coral badge).
+  // On phones the bubble stays hidden (pirikoo.css): the ring calls, and the panel opens on the suggested next step.
+  const calling = unread || shown !== null
   return (
     <div className={`pkl${open ? ' is-open' : ''}`}>
-      <div className="pkl__tip" role="status" aria-live="polite" hidden={!shown}>
+      <div className="pkl__tip card--dark" role="status" aria-live="polite" hidden={!shown}>
         {shown ? (
           <>
-            <p className="pkl__name">{t('pirikoo.name')}</p>
+            <p className="pkl__name">{t('pirikoo.name')} <span className="lozenge lozenge--ai">{t('pirikoo.chat.ai')}</span></p>
             <p className="pkl__text">{shown.text}</p>
             <div className="pkl__actions">
               {shown.action ? (
@@ -175,14 +178,13 @@ function Launcher() {
       </div>
       <button
         type="button"
-        className="pkl__button"
-        aria-label={unread ? t('pirikoo.chat.openUnread') : t('pirikoo.chat.open')}
+        className={`pkl__button${calling ? ' is-calling' : ''}`}
+        aria-label={unread ? t('pirikoo.chat.openUnread') : shown ? t('pirikoo.chat.openTip') : t('pirikoo.chat.open')}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => (open ? usePirikoo.getState().close() : usePirikoo.getState().open('panel'))}
       >
         <Bird mood={mood} className="pkl__bird" />
-        {unread ? <span className="pkl__badge" aria-hidden="true" /> : null}
       </button>
     </div>
   )
@@ -292,6 +294,9 @@ function Answer({ item, live, onRetry, onRun }: { item: ChatItem; live: boolean;
     <li className={`pkc__pk${item.state === 'error' ? ' is-error' : ''}`}>
       <span className="pkc__avatar"><Bird mood={live ? mood : undefined} /></span>
       <div className="pkc__answer">
+        <span className="pkc__who">
+          {t('pirikoo.name')} <span className="lozenge lozenge--ai">{t('pirikoo.chat.ai')}</span>
+        </span>
         {item.state === 'waiting' ? <Typing /> : null}
         {item.state === 'error' ? (
           <>
@@ -418,7 +423,7 @@ function Conversation({ guest }: { guest: boolean }) {
                 <p className="pkc__tip-label">{t('pirikoo.chat.nextStep')}</p>
                 <p>{tip.text}</p>
                 {tip.action ? (
-                  <button type="button" className="btn btn--default btn--sm" onClick={() => void tip.action?.run()}>
+                  <button type="button" className="btn btn--primary btn--sm" onClick={() => void tip.action?.run()}>
                     <span className="btn__label">{tip.action.label}</span>
                   </button>
                 ) : null}

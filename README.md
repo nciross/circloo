@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/landing-hero.png" alt="The circloo landing page: a headline, a Family, Friends or Team selector, an email field and a circle of characters with live cards around it" width="860">
+  <img src="docs/assets/landing-hero.png" alt="The circloo landing page: a navy console where one line, a retro for my team of 6 in French, has composed a circle called Team retro with six characters on a ring, two activity chips and Pirikoo saying how it opens" width="860">
 </p>
 
 ---
@@ -36,7 +36,7 @@ The same small space works for your family dinner planning and your team retro. 
 | **Plug in your company** | Teams, Jira, Confluence and Notion today; single sign-on is planned as configuration, never customer-specific code. |
 
 <p align="center">
-  <img src="docs/assets/landing-jobs.png" alt="The three jobs panel on the landing page: Feel together, Work together, Have fun together" width="860">
+  <img src="docs/assets/landing-jobs.png" alt="Two rows of the landing page: Feel together with the face and five moods, and Work together with a live board of notes and votes" width="860">
 </p>
 
 ### Characters, not avatars

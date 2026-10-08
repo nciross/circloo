@@ -1,14 +1,13 @@
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { Laptop, Moon, Sun } from 'lucide-react'
 import { useMe, useSignOutEverywhere, useUpdateProfile } from '../../api/hooks'
 import { useDocumentTitle } from '../../app/locale'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { Segmented } from '../../components/Segmented'
 import { Button } from '../../components/Button'
 import { PageHeader } from '../../components/PageHeader'
-import { useUiStore, type Autonomy, type Theme } from '../../stores/ui'
+import { useUiStore, type Theme } from '../../stores/ui'
 import type { Locale } from '../../i18n'
 import { NAME_MAX, validName } from '../../lib/forms'
 import '../../styles/app.css'
@@ -30,6 +29,9 @@ export default function Settings() {
   const nameId = useId()
   const langLabelId = useId()
   const autonomyHelp = useId()
+  // Each theme previews its ground: bone by day, the dome by night, both for "match my device".
+  const day = <span className="swatch swatch--day" />
+  const night = <span className="swatch swatch--night" />
 
   const save = async (e: FormEvent) => {
     e.preventDefault()
@@ -96,9 +98,9 @@ export default function Settings() {
             value={theme}
             onChange={setTheme}
             choices={[
-              { value: 'system', label: t('settings.themes.system'), icon: <Laptop size={16} /> },
-              { value: 'light', label: t('settings.themes.light'), icon: <Sun size={16} /> },
-              { value: 'dark', label: t('settings.themes.dark'), icon: <Moon size={16} /> },
+              { value: 'system', label: t('settings.themes.system'), icon: <span className="swatch-pair">{day}{night}</span> },
+              { value: 'light', label: t('settings.themes.light'), icon: day },
+              { value: 'dark', label: t('settings.themes.dark'), icon: night },
             ]}
           />
         </div>
@@ -109,17 +111,21 @@ export default function Settings() {
           <h2 id="assistant-title" className="panel__title">{t('settings.assistantTitle')}</h2>
         </div>
         <div className="panel__body">
-          <Segmented<Autonomy>
-            label={t('settings.autonomyLabel')}
-            describedBy={autonomyHelp}
-            value={autonomy}
-            onChange={setAutonomy}
-            choices={[
-              { value: 'off', label: t('settings.autonomy.off') },
-              { value: 'suggest', label: t('settings.autonomy.suggest') },
-            ]}
-          />
-          <p id={autonomyHelp} className="field__help">{t('settings.autonomyHelp')}</p>
+          {/* Off or Suggest is a switch: nothing runs on its own either way. */}
+          <div className="settings-switch">
+            <button
+              type="button"
+              role="switch"
+              className="switch"
+              aria-checked={autonomy === 'suggest'}
+              aria-describedby={autonomyHelp}
+              onClick={() => setAutonomy(autonomy === 'suggest' ? 'off' : 'suggest')}
+            >
+              <span className="switch__track" aria-hidden="true"><span className="switch__knob" /></span>
+              <span>{t('settings.autonomyLabel')}</span>
+            </button>
+            <p id={autonomyHelp} className="field__help">{t('settings.autonomyHelp')}</p>
+          </div>
         </div>
       </section>
 

@@ -11,6 +11,7 @@ import { QuestionForm, Switch } from './QuestionForm'
 import { useDocumentTitle } from '../../app/locale'
 import { Button } from '../../components/Button'
 import { Loading } from '../../components/Loading'
+import { Meter } from '../../components/Meter'
 import { PageHeader } from '../../components/PageHeader'
 import '../../styles/app.css'
 import '../../styles/presentations.css'
@@ -337,9 +338,7 @@ export default function Editor() {
         <div className="deck-progress" role="status">
           <Loader2 size={16} aria-hidden="true" className="spin" />
           <span>{t('presentations.converting', { done: deck.processedSlides, total: deck.slideCount })}</span>
-          <span className="deck-progress__bar" aria-hidden="true">
-            <span style={{ inlineSize: `${deck.slideCount ? Math.round((deck.processedSlides / deck.slideCount) * 100) : 0}%` }} />
-          </span>
+          <Meter value={deck.processedSlides} max={deck.slideCount} tone="ink" size="sm" />
         </div>
       ) : null}
       {deck.status === 'failed' ? <p className="field__error" role="alert">{t(errorKey(deck.error))}</p> : null}

@@ -16,6 +16,21 @@ export function useWide() {
   return useSyncExternalStore(watchWide, isWide, () => true)
 }
 
+/**
+ * The work bar shows the animator's actions inline only from 80rem: the app's 15.5rem sidebar takes part of the
+ * screen, so between the room's wide layout (60rem) and 80rem the actions sit in the bar's menu and nothing overflows.
+ */
+export const ROOMY = '(min-width: 80rem)'
+const watchRoomy = (cb: () => void) => {
+  const mq = typeof window.matchMedia === 'function' ? window.matchMedia(ROOMY) : null
+  mq?.addEventListener('change', cb)
+  return () => mq?.removeEventListener('change', cb)
+}
+const isRoomy = () => (typeof window.matchMedia === 'function' ? window.matchMedia(ROOMY).matches : true)
+export function useRoomy() {
+  return useSyncExternalStore(watchRoomy, isRoomy, () => true)
+}
+
 /** The sidebar's open state for both layouts: kept per device on wide screens, a sheet size on phones. */
 export function useSideState() {
   const wide = useWide()

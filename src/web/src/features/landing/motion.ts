@@ -84,5 +84,7 @@ export function useLandingMotion() {
   const reduced = (bits & 1) === 1
   const opted = (bits & 2) === 2
   const toggleOptIn = useCallback(() => setOptIn(!optedIn()), [])
+  // WCAG 2.2 AA is the floor (constitution IV): motion follows the system unless the visitor opts in; the page also
+  // offers a Pause for everyone who has motion on (SC 2.2.2).
   return { on: motionOn(reduced, opted), reduced, optedIn: opted, toggleOptIn }
 }

@@ -3,10 +3,22 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Plus, Shuffle, StepForward, Timer, X } from 'lucide-react'
 import { NAME_MAX, TIMER_CHOICES, useMeetingStore, type AddResult, type TimerChoice } from '../../stores/meeting'
 import { Button } from '../../components/Button'
+import { Character } from '../../components/Character'
+import { CHARACTERS, type CharacterId } from '../../components/characters'
+import { Meter } from '../../components/Meter'
 import { Segmented } from '../../components/Segmented'
 
 const TYPING = 'input, textarea, select, [contenteditable]'
 const TIMES_UP_GRACE_MS = 2500
+
+/* The names in the line have no account, so each one borrows a character from the cast, picked from the name
+   (stable for the session, never "anonymous"). It is decoration: the name is the identity. */
+const CAST = CHARACTERS.filter((c) => c !== 'anonymous') as CharacterId[]
+function characterFor(name: string): CharacterId {
+  let h = 0
+  for (const ch of name) h = (h * 31 + ch.codePointAt(0)!) >>> 0
+  return CAST[h % CAST.length]!
+}
 
 /** The line: everyone in the room as a swimmer chip; whoever's turn it is dives off the block. */
 export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
@@ -118,6 +130,7 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
             const isDone = phase === 'done' || (phase === 'round' && i < turn)
             return (
               <li key={name} className={`swimmer${isNow ? ' is-now' : ''}${isDone ? ' is-done' : ''}`} aria-current={isNow ? 'step' : undefined}>
+                <span className="swimmer__char"><Character id={characterFor(name)} tag={false} /></span>
                 <bdi>{name}</bdi>
                 {isDone ? <span className="visually-hidden">{t('ice.line.hadTurn')}</span> : null}
                 <button type="button" className="swimmer__remove" aria-label={t('ice.line.remove', { name })} onClick={() => remove(name, i)}>
@@ -185,6 +198,11 @@ export function RitualLine({ onNextCard }: { onNextCard: () => void }) {
           </>
         )}
       </div>
+      {phase === 'round' && timer > 0 ? (
+        <div className="line__meter">
+          <Meter value={left} max={timer} tone="ink" size="sm" />
+        </div>
+      ) : null}
       {phase === 'round' ? (
         <p className="line__keys">
           <Trans i18nKey="ice.line.keysHint" components={{ k: <kbd dir="ltr" /> }} />

@@ -1,13 +1,13 @@
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, Copy, Crown, Play } from 'lucide-react'
+import { Check, Copy, Play } from 'lucide-react'
 import { Character } from '../../components/Character'
 import { CHARACTERS, type AnyCharacter } from '../../components/characters'
 import { AvatarBuilder } from '../../components/AvatarBuilder'
 import { GALLERY, isAvatarCode } from '../../components/avatarCode'
 import { Button, type ButtonVariant } from '../../components/Button'
 import { Segmented } from '../../components/Segmented'
-import { joinLink, type Member } from '../../api/circles'
+import { joinLink } from '../../api/circles'
 import { ACTIVITIES, CATEGORIES, type Category } from './catalog'
 
 type PickTab = 'friends' | 'people' | 'build'
@@ -101,53 +101,6 @@ export function RingPicker({ character, freeRings, value, onChange }: {
         ))}
       </div>
     </fieldset>
-  )
-}
-
-/** The people in the circle, seated on a ring. Online people are bright; away people are faded and say so. */
-export function PeopleRing({ members, online, meId, arrivals = [] }: { members: Member[]; online: string[]; meId?: string; arrivals?: string[] }) {
-  const { t } = useTranslation()
-  const count = members.length
-  return (
-    <div className="ring">
-      <ul className="ring__seats" aria-label={t('circles.people', { count })}>
-        {members.map((m, i) => {
-          const isOnline = online.includes(m.id)
-          return (
-            <li
-              key={m.id}
-              className={`ring__seat${isOnline ? ' is-online' : ''}${arrivals.includes(m.id) ? ' is-new' : ''}`}
-              // Seat angle through CSSOM (the CSP forbids style attributes, not custom properties set from script).
-              ref={(el) => el?.style.setProperty('--a', `${(i * 360) / Math.max(count, 1)}deg`)}
-            >
-              <span className="ring__body">
-                {arrivals.includes(m.id) ? (
-                  <span className="ring__hearts" aria-hidden="true">
-                    {[0, 1, 2].map((h) => (
-                      <svg key={h} className={`ring__heart ring__heart--${h}`} viewBox="0 0 24 24">
-                        <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" />
-                      </svg>
-                    ))}
-                  </span>
-                ) : null}
-                <Character id={m.character} ring={m.ring} className="ring__char" />
-                <span className="ring__name">
-                  {m.role === 'animator' ? <Crown size={12} aria-hidden="true" /> : null}
-                  <bdi>{m.name}</bdi>
-                  {m.id === meId ? <span className="visually-hidden"> ({t('circles.you')})</span> : null}
-                </span>
-                <span className="visually-hidden">
-                  {m.role === 'animator' ? `, ${t('circles.roles.animator')}` : ''}, {isOnline ? t('circles.online') : t('circles.away')}
-                </span>
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-      <p className="ring__count" aria-hidden="true">
-        <span className="ring__online">{online.length}</span> / {count}
-      </p>
-    </div>
   )
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, Sparkles, X } from 'lucide-react'
+import { Check, Lightbulb, X } from 'lucide-react'
 import { ApiError } from '../../api/client'
 import { useAllowance, useAsk, useKeep, type AskResult, type Spark } from '../../api/sparks'
 import { useDeckStore } from '../../stores/deck'
@@ -97,12 +97,10 @@ export function AskPanel() {
   }
 
   return (
-    <section className="panel panel--ai ask-panel" aria-labelledby="ask-title">
+    <section className="panel ask-panel" aria-labelledby="ask-title">
       <div className="panel__head">
-        <h2 id="ask-title" className="panel__title">
-          <span className="ai-mark" aria-hidden="true"><Sparkles size={14} /></span>
-          {t('ice.ask.title')}
-        </h2>
+        <h2 id="ask-title" className="panel__title">{t('ice.ask.title')}</h2>
+        <span className="lozenge lozenge--ai">{t('ice.ask.aiLabel')}</span>
       </div>
       <p className="ask-panel__lead">{t('ice.ask.lead')}</p>
       <form onSubmit={submit} className="ask-panel__form" noValidate>
@@ -120,7 +118,7 @@ export function AskPanel() {
           />
         </label>
         <div className="ask-panel__row">
-          <Button type="submit" variant="ai" icon={<Sparkles size={16} strokeWidth={2.25} />} busy={ask.isPending} aria-disabled={remaining === 0 || undefined}>
+          <Button type="submit" variant="ai" icon={<Lightbulb size={16} strokeWidth={2.25} />} busy={ask.isPending} aria-disabled={remaining === 0 || undefined}>
             {ask.isPending ? t('ice.ask.asking') : t('ice.ask.ask')}
           </Button>
           {remaining !== undefined ? <span className="ask-panel__allowance">{t('ice.ask.remaining', { count: remaining })}</span> : null}

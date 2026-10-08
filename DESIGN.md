@@ -1,68 +1,147 @@
 ---
 name: circloo
-description: A calm enterprise workspace with one warm face. Neutral surfaces, one action blue, violet only for AI, and a logo that feels what you feel.
+description: A white canvas with near-black ink, charcoal pills for every primary action, violet links and focus, pastels for chips, covers and notes, one light mauve focal card per view, no black backgrounds and no gradients. Cerise is a small accent. A left sidebar for the app; the public site shares the language with pastel blobs, the cast and a live board.
 colors:
-  bg: "#f5f7f9"
-  surface: "#ffffff"
-  surface-sunken: "#eef1f4"
-  surface-hover: "#e8ecf0"
-  border: "#dfe3e8"
-  border-strong: "#b9c2cc"
-  text: "#0f2537"
-  text-subtle: "#45576a"
-  text-subtlest: "#5f6f82"
-  primary: "#0d5bd7"
-  primary-hover: "#0a4cb6"
-  primary-subtle: "#e8f0fe"
-  primary-text: "#0b4fb8"
-  focus: "#2a73e8"
+  ground: "#ffffff"
+  paper: "#ffffff"
+  paper-sunken: "#f4f4f4"
+  paper-hover: "#ededed"
+  paper-pressed: "#e0e0e0"
+  hairline: "#e6e6e6"
+  hairline-strong: "#c4c4c4"
+  ink: "#111111"
+  ink-soft: "#5b5f66"
+  ink-faint: "#6b6b6b"
+  meta: "#6b6b72"
+  on-ink: "#ffffff"
+  charcoal: "#2e2e36"
+  charcoal-hover: "#1f1f25"
+  on-charcoal: "#ffffff"
+  accent: "{colors.charcoal}"
+  violet-link: "#6d28d9"
+  focus: "#6d28d9"
+  beam-text: "#6d28d9"
+  beam-subtle: "#f1ebfd"
+  pink: "#d12a6c"
+  beam: "#d6276b"
+  card: "#ece2f6"
+  card-line: "#d6c6e8"
+  card-sunken: "#e1d3f0"
+  on-card: "#16161b"
+  on-card-soft: "#3a3a43"
+  on-card-faint: "#55555f"
+  seg-empty: "#d3c2e6"
+  ok: "#126b4f"
+  mid: "#7a5800"
+  low: "#a3123f"
+  mauve: "#e9dcf3"
+  mauve-deep: "#d6c3ea"
+  mint: "#bfe8d9"
+  sky-pastel: "#a9d9f5"
+  peach: "#f6a46b"
+  butter: "#f7d873"
+  lavender: "#b39ddb"
+  blush: "#ffc9db"
+  on-sun: "#111111"
+  note-ink: "#111111"
   ai: "#6a4fd1"
   ai-subtle: "#f2efff"
   ai-border: "#d9d0fb"
   ai-text: "#5638c2"
-  success: "#1c7c52"
-  success-subtle: "#dcf5e8"
-  danger: "#c9372c"
-  danger-subtle: "#ffeceb"
-  brand-ink: "#062a40"
-  brand-coral: "#ef4a32"
-  dark-bg: "#0c141b"
-  dark-surface: "#131e27"
-  dark-text: "#e3ebf2"
-  dark-primary: "#5b9bff"
-  dark-ai: "#9f8fef"
+  on-ai: "#ffffff"
+  sky-stormy: "#2f3a52"
+  sky-foggy: "#aab4c3"
+  sky-cloudy: "#d6d6d6"
+  sky-bright: "#7fb8ff"
+  sky-sunny: "#ffd23f"
+  on-sky: "#111111"
+  on-sky-stormy: "#ffffff"
+  coral: "#ef4a32"
+  live: "#178a66"
+  live-subtle: "#dcf5ec"
+  live-text: "#126b4f"
+  danger: "#d93a3f"
+  danger-subtle: "#ffecec"
+  danger-text: "#b4262b"
+  warning-subtle: "#fff4cc"
+  warning-text: "#6e4a00"
+  info-subtle: "#f1ebfd"
+  info-text: "#5b21b6"
+  neutral-subtle: "#f4f4f4"
+  neutral-text: "#5b5f66"
+  body-1: "#1d4ed8"
+  body-2: "#c2410c"
+  body-3: "#15803d"
+  body-4: "#9d174d"
+  body-5: "#0e7490"
+  night-ground: "#131317"
+  night-paper: "#18181d"
+  night-ink: "#f4f3f7"
+  night-charcoal: "#f1eef5"
+  night-violet-link: "#c4b5fd"
+  night-card: "#2b2238"
+  night-on-card: "#f6f1fb"
+  night-mauve: "#2a1f35"
+  night-ok: "#bfe8d9"
+  night-mid: "#f7d873"
+  night-low: "#ffb3c8"
 typography:
-  family: "'Readex Pro Variable', 'Readex Pro', system-ui, sans-serif"
-  display:
-    fontSize: "clamp(2.25rem, 1.5rem + 3vw, 3.75rem)"
-    fontWeight: 600
-    lineHeight: 1.05
+  family: "'Rubik Variable', 'Rubik', system-ui, sans-serif"
+  hand: "'Caveat Variable', 'Caveat', 'Rubik Variable', system-ui, sans-serif"
+  site-title:
+    fontSize: "clamp(2rem, 1.4rem + 2.6vw, 3.25rem)"
+    fontWeight: 800
+    lineHeight: 1.1
     letterSpacing: "-0.03em"
-  section:
-    fontSize: "clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)"
-    fontWeight: 600
-    letterSpacing: "-0.025em"
   page-title:
-    fontSize: "1.5rem"
-    fontWeight: 600
+    fontSize: "clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem)"
+    fontWeight: 900
+    lineHeight: 0.95
+    letterSpacing: "-0.035em"
+  lead:
+    fontSize: "1.3125rem"
+    fontWeight: 700
+    color: "{colors.violet-link}"
+  section:
+    fontSize: "clamp(1.625rem, 1.25rem + 1.5vw, 2.125rem)"
+    fontWeight: 800
+    letterSpacing: "-0.02em"
+  card-title:
+    fontSize: "clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem)"
+    fontWeight: 800
+    letterSpacing: "-0.025em"
   panel-title:
-    fontSize: "1.0625rem"
-    fontWeight: 600
+    fontSize: "1.3125rem"
+    fontWeight: 800
+    letterSpacing: "-0.02em"
+  row-name:
+    fontSize: "1rem"
+    fontWeight: 800
   body:
-    fontSize: "0.9375rem"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
   small:
-    fontSize: "0.8125rem"
-  lozenge:
+    fontSize: "0.875rem"
+  meta:
+    fontSize: "0.75rem"
+    color: "{colors.meta}"
+  label:
     fontSize: "0.6875rem"
     fontWeight: 700
+    letterSpacing: "0.12em"
     textTransform: uppercase
+  handwritten:
+    fontSize: "1.0625rem–1.625rem"
+    fontWeight: 600
+    rotate: "-4deg to 6deg"
 rounded:
-  xs: "3px"
-  sm: "6px"
-  md: "8px"
-  lg: "12px"
+  xs: "4px"
+  sm: "10px"
+  md: "16px"
+  lg: "22px"
+  xl: "28px"
+  site-panel: "32px"
   pill: "999px"
 spacing:
   grid: "4px"
@@ -76,269 +155,158 @@ spacing:
   s-8: "3rem"
   s-9: "4.5rem"
   s-10: "6rem"
+  gutter: "clamp(1rem, 3vw, 2.5rem)"
 layout:
-  topbar-height: "3.5rem"
+  topbar-height: "4rem"
   sidebar-width: "15.5rem"
+  sidebar-breakpoint: "62rem"
   content-max: "76rem"
-  site-max: "74rem"
-  room-workbar-height: "3rem"
-  room-rail-width: "3.25rem"
+  site-max: "78rem"
+  home-grid: "by container width: one column, the side row under the circles from 44rem, 2fr 1fr from 70rem"
+  phone-sheet: "44dvh"
 components:
-  button-primary: { backgroundColor: "{colors.primary}", textColor: "#ffffff", rounded: "{rounded.sm}", height: "2.25rem" }
-  button-default: { backgroundColor: "{colors.surface-sunken}", textColor: "{colors.text}", rounded: "{rounded.sm}" }
-  button-subtle: { backgroundColor: "transparent", textColor: "{colors.text}", rounded: "{rounded.sm}" }
-  button-ai: { backgroundColor: "{colors.ai}", textColor: "#ffffff", rounded: "{rounded.sm}" }
-  button-danger: { backgroundColor: "{colors.danger}", textColor: "#ffffff", rounded: "{rounded.sm}" }
-  panel: { backgroundColor: "{colors.surface}", border: "1px {colors.border}", rounded: "{rounded.md}" }
-  lozenge: { rounded: "{rounded.xs}", typography: "{typography.lozenge}" }
-  input: { border: "1px {colors.border-strong}", rounded: "{rounded.sm}", height: "2.5rem" }
+  button-primary: { backgroundColor: "{colors.charcoal}", textColor: "{colors.on-charcoal}", rounded: "{rounded.pill}", height: "2.75rem", padding: "0.5rem 1.4rem", fontWeight: 700 }
+  button-primary-on-card: { backgroundColor: "{colors.on-card}", textColor: "{colors.card}", rounded: "{rounded.pill}" }
+  button-default: { backgroundColor: "transparent", textColor: "{colors.ink}", border: "2px {colors.ink}", rounded: "{rounded.pill}", height: "2.75rem" }
+  button-subtle: { backgroundColor: "transparent", textColor: "{colors.ink}", rounded: "{rounded.pill}", height: "2.75rem" }
+  button-ai: { backgroundColor: "{colors.ai}", textColor: "{colors.on-ai}", rounded: "{rounded.pill}" }
+  button-danger: { backgroundColor: "{colors.danger}", textColor: "{colors.on-danger}", rounded: "{rounded.pill}" }
+  panel: { backgroundColor: "{colors.paper}", border: "2px {colors.hairline}", rounded: "{rounded.lg}", hover: "lift 2px, 0 2px 8px rgb(0 0 0 / 0.08) when it is a link" }
+  focal-card: { backgroundColor: "{colors.card}", textColor: "{colors.on-card}", rounded: "{rounded.xl}", shadow: "0 1px 2px rgb(40 20 60 / 0.06), 0 12px 32px -18px rgb(40 20 60 / 0.25)" }
+  sidebar: { width: "15.5rem", background: "{colors.paper}", border: "1px {colors.hairline} at the inline end", item: "icon + label pill row, 44px, current = charcoal" }
+  search-ask: { backgroundColor: "{colors.paper-sunken}", border: "2px {colors.hairline}", rounded: "{rounded.pill}", content: "magnifier, Search or ask Pirikoo, the bird, Ctrl/Cmd K" }
+  circle-row: { backgroundColor: "{colors.paper}", border: "2px {colors.hairline}", rounded: "{rounded.lg}", content: "name, Live or Closed lozenge, people (meta), character stack, chevron" }
+  quick-chip: { backgroundColor: "a pastel", textColor: "{colors.on-sun}", rounded: "{rounded.pill}" }
+  buddy-row: { columns: "2.75rem minmax(0, 1fr) auto", padding: "0.75rem 0", divider: "1px {colors.card-line}" }
+  meter: { segments: 10, segmentHeight: "12px", gap: "4px", rounded: "3px", empty: "{colors.seg-empty}", fills: "ok | mid | low | ink | beam" }
+  input: { backgroundColor: "{colors.paper}", border: "2px {colors.hairline}", rounded: "{rounded.pill}", height: "2.75rem", focus: "{colors.focus}" }
+  lozenge: { backgroundColor: "{colors.neutral-subtle}", textColor: "{colors.neutral-text}", rounded: "{rounded.pill}", fontSize: "0.6875rem", letterSpacing: "0.12em" }
+  mood-tile: { border: "2px {colors.hairline}", rounded: "18px", pressed: "{colors.charcoal} fill, {colors.on-charcoal} text" }
+  navitem: { rounded: "{rounded.pill}", current: "{colors.charcoal} fill, {colors.on-charcoal} text" }
 ---
 
 # Design System: circloo
 
 ## Overview
 
-**North star: "A serious tool with a warm face."**
+circloo is warm consumer software for circles of families, friends and teams. The founder settled the language on 2026-10-08 (#250), after a public site built on a people-platform reference: a white canvas, heavy rounded type, the cast of characters at scale, charcoal pills, violet links, pastels for the playful parts, and nothing black or gradient as a background.
 
-circloo looks like the enterprise tools its teams already trust (Jira, Linear, Notion): quiet neutral
-surfaces, a left sidebar, a top bar with search, panels with headers, tables, lozenges. Nothing in the
-chrome competes with the work. The warmth lives in exactly three places, and nowhere else:
+Two surfaces share one vocabulary:
 
-1. **The face.** The last "oo" of circloo are two eyes and a mouth sits under them. The logo blinks,
-   its pupils follow the pointer and its mouth follows the five check-in moods. It is the brand, the
-   loading state and the explanation of what a check-in is.
-2. **The people.** Avatars, fun characters and names carry colour. The interface around them stays grey.
-3. **The content.** Icebreakers, jokes and riddles are set large and given room.
+- **The public site** (landing, sign-in, join, 404): a sticky white bar with the wordmark at its larger size, a short display headline over a live board (friends' cursors, pastel notes, votes, an icebreaker) flanked by pastel blobs with characters that play along, grids of cards with pastel covers, a light mauve footer panel. The sign-in pages keep a light mauve bar.
+- **The app**: a left sidebar with the navigation as icon pill rows (the current one charcoal), a header with a wide search field that asks Pirikoo, and pages on white. Each view leads with one light mauve focal card.
 
-The public site (landing, pricing) uses the same system at a larger scale: a big confident headline,
-a real preview of the product in its app frame instead of an illustration, white bands alternating with
-the canvas grey, and one dark navy band for the final call.
+Night is a full theme: the canvas goes near-black charcoal, the pills turn light, links a light violet, the focal card a deep plum. Every colour is a token in `src/web/src/styles/tokens.css`.
 
-## Colour
+## Colors
 
-- **Canvas and surfaces.** `bg` is the app canvas; `surface` is every panel, bar and card;
-  `surface-sunken` is wells, tracks, table heads and panel footers. Hover and pressed are one and two
-  steps darker. Borders are 1px `border`, `border-strong` for inputs.
-- **Text.** `text` (the brand navy) for everything that matters, `text-subtle` for leads and secondary
-  text, `text-subtlest` for hints and placeholders. All three pass AA on white and on the canvas.
-- **Action blue** (`primary`) is the only colour that means "do this". One primary button per view.
-  `primary-subtle` marks the selected nav item, the selected option and the picked mood.
-- **AI violet** (`ai`) means "circloo wrote or will write this", and nothing else: the Ask circloo
-  spark, the AI panel header, the "Suggested by AI" lozenge, the Keep button on AI cards. Never use
-  violet for decoration.
-- **Status.** Success green for "Live" and kept states, danger red for destructive actions and errors.
-- **Brand accents.** `brand-coral` is the face's mouth, and it appears only in the logo.
-- **Dark theme.** Every token is redefined for dark under `[data-theme='dark']` and under
-  `prefers-color-scheme: dark` when the person chose "Match my device". Dark is a full theme, not an
-  inversion: surfaces step up in lightness, primary and AI lighten so text on them flips to dark.
+### Canvas and ink
+`ground` and `paper` are white. `paper-sunken` is the grey well (the search field, sunken toggles). `hairline` draws the 2px outlines of panels, rows and inputs; `hairline-strong` the dot grid of the whiteboard and dashed threads. `ink` carries everything that matters, `ink-soft` leads and secondary text, `meta` the 12px metadata (5.3:1).
 
-**The violet rule.** If it is violet, AI made it. If AI made it, it is labelled.
+### Charcoal: the primary
+`charcoal` is every primary action: buttons (`btn--primary`, `btn--charcoal`), the current navigation item, a switch that is on, a vote cast, the picked filter. It turns light at night (`#f1eef5` with near-black text). Charcoal is a pill, never a page or card background.
+
+### Violet: links and focus
+`violet-link` (also `beam-text` and `focus`) is text links, the lead line under a page title, the picked-option text on its light violet fill (`beam-subtle`), drop targets and the focus ring. This is the founder's decision for #250 (2026-10-08), replacing the earlier "violet means AI" rule: links use the deep link violet (`#6d28d9`), AI uses its own lighter violet (`ai`, `#6a4fd1` and its tints), and AI is never told by colour alone (see below).
+
+### The focal card: light mauve
+`card` is the one object a view leads with (the icebreaker in play, the room's people and chat, the new-circle preview, the integration focus, Pirikoo's tips): light mauve by day with dark ink, deep plum by night. Inside it, and only inside it, the three status colours: `ok` (deep green by day, mint by night), `mid` (amber, butter), `low` (berry, pink), as values at 19px bold and as meter fills, always beside words. Buttons inside it invert from its colours (a dark pill on mauve, a light pill on plum).
+
+### Pastels
+`mint`, `butter`, `peach`, `sky-pastel`, `lavender`, `blush` are for chips, covers, notes and the blobs: whiteboard and board notes, round covers, the kind of an activity (icebreakers mint, energizers butter, retro lavender, decide sky, present peach), quick-start chips, the role icons on Home. Text on a pastel is always the theme-stable near-black (`on-sun`, `note-ink`). `mauve` is the light surface for the sign-in bar, the create card and the site footer.
+
+### Cerise: a small accent
+`pink` and `beam` are the accent and never a fill behind text: Pirikoo's crest, its calling ring, a heart, a small count badge on the focal card.
+
+### AI violet, the skies, coral, status
+`ai…` stays AI only (Pirikoo's answers, "Suggested by AI"). Because links are violet too, AI is always named in words: every AI output carries the "AI" lozenge or a "Suggested by AI" label, and AI surfaces use the `ai-subtle` fill with the `ai-border` outline, never a bare violet word. The five skies are the moods, always with the icon and the word. `coral` is the face's mouth. `live`, `danger`, `warning`, `info` are canvas status colours for lozenges and messages.
+
+### Named rules
+- No black backgrounds: charcoal and ink are pills, marks and text, never a surface.
+- No gradients, glass or glows anywhere. Dot grids on the whiteboard are hard dots, not gradients.
+- One focal card per view; never one inside another.
+- `ok`/`mid`/`low` only inside the focal card.
+- Night is tokens flipping, never a second stylesheet (the projector screen is the one pinned dark surface).
+- AI is labelled in words, never only by its violet.
+- Form fields draw their outline with `field-line` (3:1 or more, WCAG 1.4.11); hairlines are for panels and rows.
 
 ## Typography
 
-One family, **Readex Pro** (variable, self-hosted), for Latin and Arabic, at weights 400 to 700.
-Hierarchy comes from size and weight, never from a second face.
+One family, **Rubik** (variable, 300–900), for Latin and Arabic. **Caveat** for the handwritten asides and blob tags on the site; Arabic falls back to Rubik 500.
 
-- Display (landing h1): 600, fluid to 3.75rem, -0.03em.
-- Section titles: 600, fluid to 2.5rem.
-- Page titles: 600, 1.5rem. Panel titles: 600, 1.0625rem.
-- Body: 0.9375rem (15px), 1.55 line height. Small: 0.8125rem.
-- Lozenges: 11px, 700, uppercase, slight tracking (no uppercase or tracking in Arabic).
-- Numerals in timers, counts and codes are tabular.
-- Arabic headings drop negative tracking and open the line height to 1.3–1.4.
+- **page-title** 900 for app pages ("Hi Nadia.", "Icebreakers"); **site-title** 800 for the public headline.
+- **lead**: the violet line under a page title, 700, 21px.
+- **section** 800 for site sections; **card-title** 800 for the create and focal cards; **panel-title** 800; **row-name** 800 at 16px.
+- **body** 16px / 1.55; **small** 14px; **meta** 12px in `meta`; **label** 11px 700 tracked uppercase (lozenges, group labels).
+- Arabic drops negative tracking and uppercase and opens line-height to 1.25–1.4.
 
 ## Layout
 
-- **App shell:** sticky 3.5rem top bar (brand, Ask circloo search, "Start a round", avatar menu),
-  a 15.5rem left sidebar (live items, a "Coming soon" group that is never a dead link, settings at the
-  foot) and the content column (max 76rem). Below 62rem the sidebar becomes a modal drawer opened from
-  a menu button.
-- **Pages** start with a `PageHeader`: breadcrumbs, title, one-line lead, actions at the end.
-- **Panels** are the unit of content: header (title + actions), body, optional sunken footer for form
-  actions. Panels never nest.
-- **Home** is a dashboard: today's icebreaker (wide), suggestions and favourites at the side, then a
-  workspace table.
-- **Public site:** 74rem column, generous bands (6rem), two-column feature rows that alternate sides,
-  a single pricing card beside its pitch.
-- Spacing is a 4px grid. Logical properties everywhere; RTL mirrors automatically.
+- **App shell**: a 15.5rem left sidebar (wordmark, Home, Icebreakers, Presentations, Integrations as icon pill rows, a "Coming soon" group, Settings at the foot) and, over the page, a 4rem header with the search field that asks Pirikoo (Ctrl/Cmd K), New circle and the avatar. Under 62rem the sidebar is a drawer behind a menu button and the wordmark moves into the header. Phones first.
+- **Home**: two things lead. "Start a new circle" on a light mauve card (the charcoal pill, three quick-start chips that hand a line to the new-circle page, the cast) and "My circles" split by role: Circles I run and Circles I joined, as white rows with Live or Closed. Mood, today's icebreaker and favourites sit beside, secondary. Home lays itself out by container width.
+- **Rooms**: the whiteboard with pastel notes and every friend's cursor as a name pill in their colour; the dock lists rounds with their kind's pastel; the side area is the focal card. On phones the side is a 44dvh bottom sheet.
+- **Public site**: hero (title, live board, blobs), rounds with category filters, how it works, the story, what a circle does, the free plan, questions, the mauve footer. Log in opens the sign-in form in place of the board and hides the rest of the page.
+- Logical properties everywhere; RTL mirrors, including the sidebar, cursors and arrows.
 
-## Elevation
+## Elevation & Depth
 
-Flat by default. Three shadows only, all offset and soft, tinted from the navy:
-`raised` (panels), `overlay` (menus, auth card, toasts) and `float` (dialogs, the product preview,
-the pricing card). No glows, no hard offset shadows.
+- `shadow-raised` almost nothing; panels are outlined.
+- The hover lift: links shaped as cards rise 2px with `0 2px 8px rgb(0 0 0 / 0.08)`.
+- `shadow-card`: a soft, low shadow under the focal card.
+- `shadow-overlay`: menus, toasts, Pirikoo's panel.
+- Ground shadows: a blurred ellipse under characters on the site and in empty states.
+
+## Shapes
+
+Pills for every control. Panels 22px, the focal card 28px, site panels and the create, plan and sign-in cards 32px, inputs inside panels 10px, notes 4–10px, meter segments 3px.
 
 ## Components
 
-- **Buttons:** primary, default (sunken with hairline), subtle (transparent), AI (violet), danger.
-  6px radius, 36px tall (32 small, 44 large). Busy keeps focus with `aria-disabled` and spins the icon.
-- **Lozenges** label status honestly: Live, Soon, Example, Suggested by AI.
-- **Dropdowns** (language, account) are disclosure popovers: button with `aria-expanded`, list of
-  buttons, arrow keys, Escape and outside press close and return focus.
-- **Language menu:** one globe dropdown, each language named in itself; it applies only when chosen and
-  defaults to the browser language until the person picks one.
-- **Selects** for filters are native, so phones get the platform picker.
-- **Segmented controls** for small exclusive choices (theme, timer, suggestions), `aria-pressed`.
-- **Tables** for lists of things with attributes (workspace modules), sunken header row.
-- **Avatar:** initials on one of six colours derived from the name.
-- **Ask circloo:** a command palette (Ctrl/⌘ K) that turns plain words into a numbered plan the
-  person can trim, then runs it only on confirmation.
+### Buttons
+`btn` is a 44px pill, 700, lifting 1px on hover and 0.97 on press. `btn--primary` and `btn--charcoal` are charcoal; inside the focal card the primary inverts. `btn--default` outlined, `btn--subtle` text only, `btn--ai` violet, `btn--danger` red.
+
+### Panels, rows, the focal card
+`panel`: white, 2px hairline, 22px. Rows and cards that are links lift on hover. `panel--dark` / `card--dark` (historic names) are the focal card: light mauve, 28px, the soft card shadow.
+
+### Navigation
+Icon pill rows; the current one charcoal, the others sink to `paper-sunken` on hover. "Soon" items carry a tiny lozenge and never link.
+
+### Search
+One field in the header: a magnifier, "Search or ask Pirikoo…", the bird and the shortcut. It opens Pirikoo, who finds pages, circles and rounds and can run them. Phones show the magnifier alone.
+
+### Meter, buddy rows, stacks, inputs, lozenges, mood tiles
+Unchanged in form: ten segments with the number in words; buddy rows on the focal card; 32px character stacks; pill inputs with a 2px outline and the violet focus; tiny tracked lozenges; five outlined mood tiles, the picked one charcoal.
 
 ## The face (logo)
 
-Geometry lives in `src/web/src/components/Brand.tsx` on a 60 × 50 grid where 50 units = 1em: the eyes
-are one x-height tall and sit on the baseline, so "circl" + face reads as one word. Moods map to mouth
-paths with identical commands (1 frown … 5 grin), so browsers that animate `d` morph between them.
-Pupils follow the pointer through CSS custom properties set from script (CSP-safe). Blink every 5.5s.
-Reduced motion stops blinking and gaze. The mouth is always coral; eyes take the current text colour.
-Static assets (`favicon.svg`, `logo-mark.svg`, `icon-maskable.svg`, PNG icons rendered from them) use
-the same geometry on navy.
+Two ring eyes and a coral mouth, drawn in code (`Brand.tsx`); the wordmark's last "oo" are the eyes. The mouth follows the moods. The wordmark sits a size up in the bars (1.5–2.1rem).
 
 ## The cast (characters)
 
-Twelve characters (panda, fox, frog, cat, owl, octopus, bear, bunny, robot, ghost, chick, dino) drawn on a
-64 × 64 grid in `src/web/src/components/Character.tsx`. Every one wears the logo's eyes (white rings with a
-pupil) and a navy outline, so the cast reads as one family with the face. Their colours are fixed in both
-themes: a character is a person's identity in a circle, not chrome. Participants must pick one to join;
-taken characters are disabled and labelled. The picker is a native radio group, and the picked character
-hops once.
-
-## circloo, the panda
-
-circloo's avatar in conversations is a single-weight line panda (`Panda.tsx`). While circloo thinks or
-streams, the panda draws itself stroke by stroke (head, ears, patches, eyes, mouth) and its pupils glance
-around; the streamed text ends in a violet caret. Under reduced motion the panda is simply drawn.
-
-## Circles (live rooms)
-
-- **Workspace frame (#244):** the room is a workspace, not a page. A work bar sits under the top bar, then the
-  centre and the rail fill the app height from 960 px, each scrolling inside itself, with a 1rem margin instead of
-  the page gutter and no content width cap. On phones the page scrolls as before, with the bottom sheet.
-- **Work bar:** one sticky 3rem row: Home (animator), the circle name (one line, ellipsis, full name in `title`),
-  the status dot with its word (live, connecting, reconnecting, offline, closed; green when live, amber when
-  reconnecting), the running round as a grey chip with the starter's character ("Live canvas · started by
-  Nadia"), then at the end the people strip (four stacked characters and "+n", opens People), Send results and
-  Close circle (inline confirmation). On phones the animator's actions fold into a "Circle actions" menu. A
-  polite status line announces round and connection changes; "Skip to the board" appears while a round runs.
-- **Centre:** whatever runs fills it: the whiteboard's paper takes the full height (24rem at least), boards and
-  presentations fill the same frame. Between rounds the animator sees a dock: when the circle has the canvas, a
-  large sheet of the same dotted paper leads with "Open the whiteboard" (the one primary button), the other
-  rounds below; otherwise the rounds alone. Participants wait with the panda, centred.
-- **Rail:** on the inline end, like a meeting rail. Open: tabs People, Chat (with the round's conversation) and
-  Call. Collapsed: a 3.25rem icon rail, one 44px button per tab with its count, which opens the rail on that
-  tab and moves focus to it; collapsing returns focus to the rail. The choice is remembered per device. It ends
-  above Pirikoo's corner button. Phones keep the bottom sheet (half, full, closed to a pill with counts).
-- **Call tab:** the animator's Live discussion switch (off by default, with the plain explanation) and "Allow
-  cameras" (on by default). Everyone sees the stage with a Soon lozenge until audio and video land; participants
-  see whether the discussion is on, never the switch.
-- **People ring:** members seated on a dashed circle at equal angles (set through CSS custom properties
-  from script), online people bright, away people faded and grey; the animator wears a small crown.
-- **Conversation:** like a chat with an assistant. circloo's messages are full-width text with the panda,
-  name and the AI lozenge; people's messages are bubbles with their character, yours on the end side in
-  primary-subtle. System lines ("Nadia started Quick questions") are centred pills.
-- **Composer:** one rounded box with the send button inside. The animator chooses "circloo" (violet send)
-  or "Everyone" (blue send) and has quick requests as chips.
-- **Activities:** cards with an icon tinted by category (icebreakers blue, energizers amber, retro green,
-  decide red), filterable by category.
+Forty-eight characters plus Pirikoo and the panda, drawn in code. They are the illustration: in the site's blobs, on the hero board, on the create card, in buddy rows and stacks. Never recoloured, never an icon.
 
 ## Pirikoo, the parakeet guide
 
-Pirikoo is circloo's guide, and you talk to it like any assistant. The panda stays circloo's voice in the
-group chat; Pirikoo is personal and private. It's a green parakeet drawn like the rest of the cast, with the
-logo's eyes (`features/pirikoo/Bird.tsx`).
-
-- **Where it lives**: a round button in the bottom inline-end corner holds the bird. It opens a compact chat
-  above the button (full screen on phones). The chat grows into a centred, modal conversation, which the top
-  bar's "Ask Pirikoo" and Ctrl/⌘ K also open. It's the same thread in both places, kept for the tab only
-  (session storage) and forgotten on sign-out.
-- **The bird shows what the AI is doing**, the way a person would: *idle* (breathes, blinks, glances around),
-  *listening* (leans in, crest up, small nods while you type), *thinking* (looks up, ponders, wings flutter),
-  *speaking* (the beak opens and closes while words stream in), *happy* (a hop with both wings up when an
-  answer lands or a suggestion appears) and *oops* (crest down, a small head shake on an error). The corner
-  button, the chat header and the latest answer share the mood. Older answers keep a still bird. These moods
-  are the only "AI is working" signal: no sparkles, no violet glow.
-- **Conversation**: your messages sit in blue bubbles at the inline end. Pirikoo answers in plain text next
-  to a small bird, Claude-style, with a caret while it streams and "Pirikoo is writing" with three dots
-  before the first word. Enter sends, Shift+Enter adds a line, and a stop button replaces send while it
-  answers. Errors are kind lines with "Try again". The disclaimer under the field is always there: Pirikoo is
-  AI and can make mistakes.
-- **Plans**: an instruction ("Switch to dark mode", "A silly icebreaker for the family") becomes a numbered
-  plan the person trims and runs. Answers to questions that also map to a plan end with the same card.
-  Nothing runs before "Run the plan". Guests only get language and theme steps.
-- **Suggestions**: one tip at a time, chosen by plain rules from the page, the role and the live room, pops up
-  above the button with its action. The element it is about gets a calm green ring. The Suggestions setting
-  (Off / Suggest) turns tips off, not the chat.
-- **Empty state**: a big bird, "Hi Nadia, I'm Pirikoo!", the suggested next step on a soft green block, and
-  chips that mix questions with things it can do.
-- **Accessibility**: the log doesn't read streamed words aloud. A polite status line says "Pirikoo is
-  writing" once, then the whole answer. Escape closes and focus goes back to what opened it. Reduced motion
-  freezes the bird in its pose.
-
-## Live canvas
-
-The canvas activity (#93) puts everyone's notes on one big dotted-paper surface. Notes are paper squares or
-circles in six colours (the board palette plus white) and three sizes. Each sits at a slight hand-placed tilt, has its author's
-character in the corner and an optional sticker (heart, star, thumbs up, laugh, idea) that pops on. Double-click drops a note
-where you are; drag moves it, live for everyone; the selected note gets a floating style bar. The others' cursors glide with
-their colour, character and name. The character bobs while idle, wiggles while it moves, and fades after a few seconds
-without movement. Pan by dragging the background or scrolling, zoom with Ctrl + scroll or the toolbar; "Bring in" pins board
-notes and chat answers. Keyboard: notes are buttons (arrows move, E edits), N adds a note; a list view mirrors the canvas.
-Reduced motion removes the glide, bob and drop.
-
-## Typing in circles
-
-Like any instant chat, the circle chat shows "Kenji is typing" with the person's character and three rising
-dots under the last message, "Kenji and Lucía are typing" for two people, and "Several people are typing"
-beyond that. It fades about 4 s after the last keystroke signal, and at once when their message lands. It's
-hidden from screen readers because it changes too often to announce, and the dots stop under reduced motion.
+A flat, geometric parakeet without outlines: a calm green body, a mint belly, a butter face mask, the circloo logo's ring eyes in charcoal, a compact orange hooked beak, and a small cerise crest as the accent. Pirikoo is alive when idle (a soft breathing bob, blinks, the crest swaying, now and then a wing flick, a curious tilt and a glance) and acts out its work: leaning in while you write, the crest ticking while it thinks, the beak and a nod while it speaks, a hop with both wings when it is done, a shake when something failed. It lives in a 64px launcher with a cerise ring when it has something to say, in the header's search field, and in its panel; its answers are AI violet and labelled.
 
 ## Motion
 
-- **Focal moments**: the landing circle (people join, then play: bob, blink, jump, spin, wiggle, hearts, a
-  cheering face); Pirikoo's moods while it listens, thinks and talks; someone arriving in a room (they hop onto the ring with hearts, and screen
-  readers hear "Mia joined the circle").
-- **Continuity**: an activity opens with a short clip-path reveal and its chip slides into the room's work bar
-  from the inline end; the rail and its panel swap without animating any size (the panel fades and shifts 8px,
-  tabs cross-fade); the whiteboard's dots settle in as it opens; page changes cross-fade.
-- **Feedback**: a new circle's invite card glows twice; a vote count pops once, and so does any room count that
-  goes up (unread, people); the room's status dot pulses once on going live, never in a loop; notes drop in.
-- **Durations** are tokens: `--dur-press` 120ms, `--dur-state` 160ms, `--dur-move` 240ms, `--dur-enter` 300ms.
-- Easing is exponential ease-out (no bounce or elastic; the Impeccable detector checks it).
-
-## Video
-
-`/video` is a Remotion project that renders the 20-second tour (face, circle, chat, board, send, Pirikoo) per
-language into `src/web/public/video/circloo-tour-{lang}.mp4` with a poster. It reuses the app's character and
-bird SVGs. The landing plays it muted while on screen, pauses it off screen, never autoplays under reduced
-motion, and describes it in text below the player.
-
-## Motion (details)
-
-Short and functional: 120–200ms state changes, 300ms entrances on `ease-out`, page cross-fades through
-view transitions, progressive scroll reveals on the public site where scroll timelines exist. The one
-expressive moment is the face. Everything collapses under `prefers-reduced-motion`.
+One grammar (`src/web/src/lib/motion.ts`): springs for arrivals and presses, 60ms staggers, meters filling over 600ms. Entrances move and never fade (axe reads pages on arrival). The public site plays a scroll choreography (titles wipe up, cards rise, the hero settles away) and a looping hero board with pictures that play along. Motion follows the system's reduced-motion setting; a visitor can opt in ("Play animations") and anyone can still the page with the one small "Pause animations" under the board (WCAG 2.2.2), both remembered in the browser. In the app, reduced motion stills everything and keeps meaning.
 
 ## Accessibility
 
-WCAG 2.2 AA is the floor and is tested (axe in Playwright, desktop and phone, English and Arabic).
-Every control has a visible label or an accessible name, mood is never colour alone (icon + word),
-links in running text are underlined, focus rings are 2px `focus` with offset, and every string exists
-in English, French, Arabic (RTL) and Spanish.
+Every text pair is AA in both themes; 12px meta uses `meta`; status colours on the focal card clear 4.5:1 by day and are always paired with words. Tap targets are 44px on phones, never under 24px. Focus is a 2px violet ring with offset. Colour is never the only signal. Arabic is a first-class mirrored layout.
 
-## Do / Don't
+## Do's and Don'ts
 
-- Do keep the chrome grey and let people, the face and the content carry colour.
-- Do use violet only for AI, and label every AI output.
-- Do put content in panels with a header; put form actions in the panel footer.
-- Don't add a second typeface, gradients, glass or decorative illustrations to the app.
-- Don't use emoji as icons; Lucide at 16–20px, stroke 2.
-- Don't hide a label with `display: none` when it names a control; clip it instead.
+### Do
+- Lead each view with one light mauve focal card and keep the rest quiet white.
+- Use charcoal for primary pills, violet for links and focus, pastels for chips, covers and notes.
+- Use the cast at scale as the illustration.
+- Say every count in words beside its meter.
 
-## Integrations
-
-A grid of service panels, each with the real brand marks on a white tile (self-hosted, trademarks of their
-owners, with a notice on the public site), the service name, a one-line purpose and a status lozenge
-(Connected / Not connected / Soon) on the title line. Connecting opens the form inline with an info box that
-says where to find each token or webhook. Secret fields are password inputs and are never shown again; only
-a hint (host, project, space) is displayed. In a circle room, the animator's "Send results" dropdown lists the
-connected services and reports back with a link to what was created.
+### Don't
+- No black backgrounds, no gradients, no glass, no glows, no sparkle icons, no emoji in chrome.
+- No second focal card, no card inside a card, no status colours outside the focal card.
+- No cerise fills behind text; cerise is a small accent.
+- No "John Doe": the cast and real names only.

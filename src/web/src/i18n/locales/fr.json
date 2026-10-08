@@ -41,161 +41,104 @@
     "signedInAs": "Connecté en tant que",
     "startRound": "Lancer un tour",
     "breadcrumb": "Fil d'Ariane",
-    "languageCurrent": "Langue : {{name}}"
+    "languageCurrent": "Langue : {{name}}",
+    "meterOf": "{{value}} sur {{max}}"
   },
   "landing": {
     "title": "circloo · ton cercle, dans un espace privé",
-    "headline": "Ton cercle, dans un espace privé.",
-    "sub": "Prendre des nouvelles du moral de chacun, commencer les réunions par un fou rire, décider ensemble. Un petit espace privé pour ta famille, tes amis ou ton équipe.",
-    "languagesLine": "Parle English, français, العربية et español.",
     "cta": "Créer mon cercle",
-    "ctaSecondary": "Voir comment ça marche",
-    "teaser": {
-      "title": "Le brise-glace du jour",
-      "shake": "Une autre",
-      "shaking": "Je distribue…",
-      "answerLabel": "Ta réponse",
-      "answerPlaceholder": "Écris-la sur la carte…",
-      "answerHint": "Reste sur ton écran. Rien n'est envoyé.",
-      "error": "Impossible de charger cette carte. Tires-en une autre."
+    "tagline1": "Ton cercle.",
+    "tagline2": "Un espace privé.",
+    "nav": {
+      "login": "Se connecter"
     },
-    "checkins": {
-      "title": "Humeurs du jour",
-      "items": [
-        {
-          "name": "Amina",
-          "mood": "Grand soleil",
-          "need": "Prête à tout"
-        },
-        {
-          "name": "Théo",
-          "mood": "Nuageux",
-          "need": "Besoin d'un café"
-        },
-        {
-          "name": "Lucía",
-          "mood": "Éclaircies",
-          "need": "Fière d'hier"
-        },
-        {
-          "name": "Youssef",
-          "mood": "Brouillard",
-          "need": "Besoin d'un câlin"
-        }
-      ]
+    "hero": {
+      "scene": "Votre cercle, ensemble, en direct.",
+      "live": "En direct",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
-    "feel": {
-      "title": "Se sentir ensemble",
-      "body": "Un geste le matin et ton cercle sait comment tu vas. Des mots et des visages, jamais seulement des couleurs. Une note ou un petit besoin si tu veux, c'est tout.",
-      "moods": {
-        "1": "Orageux",
-        "2": "Brouillard",
-        "3": "Nuageux",
-        "4": "Éclaircies",
-        "5": "Grand soleil"
-      },
-      "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café.",
-      "tryIt": "Essaie : comment te sens-tu ?",
-      "faceSays": "circloo se sent {{mood}} aussi."
+    "blobs": {
+      "a": "dimanche en famille",
+      "b": "rétro d'équipe",
+      "c": "soirée jeux",
+      "d": "tous les jeudis"
     },
-    "work": {
-      "title": "Travailler ensemble",
-      "body": "Des tableaux en direct pour les brainstorms, les rétros et les décisions. On colle des notes, on les déplace, on vote avec des gommettes, on voit le curseur de chacun. Sur un téléphone ou sur grand écran.",
-      "columns": {
-        "well": "Ce qui a marché",
-        "improve": "À améliorer",
-        "actions": "Actions"
-      },
-      "notes": [
-        "Déjeuner du dimanche chez mamie",
-        "Trop de réunions le lundi",
-        "Réserver les billets de train",
-        "Nouvelle machine à café",
-        "Des points plus courts"
-      ],
-      "votes_one": "{{count}} vote",
-      "votes_other": "{{count}} votes"
+    "rounds": {
+      "title1": "Des rounds pour",
+      "titleLink": "votre cercle",
+      "lead": "Choisissez-en quelques-uns, circloo les anime avec vous. Chaque round marche sur téléphone comme sur grand écran.",
+      "all": "Voir tous les rounds",
+      "minutes_one": "{{count}} min",
+      "minutes_other": "{{count}} min"
     },
-    "fun": {
-      "title": "S'amuser ensemble",
-      "body": "Brise-glace, devinettes et blagues écrits par des gens dans chaque langue, jamais traduits par une machine. Envie de plus ? Demande à circloo des cartes fraîches pour ton cercle, vérifiées pour rester gentilles."
-    },
-    "integrations": {
-      "title": "Branché sur ta semaine",
-      "body": "circloo envoie ce que ton cercle décide là où ton équipe travaille déjà. Salesforce arrive bientôt.",
-      "items": {
-        "teams": "Lancer les réunions Teams avec un brise-glace",
-        "salesforce": "Fêter les contrats gagnés par l'équipe",
-        "jira": "Transformer les actions de rétro en tickets",
-        "confluence": "Publier un tableau en page",
-        "notion": "Envoyer tableaux et notes dans ton espace"
-      },
-      "stamp": "Bientôt",
-      "available": "Disponible"
+    "made": {
+      "preview": "Aperçu",
+      "empty": "Ton cercle apparaît ici.",
+      "people_one": "{{count}} personne",
+      "people_other": "{{count}} personnes",
+      "more": "+{{count}}",
+      "line": "C'est prêt. On ouvre avec {{first}}, puis {{rest}}.",
+      "lineOne": "C'est prêt. On ouvre avec {{first}}.",
+      "create": "Créer ce cercle",
+      "byHand": "Le préparer à la main",
+      "announce": "Aperçu : {{name}}, {{people}}, avec {{activities}}.",
+      "names": {
+        "retro": "Rétro d'équipe",
+        "brainstorm": "Remue-méninges",
+        "decide": "Décision rapide",
+        "present": "Jour de présentation",
+        "feedback": "Tour des retours",
+        "kudos": "Tour des bravos",
+        "kids": "Jeux en famille",
+        "mood": "Météo du moral",
+        "family": "Dimanche en famille",
+        "friends": "Soirée jeux",
+        "team": "Réunion d'équipe"
+      }
     },
     "how": {
-      "title": "Trois étapes, zéro mot de passe",
-      "steps": [
-        {
-          "title": "Tape ton e-mail",
-          "body": "On t'envoie un code à six chiffres. Aucun mot de passe à retenir."
+      "title": "Comment ça marche",
+      "note": "une ligne, un lien, un round",
+      "steps": {
+        "say": {
+          "title": "Dites-le en une ligne",
+          "body": "Dites à circloo pour qui c'est et ce que vous voulez faire. Il nomme le cercle et choisit les premiers rounds.",
+          "link": "Créer votre cercle"
         },
-        {
-          "title": "Crée ton cercle",
-          "body": "Famille, amis ou équipe. Invite par e-mail ou avec un simple code."
+        "share": {
+          "title": "Partagez le lien ou le code",
+          "body": "Envoyez un lien ou lisez un code court. Chacun rejoint avec un prénom et un personnage, sans e-mail.",
+          "link": "Voir comment on rejoint"
         },
-        {
-          "title": "Avancez ensemble",
-          "body": "Humeurs du jour, brise-glace et tableaux, tout au même endroit."
+        "play": {
+          "title": "Jouez ensemble",
+          "body": "Brise-glace, tableaux en direct et présentations avec sondages, dans la pièce ou sur grand écran.",
+          "link": "Voir les rounds"
         }
-      ]
+      }
     },
-    "final": {
-      "title": "Prêt quand ton cercle l’est.",
-      "body": "Privé par défaut. Seules les personnes que tu invites voient ce qui se passe dans ton cercle.",
-      "cta": "Créer mon cercle"
-    },
-    "footer": {
-      "private": "Privé par défaut. Sans pub.",
-      "made": "Pensé pour les familles, les amis et les équipes, en quatre langues.",
-      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence et Notion sont des marques de leurs propriétaires. circloo n'y est pas affilié."
-    },
-    "preview": "Un aperçu de circloo",
-    "features": "Ressentir, travailler et jouer ensemble",
-    "pricing": {
-      "title": "Une seule offre. Tout est dedans.",
-      "body": "Pas de formules à comparer, aucune fonction cachée derrière un paiement. Commence aujourd'hui, gratuit pendant l'accès anticipé.",
-      "plan": "Cercle",
-      "price": "Gratuit",
-      "period": "pendant l'accès anticipé",
-      "features": [
+    "plan": {
+      "title": "Une seule formule, gratuite pour l’instant",
+      "lead": "circloo est en accès anticipé. Tout ce qui fonctionne aujourd’hui est à vous, sans frais.",
+      "name": "Gratuit",
+      "badge": "Pour l’instant",
+      "price": "0",
+      "per": "sans carte, sans période d’essai",
+      "items": [
         "Cercles et membres illimités",
-        "Catalogue de brise-glace en quatre langues",
-        "Cartes IA fraîches avec circloo, vérifiées pour rester gentilles",
-        "Tours en direct avec animateur et participants",
-        "Privé par défaut, jamais de pub"
+        "Tous les rounds : brise-glace, tableaux, sondages et présentations",
+        "Anglais, français, arabe et espagnol",
+        "On rejoint par lien ou par code, sans mot de passe",
+        "Privé par défaut, sans publicité"
       ],
-      "cta": "Créer mon cercle",
-      "note": "Si une offre payante arrive un jour, on te prévient bien avant tout paiement. Ton cercle continue de fonctionner."
-    },
-    "stage": {
-      "joined_one": "{{count}} personne dans le cercle",
-      "joined_other": "{{count}} personnes dans le cercle"
-    },
-    "inside": {
-      "title": "Dans circloo",
-      "body": "Un espace calme pour ton cercle : brise-glace en direct, humeurs du jour et tableaux, avec circloo prêt à t'aider."
-    },
-    "tour": {
-      "title": "circloo en 20 secondes",
-      "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
-      "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
-    },
-    "nav": {
-      "label": "Sur cette page",
-      "story": "Comment ça marche",
-      "pricing": "Tarif",
-      "integrations": "Intégrations"
+      "cta": "Commencer gratuitement",
+      "later": "Si une formule payante arrive un jour, vous serez prévenu bien avant tout paiement.",
+      "note": "gratuit pendant qu’on le construit"
     },
     "story": {
       "title": "Un cercle prend vie",
@@ -242,20 +185,131 @@
         }
       }
     },
-    "rotator": {
-      "prefix": "Fait pour votre",
-      "words": [
-        "famille",
-        "bande d'amis",
-        "équipe",
-        "classe",
-        "club"
+    "jobs": {
+      "title": "Ce qu'un cercle fait"
+    },
+    "feel": {
+      "title": "Se sentir ensemble",
+      "body": "Un geste le matin et ton cercle sait comment tu vas. Des mots et des visages, jamais seulement des couleurs. Une note ou un petit besoin si tu veux, c'est tout.",
+      "moods": {
+        "1": "Orageux",
+        "2": "Brouillard",
+        "3": "Nuageux",
+        "4": "Éclaircies",
+        "5": "Grand soleil"
+      },
+      "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café.",
+      "tryIt": "Essaie : comment te sens-tu ?",
+      "faceSays": "circloo se sent {{mood}} aussi.",
+      "intro": "Un geste le matin dit à votre cercle comment vous allez. Des mots et des visages, jamais seulement des couleurs."
+    },
+    "work": {
+      "title": "Travailler ensemble",
+      "body": "Des tableaux en direct pour les brainstorms, les rétros et les décisions. On colle des notes, on les déplace, on vote avec des gommettes, on voit le curseur de chacun. Sur un téléphone ou sur grand écran.",
+      "columns": {
+        "well": "Ce qui a marché",
+        "improve": "À améliorer",
+        "actions": "Actions"
+      },
+      "notes": [
+        "Déjeuner du dimanche chez mamie",
+        "Trop de réunions le lundi",
+        "Réserver les billets de train",
+        "Nouvelle machine à café",
+        "Des points plus courts"
+      ],
+      "votes_one": "{{count}} vote",
+      "votes_other": "{{count}} votes",
+      "intro": "Des tableaux en direct pour les brainstormings, les rétros et les décisions, sur un téléphone ou sur grand écran."
+    },
+    "fun": {
+      "title": "S'amuser ensemble",
+      "body": "Brise-glace, devinettes et blagues écrits par des gens dans chaque langue, jamais traduits par une machine. Envie de plus ? Demande à circloo des cartes fraîches pour ton cercle, vérifiées pour rester gentilles.",
+      "intro": "Des brise-glaces, des devinettes et des blagues écrits par des gens dans chaque langue, jamais traduits par une machine."
+    },
+    "integrations": {
+      "title": "Branché sur ta semaine",
+      "body": "circloo envoie ce que ton cercle décide là où ton équipe travaille déjà. Salesforce arrive bientôt.",
+      "items": {
+        "teams": "Lancer les réunions Teams avec un brise-glace",
+        "salesforce": "Fêter les contrats gagnés par l'équipe",
+        "jira": "Transformer les actions de rétro en tickets",
+        "confluence": "Publier un tableau en page",
+        "notion": "Envoyer tableaux et notes dans ton espace"
+      },
+      "stamp": "Bientôt",
+      "available": "Disponible",
+      "eyebrow": "Branché sur votre semaine"
+    },
+    "faq": {
+      "title": "Questions",
+      "items": [
+        {
+          "q": "Faut-il un mot de passe ?",
+          "a": "Non. Vous saisissez votre e-mail et nous envoyons un code à six chiffres. Les personnes invitées par lien n'ont besoin que d'un prénom."
+        },
+        {
+          "q": "Qui voit ce qui se passe dans mon cercle ?",
+          "a": "Seulement ses membres et les personnes que vous invitez. Les cercles sont privés par défaut et il n'y a aucune publicité."
+        },
+        {
+          "q": "C'est vraiment gratuit ?",
+          "a": "Oui, pendant l'accès anticipé. Si un jour un plan payant existe, nous vous préviendrons bien avant tout paiement."
+        },
+        {
+          "q": "Mon entreprise peut-elle utiliser sa propre connexion ?",
+          "a": "Pas encore : aujourd'hui, chacun se connecte avec un code reçu par e-mail. L'authentification unique avec Entra ID, Google Workspace, Okta ou tout fournisseur OIDC ou SAML est prévue, et elle se réglera par configuration, sans code sur mesure."
+        },
+        {
+          "q": "Quelles langues parle-t-il ?",
+          "a": "Anglais, français, arabe (avec une vraie mise en page de droite à gauche) et espagnol. Les blagues sont écrites nativement dans chaque langue, jamais traduites mot à mot."
+        }
       ]
     },
-    "float": {
-      "checkin": "a pris des nouvelles",
-      "note": "Nouvelle note : stand-ups plus courts",
-      "typing": "écrit…"
+    "footer": {
+      "tag": "votre cercle, un espace privé",
+      "create": "Créez votre propre cercle.",
+      "start": "Commencer",
+      "account": {
+        "title": "Votre compte",
+        "login": "Se connecter",
+        "start": "Créer votre cercle"
+      },
+      "discover": {
+        "title": "Découvrir",
+        "rounds": "Rounds",
+        "how": "Comment ça marche",
+        "faq": "Questions",
+        "free": "Formule gratuite"
+      },
+      "languages": "Langues",
+      "made1": "Fait avec",
+      "made2": "en quatre langues",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence et Notion sont des marques de leurs propriétaires. circloo n'y est pas affilié."
+    },
+    "teaser": {
+      "title": "Le brise-glace du jour",
+      "shake": "Une autre",
+      "shaking": "Je distribue…",
+      "answerLabel": "Ta réponse",
+      "answerPlaceholder": "Écris-la sur la carte…",
+      "answerHint": "Reste sur ton écran. Rien n'est envoyé.",
+      "error": "Impossible de charger cette carte. Tires-en une autre."
+    },
+    "tour": {
+      "title": "circloo en 20 secondes",
+      "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
+      "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
+    },
+    "login": {
+      "back": "Revenir au tableau"
+    },
+    "motion": {
+      "pause": "Mettre les animations en pause",
+      "play": "Lancer les animations",
+      "respect": "Respecter mon réglage système",
+      "playing": "Les animations sont lancées.",
+      "following": "Les animations suivent votre réglage système."
     }
   },
   "auth": {
@@ -297,7 +351,7 @@
     }
   },
   "home": {
-    "greeting": "Salut <name>{{name}}</name> !",
+    "greeting": "Salut <name>{{name}}</name>.",
     "lead": "Crée un cercle, ou retourne dans un des tiens.",
     "nextTitle": "Ton espace",
     "modules": {
@@ -335,6 +389,47 @@
       "module": "Module",
       "status": "Statut",
       "about": "À quoi ça sert"
+    },
+    "orrery": "Tes cercles, en orbite",
+    "orreryLead": "Ouvre un cercle pour revenir dans sa salle.",
+    "live": "En direct",
+    "today": "Aujourd’hui dans tes cercles",
+    "phaseNote": "Seulement sur cet appareil pour l’instant : le check-in quotidien de tout le cercle arrive.",
+    "liveLine_one": "{{name}} est en direct. Une personne est là.",
+    "liveLine_other": "{{name}} est en direct. {{count}} personnes sont là.",
+    "hereOf": "{{value}} sur {{max}}",
+    "hereToday": "personnes là aujourd'hui",
+    "here": "là",
+    "openRoom": "Ouvrir la salle",
+    "otherCircles": "Tes autres cercles",
+    "feelTitle": "Comment tu te sens aujourd’hui ?",
+    "weather": "Météo du cercle : <b>{{mood}}</b>.",
+    "firstTitle": "Lance ton premier cercle",
+    "create": {
+      "title": "Créer un nouveau cercle",
+      "lead": "Dites à quoi il sert, partagez le lien et jouez ensemble. Gratuit, privé, dans votre langue.",
+      "cta": "Nouveau cercle",
+      "quick": "Ou partez de",
+      "kinds": {
+        "family": "Dimanche en famille",
+        "friends": "Soirée jeux",
+        "team": "Rétro d’équipe"
+      },
+      "lines": {
+        "family": "Déjeuner du dimanche en famille, un truc rigolo pour les enfants",
+        "friends": "Soirée jeux avec 5 amis : des blagues et un « tu préfères »",
+        "team": "Une rétro pour mon équipe de 6"
+      }
+    },
+    "groups": {
+      "animator": {
+        "title": "Les cercles que j’anime",
+        "empty": "Vous n’animez pas encore de cercle. Créez-en un juste au-dessus."
+      },
+      "participant": {
+        "title": "Les cercles que j’ai rejoints",
+        "empty": "Quand quelqu’un vous envoie un lien, son cercle apparaît ici."
+      }
     }
   },
   "settings": {
@@ -362,7 +457,7 @@
     "autonomyHelp": "Avec Proposer, Pirikoo te propose la prochaine étape au fil de l’eau. Rien ne se lance sans ton choix. Tu peux discuter avec Pirikoo dans tous les cas."
   },
   "notFound": {
-    "title": "Page introuvable.",
+    "title": "Rien ici.",
     "body": "La page que tu cherches n'existe pas ou a déménagé.",
     "home": "Retour à l'accueil"
   },
@@ -393,7 +488,7 @@
     },
     "card": {
       "label": "Carte du moment",
-      "shake": "Tirer",
+      "shake": "Une autre carte",
       "favourite": "Favori",
       "showAnswer": "Voir la réponse",
       "empty": "Aucune carte ne correspond à ces filtres. Changes-en un, ou demande des cartes fraîches.",
@@ -650,7 +745,21 @@
       "errors": {
         "name": "Donne un nom à ton cercle.",
         "activities": "Choisis au moins une activité."
-      }
+      },
+      "mode": "Comment veux-tu commencer ?",
+      "describe": "Décrire",
+      "byHand": "À la main",
+      "describeLabel": "Dis à quoi sert le cercle",
+      "describePlaceholder": "Une rétro pour mon équipe de 6, en français",
+      "suggest": "Proposer",
+      "suggestAgain": "Proposer encore",
+      "suggested": "Proposé",
+      "suggestHelp": "Une proposition rapide à partir de tes mots, rien de plus : change ce que tu veux ci-dessous. La composition par l'IA de circloo arrive.",
+      "applied": "Nom et activités remplis à partir de ta ligne.",
+      "preview": "Ce qui va s’ouvrir",
+      "seats": "Places",
+      "seatsNote": "Toi d’abord. Qui a le lien prend une place.",
+      "pickedOf": "activités choisies"
     },
     "invite": {
       "title": "Inviter",
@@ -684,7 +793,8 @@
       "ringLegend": "Ton anneau de couleur",
       "ringHelp": "D’autres ont aussi choisi ce personnage. Tu porteras l’anneau {{n}}, et ton nom s’affiche toujours avec. Change-le ici si tu veux.",
       "ringOption": "Anneau {{n}}",
-      "ringNone": "Sans anneau"
+      "ringNone": "Sans anneau",
+      "heading": "Rejoindre <name>{{name}}</name>"
     },
     "room": {
       "title": "Cercle",
@@ -751,6 +861,7 @@
       "startedBy": "lancé par <name>{{name}}</name>",
       "roundOpen": "Nouveau tour : {{activity}}",
       "roundEnded": "Le tour est terminé.",
+      "elapsed": "En cours depuis {{time}}",
       "connection": "Connexion : {{status}}",
       "peopleStrip_one": "{{count}} personne dans le cercle. Voir la liste",
       "peopleStrip_other": "{{count}} personnes dans le cercle. Voir la liste",
@@ -758,7 +869,10 @@
       "expandSide": "Ouvrir la colonne",
       "callTab": "Appel",
       "openWhiteboard": "Ouvrir le tableau blanc",
-      "otherRounds": "Autres activités"
+      "otherRounds": "Autres activités",
+      "valueHere": "là",
+      "valueAway": "absent",
+      "peopleHere": "Personnes présentes"
     },
     "missing": {
       "title": "Cercle introuvable",
@@ -804,11 +918,18 @@
       "isOff": "La discussion en direct est désactivée.",
       "stage": "Scène",
       "stageBody": "L’audio et la vidéo arrivent bientôt. En attendant, écris dans le chat et lève la main.",
+      "floor": "a la parole",
       "errors": {
         "failed": "Ça n’a pas marché. Réessaie dans un instant.",
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
         "animator-only": "Seul l’animateur peut changer ce réglage."
       }
+    },
+    "ring": {
+      "empty": "Personne pour l’instant",
+      "label": "{{name}} : {{count}} personnes",
+      "labelMood": "{{name}} : {{count}} personnes, plutôt {{mood}}",
+      "running": "une activité est en cours"
     }
   },
   "boards": {
@@ -923,12 +1044,14 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
-    }
+    },
+    "connectedTitle": "Services connectés"
   },
   "pirikoo": {
     "name": "Pirikoo",
     "label": "Pirikoo, ton guide",
     "ask": "Demander à Pirikoo",
+    "searchAsk": "Chercher ou demander à Pirikoo…",
     "notNow": "Pas maintenant",
     "hide": "Désactiver les suggestions",
     "actions": {
@@ -990,6 +1113,7 @@
       "ai": "IA",
       "open": "Discuter avec Pirikoo",
       "openUnread": "Discuter avec Pirikoo, nouvelle réponse",
+      "openTip": "Discuter avec Pirikoo, une suggestion vous attend",
       "subtitle": "Ton guide dans circloo",
       "writing": "Pirikoo écrit",
       "writingShort": "écrit…",
@@ -1093,7 +1217,8 @@
       "title": "Dépose un fichier PowerPoint ici",
       "hint": "Un fichier .pptx de 50 Mo et 100 diapos maximum. Chaque diapo devient une image ; tes notes suivent.",
       "choose": "Choisir un fichier",
-      "sending": "Envoi en cours"
+      "sending": "Envoi en cours",
+      "pick": "Importer un PowerPoint"
     },
     "errors": {
       "not-pptx": "Ce n’est pas un fichier PowerPoint (.pptx). Dans PowerPoint, utilise Enregistrer sous et choisis .pptx.",
@@ -1183,7 +1308,8 @@
     "movedTo": "Diapositive déplacée en position {{number}} sur {{count}}.",
     "autoOpen": "Ouvrir les réponses dès qu’une question s’affiche",
     "autoOpenOn": "Les participants peuvent répondre dès que tu arrives sur une question.",
-    "autoOpenOff": "Tu ouvres toi-même les réponses à chaque question."
+    "autoOpenOff": "Tu ouvres toi-même les réponses à chaque question.",
+    "ready": "Prête"
   },
   "present": {
     "pickTitle": "Choisir une présentation",
@@ -1339,350 +1465,5 @@
       "build": "Créer le mien"
     },
     "person": "Personne {{n}}"
-  },
-  "landing2": {
-    "nav": {
-      "audience": "Pour qui",
-      "product": "Fonctions",
-      "faq": "FAQ"
-    },
-    "hero": {
-      "madeFor": "Fait pour votre",
-      "kindLabel": "Pour qui ?",
-      "note": "Pas de mot de passe : un code à six chiffres par e-mail. Privé par défaut.",
-      "kinds": [
-        {
-          "id": "family",
-          "label": "Famille",
-          "word": "famille"
-        },
-        {
-          "id": "friends",
-          "label": "Amis",
-          "word": "bande d'amis"
-        },
-        {
-          "id": "team",
-          "label": "Équipe",
-          "word": "équipe"
-        }
-      ]
-    },
-    "logos": {
-      "eyebrow": "Se branche sur les outils que votre équipe utilise déjà"
-    },
-    "audience": {
-      "eyebrow": "Pour qui",
-      "title": "Un petit espace, trois sortes de gens",
-      "lead": "Choisissez le vôtre. L'espace s'adapte, les rituels restent légers.",
-      "items": [
-        {
-          "id": "family",
-          "tab": "Famille",
-          "title": "Restez proches, où que chacun vive",
-          "body": "Prenez des nouvelles d'un geste, riez dans votre langue et préparez le prochain dîner ensemble. Arabe, français, espagnol et anglais côte à côte.",
-          "bullets": [
-            "Humeur du jour en un geste",
-            "Blagues écrites nativement en quatre langues",
-            "Invitez mamie avec un lien, sans e-mail"
-          ],
-          "cta": "Créer un cercle famille"
-        },
-        {
-          "id": "friends",
-          "tab": "Amis",
-          "title": "Un groupe de discussion devenu un vrai lieu",
-          "body": "Lancez la soirée avec un brise-glace, jetez vos idées sur un canevas partagé et votez pour le plan. Aucun compte requis.",
-          "bullets": [
-            "Brise-glace, devinettes et blagues",
-            "Canevas partagé avec pointeurs en direct",
-            "Rejoignez avec un prénom et un personnage"
-          ],
-          "cta": "Créer un cercle d'amis"
-        },
-        {
-          "id": "team",
-          "tab": "Équipe",
-          "title": "Des rituels d'équipe sans outil lourd de plus",
-          "body": "Ouvrez la semaine avec l'humeur du jour et animez la rétro sur un tableau en direct. L'authentification unique avec votre propre fournisseur arrive bientôt.",
-          "bullets": [
-            "Tableaux de rétro et de brainstorm avec votes",
-            "Votre propre SSO : Entra ID, Google, Okta (bientôt)",
-            "Résultats envoyés vers Teams, Jira ou Notion"
-          ],
-          "cta": "Créer un cercle d'équipe"
-        }
-      ]
-    },
-    "jobs": {
-      "eyebrow": "Trois missions",
-      "title": "Ressentir, travailler et jouer au même endroit",
-      "lead": "Le même cercle gère l'humeur, les décisions et les rires.",
-      "items": [
-        {
-          "id": "feel",
-          "label": "Ressentir ensemble",
-          "status": "Humeur du jour",
-          "title": "Voyez comment va votre cercle",
-          "body": "Un geste le matin dit à tous comment vous allez. Des visages et des mots, jamais seulement des couleurs.",
-          "bullets": [
-            "Une note ou un petit besoin, si vous voulez",
-            "La météo du cercle d'un coup d'œil",
-            "Quelques secondes, jamais des minutes"
-          ]
-        },
-        {
-          "id": "work",
-          "label": "Travailler ensemble",
-          "status": "Tableaux en direct",
-          "title": "Décidez sur un tableau partagé",
-          "body": "Collez des notes, glissez-les entre colonnes, votez avec des points et regardez bouger le pointeur de chacun.",
-          "bullets": [
-            "Sur téléphone ou sur grand écran",
-            "Votes et colonnes pour les rétros",
-            "Épinglez les réponses du chat sur le tableau"
-          ]
-        },
-        {
-          "id": "fun",
-          "label": "S'amuser ensemble",
-          "status": "Disponible",
-          "title": "Commencez chaque réunion par un rire",
-          "body": "Brise-glace et blagues écrits par des gens dans chaque langue. Demandez-en de nouveaux à circloo, vérifiés pour leur bienveillance.",
-          "bullets": [
-            "English, français, العربية, español",
-            "Étiquettes adaptées aux enfants",
-            "Jamais traduits par une machine"
-          ]
-        }
-      ],
-      "pause": "Arrêter le défilement"
-    },
-    "platform": {
-      "title": "Se branche sur votre semaine",
-      "pills": [
-        "Microsoft Teams",
-        "Jira",
-        "Confluence",
-        "Notion",
-        "Salesforce (bientôt)",
-        "Votre propre SSO (bientôt)"
-      ]
-    },
-    "facts": {
-      "eyebrow": "En chiffres",
-      "title": "Petit exprès, fait pour de vrais cercles",
-      "lead": "Quatre faits simples sur ce qu'il y a dans la boîte aujourd'hui.",
-      "items": [
-        {
-          "n": 4,
-          "label": "langues",
-          "body": "English, français, العربية avec la droite à gauche complète, et español."
-        },
-        {
-          "n": 209,
-          "label": "personnages au choix",
-          "body": "Animaux, héros, plantes et 160 personnes, plus un créateur."
-        },
-        {
-          "n": 100,
-          "label": "personnes par cercle",
-          "body": "Les cercles sont privés ; seuls les membres et invités voient quelque chose."
-        },
-        {
-          "n": 0,
-          "label": "mot de passe",
-          "body": "Inscription par un code à six chiffres par e-mail, ou par lien."
-        }
-      ]
-    },
-    "principles": {
-      "eyebrow": "Ce en quoi nous croyons",
-      "title": "Cinq promesses qui guident la construction",
-      "who": "L'équipe circloo",
-      "prev": "Précédent",
-      "next": "Suivant",
-      "items": [
-        {
-          "title": "Des secondes, pas des minutes",
-          "body": "Prendre des nouvelles ou réagir demande un ou deux gestes. Tout ce qui est plus long est optionnel."
-        },
-        {
-          "title": "Les gens avant la productivité",
-          "body": "Les émotions et le plaisir sont des fonctions de base, pas de la décoration autour d'un outil de travail."
-        },
-        {
-          "title": "Un cercle, plusieurs cultures",
-          "body": "Chaque écran fonctionne pareil dans les quatre langues et de droite à gauche. Aucune langue n'est un détail."
-        },
-        {
-          "title": "Privé par défaut, ouvert sur invitation",
-          "body": "Rien n'est public. Inviter est facile, avec ou sans e-mail."
-        },
-        {
-          "title": "Simple pour les familles, configurable pour les entreprises",
-          "body": "Le SSO et les politiques sont des réglages, jamais des versions à part."
-        }
-      ]
-    },
-    "compare": {
-      "eyebrow": "Un seul espace",
-      "title": "Un espace au lieu de quatre outils",
-      "lead": "Ce dont un cercle a d'habitude besoin, et où cela vit d'habitude.",
-      "yes": "Inclus",
-      "no": "Non inclus",
-      "cols": [
-        "Un groupe de discussion",
-        "Un outil de tableau blanc",
-        "Une appli de brise-glace",
-        "circloo"
-      ],
-      "rows": [
-        {
-          "label": "Humeur du jour",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Tableau partagé en direct avec votes",
-          "has": [
-            false,
-            true,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Brise-glace et blagues",
-          "has": [
-            false,
-            false,
-            true,
-            true
-          ]
-        },
-        {
-          "label": "Rejoindre sans compte",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        },
-        {
-          "label": "Famille, amis et équipes au même endroit",
-          "has": [
-            false,
-            false,
-            false,
-            true
-          ]
-        }
-      ],
-      "feature": "Fonction"
-    },
-    "pricing": {
-      "status": "Accès anticipé",
-      "tag": "Gratuit pour l'instant"
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "title": "Vos questions, nos réponses",
-      "lead": "Encore curieux ? Lancez un cercle et jugez par vous-même.",
-      "items": [
-        {
-          "q": "Faut-il un mot de passe ?",
-          "a": "Non. Vous saisissez votre e-mail et nous envoyons un code à six chiffres. Les personnes invitées par lien n'ont besoin que d'un prénom."
-        },
-        {
-          "q": "Qui voit ce qui se passe dans mon cercle ?",
-          "a": "Seulement ses membres et les personnes que vous invitez. Les cercles sont privés par défaut et il n'y a aucune publicité."
-        },
-        {
-          "q": "C'est vraiment gratuit ?",
-          "a": "Oui, pendant l'accès anticipé. Si un jour un plan payant existe, nous vous préviendrons bien avant tout paiement."
-        },
-        {
-          "q": "Mon entreprise peut-elle utiliser sa propre connexion ?",
-          "a": "Pas encore : aujourd'hui, chacun se connecte avec un code reçu par e-mail. L'authentification unique avec Entra ID, Google Workspace, Okta ou tout fournisseur OIDC ou SAML est prévue, et elle se réglera par configuration, sans code sur mesure."
-        },
-        {
-          "q": "Quelles langues parle-t-il ?",
-          "a": "Anglais, français, arabe (avec une vraie mise en page de droite à gauche) et espagnol. Les blagues sont écrites nativement dans chaque langue, jamais traduites mot à mot."
-        }
-      ]
-    },
-    "final": {
-      "eyebrow": "Prêts quand vous l'êtes",
-      "note": "Gratuit pendant l'accès anticipé. Ni carte, ni mot de passe."
-    },
-    "footer": {
-      "cols": [
-        {
-          "title": "Produit",
-          "links": [
-            {
-              "label": "Comment ça marche",
-              "href": "#story"
-            },
-            {
-              "label": "Fonctions",
-              "href": "#product"
-            },
-            {
-              "label": "Comparer",
-              "href": "#compare"
-            },
-            {
-              "label": "Tarifs",
-              "href": "#pricing"
-            }
-          ]
-        },
-        {
-          "title": "circloo",
-          "links": [
-            {
-              "label": "Principes",
-              "href": "#principles"
-            },
-            {
-              "label": "Intégrations",
-              "href": "#integrations"
-            },
-            {
-              "label": "FAQ",
-              "href": "#faq"
-            }
-          ]
-        },
-        {
-          "title": "Commencer",
-          "links": [
-            {
-              "label": "Se connecter",
-              "href": "/signin"
-            },
-            {
-              "label": "Créer votre cercle",
-              "href": "/signin"
-            }
-          ]
-        }
-      ],
-      "label": "Pied de page"
-    },
-    "motion": {
-      "pause": "Mettre les animations en pause",
-      "play": "Lancer les animations",
-      "respect": "Respecter mon réglage système",
-      "playing": "Les animations sont lancées.",
-      "following": "Les animations suivent votre réglage système."
-    }
   }
 }
