@@ -17,7 +17,7 @@
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: border-color var(--dur-state) var(--ease-spring);
+  transition: border-color var(--dur-state) var(--ease-settle);
 }
 .svc:hover,
 .svc:focus-within {
@@ -70,7 +70,7 @@
 }
 /* Connected pops once when it arrives; neutral and Soon stay still. */
 .svc .lozenge--success {
-  animation: svc-pop var(--dur-move) var(--ease-spring);
+  animation: svc-pop var(--dur-move) var(--ease-settle);
 }
 @keyframes svc-pop {
   50% {

@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  inline-size: clamp(11rem, 18vw, 16rem);
+  inline-size: clamp(9rem, 14vw, 14rem);
   min-block-size: 2.5rem;
   padding-block: 0.3rem;
   padding-inline: 0.75rem 0.4rem;
@@ -94,7 +94,7 @@
   block-size: 2.25rem;
   font-size: 0.8125rem;
   font-weight: 700;
-  transition: box-shadow var(--dur-state) var(--ease-out), transform var(--dur-move) var(--ease-spring);
+  transition: box-shadow var(--dur-state) var(--ease-out), transform var(--dur-move) var(--ease-settle);
 }
 .account__trigger:hover .avatar {
   transform: scale(1.06);
@@ -180,9 +180,9 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 a.navitem:hover {
   background: var(--paper-sunken);
@@ -224,7 +224,7 @@ a.navitem:active {
 .drawer[open] {
   display: flex;
   flex-direction: column;
-  animation: slide-in var(--dur-enter) var(--ease-spring);
+  animation: slide-in var(--dur-enter) var(--ease-settle);
 }
 [dir='rtl'] .drawer[open] {
   animation-name: slide-in-rtl;
@@ -321,6 +321,13 @@ a.navitem:active {
   }
   .topbar__inner {
     gap: var(--s-2);
+  }
+}
+/* Narrower bars drop the coming-soon pill from the bar (the drawer keeps it). */
+@media (max-width: 84rem) {
+  .topbar__nav .sidenav__group,
+  .topbar__nav .navitem.is-soon {
+    display: none;
   }
 }
 @media (max-width: 40rem) {
@@ -652,7 +659,7 @@ a.navitem:active {
 /* A digit arriving outlines its cell in ink and settles in from below. */
 .code-tile.is-filled {
   border-color: var(--ink);
-  animation: digit-in var(--dur-move) var(--ease-spring);
+  animation: digit-in var(--dur-move) var(--ease-settle);
 }
 @keyframes digit-in {
   from {

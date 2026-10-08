@@ -196,7 +196,7 @@
   box-shadow: var(--shadow-overlay);
   cursor: pointer;
   transition:
-    translate var(--dur-state) var(--ease-spring),
+    translate var(--dur-state) var(--ease-settle),
     border-color var(--dur-state) var(--ease-out),
     border-width var(--dur-state) var(--ease-out);
 }
@@ -221,17 +221,16 @@
   block-size: 3rem;
   margin-block-start: 2px;
 }
-/* The suggestion: a small dark card with the AI violet as a bar at its start; the pills flip to white on it. */
+/* The suggestion: a small dark card, the name with its AI lozenge; the pills flip to white on it. */
 .pkl .pkl__tip {
   inline-size: min(21rem, calc(100vw - 2rem));
   display: grid;
   gap: var(--s-2);
   padding: var(--s-4) var(--s-5);
   border: 0;
-  border-inline-start: 4px solid var(--ai);
   border-radius: var(--r-lg);
   transform-origin: 90% 100%;
-  animation: pk-pop var(--dur-enter) var(--ease-spring);
+  animation: pk-pop var(--dur-enter) var(--ease-settle);
 }
 /* The growth origin follows the bird. */
 [dir='rtl'] .pkl .pkl__tip {
@@ -309,7 +308,7 @@
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-overlay);
   transform-origin: 100% 100%;
-  animation: pk-pop var(--dur-move) var(--ease-spring);
+  animation: pk-pop var(--dur-move) var(--ease-settle);
 }
 [dir='rtl'] .pkc--panel {
   transform-origin: 0% 100%;
@@ -328,7 +327,7 @@
   display: none;
 }
 .pkc--center[open] {
-  animation: pk-pop var(--dur-move) var(--ease-spring);
+  animation: pk-pop var(--dur-move) var(--ease-settle);
 }
 .pkc--center::backdrop {
   background: rgb(0 0 0 / 0.45);
@@ -476,7 +475,7 @@
 }
 .pkc__me,
 .pkc__pk {
-  animation: pk-rise var(--dur-enter) var(--ease-spring) backwards;
+  animation: pk-rise var(--dur-enter) var(--ease-settle) backwards;
 }
 @keyframes pk-rise {
   from {
@@ -684,8 +683,8 @@
   color: var(--on-ink);
   cursor: pointer;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .pkc__send:hover {
   background: var(--ink-soft);

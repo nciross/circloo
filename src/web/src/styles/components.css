@@ -93,10 +93,10 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    color var(--dur-state) var(--ease-spring),
-    box-shadow var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    box-shadow var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .btn:hover {
   background: var(--btn-bg-hover);
@@ -1457,7 +1457,7 @@
     border-color var(--dur-state),
     background-color var(--dur-state),
     color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .mood:hover {
   border-color: var(--ink);
@@ -1478,7 +1478,7 @@
 
 /* ---------- Arrival: each top-level block of a page rises in turn, nothing waits for a scroll ---------- */
 .page > * {
-  animation: rise-in var(--dur-enter) var(--ease-spring) backwards;
+  animation: rise-in var(--dur-enter) var(--ease-settle) backwards;
 }
 .page > :nth-child(2) { animation-delay: 60ms; }
 .page > :nth-child(3) { animation-delay: 120ms; }

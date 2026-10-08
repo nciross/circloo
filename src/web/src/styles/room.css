@@ -376,7 +376,8 @@
 .people {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  /* Grows, never shrinks under its content: a short panel scrolls instead of letting the meter cover the invite. */
+  flex: 1 0 auto;
   gap: var(--s-3);
   min-block-size: 18rem;
 }

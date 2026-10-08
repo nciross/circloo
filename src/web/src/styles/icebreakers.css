@@ -221,9 +221,9 @@
   background: transparent;
   color: var(--on-card);
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .heart:hover {
   background: var(--card-hover);
@@ -482,7 +482,7 @@
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
-  animation: rise-in var(--dur-enter) var(--ease-spring) backwards;
+  animation: rise-in var(--dur-enter) var(--ease-settle) backwards;
   transition: border-color var(--dur-state) var(--ease-out);
 }
 .fresh-card:nth-child(2) {
@@ -523,8 +523,8 @@
   font-size: var(--fs-sm);
   font-weight: 700;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .mini-btn:hover {
   background: var(--paper-hover);

@@ -747,10 +747,10 @@
   text-align: start;
   cursor: pointer;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    color var(--dur-state) var(--ease-spring),
-    box-shadow var(--dur-state) var(--ease-spring),
-    transform var(--dur-press) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    box-shadow var(--dur-state) var(--ease-settle),
+    transform var(--dur-press) var(--ease-settle);
 }
 .answer-pad__option .stage-slide__letter {
   border-color: var(--ink);

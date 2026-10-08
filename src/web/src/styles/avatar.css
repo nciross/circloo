@@ -29,7 +29,7 @@
   cursor: pointer;
   transition:
     border-color var(--dur-state) var(--ease-out),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .pick .pick__item:hover {
   border-color: var(--hairline-strong);

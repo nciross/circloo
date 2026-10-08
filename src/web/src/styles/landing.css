@@ -336,7 +336,7 @@
   cursor: pointer;
   transition:
     background-color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .say__go:hover {
   background: var(--ink-soft);
@@ -378,7 +378,7 @@
   cursor: pointer;
   transition:
     background-color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .say__example:hover {
   background: var(--paper-sunken);
@@ -795,7 +795,7 @@
   transition:
     background-color var(--dur-state),
     color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .motion-toggle:hover {
   background: rgb(255 255 255 / 0.12);
@@ -860,7 +860,7 @@
   cursor: pointer;
   transition:
     background-color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .film__toggle:hover {
   background: var(--paper-sunken);
@@ -904,7 +904,7 @@
   transition:
     background-color var(--dur-state),
     color var(--dur-state),
-    transform var(--dur-move) var(--ease-spring);
+    transform var(--dur-move) var(--ease-settle);
 }
 .film__pick:hover {
   background: var(--paper-sunken);

@@ -157,7 +157,7 @@ function Launcher() {
       <div className="pkl__tip card--dark" role="status" aria-live="polite" hidden={!shown}>
         {shown ? (
           <>
-            <p className="pkl__name">{t('pirikoo.name')}</p>
+            <p className="pkl__name">{t('pirikoo.name')} <span className="lozenge lozenge--ai">{t('pirikoo.chat.ai')}</span></p>
             <p className="pkl__text">{shown.text}</p>
             <div className="pkl__actions">
               {shown.action ? (

@@ -63,9 +63,9 @@
   background: var(--paper);
   cursor: pointer;
   transition:
-    border-color var(--dur-state) var(--ease-spring),
-    background-color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    border-color var(--dur-state) var(--ease-settle),
+    background-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .pick__item:hover {
   border-color: var(--ink);
@@ -90,7 +90,7 @@
   color: var(--ink);
 }
 .pick__item.is-picked .pick__char {
-  animation: hop var(--dur-enter) var(--ease-spring);
+  animation: hop var(--dur-enter) var(--ease-settle);
 }
 .pick__item.is-taken {
   opacity: 0.45;
@@ -210,7 +210,7 @@
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: border-color var(--dur-state) var(--ease-spring);
+  transition: border-color var(--dur-state) var(--ease-settle);
 }
 .activity:hover {
   border-color: var(--hairline-strong);
@@ -276,9 +276,9 @@
   font-weight: 700;
   white-space: nowrap;
   transition:
-    background-color var(--dur-state) var(--ease-spring),
-    color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .activity__toggle:hover {
   background: var(--paper-sunken);
@@ -984,8 +984,8 @@
   color: var(--ink);
   text-decoration: none;
   transition:
-    border-color var(--dur-state) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
+    border-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-move) var(--ease-settle);
 }
 .circle-list__link:hover {
   border-color: var(--ink);
@@ -1019,7 +1019,7 @@
 }
 .circle-list__go {
   color: var(--ink-faint);
-  transition: transform var(--dur-move) var(--ease-spring), color var(--dur-state) var(--ease-out);
+  transition: transform var(--dur-move) var(--ease-settle), color var(--dur-state) var(--ease-out);
 }
 .circle-list__link:hover .circle-list__go {
   color: var(--ink);

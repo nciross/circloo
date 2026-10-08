@@ -163,7 +163,7 @@
   /* Motion: one grammar. Springs for arrivals and presses, nothing linear. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
   --dur-press: 120ms;
   --dur-state: 160ms;
   --dur-move: 240ms;
