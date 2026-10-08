@@ -709,9 +709,9 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
+/* Arrival moves, never fades: text keeps its contrast while it settles. */
 @keyframes rise-in {
   from {
-    opacity: 0;
     transform: translateY(6px);
   }
 }

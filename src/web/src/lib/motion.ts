@@ -43,14 +43,15 @@ export const listVariants = (reduced: boolean, stagger = 0.03, cap = 0.24): Vari
   },
 })
 export const rowVariants = (reduced: boolean): Variants => ({
-  hidden: { opacity: 0, y: reduced ? 0 : 8 },
-  show: { opacity: 1, y: 0, transition: { duration: dur.enter, ease: easeOut } },
+  // Rows move into place, they never fade: text keeps its contrast while it settles (axe runs on arrival).
+  hidden: { y: reduced ? 0 : 8 },
+  show: { y: 0, transition: { duration: dur.enter, ease: easeOut } },
 })
 
 /** A panel or card entering: rises with the soft spring, or fades under reduced motion. */
 export const enterVariants = (reduced: boolean): Variants => ({
-  hidden: { opacity: 0, y: reduced ? 0 : 12, scale: reduced ? 1 : 0.985 },
-  show: { opacity: 1, y: 0, scale: 1, transition: reduced ? { duration: dur.state } : spring.soft },
+  hidden: { y: reduced ? 0 : 12, scale: reduced ? 1 : 0.985 },
+  show: { y: 0, scale: 1, transition: reduced ? { duration: dur.state } : spring.soft },
   exit: { opacity: 0, y: reduced ? 0 : 6, transition: { duration: dur.state } },
 })
 

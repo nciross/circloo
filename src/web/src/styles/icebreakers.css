@@ -249,9 +249,9 @@
     transform: scale(1.15);
   }
 }
+/* Arrival moves, never fades: text keeps its contrast while it settles. */
 @keyframes rise-in {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
 }

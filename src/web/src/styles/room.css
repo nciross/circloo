@@ -414,6 +414,8 @@
 .people__scroll {
   flex: 1;
   min-block-size: 12rem;
+  /* Bounded, so the list windows its rows and the invite card keeps its place under the meter. */
+  max-block-size: max(12rem, calc(100dvh - 26rem));
   overflow-y: auto;
   overscroll-behavior: contain;
   border-radius: var(--r-sm);
