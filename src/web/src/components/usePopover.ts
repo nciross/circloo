@@ -4,8 +4,9 @@ import { dur, spring } from '../lib/motion'
 const ITEMS = 'a[href], button:not([disabled])'
 
 /**
- * How a popover panel arrives and leaves: 8px up on the soft spring, out faster than in. Under
- * reduced motion it only fades. Spread onto a `motion.div` inside an `AnimatePresence`.
+ * How a popover panel arrives and leaves: it rises 8px on the soft spring (moving only, never fading in, since axe
+ * reads it on arrival) and leaves faster than it came, fading out. Under reduced motion it appears in place.
+ * Spread onto a `motion.div` inside an `AnimatePresence`.
  */
 export const popoverMotion = (reduced: boolean) => ({
   // Arrives by moving only (axe reads menus on arrival); it may fade on the way out.

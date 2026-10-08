@@ -112,7 +112,7 @@ public static class CircleEndpoints
                     m.Circle!.Id, m.Circle.Name, m.Circle.JoinCode, m.Role, m.Circle.CreatedAt, m.Circle.ClosedAt, m.Circle.ExpiresAt,
                     People = db.CircleMembers.Count(x => x.CircleId == m.CircleId && x.LeftAt == null),
                     Bodies = db.CircleMembers.Where(x => x.CircleId == m.CircleId && x.LeftAt == null)
-                        .OrderBy(x => x.JoinedAt).Take(8)
+                        .OrderBy(x => x.JoinedAt).ThenBy(x => x.Id).Take(8)
                         .Select(x => new CircleBody(x.Id, x.Name, x.Character, x.Ring, x.UserId == userId)).ToList(),
                 })
                 .ToListAsync(ct);
