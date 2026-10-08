@@ -50,6 +50,9 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
     public FakeTimeProvider Clock { get; } = new(DateTimeOffset.Parse("2026-10-01T08:00:00Z", System.Globalization.CultureInfo.InvariantCulture));
     public CapturingEmailSender Emails { get; } = new();
 
+    /// <summary>Extra host setup for one test class (a fake call server, log capture), applied last.</summary>
+    public Action<IWebHostBuilder>? Configure { get; init; }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -75,6 +78,7 @@ public sealed partial class ApiFactory(string connectionString, IDictionary<stri
                 s.AddSingleton<Microsoft.Extensions.AI.IChatClient>(fakeAi);
             }
         });
+        Configure?.Invoke(builder);
     }
 
     public HttpClient CreateHttpsClient() =>

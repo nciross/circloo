@@ -19,6 +19,8 @@ public sealed class RateLimitOptions
     public int CirclesCreatedPerUserPerHour { get; set; } = 30;
     public int IntegrationCallsPerUserPer10Min { get; set; } = 20;
     public int PresentationUploadsPerUserPerHour { get; set; } = 10;
+    /// <summary>Call passes per member, across tabs (spec 009 contracts/rest.md): a refresh every few minutes needs far less.</summary>
+    public int CallTokensPerMemberPerMinute { get; set; } = 10;
 }
 
 public static class RateLimits
@@ -30,6 +32,11 @@ public static class RateLimits
     public const string CircleCreate = "circle-create";
     public const string Integration = "integration";
     public const string PresentationUpload = "presentation-upload";
+    /// <summary>
+    /// Call passes (spec 009). Counted per member inside the endpoint with <c>RoomLimits</c>, after the contract's other
+    /// checks, and refused through <see cref="RejectAsync"/>.
+    /// </summary>
+    public const string CallToken = "call-token";
 
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
