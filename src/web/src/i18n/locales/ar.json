@@ -41,7 +41,8 @@
     "signedInAs": "تم الدخول باسم",
     "startRound": "ابدأ جولة",
     "breadcrumb": "مسار التنقل",
-    "languageCurrent": "اللغة: {{name}}"
+    "languageCurrent": "اللغة: {{name}}",
+    "meterOf": "{{value}} من {{max}}"
   },
   "landing": {
     "title": "circloo · دائرتك في مساحة خاصة واحدة",

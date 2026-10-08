@@ -1,39 +1,65 @@
-/* circloo · the orrery, in Pure Signal. White by day, off-black by night, hard ink, one cobalt for
-   action and for the instrument marks (the brass tokens carry it), violet only for AI, coral only in the face's mouth, and the
-   five skies for the moods. Every text pair is AA or better in both themes (charte graphique, #250).
-   The older names (--bg, --surface, --primary, --text…) stay as aliases so every stylesheet keeps
-   working while it moves to the new vocabulary. */
+/* circloo · the buddy list (#250). A white canvas, near-black ink, exactly one blue, and one dark card per view
+   as the second read. Status colours (ok, mid, low) live only inside that card, as meters and values. The public
+   site's hero is a cobalt field with a yellow sun for its one button. Violet stays AI, coral stays the face's mouth,
+   the five skies stay the moods. Every text pair is AA or better in both themes.
+   The older names (--bg, --surface, --primary, --text, --brass…) stay as aliases so every stylesheet keeps working. */
 :root {
   color-scheme: light;
 
-  /* Grounds: white by day, paper for what sits on it */
+  /* Canvas: white, with neutral greys for wells and outlines (no blue tint) */
   --ground: #ffffff;
   --paper: #ffffff;
-  --paper-sunken: #f2f4f7;
-  --paper-hover: #e9ecf1;
-  --paper-pressed: #dde1e8;
-  --hairline: #e4e7ec;
-  --hairline-strong: #9aa3b0;
+  --paper-sunken: #f4f4f4;
+  --paper-hover: #ededed;
+  --paper-pressed: #e0e0e0;
+  --hairline: #e6e6e6;
+  --hairline-strong: #c4c4c4;
 
   /* Ink */
-  --ink: #0a0a0a; /* 17:1 on paper */
-  --ink-soft: #4d5560; /* 8:1 */
-  --ink-faint: #666e7a; /* 5.1:1 on paper, 4.7:1 on paper-sunken */
-  --on-ink: #fafafa;
+  --ink: #111111; /* 18.9:1 on paper */
+  --ink-soft: #5b5f66; /* 6.7:1 */
+  --ink-faint: #6b6b6b; /* 5.3:1 on paper, 4.7:1 on paper-sunken */
+  --on-ink: #ffffff;
 
-  /* The instrument stroke (named brass for history): tracks, ticks, the running-time rule. Cobalt. */
-  --brass: #1f4fff; /* 5:1 on paper */
-  --brass-faint: #d6dfff;
-
-  /* Beam: the one action colour */
-  --beam: #1f4fff; /* white text 5.8:1 */
-  --beam-hover: #1740d6;
-  --beam-pressed: #1233ad;
-  --beam-subtle: #eaf0ff;
-  --beam-subtle-hover: #d9e3ff;
-  --beam-text: #1a44db; /* links, 7:1 */
+  /* The one blue: links, the lead line under a title, the picked option, the Build button on the site */
+  --beam: #2b6bf3; /* white text 4.7:1 */
+  --beam-hover: #1f5be0;
+  --beam-pressed: #1a4fc7;
+  --beam-subtle: #e8effe;
+  --beam-subtle-hover: #d6e2fd;
+  --beam-text: #1d5be3; /* 5.7:1 */
   --on-beam: #ffffff;
-  --focus: #3b66ff;
+  --focus: #2b6bf3;
+
+  /* The dark card: the one focal object of a view. Its own small palette. */
+  --card: #161616;
+  --card-line: #2a2a2a;
+  --card-sunken: #222222;
+  --card-hover: #262626;
+  --on-card: #ffffff;
+  --on-card-soft: #cfcfcf; /* 12:1 */
+  --on-card-faint: #9a9a9a; /* 5.4:1 */
+  --seg-empty: #3c3c3c;
+  --ok: #2fd6c3; /* healthy, here, done */
+  --mid: #f4623a; /* partial, a second source */
+  --low: #e5484d; /* empty, away, late */
+  --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.45), 0 18px 36px -24px rgb(0 0 0 / 0.4);
+
+  /* The public hero: a cobalt field, white type, one yellow sun for its button and one prop */
+  --field: #2b5cf0;
+  --field-deep: #1e45c4;
+  --on-field: #ffffff;
+  --on-field-soft: rgb(255 255 255 / 0.9);
+  --field-shade: #6d28d9; /* the illustration's cast shadow, never chrome */
+  --sun: #ffd23f;
+  --sun-hover: #f5c62a;
+  --on-sun: #111111;
+  --note: #fff3b0; /* paper props: sticky notes */
+  --note-ink: #111111;
+
+  /* Rules that measure (named brass for history): ink, faint ink for the track */
+  --brass: #111111;
+  --brass-faint: #e6e6e6;
 
   /* AI: violet, never used for anything else */
   --ai: #6a4fd1;
@@ -46,31 +72,31 @@
   /* The five skies (moods). Always with the icon and the word. */
   --sky-stormy: #2f3a52;
   --sky-foggy: #aab4c3;
-  --sky-cloudy: #cfd6e2;
+  --sky-cloudy: #d6d6d6;
   --sky-bright: #7fb8ff;
-  --sky-sunny: #ffc53d;
-  --on-sky: #0a0a0a;
+  --sky-sunny: #ffd23f;
+  --on-sky: #111111;
   --on-sky-stormy: #ffffff;
 
   /* The face's mouth, nowhere else */
   --coral: #ef4a32;
 
-  /* Status */
-  --live: #1c7c52;
-  --live-subtle: #dcf5e8;
-  --live-text: #145c3b;
+  /* Status on the canvas (chips, lozenges, field messages) */
+  --live: #178a66;
+  --live-subtle: #dcf5ec;
+  --live-text: #126b4f;
   --on-live: #ffffff;
-  --danger: #c9372c;
-  --danger-hover: #ae2e24;
-  --danger-subtle: #ffeceb;
-  --danger-text: #ae2a19;
+  --danger: #d93a3f;
+  --danger-hover: #c22f34;
+  --danger-subtle: #ffecec;
+  --danger-text: #b4262b;
   --on-danger: #ffffff;
-  --warning-subtle: #fff2cf;
-  --warning-text: #7a4f01;
-  --info-subtle: #eaf0ff;
-  --info-text: #1a44db;
-  --neutral-subtle: #e9ebe6;
-  --neutral-text: #4d5560;
+  --warning-subtle: #fff4cc;
+  --warning-text: #6e4a00;
+  --info-subtle: #e8effe;
+  --info-text: #1d5be3;
+  --neutral-subtle: #f4f4f4;
+  --neutral-text: #5b5f66;
 
   /* Bodies sharing a character (spec 008): at least 3:1 on the surfaces they sit on. */
   --body-1: #1d4ed8;
@@ -81,27 +107,31 @@
   --on-body: #ffffff;
 
   /* Brand accents (icons, illustrations) */
-  --brand-ink: #0f2537;
+  --brand-ink: #111111;
   --brand-aqua: #22b8cc;
 
-  /* Elevation: offset + soft blur, tinted from the ink */
-  --shadow-raised: 0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2);
-  --shadow-overlay: 0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28);
-  --shadow-float: 0 24px 48px -12px rgb(10 10 11 / 0.25), 0 0 1px rgb(10 10 11 / 0.25);
+  /* Elevation: almost none on the canvas; one large soft shadow under the dark card */
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.28), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --shadow-float: var(--shadow-card);
 
-  /* Type: one family for Latin and Arabic */
-  --font: 'Readex Pro Variable', 'Readex Pro', system-ui, sans-serif;
+  /* Type: one family for Latin and Arabic, heavy at the top; a marker script for the site's handwritten asides */
+  --font: 'Rubik Variable', 'Rubik', system-ui, sans-serif;
+  --font-hand: 'Caveat Variable', 'Caveat', 'Rubik Variable', 'Rubik', system-ui, sans-serif;
   --fs-xs: 0.75rem;
-  --fs-sm: 0.8125rem;
-  --fs-md: 0.9375rem;
-  --fs-lg: 1.0625rem;
-  --fs-xl: 1.25rem;
-  --fs-2xl: 1.5rem;
-  --fs-3xl: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
-  --fs-4xl: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.3125rem;
+  --fs-2xl: 1.625rem;
+  --fs-3xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
+  --fs-4xl: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+  --fs-display: clamp(2.75rem, 1.5rem + 5vw, 5.5rem);
   --fs-reading: clamp(2.5rem, 2rem + 2vw, 4.5rem);
-  /* The instrument numeral's weight follows the circle's mood (300 stormy … 700 sunny). */
-  --reading-weight: 600;
+  --reading-weight: 800;
+  --w-display: 900;
+  --w-title: 800;
+  --w-strong: 700;
 
   /* Space: 4px grid */
   --s-1: 0.25rem;
@@ -115,23 +145,25 @@
   --s-9: 4.5rem;
   --s-10: 6rem;
 
-  --r-xs: 3px;
-  --r-sm: 6px;
-  --r-md: 8px;
-  --r-lg: 12px;
-  --r-xl: 20px;
+  /* Radii: pills for controls, big soft corners for cards */
+  --r-xs: 4px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
   --r-ring: 999px;
   --r-pill: 999px;
 
-  --topbar-h: 3.5rem;
+  --topbar-h: 3.75rem;
   --sidebar-w: 15.5rem;
   --content-max: 76rem;
-  --site-max: 74rem;
-  --gutter: clamp(1rem, 3vw, 2rem);
+  --site-max: 78rem;
+  --gutter: clamp(1rem, 3vw, 2.5rem);
 
-  /* Motion: one grammar. Durations by consequence, exponential ease-out for arrivals. */
+  /* Motion: one grammar. Springs for arrivals and presses, nothing linear. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --dur-press: 120ms;
   --dur-state: 160ms;
   --dur-move: 240ms;
@@ -169,134 +201,172 @@
   --ring-4: var(--body-4);
   --ring-5: var(--body-5);
   --on-ring: var(--on-body);
+  --dome: var(--card);
+  --dome-ink: var(--on-card);
+  --dome-ink-soft: var(--on-card-soft);
+  --dome-paper: var(--card-sunken);
+  --dome-hover: var(--card-hover);
+  --dome-hairline: var(--card-line);
+  --dome-line-strong: var(--seg-empty);
+  --dome-brass: var(--on-card-faint);
+  --dome-neutral: var(--card-sunken);
+  --dome-live: var(--ok);
+  --on-dome: var(--on-card);
+  --on-dome-soft: var(--on-card-soft);
 }
 
-/* Night: a full theme. Surfaces step up from off-black, beam and violet lighten so text on them
-   flips to dark, brass warms. */
+/* Night: the canvas goes near-black and the focal card goes light, so the figure keeps its contrast.
+   Blue lightens and its text flips to dark. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --ground: #0a0a0b;
-  --paper: #111318;
-  --paper-sunken: #0a0b0f;
-  --paper-hover: #1a1d24;
-  --paper-pressed: #23272f;
-  --hairline: #24272e;
-  --hairline-strong: #3a3f4a;
-  --ink: #fafafa;
-  --ink-soft: #b3b8c2;
-  --ink-faint: #858b96;
-  --on-ink: #0a0a0b;
-  --brass: #6b8cff;
-  --brass-faint: #2a3566;
-  --beam: #6b8cff;
-  --beam-hover: #87a2ff;
-  --beam-pressed: #a3b8ff;
-  --beam-subtle: #1a2446;
-  --beam-subtle-hover: #223060;
-  --beam-text: #9db0ff;
-  --on-beam: #0a0a0b;
-  --focus: #8fa6ff;
+  --ground: #0f0f10;
+  --paper: #161616;
+  --paper-sunken: #1e1e1f;
+  --paper-hover: #242425;
+  --paper-pressed: #2c2c2d;
+  --hairline: #2a2a2a;
+  --hairline-strong: #3f3f41;
+  --ink: #f5f5f5;
+  --ink-soft: #b5b5b8;
+  --ink-faint: #9a9a9a;
+  --on-ink: #111111;
+  --beam: #6d9bff;
+  --beam-hover: #85acff;
+  --beam-pressed: #9dbcff;
+  --beam-subtle: #1c2a4d;
+  --beam-subtle-hover: #253766;
+  --beam-text: #8fb0ff;
+  --on-beam: #111111;
+  --focus: #8fb0ff;
+  --card: #f5f5f5;
+  --card-line: #e0e0e0;
+  --card-sunken: #ebebeb;
+  --card-hover: #e6e6e6;
+  --on-card: #111111;
+  --on-card-soft: #3a3a3a;
+  --on-card-faint: #666666;
+  --seg-empty: #d4d4d4;
+  --ok: #0f9f8e;
+  --mid: #d2491f;
+  --low: #d1343a;
+  --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --field: #2b5cf0;
+  --field-deep: #1e45c4;
+  --brass: #f5f5f5;
+  --brass-faint: #2a2a2a;
   --ai: #9f8fef;
   --ai-hover: #b3a6f4;
   --ai-subtle: #201b3a;
   --ai-border: #3b3266;
   --ai-text: #c0b4f8;
-  --on-ai: #0a0a0b;
+  --on-ai: #111111;
   --sky-stormy: #2a3450;
   --sky-foggy: #7f8ca6;
   --sky-cloudy: #8e9bb2;
   --sky-bright: #3f8ff0;
   --sky-sunny: #e6b534;
-  --on-sky: #0a0a0b;
-  --on-sky-stormy: #fafafa;
+  --on-sky: #111111;
+  --on-sky-stormy: #f5f5f5;
   --live: #4bce97;
   --live-subtle: #12301f;
   --live-text: #7ee2b8;
-  --on-live: #0a0a0b;
+  --on-live: #111111;
   --danger: #ff8f86;
   --danger-hover: #ffa8a1;
   --danger-subtle: #3a1512;
   --danger-text: #ffa8a1;
-  --on-danger: #0a0a0b;
+  --on-danger: #111111;
   --warning-subtle: #3a2d0a;
   --warning-text: #f0c75e;
-  --info-subtle: #1a2446;
-  --info-text: #9db0ff;
-  --neutral-subtle: #1b2639;
-  --neutral-text: #b3b8c2;
+  --info-subtle: #1c2a4d;
+  --info-text: #8fb0ff;
+  --neutral-subtle: #1e1e1f;
+  --neutral-text: #b5b5b8;
   --body-1: #60a5fa;
   --body-2: #fb923c;
   --body-3: #4ade80;
   --body-4: #f472b6;
   --body-5: #22d3ee;
-  --on-body: #0a0a0b;
-  --brand-ink: #fafafa;
-  --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(250 250 250 / 0.18);
-  --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(250 250 250 / 0.22);
-  --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 1px rgb(250 250 250 / 0.25);
+  --on-body: #111111;
+  --brand-ink: #f5f5f5;
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     color-scheme: dark;
-    --ground: #0a0a0b;
-    --paper: #111318;
-    --paper-sunken: #0a0b0f;
-    --paper-hover: #1a1d24;
-    --paper-pressed: #23272f;
-    --hairline: #24272e;
-    --hairline-strong: #3a3f4a;
-    --ink: #fafafa;
-    --ink-soft: #b3b8c2;
-    --ink-faint: #858b96;
-    --on-ink: #0a0a0b;
-    --brass: #6b8cff;
-    --brass-faint: #2a3566;
-    --beam: #6b8cff;
-    --beam-hover: #87a2ff;
-    --beam-pressed: #a3b8ff;
-    --beam-subtle: #1a2446;
-    --beam-subtle-hover: #223060;
-    --beam-text: #9db0ff;
-    --on-beam: #0a0a0b;
-    --focus: #8fa6ff;
+    --ground: #0f0f10;
+    --paper: #161616;
+    --paper-sunken: #1e1e1f;
+    --paper-hover: #242425;
+    --paper-pressed: #2c2c2d;
+    --hairline: #2a2a2a;
+    --hairline-strong: #3f3f41;
+    --ink: #f5f5f5;
+    --ink-soft: #b5b5b8;
+    --ink-faint: #9a9a9a;
+    --on-ink: #111111;
+    --beam: #6d9bff;
+    --beam-hover: #85acff;
+    --beam-pressed: #9dbcff;
+    --beam-subtle: #1c2a4d;
+    --beam-subtle-hover: #253766;
+    --beam-text: #8fb0ff;
+    --on-beam: #111111;
+    --focus: #8fb0ff;
+    --card: #f5f5f5;
+    --card-line: #e0e0e0;
+    --card-sunken: #ebebeb;
+    --card-hover: #e6e6e6;
+    --on-card: #111111;
+    --on-card-soft: #3a3a3a;
+    --on-card-faint: #666666;
+    --seg-empty: #d4d4d4;
+    --ok: #0f9f8e;
+    --mid: #d2491f;
+    --low: #d1343a;
+    --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --field: #2b5cf0;
+    --field-deep: #1e45c4;
+    --brass: #f5f5f5;
+    --brass-faint: #2a2a2a;
     --ai: #9f8fef;
     --ai-hover: #b3a6f4;
     --ai-subtle: #201b3a;
     --ai-border: #3b3266;
     --ai-text: #c0b4f8;
-    --on-ai: #0a0a0b;
+    --on-ai: #111111;
     --sky-stormy: #2a3450;
     --sky-foggy: #7f8ca6;
     --sky-cloudy: #8e9bb2;
     --sky-bright: #3f8ff0;
     --sky-sunny: #e6b534;
-    --on-sky: #0a0a0b;
-    --on-sky-stormy: #fafafa;
+    --on-sky: #111111;
+    --on-sky-stormy: #f5f5f5;
     --live: #4bce97;
     --live-subtle: #12301f;
     --live-text: #7ee2b8;
-    --on-live: #0a0a0b;
+    --on-live: #111111;
     --danger: #ff8f86;
     --danger-hover: #ffa8a1;
     --danger-subtle: #3a1512;
     --danger-text: #ffa8a1;
-    --on-danger: #0a0a0b;
+    --on-danger: #111111;
     --warning-subtle: #3a2d0a;
     --warning-text: #f0c75e;
-    --info-subtle: #1a2446;
-    --info-text: #9db0ff;
-    --neutral-subtle: #1b2639;
-    --neutral-text: #b3b8c2;
+    --info-subtle: #1c2a4d;
+    --info-text: #8fb0ff;
+    --neutral-subtle: #1e1e1f;
+    --neutral-text: #b5b5b8;
     --body-1: #60a5fa;
     --body-2: #fb923c;
     --body-3: #4ade80;
     --body-4: #f472b6;
     --body-5: #22d3ee;
-    --on-body: #0a0a0b;
-    --brand-ink: #fafafa;
-    --shadow-raised: 0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(250 250 250 / 0.18);
-    --shadow-overlay: 0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(250 250 250 / 0.22);
-    --shadow-float: 0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 1px rgb(250 250 250 / 0.25);
+    --on-body: #111111;
+    --brand-ink: #f5f5f5;
+    --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
+    --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
   }
 }

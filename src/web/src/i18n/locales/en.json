@@ -41,7 +41,8 @@
     "signedInAs": "Signed in as",
     "startRound": "Start a round",
     "breadcrumb": "Breadcrumb",
-    "languageCurrent": "Language: {{name}}"
+    "languageCurrent": "Language: {{name}}",
+    "meterOf": "{{value}} of {{max}}"
   },
   "landing": {
     "title": "circloo · your circle, in one private space",

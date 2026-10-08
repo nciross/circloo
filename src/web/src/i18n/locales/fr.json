@@ -41,7 +41,8 @@
     "signedInAs": "Connecté en tant que",
     "startRound": "Lancer un tour",
     "breadcrumb": "Fil d'Ariane",
-    "languageCurrent": "Langue : {{name}}"
+    "languageCurrent": "Langue : {{name}}",
+    "meterOf": "{{value}} sur {{max}}"
   },
   "landing": {
     "title": "circloo · ton cercle, dans un espace privé",

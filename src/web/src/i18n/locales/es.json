@@ -41,7 +41,8 @@
     "signedInAs": "Sesión iniciada como",
     "startRound": "Empezar una ronda",
     "breadcrumb": "Ruta de navegación",
-    "languageCurrent": "Idioma: {{name}}"
+    "languageCurrent": "Idioma: {{name}}",
+    "meterOf": "{{value}} de {{max}}"
   },
   "landing": {
     "title": "circloo · tu círculo, en un espacio privado",

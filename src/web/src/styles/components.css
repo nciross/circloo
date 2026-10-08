@@ -69,44 +69,50 @@
   }
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons: pills. The primary is ink; inside the dark card it flips to white. ---------- */
 .btn {
-  --btn-bg: var(--primary);
-  --btn-bg-hover: var(--primary-hover);
-  --btn-bg-active: var(--primary-pressed);
-  --btn-fg: var(--on-primary);
+  --btn-bg: var(--ink);
+  --btn-bg-hover: var(--ink-soft);
+  --btn-bg-active: var(--ink);
+  --btn-fg: var(--on-ink);
+  --btn-ring: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--s-2);
-  min-block-size: 2.25rem;
-  padding: 0.4rem 0.9rem;
+  min-block-size: 2.75rem;
+  padding: 0.5rem 1.4rem;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill);
   background: var(--btn-bg);
   color: var(--btn-fg);
+  box-shadow: inset 0 0 0 2px var(--btn-ring);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background-color var(--dur-state) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out),
-    transform var(--dur-press) var(--ease-out);
+    background-color var(--dur-state) var(--ease-spring),
+    color var(--dur-state) var(--ease-spring),
+    box-shadow var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
 .btn:hover {
   background: var(--btn-bg-hover);
   text-decoration: none;
+  transform: translateY(-1px) scale(1.02);
 }
 .btn:active {
   background: var(--btn-bg-active);
-  transform: scale(0.98);
+  transform: scale(0.97);
+  transition-duration: var(--dur-press);
 }
 .btn[aria-disabled='true'],
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
 }
 .btn[aria-busy='true'] {
   cursor: progress;
@@ -118,27 +124,29 @@
   display: inline-flex;
 }
 .btn--sm {
-  min-block-size: 2rem;
-  padding: 0.3rem 0.75rem;
+  min-block-size: 2.25rem;
+  padding: 0.3rem 1rem;
   font-size: var(--fs-sm);
 }
 .btn--lg {
-  min-block-size: 2.75rem;
-  padding: 0.6rem 1.25rem;
+  min-block-size: 3.25rem;
+  padding: 0.7rem 1.8rem;
   font-size: var(--fs-lg);
 }
+/* Outlined pill */
 .btn--default {
-  --btn-bg: var(--surface-sunken);
-  --btn-bg-hover: var(--surface-hover);
-  --btn-bg-active: var(--surface-pressed);
-  --btn-fg: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--paper-sunken);
+  --btn-bg-active: var(--paper-hover);
+  --btn-fg: var(--ink);
+  --btn-ring: var(--ink);
 }
+/* Text pill: nothing until hovered */
 .btn--subtle {
   --btn-bg: transparent;
-  --btn-bg-hover: var(--surface-hover);
-  --btn-bg-active: var(--surface-pressed);
-  --btn-fg: var(--text);
+  --btn-bg-hover: var(--paper-sunken);
+  --btn-bg-active: var(--paper-hover);
+  --btn-fg: var(--ink);
 }
 .btn--danger {
   --btn-bg: var(--danger);
@@ -151,6 +159,50 @@
   --btn-bg-hover: var(--ai-hover);
   --btn-bg-active: var(--ai-hover);
   --btn-fg: var(--on-ai);
+}
+/* The one blue button of a view (the site's Build, a picked plan) */
+.btn--beam {
+  --btn-bg: var(--beam);
+  --btn-bg-hover: var(--beam-hover);
+  --btn-bg-active: var(--beam-pressed);
+  --btn-fg: var(--on-beam);
+}
+/* The sun: the public hero's primary, yellow with ink text */
+.btn--sun {
+  --btn-bg: var(--sun);
+  --btn-bg-hover: var(--sun-hover);
+  --btn-bg-active: var(--sun-hover);
+  --btn-fg: var(--on-sun);
+}
+/* On the dark card: white pills and white outlines. On the cobalt field: the same in white. */
+.card--dark .btn--primary,
+.panel--dark .btn--primary {
+  --btn-bg: var(--on-card);
+  --btn-bg-hover: var(--on-card-soft);
+  --btn-bg-active: var(--on-card);
+  --btn-fg: var(--card);
+}
+.on-field .btn--primary {
+  --btn-bg: var(--on-field);
+  --btn-bg-hover: var(--on-field-soft);
+  --btn-bg-active: var(--on-field);
+  --btn-fg: var(--field);
+}
+.card--dark .btn--default,
+.panel--dark .btn--default,
+.card--dark .btn--subtle,
+.panel--dark .btn--subtle {
+  --btn-fg: var(--on-card);
+  --btn-ring: var(--on-card);
+  --btn-bg-hover: var(--card-hover);
+  --btn-bg-active: var(--card-sunken);
+}
+.on-field .btn--default,
+.on-field .btn--subtle {
+  --btn-fg: var(--on-field);
+  --btn-ring: var(--on-field);
+  --btn-bg-hover: rgb(255 255 255 / 0.12);
+  --btn-bg-active: rgb(255 255 255 / 0.18);
 }
 @keyframes spin-soft {
   to {
@@ -185,7 +237,7 @@
   block-size: 2.25rem;
   flex: none;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill);
   background: transparent;
   color: var(--ink-soft);
   transition:
@@ -211,9 +263,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  min-block-size: 2rem;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid var(--hairline-strong);
+  min-block-size: 2.25rem;
+  padding: 0.3rem 0.9rem;
+  border: 2px solid var(--hairline);
   border-radius: var(--r-ring);
   background: var(--paper);
   color: var(--ink);
@@ -234,24 +286,24 @@
 }
 .chip[aria-pressed='true'],
 .chip.is-on {
-  border-color: var(--beam);
-  background: var(--beam-subtle);
-  color: var(--beam-text);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
 }
 
-/* ---------- Lozenges ---------- */
+/* ---------- Lozenges: eyebrow tags, tiny pills with wide tracking ---------- */
 .lozenge {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0 0.35rem;
-  border-radius: var(--r-xs);
+  padding: 0 0.6rem;
+  border-radius: var(--r-pill);
   background: var(--neutral-subtle);
   color: var(--neutral-text);
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.45rem;
+  letter-spacing: 0.12em;
+  line-height: 1.5rem;
   text-transform: uppercase;
   white-space: nowrap;
   vertical-align: middle;
@@ -272,6 +324,19 @@
 .lozenge--info {
   background: var(--info-subtle);
   color: var(--info-text);
+}
+.lozenge--ink {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.card--dark .lozenge,
+.panel--dark .lozenge {
+  background: var(--card-sunken);
+  color: var(--on-card-soft);
+}
+.card--dark .lozenge--success,
+.panel--dark .lozenge--success {
+  color: var(--ok);
 }
 
 .ai-mark {
@@ -749,12 +814,20 @@
   gap: var(--s-1);
 }
 .page-header__title {
-  font-size: var(--fs-3xl);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: var(--fs-4xl);
+  font-weight: var(--w-display);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
 }
+:lang(ar) .page-header__title {
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+/* The one blue line of a page: what is live, what to do next. */
 .page-header__lead {
-  color: var(--ink-soft);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--beam-text);
 }
 .page-header__actions {
   display: flex;
@@ -762,15 +835,14 @@
   gap: var(--s-2);
 }
 
-/* ---------- Panels: paper on the ground, flat, one hairline ---------- */
+/* ---------- Panels: white on white, a soft 2px outline, big corners. One panel per view may be dark. ---------- */
 .panel {
   display: grid;
   align-content: start;
   min-inline-size: 0;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
   background: var(--paper);
-  box-shadow: var(--shadow-raised);
 }
 .panel__head {
   display: flex;
@@ -778,25 +850,25 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2) var(--s-3);
-  min-block-size: 3.25rem;
-  padding: var(--s-3) var(--s-5);
-  border-block-end: 1px solid var(--hairline);
+  min-block-size: 3.5rem;
+  padding: var(--s-4) var(--s-5) var(--s-2);
 }
 .panel__title {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  font-size: var(--fs-lg);
-  font-weight: 600;
+  font-size: var(--fs-xl);
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
 }
 .panel__link {
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 700;
 }
 .panel__body {
   display: grid;
   gap: var(--s-4);
-  padding: var(--s-5);
+  padding: var(--s-3) var(--s-5) var(--s-5);
 }
 .panel__actions {
   display: flex;
@@ -804,11 +876,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--s-2) var(--s-3);
-  padding: var(--s-3) var(--s-5);
-  border-block-start: 1px solid var(--hairline);
-  background: var(--paper-sunken);
-  border-end-start-radius: var(--r-md);
-  border-end-end-radius: var(--r-md);
+  padding: var(--s-3) var(--s-5) var(--s-5);
 }
 .panel__actions .field__error,
 .panel__actions .field__ok {
@@ -820,19 +888,165 @@
   text-align: center;
 }
 .panel__foot {
-  padding: var(--s-3) var(--s-5);
-  border-block-start: 1px solid var(--hairline);
+  padding: var(--s-3) var(--s-5) var(--s-4);
   font-size: var(--fs-sm);
   color: var(--ink-soft);
 }
 .panel--ai {
   border-color: var(--ai-border);
 }
-.panel--ai > .panel__head {
-  background: var(--ai-subtle);
-  border-color: var(--ai-border);
-  border-start-start-radius: var(--r-md);
-  border-start-end-radius: var(--r-md);
+.panel--ai > .panel__head .panel__title {
+  color: var(--ai-text);
+}
+/* The dark card: the one focal object of a view. Rows inside it are buddies. */
+.panel--dark,
+.card--dark {
+  border: 0;
+  border-radius: var(--r-xl);
+  background: var(--card);
+  color: var(--on-card);
+  box-shadow: var(--shadow-card);
+}
+.panel--dark > .panel__head {
+  padding: var(--s-6) var(--s-6) var(--s-3);
+}
+.panel--dark > .panel__body {
+  padding: 0 var(--s-6) var(--s-6);
+}
+.panel--dark > .panel__actions {
+  padding: 0 var(--s-6) var(--s-6);
+}
+.panel--dark .panel__title {
+  font-size: var(--fs-2xl);
+  color: var(--on-card);
+}
+.panel--dark .panel__foot,
+.panel--dark .panel__empty {
+  color: var(--on-card-faint);
+}
+.panel--dark .panel__link {
+  color: var(--on-card);
+}
+
+/* ---------- Buddy rows: a character, a name with a status line, a value at the end, a meter under ---------- */
+.buddy {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  column-gap: var(--s-3);
+  row-gap: var(--s-2);
+  align-items: center;
+  padding-block: var(--s-3);
+  border-block-start: 1px solid var(--hairline);
+}
+.card--dark .buddy,
+.panel--dark .buddy {
+  border-color: var(--card-line);
+}
+.buddy:first-child {
+  border-block-start: 0;
+}
+.buddy__char {
+  grid-row: 1 / span 2;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+.buddy__char > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.buddy__name {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.buddy__status {
+  font-size: var(--fs-sm);
+  color: var(--ink-faint);
+}
+.card--dark .buddy__status,
+.panel--dark .buddy__status {
+  color: var(--on-card-faint);
+}
+.buddy__value {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+.buddy__value.is-ok {
+  color: var(--ok);
+}
+.buddy__value.is-mid {
+  color: var(--mid);
+}
+.buddy__value.is-low {
+  color: var(--low);
+}
+.buddy > .meter {
+  grid-column: 2 / span 2;
+}
+.buddy--plain .buddy__char {
+  grid-row: auto;
+}
+
+/* ---------- The meter: ten segments, always. Anything counted becomes a bar. ---------- */
+.meter {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+  inline-size: 100%;
+}
+.meter__seg {
+  display: block;
+  block-size: 12px;
+  border-radius: 3px;
+  background: var(--paper-pressed);
+  transition: background-color var(--dur-focal) var(--ease-in-out);
+}
+.card--dark .meter__seg,
+.panel--dark .meter__seg {
+  background: var(--seg-empty);
+}
+.meter--ok .meter__seg.is-on {
+  background: var(--ok);
+}
+.meter--mid .meter__seg.is-on {
+  background: var(--mid);
+}
+.meter--low .meter__seg.is-on {
+  background: var(--low);
+}
+.meter--ink .meter__seg.is-on {
+  background: var(--ink);
+}
+.meter--beam .meter__seg.is-on {
+  background: var(--beam);
+}
+.meter--sm .meter__seg {
+  block-size: 8px;
+  border-radius: 2px;
+}
+
+/* ---------- Character stacks: overlapping bodies, 32px ---------- */
+.stack {
+  display: inline-flex;
+}
+.stack > * {
+  inline-size: 2rem;
+  block-size: 2rem;
+  margin-inline-start: -0.5rem;
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+.stack > :first-child {
+  margin-inline-start: 0;
+}
+.card--dark .stack > *,
+.panel--dark .stack > * {
+  background: var(--card);
+  box-shadow: 0 0 0 2px var(--card);
 }
 
 /* ---------- Table ---------- */
@@ -1031,12 +1245,6 @@
   color: var(--ink-faint);
 }
 /* The one entrance: 8px up and in. */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
 /* Breadcrumb links keep a 24px target, whatever floats nearby (WCAG 2.5.8). */
 .crumbs a {
   display: inline-flex;
@@ -1192,54 +1400,7 @@
   outline-offset: 2px;
 }
 
-/* ---------- Premium pass (#250, Pure Signal): spring curve, pill actions, bezel shells ---------- */
-:root {
-  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
-}
-.btn {
-  border-radius: var(--r-ring);
-  padding-inline: 1.1rem;
-  transition:
-    background-color var(--dur-move) var(--ease-spring),
-    box-shadow var(--dur-move) var(--ease-spring),
-    transform var(--dur-move) var(--ease-spring);
-}
-.btn:hover {
-  transform: translateY(-1px);
-}
-.btn:active {
-  transform: scale(0.97);
-}
-.btn--sm {
-  padding-inline: 0.85rem;
-}
-.btn--lg {
-  padding-inline: 1.4rem;
-}
-/* The one primary action per view sits in a soft cobalt bezel, like a key in its housing. */
-.btn:not(.btn--default):not(.btn--subtle):not(.btn--danger):not(.btn--ai) {
-  box-shadow:
-    0 0 0 1px var(--beam),
-    0 6px 14px -8px var(--beam);
-}
-/* Bezel shells: a sunken tray with a hairline around the containers that matter, concentric radii. */
-.auth__card,
-.orbit--lead,
-.phase,
-.pkc--panel,
-.room__centre .canvas__viewport {
-  box-shadow:
-    var(--shadow-overlay),
-    0 0 0 6px var(--paper-sunken),
-    0 0 0 7px var(--hairline);
-}
-.page-header__title,
-.hello .page-header__title {
-  font-size: var(--fs-4xl);
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-}
-/* Pages arrive: each top-level block rises 8px in turn, nothing waits for a scroll. */
+/* ---------- Arrival: each top-level block of a page rises in turn, nothing waits for a scroll ---------- */
 .page > * {
   animation: rise-in var(--dur-enter) var(--ease-spring) backwards;
 }
@@ -1247,6 +1408,12 @@
 .page > :nth-child(3) { animation-delay: 120ms; }
 .page > :nth-child(4) { animation-delay: 180ms; }
 .page > :nth-child(n + 5) { animation-delay: 240ms; }
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .btn:hover { transform: none; }
   .page > * { animation: none; }
