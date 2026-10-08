@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Pause, Play, Plus, Undo2 } from 'lucide-react'
+import { Pause, Play, Plus } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
@@ -13,8 +12,6 @@ import { Blobs } from './Blobs'
 import { Scene } from './Scene'
 import { Rounds } from './Rounds'
 import { Samples } from './Samples'
-import { Who } from './Who'
-import { Popular } from './Popular'
 import { How } from './How'
 import { Plan } from './Plan'
 import { Footer } from './Footer'
@@ -23,9 +20,9 @@ import '../../styles/landing.css'
 /**
  * The landing (issue #247, #250): a white canvas in the language of a people platform. The hero is a short headline
  * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character pictures that play along.
- * Then the rounds, the four languages, who it is for, popular circles, how it works, the story, the three jobs, the
+ * Then the rounds, the four languages, how it works, the story, the three jobs, the
  * free plan, the questions and the charcoal footer. Sections rise into place as they scroll in (transform only);
- * every movement has a still path and a pause.
+ * everything starts on its own for every visitor, and one Pause control stills the whole page (WCAG 2.2.2).
  */
 export function Landing() {
   const { t } = useTranslation()
@@ -33,12 +30,6 @@ export function Landing() {
   const motion = useStillMotion()
   const lm = useLandingMotion()
   const playing = lm.on && !motion.still
-  const [announce, setAnnounce] = useState('')
-
-  const toggleOptIn = () => {
-    setAnnounce(t(lm.optedIn ? 'landing.motion.following' : 'landing.motion.playing'))
-    lm.toggleOptIn()
-  }
 
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
 
@@ -62,21 +53,12 @@ export function Landing() {
                   {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing.motion.pause')}
                 </button>
               ) : null}
-              {lm.reduced ? (
-                // A changing label says what a press does; aria-pressed on top would read as "Respect my system setting, pressed".
-                <button type="button" className="motion-toggle motion-optin" onClick={toggleOptIn}>
-                  {lm.optedIn ? <Undo2 className="flip-rtl" size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing.motion.respect' : 'landing.motion.play')}
-                </button>
-              ) : null}
-              <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
             </div>
           </div>
         </section>
 
         <Rounds />
         <Samples />
-        <Who />
-        <Popular />
         <How />
         <Player still={motion.still} />
         <Jobs motion={playing} />

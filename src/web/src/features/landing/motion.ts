@@ -1,8 +1,9 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
 /**
- * The single answer to "is landing motion on?" for CSS and JS alike. It is on when the system does not ask for
- * reduced motion, or when the visitor opted in on the landing page. The default always follows the system; the opt-in
+ * The single answer to "is landing motion on?" for CSS and JS alike. The landing now always animates (useLandingMotion
+ * returns on); motionOn below is the earlier rule (on unless the system reduces motion and nobody opted in), kept and
+ * tested in case the decision is revisited. The default always follows the system; the opt-in
  * is remembered in this browser only and never touches the signed-in app. The landing sets it as `data-motion` on
  * `.site`, and the landing styles read that attribute instead of `prefers-reduced-motion`.
  */
@@ -84,5 +85,7 @@ export function useLandingMotion() {
   const reduced = (bits & 1) === 1
   const opted = (bits & 2) === 2
   const toggleOptIn = useCallback(() => setOptIn(!optedIn()), [])
-  return { on: motionOn(reduced, opted), reduced, optedIn: opted, toggleOptIn }
+  // The founder's call (#250): the landing animates for every visitor, whatever the system setting. The rule above
+  // stays the reference (and is tested); the visitor's way out is the page's Pause control, remembered in the browser.
+  return { on: true, reduced, optedIn: opted, toggleOptIn }
 }

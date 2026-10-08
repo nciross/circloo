@@ -128,33 +128,7 @@
       }
     },
     "motion": {
-      "pause": "Pause animations",
-      "play": "Play animations",
-      "respect": "Respect my system setting",
-      "playing": "Animations are playing.",
-      "following": "Animations follow your system setting."
-    },
-    "who": {
-      "title": "Who it is for",
-      "cards": {
-        "families": "Families",
-        "friends": "Friends",
-        "teams": "Teams",
-        "classrooms": "Classrooms",
-        "clubs": "Clubs"
-      }
-    },
-    "popular": {
-      "title": "Popular circles",
-      "lead": "The kinds of circles people start most, in every language.",
-      "note": "in four languages!",
-      "items": {
-        "family": "Family Sunday",
-        "retro": "Team retro",
-        "game": "Game night",
-        "quiz": "Class quiz",
-        "book": "Book club"
-      }
+      "pause": "Pause animations"
     },
     "how": {
       "title": "How it works",

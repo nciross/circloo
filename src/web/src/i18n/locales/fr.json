@@ -128,33 +128,7 @@
       }
     },
     "motion": {
-      "pause": "Mettre les animations en pause",
-      "play": "Lancer les animations",
-      "respect": "Respecter mon réglage système",
-      "playing": "Les animations sont lancées.",
-      "following": "Les animations suivent votre réglage système."
-    },
-    "who": {
-      "title": "Pour qui ?",
-      "cards": {
-        "families": "Familles",
-        "friends": "Amis",
-        "teams": "Équipes",
-        "classrooms": "Classes",
-        "clubs": "Clubs"
-      }
-    },
-    "popular": {
-      "title": "Cercles populaires",
-      "lead": "Les cercles que les gens créent le plus, dans chaque langue.",
-      "note": "en quatre langues !",
-      "items": {
-        "family": "Dimanche en famille",
-        "retro": "Rétro d'équipe",
-        "game": "Soirée jeux",
-        "quiz": "Quiz de classe",
-        "book": "Club de lecture"
-      }
+      "pause": "Mettre les animations en pause"
     },
     "how": {
       "title": "Comment ça marche",

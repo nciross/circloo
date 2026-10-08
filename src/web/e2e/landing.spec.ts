@@ -80,50 +80,35 @@ test('a line kept for the new-circle page fills the form after sign-up, and By h
   await expect(page.locator('.create__name')).not.toHaveValue('')
 })
 
-// A system set to reduce motion keeps the landing still, and offers a way to play it (#234, #236, #237).
+// The landing animates for every visitor, a reduced-motion system included; one Pause control stills the whole
+// page and is remembered (WCAG 2.2.2, #250: the founder chose motion on by default).
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
-  test('the landing stays still, can be played, and remembers the choice', async ({ page }) => {
+  test('the landing animates on arrival, one Pause stills it, and the choice is remembered', async ({ page }) => {
     await page.goto('/')
     const site = page.locator('.site')
-    await expect(site).toHaveAttribute('data-motion', 'off')
-    // The board rests on its finished moment: nothing runs.
-    await page.waitForTimeout(1200)
-    expect(await page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(false)
+    await expect(site).toHaveAttribute('data-motion', 'on')
+    await expect.poll(() => page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(true)
+
+    // One control only: Pause.
+    const pause = page.locator('.hero__motion .motion-toggle')
+    await expect(pause).toHaveCount(1)
+    await pause.click()
+    await expect(pause).toHaveAttribute('aria-pressed', 'true')
+    await expect(site).toHaveClass(/is-still/)
 
     // The clip stays on its poster and plays only on request.
     const video = page.locator('.film__video')
     await video.scrollIntoViewIfNeeded()
     await expect(video).toHaveAttribute('poster', /\/video\/story\/circle\.jpg$/)
-    await page.waitForTimeout(1200)
-    expect(await video.evaluate((v: HTMLVideoElement) => v.paused && v.currentTime === 0)).toBe(true)
     await page.locator('.film__toggle').click()
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true)
     await page.locator('.film__toggle').click()
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
 
-    // One control, whose label says what a press does; the pause control joins it once motion runs.
-    await page.evaluate(() => window.scrollTo(0, 0))
-    const play = page.locator('.hero__motion .motion-optin')
-    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(1)
-    await expect(play).toHaveText(/Play animations|تشغيل الحركات/)
-    await play.click()
-    await expect(site).toHaveAttribute('data-motion', 'on')
-    await expect(play).toHaveText(/Respect my system setting|احترام إعداد نظامي/)
-    await expect(play).toBeFocused()
-    await expect(page.getByRole('status').filter({ hasText: /Animations are playing\.|الحركات قيد التشغيل\./ })).toHaveCount(1)
-    await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(2)
-    await expect.poll(() => page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(true)
-
-    // Pause stops everything (#236).
-    await page.locator('.hero__motion .motion-toggle').first().click()
-    await expect(site).toHaveClass(/is-still/)
-
-    // The choice survives a reload, and going back to the system setting stills the page again.
+    // The pause survives a reload.
     await page.reload()
-    await expect(site).toHaveAttribute('data-motion', 'on')
-    await play.click()
-    await expect(site).toHaveAttribute('data-motion', 'off')
+    await expect(site).toHaveClass(/is-still/)
   })
 })
