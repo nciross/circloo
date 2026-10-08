@@ -56,6 +56,12 @@ export default function CircleRoom() {
   // The focal moment: a round opens from the work bar's people stack. Before the centre paints, its reveal gets the
   // stack's position (relative to the centre) as custom properties; the clip-path circle in workspace.css grows from there.
   const revealKey = room.circleId === circle.data?.id ? room.activity : circle.data?.currentActivity
+  // On a phone a board or the canvas needs the screen: the sheet folds down when one opens (one tap brings it back).
+  const boardOpen = !!revealKey && (!!BOARD_COLUMNS[revealKey] || revealKey === CANVAS)
+  const { wide: sideWide, setSheet } = side
+  useEffect(() => {
+    if (boardOpen && !sideWide) setSheet('closed')
+  }, [boardOpen, sideWide, setSheet])
   useLayoutEffect(() => {
     const root = roomRef.current
     const centre = root?.querySelector<HTMLElement>('.room__centre')

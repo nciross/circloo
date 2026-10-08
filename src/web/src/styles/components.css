@@ -230,7 +230,7 @@
   transition: color var(--dur-state) var(--ease-out);
 }
 .link-btn:hover {
-  color: var(--beam-hover);
+  color: var(--ink);
 }
 .link-btn:disabled {
   color: var(--ink-faint);
@@ -418,7 +418,7 @@
   inline-size: 100%;
   min-block-size: 2.75rem;
   padding: 0.5rem 0.85rem;
-  border: 1px solid var(--hairline-strong);
+  border: 1px solid var(--field-line);
   border-radius: var(--r-sm);
   background: var(--paper);
   color: var(--ink);
@@ -484,7 +484,7 @@
   min-block-size: 2.25rem;
   padding-block: 0.35rem;
   padding-inline: 0.7rem 2rem;
-  border: 1px solid var(--hairline-strong);
+  border: 1px solid var(--field-line);
   border-radius: var(--r-sm);
   background: var(--paper);
   color: var(--ink);
@@ -1439,7 +1439,8 @@
    picked one filled with ink. The icon and the word carry the mood, never a colour. ---------- */
 .moods {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* The words are the non-colour signal, so they stay whole: tiles wrap to a second row before a word would break. */
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
   gap: var(--s-2);
 }
 .mood {
@@ -1456,9 +1457,8 @@
   font-size: var(--fs-xs);
   font-weight: 700;
   text-align: center;
-  /* Five columns at 360 px leave ~57 px a label: a long word (es "Despejado") breaks instead of overflowing. */
-  hyphens: auto;
-  overflow-wrap: anywhere;
+  /* Only a word wider than its tile breaks (break-word keeps whole words otherwise). */
+  overflow-wrap: break-word;
   cursor: pointer;
   transition:
     border-color var(--dur-state),

@@ -417,11 +417,15 @@
   }
 }
 
-/* The thing a suggestion is about gets the ink mark, twice, then rests. */
+/* The thing a suggestion is about gets a rounded violet ring (the focus colour), drawn in twice, then rests. Elements
+   without corners of their own get the panels' radius, so the ring never draws a hard rectangle. */
 [data-pirikoo-spot] {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline: 2px solid var(--focus);
+  outline-offset: 6px;
   animation: pk-spot var(--dur-orbit) var(--ease-out) 2;
+}
+[data-pirikoo-spot]:not(.panel):not(.create-card):not(.composer) {
+  border-radius: var(--r-lg);
 }
 @keyframes pk-spot {
   from {

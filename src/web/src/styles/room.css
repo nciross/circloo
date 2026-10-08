@@ -396,7 +396,8 @@
   inline-size: 100%;
   min-block-size: 2.75rem;
   padding-inline-start: 2.3rem;
-  border: 2px solid var(--card-line);
+  /* 3:1 or more on the card in both themes (WCAG 1.4.11); the card's own line is too faint for a field. */
+  border: 2px solid color-mix(in srgb, var(--on-card-faint) 70%, var(--card));
   border-radius: var(--r-sm);
   background: var(--card-sunken);
   color: var(--on-card);

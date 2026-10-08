@@ -220,7 +220,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem var(--s-2);
-  min-inline-size: 7rem;
+  min-inline-size: 9rem;
   max-inline-size: 28rem;
   padding: 0.4rem var(--s-3) 0.55rem;
   border: 2px solid var(--hairline);
@@ -240,8 +240,13 @@
   inline-size: 1.5rem;
   block-size: 1.5rem;
 }
+/* The first row (who, what, how long) never wraps: the round's name gives way with an ellipsis; only the meter has a
+   row of its own, so the chip stays two rows inside the bar. */
 .workbar__round-title {
-  flex: none;
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* Who started it gives way first, then the circle name; the round's name and its time stay whole. */
 .workbar__round-by {

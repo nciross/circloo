@@ -1,8 +1,8 @@
-/* circloo · the charcoal app (#250). A white canvas, near-black ink, charcoal pills for every primary action, purple
-   text links and focus, pastels (mint, butter, peach, sky, lavender) only for chips, covers and accents, and one
-   charcoal card per view as the second read. Status colours (ok mint, mid butter, low pink) live only inside that
-   card. Cerise stays as a small accent (the pink tokens). Violet AI, the face's coral mouth and the five skies keep
-   their jobs. Every text pair is AA or better in both themes.
+/* circloo (#250). A white canvas, near-black ink, charcoal pills for every primary action, violet text links and focus,
+   pastels (mint, butter, peach, sky, lavender, blush) only for chips, covers and notes, and one light mauve focal card
+   per view (plum at night); no black backgrounds, no gradients. Status colours (ok, mid, low) live only inside that
+   card. Cerise stays as a small accent (the pink tokens). AI keeps its own violet and is always labelled; the face's
+   coral mouth and the five skies keep their jobs. Every text pair is AA or better in both themes.
    The older names (--bg, --surface, --primary, --text, --brass…) stay as aliases so every stylesheet keeps working. */
 :root {
   color-scheme: light;
@@ -15,6 +15,8 @@
   --paper-pressed: #e0e0e0;
   --hairline: #e6e6e6;
   --hairline-strong: #c4c4c4;
+  /* The outline of a form field: 3:1 or more against paper and paper-sunken (WCAG 1.4.11), unlike the hairline. */
+  --field-line: #8b8b94;
 
   /* Ink */
   --ink: #111111; /* 18.9:1 on paper */
@@ -240,7 +242,7 @@
   --on-dome-soft: var(--on-card-soft);
 }
 
-/* Night: a near-black charcoal canvas; the focal card is a lifted charcoal with a hairline; the pill turns light. */
+/* Night: a near-black charcoal canvas (text on it, never a black panel); the focal card turns deep plum; the pill turns light. */
 :root[data-theme='dark'] {
   color-scheme: dark;
   /* Night (#250, charcoal): a near-black charcoal canvas, light ink, the charcoal pill turns light, links and
@@ -260,6 +262,7 @@
   --paper-pressed: #2e2e36;
   --hairline: #2c2c34;
   --hairline-strong: #4a4a55;
+  --field-line: #6e6e7a;
   --ink: #f4f3f7;
   --ink-soft: #c9c6d1;
   --ink-faint: #a5a2af;
@@ -351,6 +354,7 @@
     --paper-pressed: #2e2e36;
     --hairline: #2c2c34;
     --hairline-strong: #4a4a55;
+    --field-line: #6e6e7a;
     --ink: #f4f3f7;
     --ink-soft: #c9c6d1;
     --ink-faint: #a5a2af;

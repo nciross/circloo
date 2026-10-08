@@ -70,8 +70,8 @@ export function RitualCard({ big = false }: { big?: boolean }) {
   // settles with the soft spring; under reduced motion it simply appears.
   const tilt = i18n.dir() === 'rtl' ? 2 : -2
   const dealIn = reduced
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: dur.state } }
-    : { initial: { opacity: 0, y: -18, rotate: tilt }, animate: { opacity: 1, y: 0, rotate: 0 }, transition: spring.soft }
+    ? { initial: false as const, animate: { y: 0, rotate: 0 }, transition: { duration: dur.state } }
+    : { initial: { y: -18, rotate: tilt }, animate: { y: 0, rotate: 0 }, transition: spring.soft }
 
   return (
     <div className={`deck${dealing ? ' is-dealing' : ''}`}>

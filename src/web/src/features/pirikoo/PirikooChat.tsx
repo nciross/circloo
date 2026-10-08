@@ -125,7 +125,19 @@ function Launcher() {
     if (!shown?.perch) return
     const el = document.querySelector<HTMLElement>(`[data-perch="${shown.perch}"]`)
     el?.setAttribute('data-pirikoo-spot', '')
-    return () => el?.removeAttribute('data-pirikoo-spot')
+    // Never cover what the tip points at: once the bubble is laid out, if it overlaps the spot, bring the spot into
+    // view above it (only then; a spot already clear stays where it is).
+    const frame = requestAnimationFrame(() => {
+      const tipBox = document.querySelector('.pkl__tip')?.getBoundingClientRect()
+      const spot = el?.getBoundingClientRect()
+      if (!el || !tipBox || !spot) return
+      const overlaps = spot.left < tipBox.right && spot.right > tipBox.left && spot.top < tipBox.bottom && spot.bottom > tipBox.top
+      if (overlaps) el.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+      el?.removeAttribute('data-pirikoo-spot')
+    }
   }, [shown?.perch])
 
   const dismiss = () => {

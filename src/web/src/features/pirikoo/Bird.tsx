@@ -13,7 +13,7 @@ const BELLY = '#c6eedb'
 const MASK = '#f7d873'
 const BEAK = '#f39a4c'
 const BEAK_DEEP = '#d9762a'
-const CREST = '#e5347b'
+const CREST = '#d12a6c'
 
 export type BirdMood = 'idle' | 'listening' | 'thinking' | 'speaking' | 'happy' | 'oops'
 

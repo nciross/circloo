@@ -57,7 +57,7 @@ export function SlideStage({ state, className, children }: { state: Presentation
         <motion.div
           key={key}
           className="stage-slide__slide"
-          initial={{ opacity: 0, x: shift }}
+          initial={{ x: shift }}
           animate={{ opacity: 1, x: 0, transition: { duration: dur.enter, ease: easeOut } }}
           exit={{ opacity: 0, x: -shift, transition: { duration: dur.state, ease: easeOut } }}
         >

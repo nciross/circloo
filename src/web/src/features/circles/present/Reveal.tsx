@@ -135,8 +135,8 @@ function Spotlight({ slide, results, text, delay, still }: { slide: QuestionSlid
   const first = results.first
   if (results.total === 0) return null
   const enter = {
-    initial: still ? false : { opacity: 0, y: 12 },
-    animate: { opacity: 1, y: 0 },
+    initial: still ? false : { y: 12 },
+    animate: { y: 0 },
     transition: still ? { duration: 0 } : { ...spring.soft, delay },
   } as const
   if (quiz && !someoneRight(results)) {
@@ -211,8 +211,8 @@ export function Reveal({ slide, results, mine, animate }: { slide: QuestionSlide
   const party = !still && (!quiz || someoneRight(results))
   // The rows rise first (stagger capped at 240 ms), the ring draws as the last share lands, then the spotlight.
   const rows: Variants = {
-    hidden: { opacity: 0, y: 8 },
-    show: { opacity: 1, y: 0, transition: spring.soft },
+    hidden: { y: 8 },
+    show: { y: 0, transition: spring.soft },
   }
   const ringDelay = total / 1000
   const spotlightDelay = ringDelay + 0.15

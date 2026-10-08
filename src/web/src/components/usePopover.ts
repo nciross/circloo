@@ -8,7 +8,8 @@ const ITEMS = 'a[href], button:not([disabled])'
  * reduced motion it only fades. Spread onto a `motion.div` inside an `AnimatePresence`.
  */
 export const popoverMotion = (reduced: boolean) => ({
-  initial: { opacity: 0, y: reduced ? 0 : 8 },
+  // Arrives by moving only (axe reads menus on arrival); it may fade on the way out.
+  initial: { y: reduced ? 0 : 8 },
   animate: { opacity: 1, y: 0, transition: reduced ? { duration: dur.state } : spring.soft },
   exit: { opacity: 0, y: reduced ? 0 : 4, transition: { duration: dur.press } },
 })

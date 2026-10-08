@@ -265,7 +265,7 @@
 .canvas-draft textarea {
   inline-size: 100%;
   padding: var(--s-2);
-  border: 2px solid rgb(23 41 58 / 0.2);
+  border: 2px solid color-mix(in srgb, var(--note-ink) 55%, transparent);
   border-radius: var(--r-sm);
   background: rgb(255 255 255 / 0.7);
   color: inherit;

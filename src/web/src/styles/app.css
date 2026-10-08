@@ -125,8 +125,10 @@
   background: var(--paper);
   border-color: transparent;
 }
-/* Icon-only on phones, but the label still names the link. */
+/* Icon-only on phones, but the label still names the link; 44px to tap, as DESIGN.md promises on phones. */
 .topbar__create {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
   padding-inline: 0.65rem;
 }
 .topbar__create .btn__label {
@@ -167,6 +169,7 @@
     display: block;
   }
   .topbar__create {
+    min-block-size: 2.5rem;
     padding-inline: 1rem;
   }
   .topbar__create .btn__label {
@@ -188,6 +191,8 @@
 .account__trigger {
   display: grid;
   place-items: center;
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
   padding: 2px;
   border: 0;
   border-radius: var(--r-pill);
@@ -487,7 +492,7 @@ a.navitem:active {
 .join .input {
   min-block-size: 3rem;
   padding-inline: 1.1rem;
-  border: 2px solid var(--hairline);
+  border: 2px solid var(--field-line);
   border-radius: var(--r-pill);
 }
 .form-row__control .input:hover,
@@ -820,7 +825,7 @@ a.navitem:active {
   display: grid;
   place-items: center;
   block-size: 4rem;
-  border: 2px solid var(--hairline);
+  border: 2px solid var(--field-line);
   border-radius: var(--r-md);
   background: var(--paper);
   color: var(--ink);

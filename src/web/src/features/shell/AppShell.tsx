@@ -54,7 +54,8 @@ function SideNav({ onNavigate, inDrawer = false }: { onNavigate?: () => void; in
           </NavLink>
         </li>
       </ul>
-      <p className="sidenav__group" id={soonId}>{t('common.nav.soonGroup')}</p>
+      {/* The group is named for screen readers; sighted people read the "Soon" lozenge on its item. */}
+      <p className="sidenav__group visually-hidden" id={soonId}>{t('common.nav.soonGroup')}</p>
       <ul className="sidenav__list" aria-labelledby={soonId}>
         {SOON.map(({ id, icon: Icon }) => (
           <li key={id}>

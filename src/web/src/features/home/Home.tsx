@@ -63,7 +63,7 @@ function CreateCard({ first }: { first: boolean }) {
   const { t } = useTranslation()
   const reduced = useReducedMotion()
   return (
-    <motion.section className="panel create-card" aria-labelledby="create-title" variants={enterVariants(reduced)} initial="hidden" animate="show">
+    <motion.section className="panel create-card" aria-labelledby="create-title" data-perch={first ? 'circles' : undefined} variants={enterVariants(reduced)} initial="hidden" animate="show">
       <div className="create-card__copy">
         <h2 id="create-title" className="create-card__title">{t(first ? 'home.firstTitle' : 'home.create.title')}</h2>
         <p className="create-card__lead">{t('home.create.lead')}</p>
@@ -142,7 +142,7 @@ function CircleGroup({ role, circles }: { role: Role; circles: CircleSummary[] }
 function MyCircles({ circles }: { circles: CircleSummary[] }) {
   const { t } = useTranslation()
   return (
-    <section className="mine" aria-labelledby="mine-title">
+    <section className="mine" aria-labelledby="mine-title" data-perch="circles">
       <h2 id="mine-title" className="mine__title">{t('circles.mine.title')}</h2>
       <div className="mine__groups">
         <CircleGroup role="animator" circles={circles.filter((c) => c.role === 'animator')} />
@@ -241,7 +241,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="home-grid" data-perch="circles">
+      <div className="home-grid">
         <div className="home-grid__main">
           <CreateCard first={empty} />
           {circles.isPending ? (
