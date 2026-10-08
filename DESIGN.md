@@ -22,7 +22,7 @@ colors:
   focus: "#6d28d9"
   beam-text: "#6d28d9"
   beam-subtle: "#f1ebfd"
-  pink: "#e5347b"
+  pink: "#d12a6c"
   beam: "#d6276b"
   card: "#ece2f6"
   card-line: "#d6c6e8"
@@ -207,7 +207,7 @@ Night is a full theme: the canvas goes near-black charcoal, the pills turn light
 `charcoal` is every primary action: buttons (`btn--primary`, `btn--charcoal`), the current navigation item, a switch that is on, a vote cast, the picked filter. It turns light at night (`#f1eef5` with near-black text). Charcoal is a pill, never a page or card background.
 
 ### Violet: links and focus
-`violet-link` (also `beam-text` and `focus`) is text links, the lead line under a page title, the picked-option text on its light violet fill (`beam-subtle`), drop targets and the focus ring.
+`violet-link` (also `beam-text` and `focus`) is text links, the lead line under a page title, the picked-option text on its light violet fill (`beam-subtle`), drop targets and the focus ring. This is the founder's decision for #250 (2026-10-08), replacing the earlier "violet means AI" rule: links use the deep link violet (`#6d28d9`), AI uses its own lighter violet (`ai`, `#6a4fd1` and its tints), and AI is never told by colour alone (see below).
 
 ### The focal card: light mauve
 `card` is the one object a view leads with (the icebreaker in play, the room's people and chat, the new-circle preview, the integration focus, Pirikoo's tips): light mauve by day with dark ink, deep plum by night. Inside it, and only inside it, the three status colours: `ok` (deep green by day, mint by night), `mid` (amber, butter), `low` (berry, pink), as values at 19px bold and as meter fills, always beside words. Buttons inside it invert from its colours (a dark pill on mauve, a light pill on plum).
@@ -219,7 +219,7 @@ Night is a full theme: the canvas goes near-black charcoal, the pills turn light
 `pink` and `beam` are the accent and never a fill behind text: Pirikoo's crest, its calling ring, a heart, a small count badge on the focal card.
 
 ### AI violet, the skies, coral, status
-`ai…` stays AI only (Pirikoo's answers, "Suggested by AI"). The five skies are the moods, always with the icon and the word. `coral` is the face's mouth. `live`, `danger`, `warning`, `info` are canvas status colours for lozenges and messages.
+`ai…` stays AI only (Pirikoo's answers, "Suggested by AI"). Because links are violet too, AI is always named in words: every AI output carries the "AI" lozenge or a "Suggested by AI" label, and AI surfaces use the `ai-subtle` fill with the `ai-border` outline, never a bare violet word. The five skies are the moods, always with the icon and the word. `coral` is the face's mouth. `live`, `danger`, `warning`, `info` are canvas status colours for lozenges and messages.
 
 ### Named rules
 - No black backgrounds: charcoal and ink are pills, marks and text, never a surface.
@@ -227,6 +227,8 @@ Night is a full theme: the canvas goes near-black charcoal, the pills turn light
 - One focal card per view; never one inside another.
 - `ok`/`mid`/`low` only inside the focal card.
 - Night is tokens flipping, never a second stylesheet (the projector screen is the one pinned dark surface).
+- AI is labelled in words, never only by its violet.
+- Form fields draw their outline with `field-line` (3:1 or more, WCAG 1.4.11); hairlines are for panels and rows.
 
 ## Typography
 
@@ -289,7 +291,7 @@ A flat, geometric parakeet without outlines: a calm green body, a mint belly, a 
 
 ## Motion
 
-One grammar (`src/web/src/lib/motion.ts`): springs for arrivals and presses, 60ms staggers, meters filling over 600ms. Entrances move and never fade (axe reads pages on arrival). The public site plays a scroll choreography (titles wipe up, cards rise, the hero settles away) and a looping hero board with pictures that play along; it starts for every visitor (the founder's call). In the app, reduced motion stills everything and keeps meaning.
+One grammar (`src/web/src/lib/motion.ts`): springs for arrivals and presses, 60ms staggers, meters filling over 600ms. Entrances move and never fade (axe reads pages on arrival). The public site plays a scroll choreography (titles wipe up, cards rise, the hero settles away) and a looping hero board with pictures that play along. Motion follows the system's reduced-motion setting; a visitor can opt in ("Play animations") and anyone can still the page with the one small "Pause animations" under the board (WCAG 2.2.2), both remembered in the browser. In the app, reduced motion stills everything and keeps meaning.
 
 ## Accessibility
 

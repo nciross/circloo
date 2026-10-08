@@ -73,11 +73,8 @@
       "titleLink": "your circle",
       "lead": "Pick a few and circloo runs them with you. Every round works on a phone or on the big screen.",
       "all": "See all rounds",
-      "free": "Free",
       "minutes_one": "{{count}} min",
-      "minutes_other": "{{count}} min",
-      "everyone": "everyone",
-      "by": "by circloo"
+      "minutes_other": "{{count}} min"
     },
     "made": {
       "preview": "Preview",
@@ -306,6 +303,13 @@
     },
     "login": {
       "back": "Back to the board"
+    },
+    "motion": {
+      "pause": "Pause animations",
+      "play": "Play animations",
+      "respect": "Respect my system setting",
+      "playing": "Animations are playing.",
+      "following": "Animations follow your system setting."
     }
   },
   "auth": {

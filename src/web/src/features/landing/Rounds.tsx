@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { ArrowUpRight, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { ACTIVITIES, CATEGORIES, type Category } from '../circles/catalog'
 import { Motif } from './Doodles'
 
@@ -63,16 +63,11 @@ export function Rounds() {
                 <span className={`round__cover round__cover--${TONE[a.category]}`}>
                   <Icon className="round__icon" size={60} strokeWidth={1.75} aria-hidden="true" />
                   <Motif className="round__motif" />
-                  <span className="round__free">{t('landing.rounds.free')}</span>
                   <span className="round__time"><Clock size={12} strokeWidth={2.5} aria-hidden="true" />{t('landing.rounds.minutes', { count: MINUTES[a.id] ?? 10 })}</span>
                 </span>
                 <span className="round__kind">{t(`activities.categories.${a.category}`)}</span>
                 <span className="round__title">{t(`activities.${a.id}.title`)}</span>
                 <span className="round__blurb">{t(`activities.${a.id}.body`)}</span>
-                <span className="round__foot">
-                  <span className="round__meta">{t('landing.rounds.everyone')} · {t('landing.rounds.by')}</span>
-                  <ArrowUpRight className="round__go flip-rtl" size={18} strokeWidth={2.25} aria-hidden="true" />
-                </span>
               </Link>
             </li>
           )

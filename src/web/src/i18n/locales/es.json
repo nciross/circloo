@@ -73,11 +73,8 @@
       "titleLink": "tu círculo",
       "lead": "Elige unas cuantas y circloo las dirige contigo. Cada ronda funciona en el móvil o en la pantalla grande.",
       "all": "Ver todas las rondas",
-      "free": "Gratis",
       "minutes_one": "{{count}} min",
-      "minutes_other": "{{count}} min",
-      "everyone": "todo el mundo",
-      "by": "por circloo"
+      "minutes_other": "{{count}} min"
     },
     "made": {
       "preview": "Vista previa",
@@ -306,6 +303,13 @@
     },
     "login": {
       "back": "Volver al tablero"
+    },
+    "motion": {
+      "pause": "Pausar las animaciones",
+      "play": "Reproducir las animaciones",
+      "respect": "Respetar mi ajuste del sistema",
+      "playing": "Las animaciones se están reproduciendo.",
+      "following": "Las animaciones siguen el ajuste de tu sistema."
     }
   },
   "auth": {

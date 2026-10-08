@@ -2,13 +2,14 @@ import { useCallback, useRef, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion as m } from 'motion/react'
 import { Link } from 'react-router'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Pause, Play, Plus, Undo2 } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { spring } from '../../lib/motion'
 import { SignInPanel } from '../auth/SignIn'
 import { useLandingMotion } from './motion'
+import { useStillMotion } from './useMotion'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import { Blobs } from './Blobs'
@@ -23,16 +24,22 @@ import '../../styles/landing.css'
  * The landing (issue #247, #250): a white canvas in the language of a people platform. The hero is a short headline
  * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character pictures that play along.
  * Then the rounds, how it works, the story, the three jobs, the
- * free plan, the questions and the charcoal footer. Log in in the bar swaps the board for the sign-in form, in place,
+ * free plan, the questions and the mauve footer. Log in in the bar swaps the board for the sign-in form, in place,
  * and the page becomes just that form until Back to the board. Scrolling plays a choreography (titles reveal, cards rise one by
- * one, the hero settles away; transform only); everything starts on its own for every visitor (the founder's call:
- * no pause control on the page).
+ * one, the hero settles away; transform only). Motion follows the system's reduced-motion setting, a visitor can opt in,
+ * and one small Pause under the board stills the whole page (WCAG 2.2.2), remembered in the browser.
  */
 export function Landing() {
   const { t } = useTranslation()
   useDocumentTitle('landing.title')
   const lm = useLandingMotion()
-  const playing = lm.on
+  const motion = useStillMotion()
+  const playing = lm.on && !motion.still
+  const [announce, setAnnounce] = useState('')
+  const toggleOptIn = () => {
+    setAnnounce(t(lm.optedIn ? 'landing.motion.following' : 'landing.motion.playing'))
+    lm.toggleOptIn()
+  }
   const [login, setLogin] = useState(false)
   const loginLink = useRef<HTMLAnchorElement>(null)
 
@@ -59,7 +66,7 @@ export function Landing() {
   }[]
 
   return (
-    <div className="site" data-motion={lm.on ? 'on' : 'off'}>
+    <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
       <SiteHeader tone="site" showLanguages={false}>
         <LanguageMenu />
         <Link ref={loginLink} to="/signin" className="btn btn--sm btn--charcoal sitebar__login" aria-expanded={login} onClick={openLogin} viewTransition>
@@ -128,6 +135,22 @@ export function Landing() {
                 </m.div>
               )}
             </AnimatePresence>
+            {/* One small control for the whole page: Pause while motion runs; under reduced motion, Play (and back). */}
+            <div className="hero__motion">
+              {motion.offered ? (
+                <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
+                  {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing.motion.pause')}
+                </button>
+              ) : null}
+              {lm.reduced ? (
+                // A changing label says what a press does; aria-pressed on top would read as "Respect my system setting, pressed".
+                <button type="button" className="motion-toggle motion-optin" onClick={toggleOptIn}>
+                  {lm.optedIn ? <Undo2 className="flip-rtl" size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}{' '}
+                  {t(lm.optedIn ? 'landing.motion.respect' : 'landing.motion.play')}
+                </button>
+              ) : null}
+              <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
+            </div>
           </div>
         </section>
 
@@ -136,7 +159,7 @@ export function Landing() {
           <>
             <Rounds />
             <How />
-            <Player still={false} />
+            <Player still={motion.still} />
             <Jobs motion={playing} />
             <Plan />
 

@@ -73,11 +73,8 @@
       "titleLink": "votre cercle",
       "lead": "Choisissez-en quelques-uns, circloo les anime avec vous. Chaque round marche sur téléphone comme sur grand écran.",
       "all": "Voir tous les rounds",
-      "free": "Gratuit",
       "minutes_one": "{{count}} min",
-      "minutes_other": "{{count}} min",
-      "everyone": "tout le monde",
-      "by": "par circloo"
+      "minutes_other": "{{count}} min"
     },
     "made": {
       "preview": "Aperçu",
@@ -306,6 +303,13 @@
     },
     "login": {
       "back": "Revenir au tableau"
+    },
+    "motion": {
+      "pause": "Mettre les animations en pause",
+      "play": "Lancer les animations",
+      "respect": "Respecter mon réglage système",
+      "playing": "Les animations sont lancées.",
+      "following": "Les animations suivent votre réglage système."
     }
   },
   "auth": {

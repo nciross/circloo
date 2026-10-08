@@ -73,15 +73,12 @@
       "titleLink": "دائرتك",
       "lead": "اختر بعضها، وcircloo يديرها معك. كل جولة تعمل على الهاتف أو على الشاشة الكبيرة.",
       "all": "كل الجولات",
-      "free": "مجاني",
       "minutes_zero": "{{count}} دقيقة",
       "minutes_one": "دقيقة واحدة",
       "minutes_two": "دقيقتان",
       "minutes_few": "{{count}} دقائق",
       "minutes_many": "{{count}} دقيقة",
-      "minutes_other": "{{count}} دقيقة",
-      "everyone": "للجميع",
-      "by": "من circloo"
+      "minutes_other": "{{count}} دقيقة"
     },
     "made": {
       "preview": "معاينة",
@@ -318,6 +315,13 @@
     },
     "login": {
       "back": "العودة إلى اللوحة"
+    },
+    "motion": {
+      "pause": "إيقاف الحركة مؤقتًا",
+      "play": "تشغيل الحركات",
+      "respect": "احترام إعداد نظامي",
+      "playing": "الحركات قيد التشغيل.",
+      "following": "الحركات تتبع إعداد نظامك."
     }
   },
   "auth": {

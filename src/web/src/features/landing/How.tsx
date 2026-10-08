@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Gamepad2, Link2, PenLine, type LucideIcon } from 'lucide-react'
 
-const STEPS: { id: string; icon: LucideIcon; tone: string; href: string }[] = [
-  { id: 'say', icon: PenLine, tone: 'mint', href: '/signin' },
-  { id: 'share', icon: Link2, tone: 'sky', href: '#story-circle' },
-  { id: 'play', icon: Gamepad2, tone: 'peach', href: '#rounds' },
+const STEPS: { id: string; href: string }[] = [
+  { id: 'say', href: '/signin' },
+  { id: 'share', href: '#story-circle' },
+  { id: 'play', href: '#rounds' },
 ]
 
 /** Dotted threads between the three cards, drawn over the board at desktop widths (the board is 1000 × 420). */
@@ -29,11 +28,9 @@ export function How() {
       <div className="how__board">
         <Wire />
         {STEPS.map((s, i) => {
-          const Icon = s.icon
           return (
             <article key={s.id} className={`step step--${i + 1}`} aria-labelledby={`step-${s.id}`}>
               <span className="step__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-              <span className={`step__icon step__icon--${s.tone}`} aria-hidden="true"><Icon size={22} strokeWidth={2.25} /></span>
               <h3 id={`step-${s.id}`} className="step__title">{t(`landing.how.steps.${s.id}.title`)}</h3>
               <p className="step__body">{t(`landing.how.steps.${s.id}.body`)}</p>
               {s.href.startsWith('/')
