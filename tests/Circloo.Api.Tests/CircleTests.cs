@@ -94,6 +94,35 @@ public sealed class CircleTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task My_circles_list_the_first_eight_bodies_in_arrival_order_with_me_marked()
+    {
+        // Home shows each circle's people as a stack (#250): the first eight members, in the order they arrived, the caller
+        // marked as Me; People still counts everyone.
+        var (id, code) = await CreateAsync();
+        var characters = new[] { "fox", "owl", "frog", "cat", "bear", "bunny", "robot", "dino", "koala" };
+        for (var i = 0; i < characters.Length; i++)
+        {
+            var (http, _) = NewBrowser();
+            var csrf = await http.CsrfAsync();
+            var joined = await http.PostJsonAsync($"/api/join/{code}", new { name = $"Guest {i + 1}", character = characters[i] }, csrf);
+            Assert.Equal(HttpStatusCode.OK, joined.StatusCode);
+        }
+
+        var mine = await _animator.Http.GetFromJsonAsync<JsonElement>("/api/circles");
+        var circle = mine.EnumerateArray().Single(c => c.GetProperty("id").GetGuid() == id);
+        Assert.Equal(10, circle.GetProperty("people").GetInt32());
+        var bodies = circle.GetProperty("bodies").EnumerateArray().ToList();
+        Assert.Equal(8, bodies.Count);
+        Assert.Equal("Nadia", bodies[0].GetProperty("name").GetString());
+        Assert.True(bodies[0].GetProperty("me").GetBoolean());
+        Assert.Equal(
+            ["Guest 1", "Guest 2", "Guest 3", "Guest 4", "Guest 5", "Guest 6", "Guest 7"],
+            bodies.Skip(1).Select(b => b.GetProperty("name").GetString()));
+        Assert.All(bodies.Skip(1), b => Assert.False(b.GetProperty("me").GetBoolean()));
+        Assert.Equal("fox", bodies[1].GetProperty("character").GetString());
+    }
+
+    [Fact]
     public async Task A_guest_joins_with_a_name_and_a_free_character_and_stays_a_guest()
     {
         var (id, code) = await CreateAsync();
