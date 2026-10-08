@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Pencil } from 'lucide-react'
 import { activityById, type Category } from '../circles/catalog'
 import { Motif } from './Doodles'
 
@@ -24,10 +23,7 @@ export function Rounds() {
     <section id="rounds" className="strip rounds" aria-labelledby="rounds-title">
       <div className="strip__head">
         <h2 id="rounds-title" className="section-title">
-          {t('landing.rounds.title1')}{' '}
-          <a href="#how" className="linky">
-            {t('landing.rounds.titleLink')} <Pencil size={22} strokeWidth={2.25} aria-hidden="true" />
-          </a>
+          {t('landing.rounds.title1')} <em className="accent">{t('landing.rounds.titleLink')}</em>
         </h2>
         <Link to="/signin" className="strip__more" viewTransition>{t('landing.rounds.all')}</Link>
       </div>

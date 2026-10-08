@@ -1,18 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Pause, Play, Plus, Undo2 } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
-import { useUiStore } from '../../stores/ui'
-import type { BirdMood } from '../pirikoo/Bird'
 import { useLandingMotion } from './motion'
 import { useStillMotion } from './useMotion'
-import { useCompose, type Words } from './useCompose'
-import type { Composition } from './compose'
-import { Say } from './Say'
-import { Made } from './Made'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import { Blobs } from './Blobs'
@@ -22,64 +16,24 @@ import { Samples } from './Samples'
 import { Who } from './Who'
 import { Popular } from './Popular'
 import { How } from './How'
+import { Plan } from './Plan'
 import { Footer } from './Footer'
 import '../../styles/landing.css'
 
-const AUTO_DEMO_MS = 1200
-
 /**
  * The landing (issue #247, #250): a white canvas in the language of a people platform. The hero is a short headline
- * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character blobs. Right under it the
- * prompt is the product: one line composes a circle in front of the visitor. Then the rounds, the four languages,
- * who it is for, popular circles, how it works, the story, the three jobs, the questions and the charcoal footer.
- * No scroll animations; every ambient movement has a still path and a pause.
+ * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character pictures that play along.
+ * Then the rounds, the four languages, who it is for, popular circles, how it works, the story, the three jobs, the
+ * free plan, the questions and the charcoal footer. Sections rise into place as they scroll in (transform only);
+ * every movement has a still path and a pause.
  */
 export function Landing() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   useDocumentTitle('landing.title')
-  const locale = useUiStore((s) => s.locale)
   const motion = useStillMotion()
   const lm = useLandingMotion()
   const playing = lm.on && !motion.still
   const [announce, setAnnounce] = useState('')
-  const [text, setText] = useState('')
-  const touched = useRef(false)
-
-  const words = useCallback(
-    (c: Composition): Words => {
-      const titles = c.activities.map((id) => t(`activities.${id}.title`))
-      const rest = new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(titles.slice(1))
-      return {
-        name: t(`landing.made.names.${c.name}`),
-        line: titles.length > 1 ? t('landing.made.line', { first: titles[0], rest }) : t('landing.made.lineOne', { first: titles[0] }),
-      }
-    },
-    [t, i18n.language],
-  )
-  const { run, start } = useCompose(locale, playing, words)
-  const examples = useMemo(() => t('landing.say.list', { returnObjects: true }) as string[], [t])
-
-  const build = (line: string) => {
-    touched.current = true
-    if (!line.trim()) return
-    start(line)
-    // The composition sits under the console: bring it into view (only as far as needed) so the line is seen becoming a circle.
-    document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'nearest' })
-  }
-
-  // Nobody touched the console: the first example composes itself, so the page moves on arrival. Pause stops it.
-  // The field stays as the visitor left it (the placeholder already shows that line): nobody finds words they did not type.
-  useEffect(() => {
-    if (!playing || run || touched.current) return
-    const id = window.setTimeout(() => {
-      if (touched.current) return
-      start(examples[0] ?? '')
-    }, AUTO_DEMO_MS)
-    return () => window.clearTimeout(id)
-  }, [playing, run, start, examples])
-
-  // The bird thinks, talks, hops once when the circle is ready, then rests.
-  const mood: BirdMood | undefined = !run || run.phase === 'settled' ? undefined : run.phase === 'done' ? 'happy' : run.phase === 'speaking' ? 'speaking' : 'thinking'
 
   const toggleOptIn = () => {
     setAnnounce(t(lm.optedIn ? 'landing.motion.following' : 'landing.motion.playing'))
@@ -87,7 +41,6 @@ export function Landing() {
   }
 
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
-  const touch = () => { touched.current = true }
 
   return (
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
@@ -120,30 +73,14 @@ export function Landing() {
           </div>
         </section>
 
-        <section id="build" className="strip build" aria-labelledby="build-title">
-          <h2 id="build-title" className="section-title section-title--center">{t('landing.hero.build')}</h2>
-          <Say
-            text={text}
-            onText={setText}
-            onBuild={build}
-            onTouch={touch}
-            mood={mood}
-            idle={playing ? 'idle' : undefined}
-            examples={examples}
-          />
-          <div id="made" className="join">
-            <Made run={run} motion={playing} />
-          </div>
-        </section>
-
         <Rounds />
         <Samples />
-
         <Who />
         <Popular />
         <How />
         <Player still={motion.still} />
         <Jobs motion={playing} />
+        <Plan />
 
         <section id="faq" className="strip faq" aria-labelledby="faq-title">
           <h2 id="faq-title" className="section-title">{t('landing.faq.title')}</h2>

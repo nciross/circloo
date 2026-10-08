@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Gamepad2, Link2, PenLine, type LucideIcon } from 'lucide-react'
 
 const STEPS: { id: string; icon: LucideIcon; tone: string; href: string }[] = [
-  { id: 'say', icon: PenLine, tone: 'mint', href: '#start' },
-  { id: 'share', icon: Link2, tone: 'sky', href: '#made' },
+  { id: 'say', icon: PenLine, tone: 'mint', href: '/signin' },
+  { id: 'share', icon: Link2, tone: 'sky', href: '#story-circle' },
   { id: 'play', icon: Gamepad2, tone: 'peach', href: '#rounds' },
 ]
 
@@ -31,7 +32,9 @@ export function How() {
               <span className={`step__icon step__icon--${s.tone}`} aria-hidden="true"><Icon size={22} strokeWidth={2.25} /></span>
               <h3 id={`step-${s.id}`} className="step__title">{t(`landing.how.steps.${s.id}.title`)}</h3>
               <p className="step__body">{t(`landing.how.steps.${s.id}.body`)}</p>
-              <a href={s.href} className="step__link">{t(`landing.how.steps.${s.id}.link`)}</a>
+              {s.href.startsWith('/')
+                ? <Link to={s.href} className="step__link" viewTransition>{t(`landing.how.steps.${s.id}.link`)}</Link>
+                : <a href={s.href} className="step__link">{t(`landing.how.steps.${s.id}.link`)}</a>}
             </article>
           )
         })}

@@ -13,6 +13,7 @@ const DISCOVER: FooterLink[] = [
   { label: 'rounds', href: '#rounds' },
   { label: 'icebreakers', href: '#samples' },
   { label: 'how', href: '#how' },
+  { label: 'free', href: '#free' },
   { label: 'faq', href: '#faq' },
 ]
 

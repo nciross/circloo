@@ -54,8 +54,7 @@
     },
     "hero": {
       "scene": "Your circle, live together.",
-      "live": "Live",
-      "build": "Say what your circle needs. circloo sets it up."
+      "live": "Live"
     },
     "say": {
       "label": "What is it for?",
@@ -164,12 +163,12 @@
         "say": {
           "title": "Say it in one line",
           "body": "Tell circloo who it is for and what you want to do. It names the circle and picks the first rounds.",
-          "link": "Try a line"
+          "link": "Start your circle"
         },
         "share": {
           "title": "Share the link or the code",
           "body": "Send a link or read out a short code. People join with a first name and a character, no email needed.",
-          "link": "See the preview"
+          "link": "Watch people join"
         },
         "play": {
           "title": "Play together",
@@ -177,6 +176,24 @@
           "link": "See the rounds"
         }
       }
+    },
+    "plan": {
+      "title": "One plan, free for now",
+      "lead": "circloo is in early access. Everything that works today is yours, at no cost.",
+      "name": "Free",
+      "badge": "For now",
+      "price": "0",
+      "per": "no card, no trial clock",
+      "items": [
+        "Unlimited circles and members",
+        "Every round: icebreakers, boards, polls and presentations",
+        "English, French, Arabic and Spanish",
+        "Join by link or code, no password",
+        "Private by default, no ads"
+      ],
+      "cta": "Start for free",
+      "later": "If a paid plan ever comes, you will hear about it long before any charge.",
+      "note": "free while we build it"
     },
     "story": {
       "title": "Watch a circle come to life",
@@ -318,7 +335,8 @@
         "rounds": "Rounds",
         "icebreakers": "Icebreakers",
         "how": "How it works",
-        "faq": "Questions"
+        "faq": "Questions",
+        "free": "Free plan"
       },
       "languages": "Languages",
       "made1": "Made with",

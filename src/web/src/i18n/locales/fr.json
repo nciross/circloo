@@ -54,8 +54,7 @@
     },
     "hero": {
       "scene": "Votre cercle, ensemble, en direct.",
-      "live": "En direct",
-      "build": "Dites ce dont votre cercle a besoin. circloo le met en place."
+      "live": "En direct"
     },
     "say": {
       "label": "C'est pour quoi ?",
@@ -164,12 +163,12 @@
         "say": {
           "title": "Dites-le en une ligne",
           "body": "Dites à circloo pour qui c'est et ce que vous voulez faire. Il nomme le cercle et choisit les premiers rounds.",
-          "link": "Essayer une ligne"
+          "link": "Créer votre cercle"
         },
         "share": {
           "title": "Partagez le lien ou le code",
           "body": "Envoyez un lien ou lisez un code court. Chacun rejoint avec un prénom et un personnage, sans e-mail.",
-          "link": "Voir l'aperçu"
+          "link": "Voir comment on rejoint"
         },
         "play": {
           "title": "Jouez ensemble",
@@ -177,6 +176,24 @@
           "link": "Voir les rounds"
         }
       }
+    },
+    "plan": {
+      "title": "Une seule formule, gratuite pour l’instant",
+      "lead": "circloo est en accès anticipé. Tout ce qui fonctionne aujourd’hui est à vous, sans frais.",
+      "name": "Gratuit",
+      "badge": "Pour l’instant",
+      "price": "0",
+      "per": "sans carte, sans période d’essai",
+      "items": [
+        "Cercles et membres illimités",
+        "Tous les rounds : brise-glace, tableaux, sondages et présentations",
+        "Anglais, français, arabe et espagnol",
+        "On rejoint par lien ou par code, sans mot de passe",
+        "Privé par défaut, sans publicité"
+      ],
+      "cta": "Commencer gratuitement",
+      "later": "Si une formule payante arrive un jour, vous serez prévenu bien avant tout paiement.",
+      "note": "gratuit pendant qu’on le construit"
     },
     "story": {
       "title": "Un cercle prend vie",
@@ -318,7 +335,8 @@
         "rounds": "Rounds",
         "icebreakers": "Brise-glace",
         "how": "Comment ça marche",
-        "faq": "Questions"
+        "faq": "Questions",
+        "free": "Formule gratuite"
       },
       "languages": "Langues",
       "made1": "Fait avec",

@@ -3,8 +3,8 @@
    A sticky white bar with a compact console, a centred three-line headline with pastel icon chips flanked by
    character blobs, then grids of cards, one large rounded join panel where the circle composes itself, a zig-zag of
    steps, the story as cards, the three jobs, hairline questions and a charcoal footer panel.
-   No scroll animations: cards lift on hover, links underline, the seats hop (Motion) and the blobs float only while
-   `.site[data-motion='on']:not(.is-still)`. Pastel surfaces keep day ink whatever the theme: they read `--on-sun`
+   Sections rise into place as they scroll in (scroll-driven, transform only); cards lift on hover, links underline,
+   the hero's board and pictures loop, all only while `.site[data-motion='on']:not(.is-still)`. Pastel surfaces keep day ink whatever the theme: they read `--on-sun`
    (always near-black) and `--on-field` (always white), the two theme-stable tokens. */
 .site {
   background: var(--ground);
@@ -56,20 +56,11 @@
   color: var(--ink-soft);
   max-inline-size: 52ch;
 }
-.linky {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.25em;
+/* A phrase in a heading set in the purple, italic: emphasis only, not a link. */
+.accent {
   color: var(--violet-link);
   font-style: italic;
-  text-decoration: none;
-  text-underline-offset: 0.15em;
 }
-.linky svg {
-  align-self: center;
-  flex: none;
-}
-.linky:hover,
 .strip__more:hover,
 .step__link:hover,
 .made__byhand:hover,
@@ -797,33 +788,6 @@
   0%, 84% { scale: 0; rotate: -30deg; }
   88%, 94% { scale: 1; rotate: 0deg; }
   98%, 100% { scale: 0; rotate: 0deg; }
-}
-
-/* ---------- Build: the console under the hero, the composition right below it ---------- */
-.build {
-  display: grid;
-  justify-items: center;
-  gap: var(--s-6);
-}
-.build .say {
-  justify-items: center;
-  max-inline-size: 40rem;
-}
-.build .say__label {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.build .say__box {
-  inline-size: 100%;
-}
-.build .join {
-  inline-size: 100%;
-  overflow-x: clip;
-  scroll-margin-block: var(--s-8);
 }
 
 /* ---------- The scene: a small live board in the hero. Everything is placed in cqi (the board is an inline-size
@@ -2349,6 +2313,160 @@
       opacity: 0;
       translate: calc(14rem * var(--dx, 1)) 4rem;
     }
+  }
+}
+
+/* ---------- The plan: one card, free for now, with a handwritten aside ---------- */
+.plan {
+  overflow-x: clip;
+}
+.plan__head {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  margin-block-end: var(--s-7);
+  text-align: center;
+}
+.plan__lead {
+  margin: 0;
+}
+.plan__stage {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-5);
+}
+.plan__card {
+  position: relative;
+  display: grid;
+  gap: var(--s-5);
+  inline-size: min(100%, 28rem);
+  padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+  border: 2px solid var(--hairline);
+  border-radius: 32px;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(closest-side at 100% 0, var(--mint), transparent),
+    radial-gradient(closest-side at 0 100%, var(--lavender), transparent);
+  background-position: 100% 0, 0 100%;
+  background-size: 14rem 12rem, 14rem 12rem;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.plan__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.plan__name {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+:lang(ar) .plan__name {
+  letter-spacing: 0;
+}
+.plan__badge {
+  padding: 0.15rem 0.75rem;
+  border-radius: var(--r-pill);
+  background: var(--butter);
+  color: var(--on-sun);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.plan__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-3);
+  margin: 0;
+}
+.plan__amount {
+  font-size: clamp(3rem, 2.4rem + 2.5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.plan__per {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+.plan__list {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.plan__list li {
+  display: grid;
+  grid-template-columns: 1.375rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--s-3);
+  font-size: var(--fs-md);
+  line-height: 1.45;
+}
+.plan__check {
+  display: grid;
+  place-items: center;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+  margin-block-start: 0.05rem;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--on-sun);
+}
+.plan__cta {
+  justify-self: stretch;
+}
+.plan__later {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--meta);
+  text-align: center;
+}
+.plan__note {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  rotate: -3deg;
+}
+.plan__star {
+  inline-size: 1.5rem;
+  flex: none;
+}
+/* Wide screens: the aside sits beside the card, like a note pinned next to it. */
+@media (min-width: 60rem) {
+  .plan__note {
+    position: absolute;
+    inset-block-start: 2rem;
+    inset-inline-start: calc(50% + 15rem);
+    max-inline-size: 12rem;
+    rotate: 6deg;
+  }
+}
+
+/* ---------- Vertical transitions: each section rises into place as it scrolls in, then stays. Transform only (the
+   text keeps its contrast while it moves), driven by the scroll itself, so nothing waits on a timer. Browsers
+   without scroll-driven animations simply show the sections in place. ---------- */
+@supports (animation-timeline: view()) {
+  .site[data-motion='on']:not(.is-still) main > .strip,
+  .site[data-motion='on']:not(.is-still) .footer {
+    animation: rise-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
+@keyframes rise-in {
+  from {
+    translate: 0 4rem;
+  }
+  to {
+    translate: 0 0;
   }
 }
 

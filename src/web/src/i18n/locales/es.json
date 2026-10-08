@@ -54,8 +54,7 @@
     },
     "hero": {
       "scene": "Tu círculo, juntos y en vivo.",
-      "live": "En vivo",
-      "build": "Di lo que tu círculo necesita. circloo lo deja listo."
+      "live": "En vivo"
     },
     "say": {
       "label": "¿Para qué es?",
@@ -164,12 +163,12 @@
         "say": {
           "title": "Dilo en una línea",
           "body": "Cuéntale a circloo para quién es y qué quieres hacer. Le pone nombre al círculo y elige las primeras rondas.",
-          "link": "Probar una línea"
+          "link": "Crea tu círculo"
         },
         "share": {
           "title": "Comparte el enlace o el código",
           "body": "Envía un enlace o lee un código corto. Cada persona entra con su nombre y un personaje, sin correo.",
-          "link": "Ver la vista previa"
+          "link": "Mira cómo se entra"
         },
         "play": {
           "title": "A jugar juntos",
@@ -177,6 +176,24 @@
           "link": "Ver las rondas"
         }
       }
+    },
+    "plan": {
+      "title": "Un solo plan, gratis por ahora",
+      "lead": "circloo está en acceso anticipado. Todo lo que funciona hoy es tuyo, sin coste.",
+      "name": "Gratis",
+      "badge": "Por ahora",
+      "price": "0",
+      "per": "sin tarjeta, sin periodo de prueba",
+      "items": [
+        "Círculos y miembros ilimitados",
+        "Todas las rondas: rompehielos, tableros, encuestas y presentaciones",
+        "Inglés, francés, árabe y español",
+        "Se entra con un enlace o un código, sin contraseña",
+        "Privado por defecto, sin anuncios"
+      ],
+      "cta": "Empezar gratis",
+      "later": "Si algún día llega un plan de pago, lo sabrás mucho antes de cualquier cargo.",
+      "note": "gratis mientras lo construimos"
     },
     "story": {
       "title": "Mira cómo cobra vida un círculo",
@@ -318,7 +335,8 @@
         "rounds": "Rondas",
         "icebreakers": "Rompehielos",
         "how": "Cómo funciona",
-        "faq": "Preguntas"
+        "faq": "Preguntas",
+        "free": "Plan gratuito"
       },
       "languages": "Idiomas",
       "made1": "Hecho con",

@@ -7,7 +7,7 @@ const axe = async (page: import('@playwright/test').Page) => {
   expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([])
 }
 
-test('the landing composes a circle from one line and hands it to the new-circle page (#247)', async ({ page }, info) => {
+test('the landing shows a live board, the story, the jobs, the free plan and the FAQ (#250)', async ({ page }, info) => {
   const locale = localeOf(info)
   await page.goto('/')
   await pickLanguage(page, locale)
@@ -17,28 +17,9 @@ test('the landing composes a circle from one line and hands it to the new-circle
   // No horizontal overflow, whatever the width.
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true)
 
-  // The page is still before anyone touches it: axe on the resting hero.
+  // The hero is a live board; it plays on its own and is decorative for screen readers.
+  await expect(page.locator('.scene')).toHaveAttribute('aria-hidden', 'true')
   await axe(page)
-
-  // Tapping an example composes: name, seats, activity chips, the language, Pirikoo's line, then the buttons.
-  const made = page.locator('.made')
-  const example = page.locator('.say__example').first()
-  const line = (await example.textContent()) ?? ''
-  await example.click()
-  await expect(page.locator('.say__field').first()).toHaveValue(line)
-  await expect(made).toHaveClass(/is-done/, { timeout: 8000 })
-  await expect(made.locator('.made__seat.is-in')).toHaveCount(6)
-  await expect(made.locator('.made__chip')).toHaveCount(3) // two activities and the language
-  await expect(made.locator('.made__chip--lang')).toHaveText('Français')
-  await expect(made.locator('.made__say-text')).not.toBeEmpty()
-  await expect(page.getByRole('status').filter({ hasText: /Preview|معاينة/ })).toHaveCount(1)
-  await axe(page)
-
-  // A new line cancels the run and composes again.
-  const third = (await page.locator('.say__example').nth(2).textContent()) ?? ''
-  await page.locator('.say__example').nth(2).click()
-  await expect(made).toHaveClass(/is-done/, { timeout: 8000 })
-  await expect(made.locator('.made__seat.is-in')).toHaveCount(5)
 
   // Chapters: the player swaps the clip, lazily and in the visitor's language.
   const video = page.locator('.film__video')
@@ -56,27 +37,25 @@ test('the landing composes a circle from one line and hands it to the new-circle
   await expect(pause).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.site')).toHaveClass(/is-still/)
 
-  // The FAQ opens, the jobs rows are there, axe once more with everything on screen.
-  await page.locator('.faqrow').nth(1).locator('summary').click()
+  // The jobs, the free plan and the FAQ; axe once more with everything on screen.
   await expect(page.locator('.job')).toHaveCount(3)
+  await expect(page.locator('#free .plan__card')).toBeVisible()
+  await page.locator('.faqrow').nth(1).locator('summary').click()
   await axe(page)
 
-  // "Create this circle" carries the line to sign-in and on to the new-circle page.
-  await page.locator('.made .btn--primary').click()
-  await expect(page).toHaveURL(/\/signin\?returnTo=%2Fapp%2Fcircles%2Fnew$/)
-  expect(await page.evaluate(() => sessionStorage.getItem('circloo-circle-prompt'))).toBe(third)
+  // The plan's button goes to sign-in.
+  await page.locator('#free .plan__cta').click()
+  await expect(page).toHaveURL(/\/signin/)
 })
 
-test('the line from the landing fills the new-circle form, and By hand stays plain (#247)', async ({ page }, info) => {
+test('a line kept for the new-circle page fills the form after sign-up, and By hand stays plain (#247)', async ({ page }, info) => {
   const locale = localeOf(info)
+  const line = locale === 'ar' ? 'مراجعة لفريقي المكوّن من 6 أشخاص، بالفرنسية' : 'A retro for my team of 6, in French'
   await page.goto('/')
   await pickLanguage(page, locale)
-  const example = page.locator('.say__example').first()
-  const line = (await example.textContent()) ?? ''
-  await example.click()
-  await expect(page.locator('.made')).toHaveClass(/is-done/, { timeout: 8000 })
-  await page.locator('.made .btn--primary').click()
-  await expect(page).toHaveURL(/\/signin/)
+  // The kept line is how the site hands a description to the new-circle page.
+  await page.evaluate((l) => sessionStorage.setItem('circloo-circle-prompt', l), line)
+  await page.goto('/signin?returnTo=%2Fapp%2Fcircles%2Fnew')
 
   // Sign up through the real email code; the return path lands on the new-circle page.
   const email = `e2e-landing-${locale}-${Date.now()}@example.test`
@@ -105,19 +84,13 @@ test('the line from the landing fills the new-circle form, and By hand stays pla
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
 
-  test('the landing stays still, composes at once, can be played, and remembers the choice', async ({ page }) => {
+  test('the landing stays still, can be played, and remembers the choice', async ({ page }) => {
     await page.goto('/')
     const site = page.locator('.site')
     await expect(site).toHaveAttribute('data-motion', 'off')
-    // No auto-demo: the resting hero stays.
-    await page.waitForTimeout(1800)
-    await expect(page.locator('.made')).not.toHaveClass(/is-on/)
-    // The page's own language (ar-MA on the phone project, en-GB on the desktop one) drives the labels below.
-
-    // A tap composes without the sequence: everything is there at once.
-    await page.locator('.say__example').first().click()
-    await expect(page.locator('.made')).toHaveClass(/is-done/)
-    await expect(page.locator('.made__seat.is-in')).toHaveCount(6)
+    // The board rests on its finished moment: nothing runs.
+    await page.waitForTimeout(1200)
+    expect(await page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(false)
 
     // The clip stays on its poster and plays only on request.
     const video = page.locator('.film__video')
@@ -131,6 +104,7 @@ test.describe('reduced motion', () => {
     await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true)
 
     // One control, whose label says what a press does; the pause control joins it once motion runs.
+    await page.evaluate(() => window.scrollTo(0, 0))
     const play = page.locator('.hero__motion .motion-optin')
     await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(1)
     await expect(play).toHaveText(/Play animations|تشغيل الحركات/)
@@ -142,11 +116,9 @@ test.describe('reduced motion', () => {
     await expect(page.locator('.hero__motion .motion-toggle')).toHaveCount(2)
     await expect.poll(() => page.evaluate(() => document.getAnimations().some((a) => a.playState === 'running'))).toBe(true)
 
-    // Pause stops everything (#236): a fresh line composes at once instead of playing.
+    // Pause stops everything (#236).
     await page.locator('.hero__motion .motion-toggle').first().click()
     await expect(site).toHaveClass(/is-still/)
-    await page.locator('.say__example').nth(1).click()
-    await expect(page.locator('.made')).toHaveClass(/is-done/)
 
     // The choice survives a reload, and going back to the system setting stills the page again.
     await page.reload()
