@@ -158,10 +158,12 @@
           "body": "Not sure where something is? Ask Pirikoo the parakeet in your language and get a short, clear answer.",
           "video": "Silent video. Someone asks Pirikoo how to invite people; the parakeet writes, then answers step by step."
         }
-      }
+      },
+      "eyebrow": "How it works"
     },
     "jobs": {
-      "title": "What a circle does"
+      "title": "What a circle does",
+      "go": "Get started"
     },
     "feel": {
       "title": "Feel together",
@@ -175,7 +177,23 @@
       },
       "weather": "Circle weather: mostly bright, one person needs coffee.",
       "tryIt": "Try it: how do you feel?",
-      "faceSays": "circloo feels {{mood}} too."
+      "faceSays": "circloo feels {{mood}} too.",
+      "eyebrow": "Daily check-in",
+      "intro": "One tap in the morning tells your circle how you are. Words and faces, never just colours.",
+      "points": [
+        {
+          "title": "Five skies, one tap",
+          "body": "From stormy to sunny, always with the word and the face beside it."
+        },
+        {
+          "title": "A note if you want",
+          "body": "Add a line or a small need. Nothing is required."
+        },
+        {
+          "title": "The circle's weather",
+          "body": "Everyone sees how the circle is today, said in words."
+        }
+      ]
     },
     "work": {
       "title": "Work together",
@@ -193,15 +211,48 @@
         "Shorter stand-ups"
       ],
       "votes_one": "{{count}} vote",
-      "votes_other": "{{count}} votes"
+      "votes_other": "{{count}} votes",
+      "eyebrow": "Boards and whiteboard",
+      "intro": "Live boards for brainstorms, retros and decisions, on a phone or on the big screen.",
+      "points": [
+        {
+          "title": "Notes, columns, votes",
+          "body": "Stick notes, drag them into columns and vote with dots. The favourite rises."
+        },
+        {
+          "title": "A whiteboard with everyone on it",
+          "body": "Each friend's cursor moves with their character. Draw, stick, star."
+        },
+        {
+          "title": "Presentations, polls and quizzes",
+          "body": "Run a slide round, ask the room and watch the answers land live."
+        }
+      ]
     },
     "fun": {
       "title": "Have fun together",
-      "body": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine. Want more? Ask circloo for fresh ones that fit your circle, checked for kindness."
+      "body": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine. Want more? Ask circloo for fresh ones that fit your circle, checked for kindness.",
+      "eyebrow": "Icebreakers",
+      "intro": "Icebreakers, riddles and jokes written by people in each language, never translated by a machine.",
+      "points": [
+        {
+          "title": "Written in each language",
+          "body": "English, French, Arabic and Spanish, each with its own humour."
+        },
+        {
+          "title": "Kids-safe when you want it",
+          "body": "One tag keeps family rounds gentle."
+        },
+        {
+          "title": "Fresh ones from Pirikoo",
+          "body": "Ask for new rounds that fit your circle, checked for kindness and labelled as AI."
+        }
+      ]
     },
     "tongues": {
       "label": "Four languages",
-      "line": "Arabic runs right-to-left as a first-class layout. Jokes are written in each language by people, never translated by a machine."
+      "line": "Arabic runs right-to-left as a first-class layout. Jokes are written in each language by people, never translated by a machine.",
+      "eyebrow": "Four languages, one layout"
     },
     "integrations": {
       "title": "Plugs into your week",
@@ -214,7 +265,8 @@
         "notion": "Send boards and notes to your workspace"
       },
       "stamp": "Coming soon",
-      "available": "Available"
+      "available": "Available",
+      "eyebrow": "Plugs into your week"
     },
     "free": {
       "title": "Free while we build it",
@@ -248,7 +300,8 @@
           "q": "Which languages does it speak?",
           "a": "English, French, Arabic (with a full right-to-left layout) and Spanish. Jokes are written natively in each, never translated literally."
         }
-      ]
+      ],
+      "eyebrow": "FAQ"
     },
     "final": {
       "title": "One line is enough.",
@@ -259,20 +312,27 @@
       "made": "Made for families, friends and teams in four languages.",
       "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence and Notion are trademarks of their owners. circloo is not affiliated with them.",
       "label": "Footer",
-      "links": [
-        {
-          "label": "How it works",
-          "href": "#story"
-        },
-        {
-          "label": "FAQ",
-          "href": "#faq"
-        },
-        {
-          "label": "Sign in",
-          "href": "/signin"
-        }
-      ]
+      "product": {
+        "title": "Product",
+        "story": "How it works",
+        "integrations": "Integrations",
+        "free": "Free",
+        "faq": "FAQ"
+      },
+      "features": {
+        "title": "Features",
+        "icebreakers": "Icebreakers",
+        "boards": "Boards and whiteboard",
+        "presentations": "Presentations",
+        "checkin": "Daily check-in"
+      },
+      "languages": "Languages",
+      "account": {
+        "title": "Account",
+        "signIn": "Sign in",
+        "start": "Start your circle"
+      },
+      "top": "Back to top"
     },
     "teaser": {
       "title": "Today's icebreaker",
@@ -287,6 +347,82 @@
       "title": "circloo in 20 seconds",
       "lead": "A circle forms, circloo runs an icebreaker, the team decides on a live board, and the results go to Teams, Jira or Notion.",
       "description": "Silent video. The circloo face smiles; eight friends join a circle as characters; circloo asks a question and two people answer; notes and votes fill a Start, Stop, Continue board; results are sent to Teams, Jira and Notion; Pirikoo the parakeet lands next to the face."
+    },
+    "flag": {
+      "badge": "Introducing Pirikoo",
+      "title1": "Say it once.",
+      "title2": "sets up the round.",
+      "body": "Pirikoo turns one line into a plan the person checks: the name, the people, the first rounds. Nothing runs until you say so.",
+      "how": "See how it works",
+      "stats": {
+        "characters": "characters to pick from",
+        "languages": "languages, Arabic right to left",
+        "rounds": "kinds of rounds",
+        "passwords": "passwords"
+      },
+      "join": "Join by link or code, no email needed",
+      "private": "Private by default, no ads"
+    },
+    "who": {
+      "eyebrow": "Who it is for",
+      "title": "One space for every circle you belong to",
+      "lead": "The same room works for a family on Sunday, friends on game night and a team on Monday morning.",
+      "roles": {
+        "families": {
+          "title": "Families",
+          "body": "Sunday lunch plans, a silly round for the kids and a place to say how the week went."
+        },
+        "friends": {
+          "title": "Friends",
+          "body": "Game night with jokes, would-you-rather and a quick vote on where to go next."
+        },
+        "teams": {
+          "title": "Teams",
+          "body": "A check-in in the morning, an icebreaker before the meeting, a retro on a live board."
+        }
+      }
+    },
+    "sso": {
+      "title": "Your company's own login",
+      "body": "Single sign-on with Entra ID, Google Workspace, Okta or any OIDC or SAML provider is planned. It is set up through configuration, never custom code.",
+      "cta": "Read how"
+    },
+    "caps": {
+      "eyebrow": "Four promises",
+      "title": "Built to be trusted by the whole circle",
+      "lead": "The things that stay true whatever your circle does.",
+      "items": {
+        "private": {
+          "title": "Private by default",
+          "body": "Only members and the people you invite see a circle. No ads, ever."
+        },
+        "languages": {
+          "title": "Four languages and RTL",
+          "body": "English, French, Arabic and Spanish. Arabic runs right to left as a first-class layout."
+        },
+        "kids": {
+          "title": "Kids-safe content",
+          "body": "Jokes and icebreakers are written by people and tagged, so family rounds stay gentle."
+        },
+        "week": {
+          "title": "Plugs into your week",
+          "body": "What a circle decides goes to Teams, Jira, Confluence or Notion in one click."
+        }
+      }
+    },
+    "invite": {
+      "eyebrow": "Inviting",
+      "title": "Invite in one line",
+      "lead": "Send a link or read out a short code. People join with a first name and a character, no email needed.",
+      "ways": "Ways to invite",
+      "link": "Link",
+      "code": "Code",
+      "windowTab": "Invite",
+      "example": "Example",
+      "linkHint": "Send this link to the people you want in.",
+      "codeHint": "Or read out the code. It works on the join page.",
+      "copy": "Copy",
+      "copied": "Copied"
     }
   },
   "auth": {

@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { ArrowRight, Check, Pause, Play, Plus, Undo2, UserRound } from 'lucide-react'
+import { Pause, Play, Plus, Undo2, UserRound } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
-import { Wordmark } from '../../components/Brand'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { useUiStore } from '../../stores/ui'
 import type { BirdMood } from '../pirikoo/Bird'
-import { INTEGRATIONS } from './integrations'
 import { useLandingMotion } from './motion'
 import { useStillMotion } from './useMotion'
 import { useCompose, type Words } from './useCompose'
@@ -18,6 +16,14 @@ import { Say } from './Say'
 import { Arrow, Made } from './Made'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
+import { Band } from './Band'
+import { StillContext } from './still'
+import { Flagship, Tongues } from './Flagship'
+import { Solutions } from './Solutions'
+import { Capabilities } from './Capabilities'
+import { Plugs } from './Plugs'
+import { Invite } from './Invite'
+import { Footer } from './Footer'
 import '../../styles/landing.css'
 
 const AUTO_DEMO_MS = 1200
@@ -49,9 +55,10 @@ const Props = () => (
 
 /**
  * The landing (issue #247, buddy list #250): the prompt is the product. One line composes a circle in front of the
- * visitor on a cobalt field, then the story clips, the three jobs shown by the real thing, the four languages, the
- * integrations, the free plan, the FAQ and one more line, all on white. Mobile first; every animation has a still
- * path and a pause.
+ * visitor on a cobalt field; under it the page runs in bands, white and dark in turn: the four languages, Pirikoo
+ * with the facts, the story, the three jobs shown by the real thing, who it is for with the free plan, the four
+ * promises, the integrations, the invite line, the FAQ, one more line and the footer. Mobile first; every animation
+ * has a still path and a pause.
  */
 export function Landing() {
   const { t, i18n } = useTranslation()
@@ -107,10 +114,7 @@ export function Landing() {
   }
 
   const facts = t('landing.hero.facts', { returnObjects: true }) as string[]
-  const free = t('landing.free.facts', { returnObjects: true }) as string[]
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
-  const links = t('landing.footer.links', { returnObjects: true }) as { label: string; href: string }[]
-  const arrow = <ArrowRight className="flip-rtl" size={18} strokeWidth={2.25} />
 
   return (
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
@@ -170,104 +174,54 @@ export function Landing() {
           <Props />
         </section>
 
-        <Player still={motion.still} />
+        <StillContext.Provider value={motion.still}>
+          <Tongues />
+          <Flagship />
+          <Player still={motion.still} />
+          <Jobs motion={playing} />
+          <Solutions />
+          <Capabilities />
+          <Plugs />
+          <Invite />
 
-        <Jobs motion={playing} />
-
-        <section className="tongues" aria-label={t('landing.tongues.label')}>
-          <ul className="tongues__list">
-            <li lang="en">English</li>
-            <li lang="fr">français</li>
-            <li lang="ar" dir="rtl">العربية</li>
-            <li lang="es">español</li>
-          </ul>
-          <p className="tongues__line">{t('landing.tongues.line')}</p>
-        </section>
-
-        <section id="integrations" className="plugs" aria-labelledby="plugs-title">
-          <div className="plugs__inner">
-            <div className="panel panel--dark plugs__card">
-              <div className="panel__head">
-                <h2 id="plugs-title" className="panel__title">{t('landing.integrations.title')}</h2>
+          <Band id="faq" className="faq" labelledBy="faq-title">
+            <div className="faq__inner">
+              <div className="band__head-copy">
+                <p className="eyebrow">{t('landing.faq.eyebrow')}</p>
+                <h2 id="faq-title" className="band__title">{t('landing.faq.title')}</h2>
               </div>
-              <div className="panel__body">
-                <p className="plugs__lead">{t('landing.integrations.body')}</p>
-                <ul className="plugs__list">
-                  {INTEGRATIONS.map((p) => (
-                    <li key={p.id} className="buddy plug">
-                      <span className="buddy__char plug__logos" aria-hidden="true">
-                        {p.logos.map((l) => <img key={l} className="plug__logo" src={`/brands/${l}.svg`} alt="" width="44" height="44" />)}
-                      </span>
-                      <span className="buddy__name plug__name" lang="en" dir="ltr">{p.name}</span>
-                      <span className="buddy__status plug__what">{t(`landing.integrations.items.${p.id}`)}</span>
-                      <span className="buddy__value plug__status">
-                        {p.id === 'salesforce'
-                          ? <span className="lozenge">{t('landing.integrations.stamp')}</span>
-                          : <span className="lozenge lozenge--success">{t('landing.integrations.available')}</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="faq__list">
+                {faq.map((f, i) => (
+                  <details key={f.q} className="faqrow" name="faq" open={i === 0}>
+                    <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span></summary>
+                    <div className="faqrow__body"><p>{f.a}</p></div>
+                  </details>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
+          </Band>
 
-        <section id="free" className="free" aria-labelledby="free-title">
-          <div className="free__inner">
-            <h2 id="free-title" className="section-title">{t('landing.free.title')}</h2>
-            <ul className="free__facts">
-              {free.map((f) => <li key={f}><Check size={20} strokeWidth={2.5} aria-hidden="true" /> {f}</li>)}
-            </ul>
-            <ButtonLink to="/signin" size="lg" icon={arrow}>{t('landing.free.cta')}</ButtonLink>
-          </div>
-        </section>
-
-        <section id="faq" className="faq" aria-labelledby="faq-title">
-          <div className="faq__inner">
-            <h2 id="faq-title" className="section-title">{t('landing.faq.title')}</h2>
-            <div className="faq__list">
-              {faq.map((f, i) => (
-                <details key={f.q} className="faqrow" name="faq" open={i === 0}>
-                  <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span></summary>
-                  <div className="faqrow__body"><p>{f.a}</p></div>
-                </details>
-              ))}
+          <Band tone="dark" className="again" labelledBy="again-title">
+            <div className="again__inner">
+              <h2 id="again-title" className="again__title">{t('landing.final.title')}</h2>
+              <p className="again__lead">{t('landing.final.body')}</p>
+              <Say
+                compact
+                text={text}
+                onText={setText}
+                onBuild={(line) => {
+                  build(line)
+                  document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'center' })
+                }}
+                onTouch={() => { touched.current = true }}
+                mood={mood}
+              />
             </div>
-          </div>
-        </section>
-
-        <section className="again" aria-labelledby="again-title">
-          <div className="again__inner">
-            <h2 id="again-title" className="again__title">{t('landing.final.title')}</h2>
-            <p className="again__lead">{t('landing.final.body')}</p>
-            <Say
-              compact
-              text={text}
-              onText={setText}
-              onBuild={(line) => {
-                build(line)
-                document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'center' })
-              }}
-              onTouch={() => { touched.current = true }}
-              mood={mood}
-            />
-          </div>
-        </section>
+          </Band>
+        </StillContext.Provider>
       </main>
 
-      <footer className="footer">
-        <div className="footer__inner">
-          <div className="footer__row">
-            <Wordmark />
-            <nav className="footer__links" aria-label={t('landing.footer.label')}>
-              {links.map((l) => (l.href.startsWith('/') ? <Link key={l.label} to={l.href} viewTransition>{l.label}</Link> : <a key={l.label} href={l.href}>{l.label}</a>))}
-            </nav>
-          </div>
-          <p>{t('landing.footer.made')} {t('landing.footer.private')}</p>
-          <p className="footer__legal">{t('landing.footer.trademarks')}</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

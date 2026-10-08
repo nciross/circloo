@@ -1,10 +1,10 @@
 /* Landing (issue #247, buddy list #250): the prompt is the product. Mobile first. The hero is a saturated cobalt field
    in both themes: white type, a hand-drawn yellow stroke under the title, the Say console as a white pill with a yellow
    Build pill inside, and the circle composing itself as a round table seen from above, with the cast on its seats, the
-   name on a sticky note and Pirikoo's line on a notepad peeking in from the edge. Everything under the fold is the
-   app's white canvas: heavy type, outlined pills, one dark card (the integrations). Motion lives in one focal sequence
-   (the composition), a slow float and a few one-shot entrances; `.site[data-motion='off']` and `.site.is-still` keep
-   the page still. */
+   name on a sticky note and Pirikoo's line on a notepad peeking in from the edge. Under the fold the page runs in
+   bands, white and dark in turn (the band rules are at the end of this file): heavy type, outlined pills, one cerise
+   object per dark band. Motion lives in one focal sequence (the composition), a slow float and a few one-shot
+   entrances on transform; `.site[data-motion='off']` and `.site.is-still` keep the page still. */
 .site {
   background: var(--ground);
   color: var(--ink);
@@ -897,28 +897,389 @@
   }
 }
 
-/* ---------- The film: one player, six chapters as pills ---------- */
-.film {
-  padding-block: var(--s-9);
+/* ---------- Bands: the page under the fold runs in full-bleed bands, white and dark in turn (#250) ----------
+   A dark band is the canvas turned over: `--ink` fills it and `--on-ink` writes on it. Inside its column the canvas
+   tokens are swapped (ink for on-ink, wells and lines as mixes of the two), so every shared piece (outlined pills,
+   panels, lozenges, the Say box) reads right without a second set of rules, in both themes. The one focal object of a
+   dark band keeps `--card`. */
+.band {
+  padding-block: clamp(6rem, 4.5rem + 4.5vw, 8.75rem);
   background: var(--ground);
+  color: var(--ink);
 }
-.film__inner {
-  display: grid;
-  gap: var(--s-6);
+.band--sunken {
+  background: var(--paper-sunken);
+}
+.band__inner {
   max-inline-size: var(--site-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
-.film__head {
+.band--dark,
+.footer {
+  --band: var(--ink);
+  --on-band: var(--on-ink);
+  background: var(--band);
+  color: var(--on-band);
+}
+.band--dark > .band__inner,
+.footer > .footer__inner {
+  --ink: var(--on-band);
+  --on-ink: var(--band);
+  --ink-soft: color-mix(in srgb, var(--on-band) 78%, var(--band));
+  --ink-faint: color-mix(in srgb, var(--on-band) 64%, var(--band));
+  --paper: var(--band);
+  --paper-sunken: color-mix(in srgb, var(--on-band) 6%, var(--band));
+  --paper-hover: color-mix(in srgb, var(--on-band) 10%, var(--band));
+  --paper-pressed: color-mix(in srgb, var(--on-band) 14%, var(--band));
+  --hairline: color-mix(in srgb, var(--on-band) 12%, var(--band));
+  --hairline-strong: color-mix(in srgb, var(--on-band) 24%, var(--band));
+  --neutral-subtle: color-mix(in srgb, var(--on-band) 10%, var(--band));
+  --neutral-text: color-mix(in srgb, var(--on-band) 78%, var(--band));
+  color: var(--ink);
+}
+/* Outlined pills on a dark band: a white outline, a translucent white on hover. */
+.band--dark .btn--default {
+  --btn-fg: var(--on-band);
+  --btn-ring: var(--on-band);
+  --btn-bg-hover: color-mix(in srgb, var(--on-band) 10%, var(--band));
+  --btn-bg-active: color-mix(in srgb, var(--on-band) 16%, var(--band));
+}
+
+/* ---------- The ladder every band opens with: eyebrow, headline, one line ---------- */
+.eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.eyebrow--center {
+  text-align: center;
+}
+:lang(ar) .eyebrow {
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.band__title {
+  font-size: clamp(1.875rem, 1.35rem + 2.1vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.band__title--xl {
+  font-size: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+.band__title--sm {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+}
+.band__lead {
+  max-inline-size: 52ch;
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.band__lead--center {
+  margin-inline: auto;
+  text-align: center;
+}
+.band__head {
+  display: grid;
+  gap: var(--s-4);
+  margin-block-end: var(--s-8);
+}
+.band__head-copy {
   display: grid;
   gap: var(--s-3);
+}
+.band__head--center {
+  justify-items: center;
+  text-align: center;
+}
+@media (min-width: 60rem) {
+  .band__head--split {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: end;
+    column-gap: var(--s-9);
+  }
+  .band__head--split .band__lead {
+    justify-self: end;
+  }
+}
+:lang(ar) .band__title,
+:lang(ar) .band__title--xl {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+/* ---------- 1. Four languages, set large, in one row ---------- */
+.tongues .band__inner {
+  display: grid;
+  gap: var(--s-5);
+  text-align: center;
+}
+.tongues__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2) var(--s-7);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: clamp(2.25rem, 1rem + 5vw, 5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.tongues__list li[lang='ar'] {
+  letter-spacing: 0;
+}
+.tongues__line {
+  max-inline-size: 48ch;
+  margin-inline: auto;
+  font-size: var(--fs-lg);
+  color: var(--ink-soft);
+}
+@media (min-width: 60rem) {
+  .tongues__list {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+}
+
+/* ---------- 2. The flagship: Pirikoo introduced, the two calls, the facts as numbers ---------- */
+.flag__grid {
+  display: grid;
+  gap: var(--s-8);
+  align-items: center;
+}
+.flag__copy {
+  display: grid;
+  gap: var(--s-5);
+  justify-items: start;
+  max-inline-size: 36rem;
+}
+.flag__badge {
+  gap: 0.45rem;
+  padding-inline: 0.45rem 0.9rem;
+  font-size: 0.75rem;
+  line-height: 2rem;
+}
+.flag__bird {
+  inline-size: 1.25rem;
+  block-size: 1.4rem;
+}
+.flag__name {
+  color: var(--beam-text);
+}
+.flag__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.flag__stats {
+  gap: var(--s-6);
+  padding: var(--s-6);
+  border-radius: var(--r-xl);
+}
+.flag__numbers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-6) var(--s-5);
+  margin: 0;
+}
+.flag__stat {
+  display: grid;
+  gap: var(--s-1);
+}
+.flag__n {
+  order: -1;
+  margin: 0;
+  font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.flag__what {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.flag__more {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+  padding: var(--s-5) 0 0;
+  border-block-start: 2px solid var(--hairline);
+  list-style: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.flag__more li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.flag__more svg {
+  flex: none;
+  color: var(--beam-text);
+}
+@media (min-width: 60rem) {
+  .flag__grid {
+    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+    gap: var(--s-10);
+  }
+  .flag__stats {
+    padding: var(--s-7);
+  }
+}
+
+/* ---------- 3. The film: a dark band, the chapters as a list at the start, the clip in a frame at the end ---------- */
+.film__grid {
+  display: grid;
+  gap: var(--s-7);
+  align-items: start;
+}
+.film__side {
+  display: grid;
+  gap: var(--s-6);
+}
+.film__chapters {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--hairline);
+}
+.film__chapter {
+  border-block-end: 1px solid var(--hairline);
+}
+/* The open chapter reads by its cerise eyebrow and the dot before it, and by the bar that runs with the clip. */
+.film__chapter.is-open .film__label {
+  color: var(--beam-text);
+}
+.film__chapter.is-open .film__label::before {
+  content: '';
+  display: inline-block;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  margin-inline-end: 0.5rem;
+  border-radius: var(--r-ring);
+  background: var(--beam);
+  vertical-align: middle;
+}
+.film__pick {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  inline-size: 100%;
+  padding-block: var(--s-4);
+  padding-inline: var(--s-5) var(--s-4);
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-state),
+    color var(--dur-state);
+}
+.film__pick:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+.film__pick[aria-current='true'] {
+  padding-block-end: var(--s-2);
+  color: var(--ink);
+}
+.film__pick:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.film__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+:lang(ar) .film__label {
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.film__index {
+  font-variant-numeric: tabular-nums;
+}
+.film__line {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+:lang(ar) .film__line {
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+/* The clip's time runs down the open chapter's edge, in white over the cerise. */
+.film__bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -3px;
+  display: block;
+  inline-size: 3px;
+  overflow: hidden;
+}
+.film__bar > span {
+  display: block;
+  block-size: 100%;
+  background: var(--ink);
+  transform-origin: 50% 0;
+  transform: scaleY(var(--p, 0));
+  transition: transform 260ms linear;
+}
+.film__body {
+  margin: 0;
+  padding-block: 0 var(--s-5);
+  padding-inline: var(--s-5) var(--s-4);
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--ink-soft);
 }
 .film__stage {
   position: relative;
   overflow: hidden;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--hairline);
   border-radius: var(--r-xl);
   background: var(--paper-sunken);
+}
+.film__chrome {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-block-end: 1px solid var(--hairline);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+.film__dot {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: var(--hairline-strong);
+}
+.film__chrome-title {
+  margin-inline-start: var(--s-2);
 }
 .film__video {
   display: block;
@@ -929,124 +1290,34 @@
 }
 .film__toggle {
   position: absolute;
+  z-index: 2;
   inset-block-end: var(--s-4);
   inset-inline-end: var(--s-4);
   display: grid;
   place-items: center;
   inline-size: 2.75rem;
   block-size: 2.75rem;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--on-band);
   border-radius: var(--r-ring);
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--on-band);
+  color: var(--band);
   cursor: pointer;
   transition:
     background-color var(--dur-state),
     transform var(--dur-move) var(--ease-settle);
 }
 .film__toggle:hover {
-  background: var(--paper-sunken);
-  transform: scale(1.03);
+  transform: scale(1.06);
 }
 .film__toggle:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-/* The chapters: outlined pills, the chosen one filled with ink; the clip's time runs along its bottom edge. */
-.film__chapters {
-  display: flex;
-  gap: var(--s-2);
-  margin-inline: calc(-1 * var(--gutter));
-  padding-inline: var(--gutter);
-  padding-block-end: var(--s-1);
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-}
-.film__chapter {
-  flex: none;
-}
-.film__pick {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-block-size: 2.75rem;
-  padding: 0.4rem 1.1rem;
-  border: 2px solid var(--ink);
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: pointer;
-  scroll-snap-align: start;
-  transition:
-    background-color var(--dur-state),
-    color var(--dur-state),
-    transform var(--dur-move) var(--ease-settle);
-}
-.film__pick:hover {
-  background: var(--paper-sunken);
-  transform: translateY(-1px) scale(1.02);
-}
-.film__pick[aria-current='true'] {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-.film__pick:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-.film__label {
-  font-size: inherit;
-  font-weight: inherit;
-}
-/* The chapter's line stays in the button's name; the paragraph under the pills tells it. */
-.film__line {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.film__bar {
-  position: absolute;
-  inset-block-end: 0;
-  inset-inline: 0.9rem;
-  display: block;
-  block-size: 3px;
-  overflow: hidden;
-  border-radius: var(--r-ring);
-}
-.film__bar > span {
-  display: block;
-  block-size: 100%;
-  background: var(--beam);
-  transform-origin: 0 50%;
-  transform: scaleX(var(--p, 0));
-  transition: transform 260ms linear;
-}
-:dir(rtl) .film__bar > span {
-  transform-origin: 100% 50%;
-}
-.film__body {
-  max-inline-size: 60ch;
-  font-size: var(--fs-lg);
-  color: var(--ink-soft);
-}
 @media (min-width: 60rem) {
-  .film {
-    padding-block: var(--s-10);
-  }
-  .film__chapters {
-    flex-wrap: wrap;
-    margin-inline: 0;
-    padding-inline: 0;
-    overflow: visible;
+  .film__grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--s-9);
+    align-items: center;
   }
 }
 @keyframes clip-in {
@@ -1055,38 +1326,86 @@
   }
 }
 
-/* ---------- Jobs: three rows, the real thing, sides alternating ---------- */
-.jobs {
+/* ---------- 4. Jobs: three rows, the real thing on a tinted panel, sides alternating ---------- */
+.jobs .band__inner {
   display: grid;
-  gap: var(--s-9);
-  max-inline-size: var(--site-max);
-  margin-inline: auto;
-  padding: var(--s-8) var(--gutter);
+  gap: clamp(4.5rem, 3rem + 6vw, 7.5rem);
 }
 .job {
   display: grid;
-  gap: var(--s-5);
+  gap: var(--s-6);
   align-items: center;
+  scroll-margin-block-start: var(--s-6);
 }
 .job__copy {
   display: grid;
-  gap: var(--s-4);
-  max-inline-size: 36rem;
+  gap: var(--s-5);
+  max-inline-size: 34rem;
+}
+.job__copy > * {
+  display: grid;
+  gap: var(--s-3);
 }
 .job__show {
   min-inline-size: 0;
 }
+.diagram {
+  padding: clamp(1rem, 0.5rem + 2.5vw, 2rem);
+  border-radius: var(--r-xl);
+  background: var(--beam-subtle);
+}
+.points {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.point {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  column-gap: var(--s-3);
+  row-gap: 0.15rem;
+}
+.point__icon {
+  grid-row: 1 / span 2;
+  margin-block-start: 0.1rem;
+  color: var(--beam-text);
+}
+.point__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.point__body {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.golink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-self: start;
+  min-block-size: 2.75rem;
+  font-weight: 700;
+  color: var(--beam-text);
+  text-decoration: none;
+  transition: gap var(--dur-state) var(--ease-settle);
+}
+.golink:hover {
+  gap: 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.golink:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: var(--r-xs);
+}
 @media (min-width: 60rem) {
-  .jobs {
-    gap: var(--s-10);
-    padding-block: var(--s-10);
-  }
   .job {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: var(--s-9);
-  }
-  .job--work {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
   }
   .job--work .job__copy {
     order: 2;
@@ -1339,153 +1658,528 @@
   }
 }
 
-/* ---------- Four languages, set large, in one row ---------- */
-.tongues {
-  max-inline-size: var(--site-max);
-  margin-inline: auto;
-  padding: var(--s-8) var(--gutter);
-  text-align: center;
+/* ---------- 5. Who it is for: three role cards with a cerise disc rising from the floor, then two banners ---------- */
+.roles {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0 0 var(--s-5);
+  padding: 0;
+  list-style: none;
 }
-.tongues__list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-2) var(--s-7);
-  font-size: clamp(2rem, 1rem + 4vw, 4.5rem);
+.role {
+  position: relative;
+  display: grid;
+  gap: var(--s-3);
+  align-content: start;
+  min-block-size: 18rem;
+  padding: var(--s-6);
+  overflow: hidden;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper-sunken);
+}
+.role__icon {
+  color: var(--ink);
+}
+.role__title {
+  font-size: var(--fs-xl);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
-.tongues__list li[lang='ar'] {
-  letter-spacing: 0;
-}
-.tongues__line {
-  max-inline-size: 48ch;
-  margin-block-start: var(--s-5);
-  margin-inline: auto;
-  font-size: var(--fs-lg);
+.role__body {
+  max-inline-size: 28ch;
+  font-size: var(--fs-md);
+  line-height: 1.5;
   color: var(--ink-soft);
 }
-@media (min-width: 60rem) {
-  .tongues {
-    padding-block: var(--s-9);
-  }
-  .tongues__list {
-    flex-wrap: nowrap;
-    justify-content: space-between;
-  }
+/* A flat cerise disc, most of it below the floor; the card clips it. */
+.role__disc {
+  position: absolute;
+  inset-block-start: 70%;
+  inset-inline-start: -15%;
+  inline-size: 130%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--beam);
+  pointer-events: none;
+  transition: translate var(--dur-focal) var(--ease-out);
 }
-
-/* ---------- Integrations: the one dark card under the fold, the tools as buddy rows ---------- */
-.plugs {
-  padding-block: var(--s-8);
-  background: var(--ground);
+.role:hover .role__disc {
+  translate: 0 -4%;
 }
-.plugs__inner {
-  max-inline-size: var(--site-max);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
-.plugs__card {
-  max-inline-size: 48rem;
-  margin-inline: auto;
-}
-.plugs__lead {
-  font-size: var(--fs-lg);
-  line-height: 1.5;
-  color: var(--on-card-soft);
-}
-.plugs__list {
+.banners {
   display: grid;
+  gap: var(--s-4);
 }
-.plug {
-  grid-template-columns: auto minmax(0, 1fr) auto;
-}
-.plug .buddy__name {
-  grid-column: 2;
-  grid-row: 1;
-}
-.plug .buddy__status {
-  grid-column: 2;
-  grid-row: 2;
-}
-.plug .buddy__value {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-}
-.plug__logos {
-  display: flex;
-  gap: var(--s-1);
-  inline-size: auto;
-}
-/* Brand marks keep their own white tile in both themes (--on-field is white in both). */
-.plug__logo {
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  padding: 0.4rem;
-  border-radius: var(--r-sm);
-  background: var(--on-field);
-  object-fit: contain;
-}
-@media (min-width: 60rem) {
-  .plugs {
-    padding-block: var(--s-9);
-  }
-}
-
-/* ---------- Free ---------- */
-.free {
-  padding: var(--s-8) var(--gutter);
-  background: var(--ground);
-}
-.free__inner {
+.banner {
   display: grid;
-  gap: var(--s-6);
-  justify-items: start;
-  max-inline-size: 44rem;
-  margin-inline: auto;
+  gap: var(--s-5);
+  align-items: center;
+  padding: var(--s-6);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--paper-sunken);
+  scroll-margin-block-start: var(--s-6);
+}
+.banner__icon {
+  color: var(--beam);
+}
+.banner__copy {
+  display: grid;
+  gap: var(--s-2);
+  min-inline-size: 0;
+}
+.banner__title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.banner__title--xl {
+  font-size: clamp(1.875rem, 1.35rem + 2.1vw, 2.75rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.banner__body {
+  max-inline-size: 60ch;
+  color: var(--ink-soft);
+}
+.banner__cta {
+  justify-self: start;
+}
+/* The free banner is the band's one cerise object. */
+.banner--free {
+  border: 0;
 }
 .free__facts {
   display: grid;
-  gap: var(--s-3);
-  font-size: var(--fs-lg);
-  color: var(--ink-soft);
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--on-card-soft);
 }
 .free__facts li {
   display: flex;
   align-items: flex-start;
-  gap: var(--s-3);
+  gap: var(--s-2);
 }
 .free__facts svg {
   flex: none;
-  margin-block-start: 0.25rem;
-  color: var(--ink);
+  margin-block-start: 0.15rem;
+  color: var(--on-card);
+}
+@media (min-width: 48rem) {
+  .roles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 60rem) {
+  .banner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: var(--s-7) var(--s-8);
+  }
+  .banner--free {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .banner__cta {
+    justify-self: end;
+  }
+}
+:lang(ar) .role__title,
+:lang(ar) .banner__title {
+  letter-spacing: 0;
+  line-height: 1.3;
 }
 
-/* ---------- FAQ: no boxes, rules between rows ---------- */
-.faq {
-  padding: var(--s-8) var(--gutter);
-  background: var(--ground);
-}
-.faq__inner {
+/* ---------- 6. Four promises, each with a small drawing in the one colour ---------- */
+.caps__grid {
   display: grid;
-  gap: var(--s-6);
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cap {
+  gap: var(--s-3);
+  padding: var(--s-5);
+  border-radius: var(--r-lg);
+}
+.cap__title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.cap__body {
+  max-inline-size: 42ch;
+  color: var(--ink-soft);
+}
+:lang(ar) .cap__title {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+.art {
+  position: relative;
+  block-size: 7.5rem;
+  margin-block-end: var(--s-2);
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--beam-subtle);
+}
+.art > * {
+  position: absolute;
+}
+/* Private: a locked card, a hidden line of dots, one full cerise bar. */
+.art__chip {
+  border: 2px solid var(--beam);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+}
+.art__chip--lock {
+  inset-block-start: 1.5rem;
+  inset-inline-start: 1.5rem;
+  inline-size: 3rem;
+  block-size: 2.25rem;
+}
+.art__chip--lock::before {
+  content: '';
+  position: absolute;
+  inset-block-start: -0.9rem;
+  inset-inline-start: 0.6rem;
+  inline-size: 1.4rem;
+  block-size: 1.4rem;
+  border: 2px solid var(--beam);
+  border-block-end: 0;
+  border-radius: 0.7rem 0.7rem 0 0;
+}
+.art__chip--lock::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0.6rem;
+  inset-inline-start: 1.1rem;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--beam);
+}
+.art__dots {
+  inset-block-start: 2.4rem;
+  inset-inline-start: 5.5rem;
+  display: flex;
+  gap: 0.4rem;
+}
+.art__dots i {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: var(--beam);
+}
+.art__chip--wide {
+  inset-block-start: 4.75rem;
+  inset-inline-start: 1.5rem;
+  inline-size: 55%;
+  block-size: 1.25rem;
+  border-color: var(--beam);
+  border-radius: var(--r-pill);
+  background: var(--beam);
+}
+/* Languages: two lines reading from the start, two from the end. */
+.art__line {
+  block-size: 0.75rem;
+  border-radius: var(--r-pill);
+  background: var(--beam);
+}
+.art__line--ltr {
+  inset-block-start: 1.5rem;
+  inset-inline-start: 1.5rem;
+  inline-size: 55%;
+}
+.art__line--ltr.art__line--short {
+  inset-block-start: 2.75rem;
+  inline-size: 32%;
+  border: 2px solid var(--beam);
+  background: var(--paper);
+}
+.art__line--rtl {
+  inset-block-start: 4.5rem;
+  inset-inline-end: 1.5rem;
+  inline-size: 55%;
+}
+.art__line--rtl.art__line--short {
+  inset-block-start: 5.75rem;
+  inline-size: 32%;
+  border: 2px solid var(--beam);
+  background: var(--paper);
+}
+/* Kids-safe: two cards dealt, one tag on them. */
+.art__card {
+  inset-block-start: 1.5rem;
+  inset-inline-start: 2rem;
+  inline-size: 4.25rem;
+  block-size: 5.5rem;
+  border: 2px solid var(--beam);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  rotate: -9deg;
+}
+.art__card--front {
+  inset-inline-start: 4.75rem;
+  rotate: 6deg;
+}
+.art__tag {
+  inset-block-start: 1.25rem;
+  inset-inline-end: 1.5rem;
+  inline-size: 3.5rem;
+  block-size: 1.5rem;
+  border-radius: var(--r-pill);
+  background: var(--beam);
+}
+/* Plugs into your week: one circle wired to three. */
+.art__node {
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border: 2px solid var(--beam);
+  border-radius: 50%;
+  background: var(--paper);
+}
+.art__node--a {
+  inset-block-start: 2.5rem;
+  inset-inline-start: 2rem;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  background: var(--beam);
+}
+.art__node--b {
+  inset-block-start: 1rem;
+  inset-inline-end: 2rem;
+}
+.art__node--c {
+  inset-block-start: 2.9rem;
+  inset-inline-end: 2rem;
+}
+.art__node--d {
+  inset-block-start: 4.8rem;
+  inset-inline-end: 2rem;
+}
+.art__wire {
+  inset-block-start: 3.65rem;
+  inset-inline-start: 4.5rem;
+  inset-inline-end: 3.75rem;
+  block-size: 3px;
+  border-radius: var(--r-pill);
+  background: var(--beam);
+}
+.art__wire::before,
+.art__wire::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0;
+  inline-size: 3px;
+  block-size: 1.9rem;
+  border-radius: var(--r-pill);
+  background: var(--beam);
+}
+.art__wire::before {
+  inset-block-end: 0;
+}
+.art__wire::after {
+  inset-block-start: 0;
+}
+@media (min-width: 48rem) {
+  .caps__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap {
+    padding: var(--s-6);
+  }
+}
+
+/* ---------- 7. Integrations: a centred strip of grey marks that take their colour on hover ---------- */
+.plugs__head {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: center;
+  margin-block-end: var(--s-8);
+  text-align: center;
+}
+.plugs__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-7) var(--s-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.plug {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  inline-size: 11rem;
+  text-align: center;
+}
+.plug__logos {
+  display: flex;
+  gap: var(--s-2);
+  margin-block-end: var(--s-2);
+  filter: grayscale(1);
+  opacity: 0.7;
+  transition:
+    filter var(--dur-move) var(--ease-out),
+    opacity var(--dur-move) var(--ease-out);
+}
+.plug:hover .plug__logos {
+  filter: none;
+  opacity: 1;
+}
+/* Brand marks keep their own white tile in both themes (--on-field is white in both). */
+.plug__logo {
+  inline-size: 3rem;
+  block-size: 3rem;
+  padding: 0.45rem;
+  border-radius: var(--r-sm);
+  background: var(--on-field);
+  object-fit: contain;
+}
+.plug__name {
+  font-weight: 700;
+}
+.plug__what {
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* ---------- 8. Invite in one line: a segmented control and the window that shows what gets sent ---------- */
+.inv__demo {
+  display: grid;
+  gap: var(--s-5);
+  justify-items: center;
   max-inline-size: 44rem;
   margin-inline: auto;
 }
+.seg {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
+}
+.seg__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-block-size: 2.5rem;
+  padding: 0.3rem 1.1rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-state),
+    color var(--dur-state);
+}
+.seg__tab:hover {
+  color: var(--ink);
+}
+.seg__tab[aria-selected='true'] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.seg__tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.win {
+  inline-size: 100%;
+  overflow: hidden;
+}
+.win__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-block-end: 1px solid var(--card-line);
+}
+.win__dots {
+  display: flex;
+  gap: 0.4rem;
+}
+.win__dots i {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: var(--card-line);
+}
+.win__tab {
+  padding: 0.2rem 0.75rem;
+  border-radius: var(--r-pill);
+  background: var(--card-sunken);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--on-card-soft);
+}
+.win__example {
+  margin-inline-start: auto;
+}
+.win__body {
+  display: grid;
+  gap: var(--s-4);
+  justify-items: start;
+  padding: var(--s-6);
+}
+.win__hint {
+  font-size: var(--fs-sm);
+  color: var(--on-card-soft);
+}
+.win__value {
+  font-size: clamp(1.5rem, 1rem + 2.4vw, 2.5rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.win__value--code {
+  font-size: clamp(2.75rem, 1.5rem + 5vw, 4.5rem);
+  letter-spacing: 0.1em;
+}
+@media (min-width: 40rem) {
+  .win__body {
+    padding: var(--s-7);
+  }
+}
+
+/* ---------- 9. FAQ: the headline at the start, the questions as outlined cards ---------- */
+.faq__inner {
+  display: grid;
+  gap: var(--s-7);
+}
 .faq__list {
-  border-block-start: 2px solid var(--hairline);
+  display: grid;
+  gap: var(--s-3);
 }
 .faqrow {
-  border-block-end: 2px solid var(--hairline);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  transition: border-color var(--dur-state);
+}
+.faqrow[open] {
+  border-color: var(--ink);
 }
 .faqrow__sum {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-4);
-  padding-block: var(--s-4);
-  font-size: var(--fs-xl);
+  padding: var(--s-4) var(--s-5);
+  font-size: var(--fs-lg);
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -1496,8 +2190,8 @@
 }
 .faqrow__sum:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: var(--r-xs);
+  outline-offset: -4px;
+  border-radius: var(--r-md);
 }
 .faqrow__plus {
   display: grid;
@@ -1512,8 +2206,9 @@
   transform: rotate(45deg);
 }
 .faqrow__body {
-  padding-block: 0 var(--s-5);
-  font-size: var(--fs-lg);
+  padding: 0 var(--s-5) var(--s-5);
+  font-size: var(--fs-md);
+  line-height: 1.55;
   color: var(--ink-soft);
 }
 .faqrow[open] .faqrow__body {
@@ -1521,78 +2216,200 @@
 }
 @keyframes faq-in {
   from {
-    opacity: 0;
     translate: 0 -4px;
   }
 }
+@media (min-width: 60rem) {
+  .faq__inner {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--s-9);
+    align-items: start;
+  }
+}
 
-/* ---------- One more line, on white ---------- */
+/* ---------- 10. One more line: the closing band, dotted, with the Say as a white pill ---------- */
 .again {
-  padding: var(--s-9) var(--gutter);
-  background: var(--ground);
+  background-image: radial-gradient(color-mix(in srgb, var(--on-band) 8%, transparent) 1.5px, transparent 1.6px);
+  background-size: 22px 22px;
 }
 .again__inner {
   display: grid;
   gap: var(--s-5);
+  justify-items: center;
   max-inline-size: 44rem;
   margin-inline: auto;
+  text-align: center;
 }
 .again__title {
-  font-size: var(--fs-4xl);
-  font-weight: 800;
+  font-size: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+  font-weight: 900;
   letter-spacing: -0.03em;
-  line-height: 0.98;
+  line-height: 1;
+  text-wrap: balance;
 }
 :lang(ar) .again__title {
   letter-spacing: 0;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 .again__lead {
+  max-inline-size: 48ch;
   font-size: var(--fs-lg);
   color: var(--ink-soft);
 }
+.again .say {
+  inline-size: 100%;
+  margin-block-start: var(--s-3);
+  text-align: start;
+}
+.again .say__label {
+  color: var(--ink-soft);
+}
+.again .say__box {
+  border-color: var(--on-band);
+  background: var(--on-band);
+  color: var(--band);
+}
+.again .say__field::placeholder {
+  color: color-mix(in srgb, var(--band) 62%, var(--on-band));
+}
+.again .say__go {
+  background: var(--beam);
+  color: var(--on-beam);
+}
+.again .say__go:hover {
+  background: var(--beam-hover);
+}
+.again .say__hint {
+  color: var(--ink-soft);
+}
 
-/* ---------- Footer ---------- */
+/* ---------- 11. Footer: dark, the brand with one line, four columns, the bar ---------- */
 .footer {
-  border-block-start: 2px solid var(--hairline);
-  background: var(--ground);
+  border-block-start: 1px solid color-mix(in srgb, var(--on-ink) 12%, var(--ink));
 }
 .footer__inner {
   display: grid;
-  gap: var(--s-4);
+  gap: var(--s-8);
   max-inline-size: var(--site-max);
   margin-inline: auto;
-  padding: var(--s-7) var(--gutter);
+  padding: var(--s-9) var(--gutter) var(--s-6);
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-7) var(--s-5);
+}
+.footer__brand {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--s-3);
+  justify-items: start;
+}
+.footer .wordmark,
+.footer .brand {
+  font-size: 1.5rem;
+  color: var(--on-band);
+}
+.footer__about {
+  max-inline-size: 30ch;
   font-size: var(--fs-sm);
+  line-height: 1.5;
   color: var(--ink-soft);
 }
-.footer__row {
+.footer__heading {
+  margin-block-end: var(--s-3);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+:lang(ar) .footer__heading {
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.footer__list {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+}
+.footer__list li {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-3) var(--s-6);
+  gap: var(--s-2);
+  min-block-size: 1.5rem;
 }
-.footer__row .wordmark {
-  margin-inline-end: auto;
-  font-size: 1.35rem;
-  color: var(--ink);
-}
-.footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2) var(--s-5);
-}
-.footer__links a {
+.footer__list a {
   color: var(--ink);
   font-weight: 600;
   text-decoration: none;
 }
-.footer__links a:hover {
+.footer__list a:hover {
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
-.footer__legal {
+.footer__list a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+.footer__list--plain {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.footer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+  padding-block-start: var(--s-5);
+  border-block-start: 1px solid var(--hairline);
   font-size: var(--fs-xs);
   color: var(--ink-faint);
+}
+.footer__copy {
+  font-weight: 700;
+  color: var(--ink);
+}
+.footer__legal {
+  flex: 1 1 24rem;
+}
+.footer__top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-block-size: 2.25rem;
+  margin-inline-start: auto;
+  padding-inline: 0.85rem;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--r-pill);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-state),
+    transform var(--dur-move) var(--ease-settle);
+}
+.footer__top:hover {
+  background: var(--paper-sunken);
+  transform: translateY(-1px);
+}
+.footer__top:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (min-width: 60rem) {
+  .footer__grid {
+    grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
+    gap: var(--s-8);
+  }
+  .footer__brand {
+    grid-column: auto;
+  }
 }
 
 /* ---------- Still paths: reduced motion without opt-in, or the visitor's pause ---------- */
@@ -1610,7 +2427,39 @@
   .made__actions,
   .made__say,
   .mood-demo__face,
-  .mood {
+  .mood,
+  .role__disc,
+  .golink,
+  .plug__logos {
     transition: none;
   }
+}
+
+/* ---------- Width guards: nothing below the hero may push the page wider than the screen ---------- */
+.tongues .tongues__list {
+  flex-wrap: wrap;
+  max-inline-size: 100%;
+  font-size: clamp(2rem, 1rem + 4vw, 4rem);
+}
+.tongues .tongues__list > li {
+  min-inline-size: 0;
+}
+.flag__grid > * {
+  min-inline-size: 0;
+}
+@media (max-width: 60rem) {
+  .flag__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.flag__copy .lozenge {
+  flex-wrap: wrap;
+  max-inline-size: 100%;
+  white-space: normal;
+  line-height: 1.3;
+  padding-block: 0.3rem;
+  text-align: start;
+}
+.flag__copy .lozenge > * {
+  min-inline-size: 0;
 }

@@ -158,10 +158,12 @@
           "body": "Tu ne trouves pas quelque chose ? Demande à Pirikoo la perruche, dans ta langue, et reçois une réponse courte et claire.",
           "video": "Vidéo muette. Quelqu’un demande à Pirikoo comment inviter des gens ; la perruche écrit, puis répond étape par étape."
         }
-      }
+      },
+      "eyebrow": "Comment ça marche"
     },
     "jobs": {
-      "title": "Ce qu'un cercle fait"
+      "title": "Ce qu'un cercle fait",
+      "go": "Commencer"
     },
     "feel": {
       "title": "Se sentir ensemble",
@@ -175,7 +177,23 @@
       },
       "weather": "Météo du cercle : plutôt ensoleillée, quelqu'un a besoin d'un café.",
       "tryIt": "Essaie : comment te sens-tu ?",
-      "faceSays": "circloo se sent {{mood}} aussi."
+      "faceSays": "circloo se sent {{mood}} aussi.",
+      "eyebrow": "Point du jour",
+      "intro": "Un geste le matin dit à votre cercle comment vous allez. Des mots et des visages, jamais seulement des couleurs.",
+      "points": [
+        {
+          "title": "Cinq ciels, un geste",
+          "body": "De l'orage au grand soleil, toujours avec le mot et le visage à côté."
+        },
+        {
+          "title": "Un mot si vous voulez",
+          "body": "Ajoutez une ligne ou un petit besoin. Rien n’est obligatoire."
+        },
+        {
+          "title": "La météo du cercle",
+          "body": "Chacun voit comment va le cercle aujourd'hui, dit avec des mots."
+        }
+      ]
     },
     "work": {
       "title": "Travailler ensemble",
@@ -193,15 +211,48 @@
         "Des points plus courts"
       ],
       "votes_one": "{{count}} vote",
-      "votes_other": "{{count}} votes"
+      "votes_other": "{{count}} votes",
+      "eyebrow": "Tableaux et tableau blanc",
+      "intro": "Des tableaux en direct pour les brainstormings, les rétros et les décisions, sur un téléphone ou sur grand écran.",
+      "points": [
+        {
+          "title": "Notes, colonnes, votes",
+          "body": "Collez des notes, glissez-les dans des colonnes et votez avec des points. La préférée remonte."
+        },
+        {
+          "title": "Un tableau blanc avec tout le monde dessus",
+          "body": "Le curseur de chaque ami bouge avec son personnage. Dessinez, collez, mettez une étoile."
+        },
+        {
+          "title": "Présentations, sondages et quiz",
+          "body": "Lancez une série de diapositives, interrogez la salle et regardez les réponses arriver en direct."
+        }
+      ]
     },
     "fun": {
       "title": "S'amuser ensemble",
-      "body": "Brise-glace, devinettes et blagues écrits par des gens dans chaque langue, jamais traduits par une machine. Envie de plus ? Demande à circloo des cartes fraîches pour ton cercle, vérifiées pour rester gentilles."
+      "body": "Brise-glace, devinettes et blagues écrits par des gens dans chaque langue, jamais traduits par une machine. Envie de plus ? Demande à circloo des cartes fraîches pour ton cercle, vérifiées pour rester gentilles.",
+      "eyebrow": "Brise-glaces",
+      "intro": "Des brise-glaces, des devinettes et des blagues écrits par des gens dans chaque langue, jamais traduits par une machine.",
+      "points": [
+        {
+          "title": "Écrits dans chaque langue",
+          "body": "Anglais, français, arabe et espagnol, chacun avec son propre humour."
+        },
+        {
+          "title": "Adapté aux enfants quand vous le voulez",
+          "body": "Une étiquette garde les tours en famille tout doux."
+        },
+        {
+          "title": "Des nouveautés par Pirikoo",
+          "body": "Demandez de nouveaux tours adaptés à votre cercle, vérifiés pour leur bienveillance et signalés comme IA."
+        }
+      ]
     },
     "tongues": {
       "label": "Quatre langues",
-      "line": "L'arabe se lit de droite à gauche, avec une vraie mise en page. Les blagues sont écrites dans chaque langue par des gens, jamais traduites par une machine."
+      "line": "L'arabe se lit de droite à gauche, avec une vraie mise en page. Les blagues sont écrites dans chaque langue par des gens, jamais traduites par une machine.",
+      "eyebrow": "Quatre langues, une seule mise en page"
     },
     "integrations": {
       "title": "Branché sur ta semaine",
@@ -214,7 +265,8 @@
         "notion": "Envoyer tableaux et notes dans ton espace"
       },
       "stamp": "Bientôt",
-      "available": "Disponible"
+      "available": "Disponible",
+      "eyebrow": "Branché sur votre semaine"
     },
     "free": {
       "title": "Gratuit pendant qu'on le construit",
@@ -248,7 +300,8 @@
           "q": "Quelles langues parle-t-il ?",
           "a": "Anglais, français, arabe (avec une vraie mise en page de droite à gauche) et espagnol. Les blagues sont écrites nativement dans chaque langue, jamais traduites mot à mot."
         }
-      ]
+      ],
+      "eyebrow": "FAQ"
     },
     "final": {
       "title": "Une ligne suffit.",
@@ -259,20 +312,27 @@
       "made": "Pensé pour les familles, les amis et les équipes, en quatre langues.",
       "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence et Notion sont des marques de leurs propriétaires. circloo n'y est pas affilié.",
       "label": "Pied de page",
-      "links": [
-        {
-          "label": "Comment ça marche",
-          "href": "#story"
-        },
-        {
-          "label": "FAQ",
-          "href": "#faq"
-        },
-        {
-          "label": "Se connecter",
-          "href": "/signin"
-        }
-      ]
+      "product": {
+        "title": "Produit",
+        "story": "Comment ça marche",
+        "integrations": "Intégrations",
+        "free": "Gratuit",
+        "faq": "FAQ"
+      },
+      "features": {
+        "title": "Fonctions",
+        "icebreakers": "Brise-glaces",
+        "boards": "Tableaux et tableau blanc",
+        "presentations": "Présentations",
+        "checkin": "Point du jour"
+      },
+      "languages": "Langues",
+      "account": {
+        "title": "Compte",
+        "signIn": "Se connecter",
+        "start": "Créer votre cercle"
+      },
+      "top": "Revenir en haut"
     },
     "teaser": {
       "title": "Le brise-glace du jour",
@@ -287,6 +347,82 @@
       "title": "circloo en 20 secondes",
       "lead": "Un cercle se forme, circloo anime un brise-glace, l'équipe décide sur un tableau en direct, et les résultats partent vers Teams, Jira ou Notion.",
       "description": "Vidéo sans son. Le visage de circloo sourit ; huit amis rejoignent un cercle en personnages ; circloo pose une question et deux personnes répondent ; notes et votes remplissent un tableau Commencer, Arrêter, Continuer ; les résultats partent vers Teams, Jira et Notion ; Pirikoo la perruche se pose près du visage."
+    },
+    "flag": {
+      "badge": "Voici Pirikoo",
+      "title1": "Dites-le une fois.",
+      "title2": "prépare la séance.",
+      "body": "Pirikoo transforme une ligne en un plan que la personne vérifie : le nom, les gens, les premières activités. Rien ne démarre sans votre accord.",
+      "how": "Voir comment ça marche",
+      "stats": {
+        "characters": "personnages au choix",
+        "languages": "langues, arabe de droite à gauche",
+        "rounds": "types d'activités",
+        "passwords": "mot de passe"
+      },
+      "join": "On rejoint par lien ou par code, sans e-mail",
+      "private": "Privé par défaut, sans publicité"
+    },
+    "who": {
+      "eyebrow": "Pour qui",
+      "title": "Un espace pour chaque cercle dont vous faites partie",
+      "lead": "La même pièce sert à une famille le dimanche, à des amis un soir de jeux et à une équipe le lundi matin.",
+      "roles": {
+        "families": {
+          "title": "Familles",
+          "body": "Le programme du déjeuner de dimanche, un tour rigolo pour les enfants et un endroit pour dire comment s’est passée la semaine."
+        },
+        "friends": {
+          "title": "Amis",
+          "body": "Une soirée jeux avec des blagues, des « tu préfères » et un vote rapide sur la prochaine sortie."
+        },
+        "teams": {
+          "title": "Équipes",
+          "body": "Un point le matin, un brise-glace avant la réunion, une rétro sur un tableau en direct."
+        }
+      }
+    },
+    "sso": {
+      "title": "La connexion de votre entreprise",
+      "body": "L'authentification unique avec Entra ID, Google Workspace, Okta ou tout fournisseur OIDC ou SAML est prévue. Elle se règle par configuration, jamais par du code sur mesure.",
+      "cta": "Lire comment"
+    },
+    "caps": {
+      "eyebrow": "Quatre promesses",
+      "title": "Conçu pour que tout le cercle lui fasse confiance",
+      "lead": "Ce qui reste vrai quoi que fasse votre cercle.",
+      "items": {
+        "private": {
+          "title": "Privé par défaut",
+          "body": "Seuls les membres et les personnes que vous invitez voient un cercle. Jamais de publicité."
+        },
+        "languages": {
+          "title": "Quatre langues et RTL",
+          "body": "Anglais, français, arabe et espagnol. L'arabe se lit de droite à gauche, avec une mise en page à part entière."
+        },
+        "kids": {
+          "title": "Contenu adapté aux enfants",
+          "body": "Les blagues et les brise-glaces sont écrits par des gens et étiquetés, pour que les tours en famille restent doux."
+        },
+        "week": {
+          "title": "Branché sur votre semaine",
+          "body": "Ce que décide un cercle part vers Teams, Jira, Confluence ou Notion en un clic."
+        }
+      }
+    },
+    "invite": {
+      "eyebrow": "Inviter",
+      "title": "Inviter en une ligne",
+      "lead": "Envoyez un lien ou lisez un code court à voix haute. Les gens entrent avec un prénom et un personnage, sans e-mail.",
+      "ways": "Façons d'inviter",
+      "link": "Lien",
+      "code": "Code",
+      "windowTab": "Invitation",
+      "example": "Exemple",
+      "linkHint": "Envoyez ce lien aux personnes que vous voulez voir entrer.",
+      "codeHint": "Ou lisez le code à voix haute. Il fonctionne sur la page d'entrée.",
+      "copy": "Copier",
+      "copied": "Copié"
     }
   },
   "auth": {
