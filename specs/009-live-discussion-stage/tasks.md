@@ -136,7 +136,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T919.
 
-- [ ] T921 [US3] **Floor, mutes and removal (API).**
+- [x] T921 [US3] **Floor, mutes and removal (API).** (#261)
   - `CallModeration.cs` (singleton): per circle, muted microphone, stopped camera, removed set; cleared when the call ends.
   - `CircleHub.Room.cs` (spec 008): `GiveFloor`, `LowerHand` (of the floor holder), `LowerAllHands` and the hand grace call `CallPermissions` when a call is on (Hand to speak: grant or revoke the microphone; send `floor-given`/`floor-taken`). Hand limit `hand` 6 per 10 s.
   - `CircleHub.Discussion.cs`: `MuteMember`, `AllowMember`, `MuteEveryone` (Open mic only, `MutePublishedTrack` on microphone tracks), `RemoveFromCall` (removed set, `RemoveParticipant`, hand lowered, audit `call.removed`), `AllowBack`. Limit `call-admin` 30 per 10 s.
