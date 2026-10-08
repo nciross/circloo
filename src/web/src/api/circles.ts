@@ -30,13 +30,18 @@ export interface Message {
   replyToId: number | null
 }
 
-/** The live discussion setting (spec 009, contracts/hub.md). Off by default; only the animator changes it. */
+/** The group call setting (spec 009, contracts/hub.md). Off by default; only the animator changes it. */
 export interface DiscussionState {
+  /** The call is on. */
   on: boolean
+  /** A video call; false is an audio call. */
   videoAllowed: boolean
-  stageMax: number
-  listenersMax: number
-  away: 'none' | 'frozen'
+  speaking: 'hand' | 'open'
+  /** False when this environment has no call server. */
+  available: boolean
+  /** 'away' while the animator-away timer runs. */
+  away: 'none' | 'away'
+  /** When the call ends if no animator returns. */
   awayEndsAt: string | null
 }
 
@@ -124,7 +129,6 @@ export interface CircleView {
   settings: RoomSettings
   hands: HandsView
   discussion: DiscussionState
-  recording: RecordingState | null
   /** Reactions per kind in the latest presentation of the circle, for its results (spec 008). */
   reactionTotals?: Partial<Record<'clap' | 'heart' | 'laugh' | 'wow' | 'like' | 'party', number>>
 }

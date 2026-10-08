@@ -2,26 +2,20 @@ using Circloo.Api.Data;
 
 namespace Circloo.Api.Discussion;
 
-/// <summary>The discussion setting as everyone sees it (spec 009, contracts/hub.md). <c>Away</c> is <c>none</c> or <c>frozen</c>.</summary>
-public sealed record DiscussionState(bool On, bool VideoAllowed, int StageMax, int ListenersMax, string Away, DateTimeOffset? AwayEndsAt);
-
-/// <summary>One seat on the stage. States: <c>invited</c>, <c>onStage</c>, <c>reconnecting</c>.</summary>
-public sealed record Seat(Guid MemberId, string State, bool AudioOn, bool VideoOn, bool MutedByAnimator);
-
-/// <summary>The stage: seats listed, viewers only counted.</summary>
-public sealed record StageView(IReadOnlyList<Seat> Seats, int Watching);
-
-/// <summary>The running recording, if any. Phases: <c>notice</c>, <c>capturing</c>.</summary>
-public sealed record RecordingState(Guid Id, string Phase, DateTimeOffset StartedAt, DateTimeOffset CaptureFrom, DateTimeOffset MaxAt, Guid ByMemberId);
+/// <summary>
+/// The group call as everyone sees it (spec 009, contracts/hub.md). <c>Speaking</c> is <c>hand</c> or <c>open</c>;
+/// <c>Available</c> is false when this environment has no call server; <c>Away</c> is <c>none</c> or <c>away</c>.
+/// </summary>
+public sealed record DiscussionState(bool On, bool VideoAllowed, string Speaking, bool Available, string Away, DateTimeOffset? AwayEndsAt);
 
 public static class DiscussionRules
 {
     public const string AwayNone = "none";
-    public const string AwayFrozen = "frozen";
+    public const string AwayAway = "away";
 
-    public static DiscussionState State(Circle circle, DiscussionOptions options) =>
-        new(circle.DiscussionOn, VideoAllowed(circle), options.StageMax, options.ListenersMax, AwayNone, null);
+    public static DiscussionState State(Circle circle, LiveKitOptions livekit) =>
+        new(circle.DiscussionOn, VideoAllowed(circle), circle.DiscussionSpeaking, livekit.Available, AwayNone, null);
 
-    /// <summary>Cameras are allowed only while the discussion is on and the animator allowed them (kids-safe path).</summary>
+    /// <summary>Cameras are allowed only while the call is on and it is a video call (kids-safe path).</summary>
     public static bool VideoAllowed(Circle circle) => circle.DiscussionOn && circle.DiscussionVideo;
 }
