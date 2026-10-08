@@ -1163,7 +1163,8 @@
 }
 /* The open chapter reads by its cerise eyebrow and the dot before it, and by the bar that runs with the clip. */
 .film__chapter.is-open .film__label {
-  color: var(--beam-text);
+  /* On a dark band the eyebrow goes white (cerise text would sit under 4.5:1); the dot carries the colour. */
+  color: var(--on-band, var(--beam-text));
 }
 .film__chapter.is-open .film__label::before {
   content: '';
