@@ -45,16 +45,6 @@ export interface DiscussionState {
   awayEndsAt: string | null
 }
 
-/** The running text recording, if any (spec 009); filled in by a later task. */
-export interface RecordingState {
-  id: string
-  phase: 'notice' | 'capturing'
-  startedAt: string
-  captureFrom: string
-  maxAt: string
-  byMemberId: string
-}
-
 /** The live room's switches (spec 008, contracts/hub.md). */
 export interface RoomSettings {
   chat: 'open' | 'slow' | 'paused'
