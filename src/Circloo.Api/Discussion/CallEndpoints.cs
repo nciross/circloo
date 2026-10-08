@@ -13,10 +13,13 @@ namespace Circloo.Api.Discussion;
 /// </summary>
 public sealed record CallPassView(string Url, string Token, string Identity, DateTimeOffset ExpiresAt, bool CanSpeak, bool CanVideo);
 
-/// <summary>The call's HTTP endpoints (spec 009, contracts/rest.md). The call server's webhook comes with T922.</summary>
+/// <summary>The call's HTTP endpoints (spec 009, contracts/rest.md): the pass for browsers and the call server's webhook.</summary>
 public static class CallEndpoints
 {
     public const string TokenMethod = "call-token";
+
+    /// <summary>Where the call server posts its events (the AppHost and the deployed call server point their webhook here).</summary>
+    public const string WebhookPath = "/api/livekit/webhook";
 
     /// <summary>Refused pass requests write at most this many audit rows per member per minute, like the hub's refusals.</summary>
     private const int RefusedAuditsPerMinute = 5;
@@ -83,6 +86,68 @@ public static class CallEndpoints
         ctx.Response.Headers.CacheControl = "no-store";
         return Results.Ok(new CallPassView(livekit.Value.Url!.Trim(), pass.Token, me.Id.ToString(), pass.ExpiresAt,
             CanSpeak: permission.Microphone, CanVideo: permission.Camera));
+    }
+
+    /// <summary>
+    /// <c>POST /api/livekit/webhook</c>, for the call server only. Mapped outside the <c>/api</c> group: no cookie and no
+    /// CSRF header, because its signature is its authentication (plan, Complexity Tracking). Plain HTTP works (the local
+    /// call server posts to <c>http://</c>; the app never redirects to HTTPS). Limited per source address.
+    /// </summary>
+    public static IEndpointRouteBuilder MapLiveKitWebhook(this IEndpointRouteBuilder app)
+    {
+        app.MapPost(WebhookPath, ReceiveWebhookAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimits.LiveKitWebhook)
+            .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(LiveKitWebhook.MaxBodyBytes));
+        return app;
+    }
+
+    /// <summary>
+    /// 413 for a body over 64 KB, 401 without any detail for anything not signed by our call server, otherwise 200 at
+    /// once: the event is handled in the background. The body is never logged.
+    /// </summary>
+    private static async Task<IResult> ReceiveWebhookAsync(HttpContext ctx, LiveKitWebhook webhook, ILogger<LiveKitWebhook> log, CancellationToken ct)
+    {
+        if (ctx.Request.ContentLength > LiveKitWebhook.MaxBodyBytes || await ReadBodyAsync(ctx.Request, ct) is not { } body)
+        {
+            LiveKitWebhook.LogRefused(log, "too-large");
+            return Results.StatusCode(StatusCodes.Status413PayloadTooLarge);
+        }
+        if (!webhook.Verify(ctx.Request.Headers.Authorization, body))
+        {
+            LiveKitWebhook.LogRefused(log, "not-verified");
+            return Results.Unauthorized();
+        }
+        if (LiveKitWebhook.Parse(body) is { } e)
+        {
+            webhook.Handle(e);
+        }
+        return Results.Ok();
+    }
+
+    /// <summary>The raw body, or null as soon as it grows past the limit (a chunked body has no length to check first).</summary>
+    private static async Task<byte[]?> ReadBodyAsync(HttpRequest request, CancellationToken ct)
+    {
+        using var buffer = new MemoryStream();
+        var chunk = new byte[8 * 1024];
+        try
+        {
+            int read;
+            while ((read = await request.Body.ReadAsync(chunk, ct)) > 0)
+            {
+                if (buffer.Length + read > LiveKitWebhook.MaxBodyBytes)
+                {
+                    return null;
+                }
+                buffer.Write(chunk, 0, read);
+            }
+        }
+        catch (BadHttpRequestException)
+        {
+            // Kestrel's own limit (the RequestSizeLimit metadata) was reached first.
+            return null;
+        }
+        return buffer.ToArray();
     }
 
     private static IResult Refusal(int status, string type, string title) => Results.Problem(statusCode: status, type: type, title: title);

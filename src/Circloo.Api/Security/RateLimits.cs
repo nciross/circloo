@@ -21,6 +21,8 @@ public sealed class RateLimitOptions
     public int PresentationUploadsPerUserPerHour { get; set; } = 10;
     /// <summary>Call passes per member, across tabs (spec 009 contracts/rest.md): a refresh every few minutes needs far less.</summary>
     public int CallTokensPerMemberPerMinute { get; set; } = 10;
+    /// <summary>Call server webhooks per source address (spec 009 contracts/rest.md): the call server is the only legitimate caller.</summary>
+    public int LiveKitWebhooksPerIpPerMinute { get; set; } = 600;
 }
 
 public static class RateLimits
@@ -49,6 +51,9 @@ public static class RateLimits
     /// or without a call. Counted in the hub with <c>RoomLimits</c> and answered <c>slow-down</c>.
     /// </summary>
     public const string Hand = "hand";
+
+    /// <summary>The call server's webhook (spec 009), per source address. Refusals are not audited: a flood must not write rows.</summary>
+    public const string LiveKitWebhook = "livekit-webhook";
 
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
@@ -82,11 +87,19 @@ public static class RateLimits
             o.AddPolicy(PresentationUpload, ctx => RateLimitPartition.GetFixedWindowLimiter(
                 ctx.User.FindFirst(Circloo.Api.Auth.CirclooClaims.UserId)?.Value ?? ClientIp(ctx) ?? "unknown",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.PresentationUploadsPerUserPerHour, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
+            o.AddPolicy(LiveKitWebhook, ctx => RateLimitPartition.GetFixedWindowLimiter(
+                ClientIp(ctx) ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = opts.LiveKitWebhooksPerIpPerMinute, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
             o.OnRejected = async (rejected, ct) =>
             {
                 var http = rejected.HttpContext;
                 var retryAfter = rejected.Lease.TryGetMetadata(MetadataName.RetryAfter, out var ra) ? ra : TimeSpan.FromMinutes(1);
                 http.Response.Headers.RetryAfter = ((int)Math.Ceiling(retryAfter.TotalSeconds)).ToString(CultureInfo.InvariantCulture);
+                if (http.Request.Path.StartsWithSegments(Circloo.Api.Discussion.CallEndpoints.WebhookPath))
+                {
+                    http.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    return;
+                }
                 var audit = http.RequestServices.GetRequiredService<AuditLog>();
                 var isAi = http.Request.Path.StartsWithSegments("/api/ai") || http.Request.Path.StartsWithSegments("/api/pirikoo");
                 await audit.WriteAsync(isAi ? AuditTypes.AiRateLimited : AuditTypes.OtpRateLimited, ip: ClientIp(http),

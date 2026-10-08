@@ -43,6 +43,12 @@ public static class CallRules
     /// <summary>The call server's room of a circle: one call per circle at a time (research R21).</summary>
     public static string RoomName(Guid circleId) => $"circle-{circleId:N}";
 
+    /// <summary>The circle of a call server room named by <see cref="RoomName"/>; null for any other name.</summary>
+    public static Guid? CircleOf(string? room) =>
+        room is { Length: 39 } && room.StartsWith("circle-", StringComparison.Ordinal) && Guid.TryParseExact(room.AsSpan(7), "N", out var id)
+            ? id
+            : null;
+
     /// <summary>
     /// Whether the floor decides who may speak right now: a call is on in Hand to speak. Then giving or taking the
     /// floor changes a microphone permission on the call server; in Open mic the floor only marks the person.

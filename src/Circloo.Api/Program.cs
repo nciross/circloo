@@ -73,6 +73,8 @@ builder.Services.AddOptions<CircleOptions>().BindConfiguration(CircleOptions.Sec
 DiscussionOptions.AddDiscussion(builder.Services);
 // Group calls (spec 009): passes signed here, rooms driven through the call server's RoomService.
 builder.Services.AddSingleton<CallModeration>();
+builder.Services.AddSingleton<CallAway>();
+builder.Services.AddSingleton<LiveKitWebhook>();
 builder.Services.AddScoped<CallPermissions>();
 builder.Services.AddScoped<CallLifecycle>();
 LiveKitRooms.AddLiveKitRooms(builder.Services);
@@ -182,6 +184,8 @@ api.MapPirikooEndpoints();
 api.MapPresentationEndpoints();
 api.MapCallEndpoints();
 api.MapFallback(() => Results.NotFound());
+// The call server's webhook: outside the /api group, so no cookie or CSRF header (its signature authenticates it).
+app.MapLiveKitWebhook();
 
 app.MapHub<CircleHub>("/hubs/circle");
 app.MapDefaultEndpoints();

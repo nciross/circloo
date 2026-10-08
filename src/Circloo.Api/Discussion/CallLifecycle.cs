@@ -1,5 +1,6 @@
 using Circloo.Api.Circles;
 using Circloo.Api.Data;
+using Circloo.Api.Decide;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,12 @@ namespace Circloo.Api.Discussion;
 
 /// <summary>
 /// Opening and ending a circle's call (spec 009 data-model, lifecycle rules). The animator's switch, a closed circle
-/// and, later, an animator who stays away all end it the same way: the setting and the hands in one unit of work, then
-/// the call server's room (everyone disconnects), then the animator's mutes and removals, then the circle is told.
+/// and an animator who stays away (<see cref="CallAway"/>) all end it the same way: the setting and the hands in one
+/// unit of work, then the call server's room (everyone disconnects), then the animator's mutes and removals and the
+/// roster, then the circle is told.
 /// </summary>
-public sealed partial class CallLifecycle(CirclooDbContext db, ILiveKitRooms rooms, CallModeration moderation, AuditLog audit,
-    IHubContext<CircleHub, ICircleClient> hub, IOptions<LiveKitOptions> livekit, IOptions<CircleOptions> circles, ILogger<CallLifecycle> log)
+public sealed partial class CallLifecycle(CirclooDbContext db, ILiveKitRooms rooms, CallModeration moderation, CallAway away, LiveThrottle throttle,
+    AuditLog audit, IHubContext<CircleHub, ICircleClient> hub, IOptions<LiveKitOptions> livekit, IOptions<CircleOptions> circles, ILogger<CallLifecycle> log)
 {
     /// <summary>Why a call ended, in the <c>discussion.off</c> audit row (plan, audit events).</summary>
     public const string ByAnimator = "animator";
@@ -60,6 +62,8 @@ public sealed partial class CallLifecycle(CirclooDbContext db, ILiveKitRooms roo
             }
         }
         moderation.Clear(circle.Id);
+        away.Cancel(circle.Id);
+        CircleHub.RequestRoster(throttle, circle.Id);
 
         var everyone = hub.Clients.Group(CircleHub.Group(circle.Id));
         await everyone.Discussion(DiscussionRules.State(circle, livekit.Value));
