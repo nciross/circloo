@@ -49,6 +49,22 @@
   --low: #ffb3c8; /* empty, away, late: 4:1 */
   --shadow-card: 0 40px 80px -30px rgb(156 18 66 / 0.55), 0 18px 36px -24px rgb(156 18 66 / 0.45);
 
+  /* The public site (third reference): charcoal pills, purple links, hot pink sparingly, pastels only in doodles,
+     chips and gradient corners; a light mauve bar on the sign-in pages. */
+  --charcoal: #2e2e36;
+  --charcoal-hover: #1f1f25;
+  --on-charcoal: #ffffff;
+  --pink: #e5347b; /* the wordmark's key phrase, one handwritten note: 4.6:1 on white */
+  --violet-link: #6d28d9; /* purple text links, 6.2:1 */
+  --meta: #6b6b72; /* 12px metadata, 5.3:1 */
+  --mint: #bfe8d9;
+  --sky-pastel: #a9d9f5;
+  --peach: #f6a46b;
+  --butter: #f7d873;
+  --lavender: #b39ddb;
+  --mauve: #e9dcf3;
+  --mauve-deep: #d6c3ea;
+
   /* The public hero: a cobalt field, white type, one yellow sun for its button and one prop */
   --field: #2b5cf0;
   --field-deep: #1e45c4;
@@ -223,6 +239,14 @@
    Blue lightens and its text flips to dark. */
 :root[data-theme='dark'] {
   color-scheme: dark;
+  --charcoal: #f1eef5;
+  --charcoal-hover: #ffffff;
+  --on-charcoal: #160810;
+  --pink: #ff6fa3;
+  --violet-link: #c4b5fd;
+  --meta: #b8b3c2;
+  --mauve: #2a1f35;
+  --mauve-deep: #3a2b48;
   --ground: #160810;
   --paper: #1d0b14;
   --paper-sunken: #26101b;
@@ -300,6 +324,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     color-scheme: dark;
+    --charcoal: #f1eef5;
+    --charcoal-hover: #ffffff;
+    --on-charcoal: #160810;
+    --pink: #ff6fa3;
+    --violet-link: #c4b5fd;
+    --meta: #b8b3c2;
+    --mauve: #2a1f35;
+    --mauve-deep: #3a2b48;
     --ground: #160810;
     --paper: #1d0b14;
     --paper-sunken: #26101b;

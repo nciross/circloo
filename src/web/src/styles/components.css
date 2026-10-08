@@ -1494,3 +1494,12 @@
   .btn:hover { transform: none; }
   .page > * { animation: none; }
 }
+
+/* ---------- The sign-in bar: light mauve, as the founder asked ---------- */
+.sitebar--mauve {
+  background: var(--mauve);
+  border-block-end: 1px solid var(--mauve-deep);
+}
+.sitebar--mauve .lang-menu__trigger {
+  background: var(--paper);
+}

@@ -15,12 +15,13 @@ export function SiteHeader({
   links?: ReactNode
   homeTo?: string
   showLanguages?: boolean
-  tone?: 'field'
+  tone?: 'field' | 'mauve'
 }) {
   const { t } = useTranslation()
   const field = tone === 'field'
+  const mauve = tone === 'mauve'
   return (
-    <header className={`sitebar${field ? ' sitebar--field on-field' : ''}`}>
+    <header className={`sitebar${field ? ' sitebar--field on-field' : ''}${mauve ? ' sitebar--mauve' : ''}`}>
       <a className="skip-link" href="#main">{t('common.skipToContent')}</a>
       <div className="sitebar__inner">
         <Brand to={homeTo} />

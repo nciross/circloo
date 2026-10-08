@@ -21,7 +21,7 @@ export function AuthLayout({ children, homeTo = '/', showLanguages = true, note 
   const reduced = useReducedMotion()
   return (
     <div className="auth">
-      <SiteHeader homeTo={homeTo} showLanguages={showLanguages} />
+      <SiteHeader homeTo={homeTo} showLanguages={showLanguages} tone="mauve" />
       <main id="main" className="auth__main">
         <motion.div className={`auth__card${plain ? ' auth__card--plain' : ''}`} variants={enterVariants(reduced)} initial="hidden" animate="show">
           {children}
