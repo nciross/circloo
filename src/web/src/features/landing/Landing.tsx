@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Pause, Play, Plus, Undo2, UserRound } from 'lucide-react'
+import { Globe, MessageCircle, Pause, Play, Plus, Undo2, Users, type LucideIcon } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
-import { ButtonLink } from '../../components/Button'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { useUiStore } from '../../stores/ui'
@@ -13,52 +12,46 @@ import { useStillMotion } from './useMotion'
 import { useCompose, type Words } from './useCompose'
 import type { Composition } from './compose'
 import { Say } from './Say'
-import { Arrow, Made } from './Made'
+import { Made } from './Made'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
-import { Band } from './Band'
-import { StillContext } from './still'
-import { Flagship, Tongues } from './Flagship'
-import { Solutions } from './Solutions'
-import { Capabilities } from './Capabilities'
-import { Plugs } from './Plugs'
-import { Invite } from './Invite'
+import { Blobs } from './Blobs'
+import { Rounds } from './Rounds'
+import { Samples } from './Samples'
+import { Who } from './Who'
+import { Popular } from './Popular'
+import { How } from './How'
 import { Footer } from './Footer'
 import '../../styles/landing.css'
 
 const AUTO_DEMO_MS = 1200
 
-/** The yellow marker stroke under the last line of the title. */
-const Underline = () => (
-  <svg className="console__stroke" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <path d="M3 9 C 40 3, 80 11, 120 6 S 180 4, 197 8" />
-  </svg>
-)
+/** A small pastel chip with an icon, set inside the headline where the locale string says `<chip/>`. */
+function Chip({ icon: Icon, tone }: { icon: LucideIcon; tone: 'mint' | 'sky' | 'butter' }) {
+  return (
+    <span className={`hchip hchip--${tone}`} aria-hidden="true">
+      <Icon strokeWidth={2.5} />
+    </span>
+  )
+}
 
-/** Two small flat props on the hero's bottom edge: a sticky-note corner and a pencil. Colours live in the SVG. */
-const Props = () => (
-  <>
-    <svg className="console__prop console__prop--note" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
-      <path d="M12 18 L 108 6 L 118 80 L 2 80 Z" fill="#fff3b0" />
-      <path d="M12 18 L 108 6 L 118 80" fill="none" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M30 40 L 90 34 M 32 54 L 80 50" stroke="#111111" strokeWidth="3" strokeLinecap="round" opacity="0.35" />
-    </svg>
-    <svg className="console__prop console__prop--pencil" viewBox="0 0 160 40" aria-hidden="true" focusable="false">
-      <path d="M20 12 L 130 12 L 130 28 L 20 28 Z" fill="#ffd23f" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M130 12 L 154 20 L 130 28 Z" fill="#f4e3c0" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M146 17.5 L 154 20 L 146 22.5 Z" fill="#111111" />
-      <path d="M8 12 L 20 12 L 20 28 L 8 28 Z" fill="#ef4a32" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M36 20 L 118 20" stroke="#111111" strokeWidth="3" strokeLinecap="round" opacity="0.25" />
-    </svg>
-  </>
-)
+/** One headline line: the text around the `<chip/>` placeholder, with the chip in its place. */
+function Line({ text, chip }: { text: string; chip: ReactNode }) {
+  const [before, after] = text.split('<chip/>')
+  return (
+    <span className="hero__line">
+      {before}
+      {after !== undefined ? <>{chip}{after}</> : null}
+    </span>
+  )
+}
 
 /**
- * The landing (issue #247, buddy list #250): the prompt is the product. One line composes a circle in front of the
- * visitor on a cobalt field; under it the page runs in bands, white and dark in turn: the four languages, Pirikoo
- * with the facts, the story, the three jobs shown by the real thing, who it is for with the free plan, the four
- * promises, the integrations, the invite line, the FAQ, one more line and the footer. Mobile first; every animation
- * has a still path and a pause.
+ * The landing (issue #247, #250): a white canvas in the language of a people platform. The prompt is the product:
+ * one line composes a circle in front of the visitor. A sticky bar with a compact console, a centred headline with
+ * pastel chips flanked by character blobs, then the rounds, the four languages, the composition as a join panel,
+ * who it is for, popular circles, how it works, the story, the three jobs, the questions and the charcoal footer.
+ * No scroll animations; every ambient movement has a still path and a pause.
  */
 export function Landing() {
   const { t, i18n } = useTranslation()
@@ -85,13 +78,16 @@ export function Landing() {
   const { run, start } = useCompose(locale, playing, words)
   const examples = useMemo(() => t('landing.say.list', { returnObjects: true }) as string[], [t])
 
+  const scrollToMade = (block: ScrollLogicalPosition) => {
+    document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block })
+  }
+
   const build = (line: string) => {
     touched.current = true
     if (!line.trim()) return
     start(line)
-    // On a phone the composition sits under the console: bring it into view so the line is seen becoming a circle.
-    const made = document.getElementById('made')
-    if (made && !window.matchMedia('(min-width: 60rem)').matches) made.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'start' })
+    // The composition sits further down the page: bring it into view so the line is seen becoming a circle.
+    scrollToMade('center')
   }
 
   // Nobody touched the console: the first example composes itself, so the page moves on arrival. Pause stops it.
@@ -113,112 +109,99 @@ export function Landing() {
     lm.toggleOptIn()
   }
 
-  const facts = t('landing.hero.facts', { returnObjects: true }) as string[]
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
+  const touch = () => { touched.current = true }
 
   return (
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
-      <SiteHeader tone="field" showLanguages={false}>
-        <Link to="/signin" className="sitebar__signin" viewTransition>{t('common.signIn')}</Link>
+      <SiteHeader
+        tone="site"
+        showLanguages={false}
+        links={(
+          <div className="sitebar__centre">
+            <Say
+              compact
+              text={text}
+              onText={setText}
+              onBuild={build}
+              onTouch={touch}
+              mood={mood}
+              placeholder={t('landing.say.navPlaceholder')}
+              trailing={(
+                <span className="say__lang">
+                  <Globe size={16} strokeWidth={2.25} aria-hidden="true" />
+                  <span>{t(`common.languages.${locale}`)}</span>
+                </span>
+              )}
+            />
+          </div>
+        )}
+      >
         <LanguageMenu />
-        <ButtonLink to="/signin" variant="default" size="sm" icon={<UserRound size={16} strokeWidth={2.25} />}>{t('landing.cta')}</ButtonLink>
+        <Link to="/signin" className="sitebar__signin" viewTransition>{t('landing.nav.login')}</Link>
+        <Link to="/signin" className="btn btn--sm btn--charcoal" viewTransition>{t('landing.cta')}</Link>
       </SiteHeader>
 
       <main id="main">
-        <section id="start" className="console on-field" aria-labelledby="hero-title">
-          <div className="console__inner">
-            <div className="console__copy">
-              <h1 id="hero-title" className="console__title">
-                {t('landing.hero.title')} <span className="console__title2">{t('landing.hero.title2')}<Underline /></span>
-              </h1>
-              <p className="console__lead">{t('landing.hero.lead')}</p>
-              <div className="console__say">
-                <Say
-                  text={text}
-                  onText={setText}
-                  onBuild={build}
-                  onTouch={() => { touched.current = true }}
-                  mood={mood}
-                  idle={playing ? 'idle' : undefined}
-                  examples={examples}
-                />
-                <span className="note note--say" aria-hidden="true">
-                  <span className="note__text">{t('landing.notes.say')}</span>
-                  <Arrow />
-                </span>
-              </div>
-              <ul className="console__facts">
-                {facts.map((f) => <li key={f}><bdi>{f}</bdi></li>)}
-              </ul>
-            </div>
-            <div id="made" className="console__made">
-              <Made run={run} motion={playing} />
-            </div>
-            <div className="console__foot">
-              <div className="hero__motion">
-                {motion.offered ? (
-                  <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
-                    {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing.motion.pause')}
-                  </button>
-                ) : null}
-                {lm.reduced ? (
-                  // A changing label says what a press does; aria-pressed on top would read as "Respect my system setting, pressed".
-                  <button type="button" className="motion-toggle motion-optin" onClick={toggleOptIn}>
-                    {lm.optedIn ? <Undo2 className="flip-rtl" size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing.motion.respect' : 'landing.motion.play')}
-                  </button>
-                ) : null}
-                <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
-              </div>
+        <section id="start" className="hero" aria-labelledby="hero-title">
+          <Blobs />
+          <div className="hero__copy">
+            <h1 id="hero-title" className="hero__title">
+              <Line text={t('landing.hero.l1')} chip={<Chip icon={Users} tone="mint" />} />
+              <Line text={t('landing.hero.l2')} chip={<Chip icon={MessageCircle} tone="sky" />} />
+              <Line text={t('landing.hero.l3')} chip={<Chip icon={Globe} tone="butter" />} />
+            </h1>
+            <p className="hero__lead">{t('landing.hero.lead')}</p>
+            <Say
+              text={text}
+              onText={setText}
+              onBuild={build}
+              onTouch={touch}
+              mood={mood}
+              idle={playing ? 'idle' : undefined}
+              examples={examples}
+            />
+            <div className="hero__motion">
+              {motion.offered ? (
+                <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
+                  {motion.still ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />} {t('landing.motion.pause')}
+                </button>
+              ) : null}
+              {lm.reduced ? (
+                // A changing label says what a press does; aria-pressed on top would read as "Respect my system setting, pressed".
+                <button type="button" className="motion-toggle motion-optin" onClick={toggleOptIn}>
+                  {lm.optedIn ? <Undo2 className="flip-rtl" size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />} {t(lm.optedIn ? 'landing.motion.respect' : 'landing.motion.play')}
+                </button>
+              ) : null}
+              <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
             </div>
           </div>
-          <Props />
         </section>
 
-        <StillContext.Provider value={motion.still}>
-          <Tongues />
-          <Flagship />
-          <Player still={motion.still} />
-          <Jobs motion={playing} />
-          <Solutions />
-          <Capabilities />
-          <Plugs />
-          <Invite />
+        <Rounds />
+        <Samples />
 
-          <Band id="faq" className="faq" labelledBy="faq-title">
-            <div className="faq__inner">
-              <div className="band__head-copy">
-                <p className="eyebrow">{t('landing.faq.eyebrow')}</p>
-                <h2 id="faq-title" className="band__title">{t('landing.faq.title')}</h2>
-              </div>
-              <div className="faq__list">
-                {faq.map((f, i) => (
-                  <details key={f.q} className="faqrow" name="faq" open={i === 0}>
-                    <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span></summary>
-                    <div className="faqrow__body"><p>{f.a}</p></div>
-                  </details>
-                ))}
-              </div>
-            </div>
-          </Band>
+        <section id="made" className="strip join" aria-label={t('landing.made.preview')}>
+          <Made run={run} motion={playing} />
+        </section>
 
-          <Band tone="dark" className="again" labelledBy="again-title">
-            <div className="again__inner">
-              <h2 id="again-title" className="again__title">{t('landing.final.title')}</h2>
-              <p className="again__lead">{t('landing.final.body')}</p>
-              <Say
-                compact
-                text={text}
-                onText={setText}
-                onBuild={(line) => {
-                  build(line)
-                  document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'center' })
-                }}
-                onTouch={() => { touched.current = true }}
-                mood={mood}
-              />
-            </div>
-          </Band>
-        </StillContext.Provider>
+        <Who />
+        <Popular />
+        <How />
+        <Player still={motion.still} />
+        <Jobs motion={playing} />
+
+        <section id="faq" className="strip faq" aria-labelledby="faq-title">
+          <h2 id="faq-title" className="section-title">{t('landing.faq.title')}</h2>
+          <div className="faq__list">
+            {faq.map((f, i) => (
+              <details key={f.q} className="faqrow" name="faq" open={i === 0}>
+                <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span></summary>
+                <div className="faqrow__body"><p>{f.a}</p></div>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
 
       <Footer />

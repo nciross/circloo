@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useId, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Lock } from 'lucide-react'
 import { Bird, type BirdMood } from '../pirikoo/Bird'
@@ -7,10 +7,11 @@ import { PROMPT_MAX } from '../../lib/circlePrompt'
 /**
  * The console: a labelled line with the bird at its start and the Build button inside the pill (#247). Enter builds,
  * Shift+Enter adds a line. `examples` are three lines the visitor can tap instead of typing; the hint under them says
- * that nothing leaves the browser.
+ * that nothing leaves the browser. `compact` is the bar in the site's top navigation: no bird, no examples, the label
+ * and the hint only for assistive tech, a round button, and an optional `trailing` segment before it.
  */
 export function Say({
-  text, onText, onBuild, onTouch, mood, examples, compact = false, idle,
+  text, onText, onBuild, onTouch, mood, examples, compact = false, idle, placeholder, trailing,
 }: {
   text: string
   onText: (text: string) => void
@@ -22,6 +23,9 @@ export function Say({
   compact?: boolean
   /** The bird while nothing happens and the field is not focused. */
   idle?: BirdMood
+  placeholder?: string
+  /** A read-only segment between the field and the button (the current language, in the top bar). */
+  trailing?: ReactNode
 }) {
   const { t } = useTranslation()
   const id = useId()
@@ -39,15 +43,15 @@ export function Say({
   const bird: BirdMood | undefined = mood ?? (focused ? 'listening' : idle)
   return (
     <form className={`say${compact ? ' say--compact' : ''}`} onSubmit={submit}>
-      <label className="say__label" htmlFor={`${id}-field`}>{t('landing.say.label')}</label>
+      <label className={`say__label${compact ? ' visually-hidden' : ''}`} htmlFor={`${id}-field`}>{t('landing.say.label')}</label>
       <div className="say__box">
-        <span className="say__bird" aria-hidden="true"><Bird mood={bird} /></span>
+        {compact ? null : <span className="say__bird" aria-hidden="true"><Bird mood={bird} /></span>}
         <textarea
           id={`${id}-field`}
           className="say__field"
           rows={1}
           maxLength={PROMPT_MAX}
-          placeholder={t('landing.say.placeholder')}
+          placeholder={placeholder ?? t('landing.say.placeholder')}
           value={text}
           dir="auto"
           autoComplete="off"
@@ -61,6 +65,7 @@ export function Say({
           onBlur={() => setFocused(false)}
           onKeyDown={onKey}
         />
+        {trailing}
         <button type="submit" className="say__go">
           <span className={compact ? 'visually-hidden' : 'say__go-label'}>{t('landing.say.build')}</span>
           <ArrowRight className="flip-rtl" size={20} strokeWidth={2.5} aria-hidden="true" />
@@ -84,7 +89,7 @@ export function Say({
           ))}
         </div>
       ) : null}
-      <p id={`${id}-hint`} className="say__hint">
+      <p id={`${id}-hint`} className={`say__hint${compact ? ' visually-hidden' : ''}`}>
         <Lock size={13} strokeWidth={2.5} aria-hidden="true" />
         <span>{t('landing.say.hint')}</span>
       </p>

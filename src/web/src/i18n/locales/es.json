@@ -50,26 +50,15 @@
     "tagline1": "Tu círculo.",
     "tagline2": "Un espacio privado.",
     "nav": {
-      "label": "En esta página",
-      "story": "Cómo funciona",
-      "jobs": "Qué hace",
-      "free": "Gratis",
-      "faq": "Preguntas"
+      "login": "Iniciar sesión"
     },
     "hero": {
       "title": "Di qué necesita tu círculo.",
       "title2": "circloo lo prepara.",
-      "lead": "Con una línea basta. circloo abre una sala privada para tu gente, con un tablero, un juego y un registro de ánimo diario.",
-      "facts": [
-        "Sin contraseña: un código de seis dígitos por correo.",
-        "Privado por defecto. Sin anuncios.",
-        "English, français, العربية, español."
-      ]
-    },
-    "notes": {
-      "seats": "tu gente, como personajes",
-      "say": "dilo en una línea",
-      "name": "el nombre se escribe solo"
+      "l1": "Di lo que tu <chip/> círculo necesita.",
+      "l2": "circloo lo deja <chip/> listo.",
+      "l3": "En cuatro <chip/> idiomas.",
+      "lead": "Una línea abre un espacio privado para tu gente: un juego, un tablero, un registro diario. Sin contraseña y sin anuncios."
     },
     "say": {
       "label": "¿Para qué es?",
@@ -81,7 +70,42 @@
         "Una retro para mi equipo de 6, en francés",
         "Comida del domingo en familia, algo gracioso para los niños",
         "Noche de juegos con 5 amigos: chistes y un «qué prefieres»"
-      ]
+      ],
+      "navPlaceholder": "¿Para qué es tu círculo?"
+    },
+    "blobs": {
+      "a": "domingo en familia",
+      "b": "retro del equipo",
+      "c": "noche de juegos",
+      "d": "cada jueves"
+    },
+    "rounds": {
+      "title1": "Rondas para",
+      "titleLink": "tu círculo",
+      "all": "Ver todas las rondas",
+      "free": "Gratis",
+      "minutes_one": "{{count}} min",
+      "minutes_other": "{{count}} min",
+      "everyone": "todo el mundo",
+      "by": "por circloo"
+    },
+    "samples": {
+      "title": "Rompehielos en cuatro idiomas",
+      "kind": "Una pregunta cercana",
+      "meta": "Escritos por personas, nunca traducidos",
+      "note": "el mismo chiste, cuatro idiomas",
+      "in": {
+        "en": "In English",
+        "fr": "En français",
+        "ar": "بالعربية",
+        "es": "En español"
+      },
+      "texts": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
     "made": {
       "preview": "Vista previa",
@@ -114,6 +138,49 @@
       "respect": "Respetar mi ajuste del sistema",
       "playing": "Las animaciones se están reproduciendo.",
       "following": "Las animaciones siguen el ajuste de tu sistema."
+    },
+    "who": {
+      "title": "Para quién es",
+      "cards": {
+        "families": "Familias",
+        "friends": "Amistades",
+        "teams": "Equipos",
+        "classrooms": "Clases",
+        "clubs": "Clubes"
+      }
+    },
+    "popular": {
+      "title": "Círculos populares",
+      "lead": "Los círculos que más crea la gente, en cada idioma.",
+      "note": "¡en cuatro idiomas!",
+      "items": {
+        "family": "Domingo en familia",
+        "retro": "Retro del equipo",
+        "game": "Noche de juegos",
+        "quiz": "Quiz de clase",
+        "book": "Club de lectura"
+      }
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "note": "una línea, un enlace, una ronda",
+      "steps": {
+        "say": {
+          "title": "Dilo en una línea",
+          "body": "Cuéntale a circloo para quién es y qué quieres hacer. Le pone nombre al círculo y elige las primeras rondas.",
+          "link": "Probar una línea"
+        },
+        "share": {
+          "title": "Comparte el enlace o el código",
+          "body": "Envía un enlace o lee un código corto. Cada persona entra con su nombre y un personaje, sin correo.",
+          "link": "Ver la vista previa"
+        },
+        "play": {
+          "title": "A jugar juntos",
+          "body": "Rompehielos, tableros en vivo y presentaciones con encuestas, en la sala o en la pantalla grande.",
+          "link": "Ver las rondas"
+        }
+      }
     },
     "story": {
       "title": "Mira cómo cobra vida un círculo",
@@ -158,12 +225,10 @@
           "body": "¿No encuentras algo? Pregúntale a Pirikoo, el periquito, en tu idioma y recibe una respuesta corta y clara.",
           "video": "Vídeo sin sonido. Alguien pregunta a Pirikoo cómo invitar a la gente; el periquito escribe y luego responde paso a paso."
         }
-      },
-      "eyebrow": "Cómo funciona"
+      }
     },
     "jobs": {
-      "title": "Qué hace un círculo",
-      "go": "Empezar"
+      "title": "Qué hace un círculo"
     },
     "feel": {
       "title": "Sentir juntos",
@@ -178,22 +243,7 @@
       "weather": "Tiempo del círculo: casi despejado, alguien necesita café.",
       "tryIt": "Pruébalo: ¿cómo te sientes?",
       "faceSays": "circloo también se siente {{mood}}.",
-      "eyebrow": "Registro diario",
-      "intro": "Un toque por la mañana le dice a tu círculo cómo estás. Palabras y caras, nunca solo colores.",
-      "points": [
-        {
-          "title": "Cinco cielos, un toque",
-          "body": "De tormentoso a soleado, siempre con la palabra y la cara al lado."
-        },
-        {
-          "title": "Una nota si quieres",
-          "body": "Añade una línea o una pequeña necesidad. Nada es obligatorio."
-        },
-        {
-          "title": "El tiempo del círculo",
-          "body": "Todos ven cómo está el círculo hoy, dicho con palabras."
-        }
-      ]
+      "intro": "Un toque por la mañana le dice a tu círculo cómo estás. Palabras y caras, nunca solo colores."
     },
     "work": {
       "title": "Trabajar juntos",
@@ -212,47 +262,12 @@
       ],
       "votes_one": "{{count}} voto",
       "votes_other": "{{count}} votos",
-      "eyebrow": "Tableros y pizarra",
-      "intro": "Tableros en vivo para lluvias de ideas, retrospectivas y decisiones, en el móvil o en la pantalla grande.",
-      "points": [
-        {
-          "title": "Notas, columnas, votos",
-          "body": "Pega notas, arrástralas a columnas y vota con puntos. La favorita sube."
-        },
-        {
-          "title": "Una pizarra con todos dentro",
-          "body": "El cursor de cada amigo se mueve con su personaje. Dibuja, pega, marca con una estrella."
-        },
-        {
-          "title": "Presentaciones, encuestas y cuestionarios",
-          "body": "Lanza una ronda de diapositivas, pregunta a la sala y mira llegar las respuestas en vivo."
-        }
-      ]
+      "intro": "Tableros en vivo para lluvias de ideas, retrospectivas y decisiones, en el móvil o en la pantalla grande."
     },
     "fun": {
       "title": "Divertirse juntos",
       "body": "Rompehielos, adivinanzas y chistes escritos por personas en cada idioma, nunca traducidos por una máquina. ¿Quieres más? Pide a circloo tarjetas nuevas para tu círculo, revisadas para que sean amables.",
-      "eyebrow": "Rompehielos",
-      "intro": "Rompehielos, acertijos y chistes escritos por personas en cada idioma, nunca traducidos por una máquina.",
-      "points": [
-        {
-          "title": "Escritos en cada idioma",
-          "body": "Inglés, francés, árabe y español, cada uno con su propio humor."
-        },
-        {
-          "title": "Apto para niños cuando quieras",
-          "body": "Una etiqueta mantiene suaves las rondas en familia."
-        },
-        {
-          "title": "Nuevos de Pirikoo",
-          "body": "Pide rondas nuevas que encajen con tu círculo, revisadas por su amabilidad y marcadas como IA."
-        }
-      ]
-    },
-    "tongues": {
-      "label": "Cuatro idiomas",
-      "line": "El árabe se lee de derecha a izquierda con un diseño de verdad. Los chistes los escriben personas en cada idioma, nunca una máquina.",
-      "eyebrow": "Cuatro idiomas, un solo diseño"
+      "intro": "Rompehielos, acertijos y chistes escritos por personas en cada idioma, nunca traducidos por una máquina."
     },
     "integrations": {
       "title": "Conectado a tu semana",
@@ -268,17 +283,8 @@
       "available": "Disponible",
       "eyebrow": "Encaja en tu semana"
     },
-    "free": {
-      "title": "Gratis mientras lo construimos",
-      "facts": [
-        "Todas las actividades, todos los idiomas y todas las integraciones que ya funcionan.",
-        "Sin tarjeta y sin cuenta atrás de prueba.",
-        "Si algún día llega un plan de pago, lo sabrás mucho antes de cualquier cobro."
-      ],
-      "cta": "Empezar gratis"
-    },
     "faq": {
-      "title": "Preguntas, respondidas",
+      "title": "Preguntas",
       "items": [
         {
           "q": "¿Necesito una contraseña?",
@@ -300,39 +306,28 @@
           "q": "¿Qué idiomas habla?",
           "a": "Inglés, francés, árabe (con diseño real de derecha a izquierda) y español. Los chistes se escriben de forma nativa en cada uno, nunca traducidos literalmente."
         }
-      ],
-      "eyebrow": "Preguntas"
-    },
-    "final": {
-      "title": "Una línea basta.",
-      "body": "Privado por defecto. Solo las personas que invitas ven tu círculo."
+      ]
     },
     "footer": {
-      "private": "Privado por defecto. Sin anuncios.",
-      "made": "Hecho para familias, amigos y equipos, en cuatro idiomas.",
-      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence y Notion son marcas de sus propietarios. circloo no está afiliado a ellas.",
-      "label": "Pie de página",
-      "product": {
-        "title": "Producto",
-        "story": "Cómo funciona",
-        "integrations": "Integraciones",
-        "free": "Gratis",
-        "faq": "Preguntas"
-      },
-      "features": {
-        "title": "Funciones",
-        "icebreakers": "Rompehielos",
-        "boards": "Tableros y pizarra",
-        "presentations": "Presentaciones",
-        "checkin": "Registro diario"
-      },
-      "languages": "Idiomas",
+      "tag": "tu círculo, un espacio privado",
+      "create": "Crea tu propio círculo.",
+      "start": "Empezar",
       "account": {
-        "title": "Cuenta",
-        "signIn": "Iniciar sesión",
+        "title": "Tu cuenta",
+        "login": "Iniciar sesión",
         "start": "Crea tu círculo"
       },
-      "top": "Volver arriba"
+      "discover": {
+        "title": "Descubrir",
+        "rounds": "Rondas",
+        "icebreakers": "Rompehielos",
+        "how": "Cómo funciona",
+        "faq": "Preguntas"
+      },
+      "languages": "Idiomas",
+      "made1": "Hecho con",
+      "made2": "en cuatro idiomas",
+      "trademarks": "Microsoft Teams, Microsoft 365, Salesforce, Jira, Confluence y Notion son marcas de sus propietarios. circloo no está afiliado a ellas."
     },
     "teaser": {
       "title": "El rompehielos de hoy",
@@ -347,82 +342,6 @@
       "title": "circloo en 20 segundos",
       "lead": "Se forma un círculo, circloo dirige un rompehielos, el equipo decide en un tablero en vivo y los resultados van a Teams, Jira o Notion.",
       "description": "Vídeo sin sonido. La cara de circloo sonríe; ocho amigos entran en un círculo como personajes; circloo hace una pregunta y dos personas responden; notas y votos llenan un tablero Empezar, Dejar, Continuar; los resultados se envían a Teams, Jira y Notion; Pirikoo el periquito se posa junto a la cara."
-    },
-    "flag": {
-      "badge": "Te presentamos a Pirikoo",
-      "title1": "Dilo una vez.",
-      "title2": "prepara la ronda.",
-      "body": "Pirikoo convierte una línea en un plan que la persona revisa: el nombre, la gente, las primeras rondas. Nada empieza sin tu visto bueno.",
-      "how": "Ver cómo funciona",
-      "stats": {
-        "characters": "personajes para elegir",
-        "languages": "idiomas, árabe de derecha a izquierda",
-        "rounds": "tipos de rondas",
-        "passwords": "contraseñas"
-      },
-      "join": "Se entra con un enlace o un código, sin correo",
-      "private": "Privado por defecto, sin anuncios"
-    },
-    "who": {
-      "eyebrow": "Para quién es",
-      "title": "Un espacio para cada círculo al que perteneces",
-      "lead": "La misma sala sirve para una familia el domingo, unos amigos en noche de juegos y un equipo el lunes por la mañana.",
-      "roles": {
-        "families": {
-          "title": "Familias",
-          "body": "El plan de la comida del domingo, una ronda tonta para los niños y un sitio para contar cómo fue la semana."
-        },
-        "friends": {
-          "title": "Amigos",
-          "body": "Noche de juegos con chistes, «qué prefieres» y una votación rápida sobre el próximo plan."
-        },
-        "teams": {
-          "title": "Equipos",
-          "body": "Un registro por la mañana, un rompehielos antes de la reunión, una retrospectiva en un tablero en vivo."
-        }
-      }
-    },
-    "sso": {
-      "title": "El acceso propio de tu empresa",
-      "body": "El inicio de sesión único con Entra ID, Google Workspace, Okta o cualquier proveedor OIDC o SAML está previsto. Se configura con ajustes, nunca con código a medida.",
-      "cta": "Leer cómo"
-    },
-    "caps": {
-      "eyebrow": "Cuatro promesas",
-      "title": "Hecho para que todo el círculo confíe en él",
-      "lead": "Lo que sigue siendo cierto haga lo que haga tu círculo.",
-      "items": {
-        "private": {
-          "title": "Privado por defecto",
-          "body": "Solo los miembros y las personas que invitas ven un círculo. Sin anuncios, nunca."
-        },
-        "languages": {
-          "title": "Cuatro idiomas y RTL",
-          "body": "Inglés, francés, árabe y español. El árabe se lee de derecha a izquierda con un diseño de primera clase."
-        },
-        "kids": {
-          "title": "Contenido apto para niños",
-          "body": "Los chistes y rompehielos los escriben personas y llevan etiqueta, para que las rondas en familia sigan siendo suaves."
-        },
-        "week": {
-          "title": "Encaja en tu semana",
-          "body": "Lo que decide un círculo va a Teams, Jira, Confluence o Notion con un clic."
-        }
-      }
-    },
-    "invite": {
-      "eyebrow": "Invitar",
-      "title": "Invita en una línea",
-      "lead": "Envía un enlace o lee un código corto en voz alta. La gente entra con un nombre y un personaje, sin correo.",
-      "ways": "Formas de invitar",
-      "link": "Enlace",
-      "code": "Código",
-      "windowTab": "Invitación",
-      "example": "Ejemplo",
-      "linkHint": "Envía este enlace a las personas que quieres dentro.",
-      "codeHint": "O lee el código en voz alta. Funciona en la página de entrada.",
-      "copy": "Copiar",
-      "copied": "Copiado"
     }
   },
   "auth": {

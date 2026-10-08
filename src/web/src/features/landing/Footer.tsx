@@ -1,29 +1,24 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { ArrowUp } from 'lucide-react'
+import { ArrowRight, Heart } from 'lucide-react'
 import { Wordmark } from '../../components/Brand'
 
-interface FooterLink { label: string; href: string; soon?: boolean }
+interface FooterLink { label: string; href: string }
 
-const PRODUCT: FooterLink[] = [
-  { label: 'story', href: '#story' },
-  { label: 'integrations', href: '#integrations' },
-  { label: 'free', href: '#free' },
-  { label: 'faq', href: '#faq' },
-]
-const FEATURES: FooterLink[] = [
-  { label: 'icebreakers', href: '#fun' },
-  { label: 'boards', href: '#work' },
-  { label: 'presentations', href: '#work' },
-  { label: 'checkin', href: '#feel', soon: true },
-]
 const ACCOUNT: FooterLink[] = [
-  { label: 'signIn', href: '/signin' },
+  { label: 'login', href: '/signin' },
   { label: 'start', href: '/signin' },
 ]
+const DISCOVER: FooterLink[] = [
+  { label: 'rounds', href: '#rounds' },
+  { label: 'icebreakers', href: '#samples' },
+  { label: 'how', href: '#how' },
+  { label: 'faq', href: '#faq' },
+]
 
-function Column({ title, links, group }: { title: string; links: FooterLink[]; group: string }) {
+function Column({ group, links }: { group: string; links: FooterLink[] }) {
   const { t } = useTranslation()
+  const title = t(`landing.footer.${group}.title`)
   return (
     <nav className="footer__col" aria-label={title}>
       <p className="footer__heading">{title}</p>
@@ -33,7 +28,6 @@ function Column({ title, links, group }: { title: string; links: FooterLink[]; g
           return (
             <li key={`${l.label}-${l.href}`}>
               {l.href.startsWith('/') ? <Link to={l.href} viewTransition>{label}</Link> : <a href={l.href}>{label}</a>}
-              {l.soon ? <span className="lozenge lozenge--neutral footer__soon">{t('common.soon')}</span> : null}
             </li>
           )
         })}
@@ -42,34 +36,43 @@ function Column({ title, links, group }: { title: string; links: FooterLink[]; g
   )
 }
 
-/** The dark footer: the brand with one line, four columns, and the bar with the year, the marks and the way up. */
+/** The footer: one charcoal panel inset by the page gutter, the brand line, three columns and the legal row. */
 export function Footer() {
   const { t } = useTranslation()
   return (
     <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__grid">
-          <div className="footer__brand">
+      <div className="footer__panel">
+        <div className="footer__top">
+          <p className="footer__brand">
             <Wordmark interactive={false} />
-            <p className="footer__about">{t('landing.footer.made')} {t('landing.footer.private')}</p>
-          </div>
-          <Column title={t('landing.footer.product.title')} links={PRODUCT} group="product" />
-          <Column title={t('landing.footer.features.title')} links={FEATURES} group="features" />
+            <span className="footer__tag">{t('landing.footer.tag')}</span>
+          </p>
+          <p className="footer__create">
+            {t('landing.footer.create')}{' '}
+            <Link to="/signin" className="footer__start" viewTransition>
+              {t('landing.footer.start')} <ArrowRight className="flip-rtl" size={18} strokeWidth={2.5} aria-hidden="true" />
+            </Link>
+          </p>
+        </div>
+        <div className="footer__cols">
+          <Column group="account" links={ACCOUNT} />
+          <Column group="discover" links={DISCOVER} />
           <div className="footer__col">
             <p className="footer__heading">{t('landing.footer.languages')}</p>
-            <ul className="footer__list footer__list--plain">
+            <ul className="footer__list">
               <li lang="en">English</li>
               <li lang="fr">français</li>
               <li lang="ar" dir="rtl">العربية</li>
               <li lang="es">español</li>
             </ul>
           </div>
-          <Column title={t('landing.footer.account.title')} links={ACCOUNT} group="account" />
         </div>
         <div className="footer__bar">
           <p className="footer__copy">© 2026 circloo</p>
           <p className="footer__legal">{t('landing.footer.trademarks')}</p>
-          <a className="footer__top" href="#main">{t('landing.footer.top')} <ArrowUp size={16} strokeWidth={2.5} aria-hidden="true" /></a>
+          <p className="footer__made">
+            {t('landing.footer.made1')} <Heart className="footer__heart" size={14} strokeWidth={2.5} fill="currentColor" aria-hidden="true" /> {t('landing.footer.made2')}
+          </p>
         </div>
       </div>
     </footer>

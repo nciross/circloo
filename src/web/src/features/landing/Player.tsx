@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Pause, Play } from 'lucide-react'
 import { useUiStore } from '../../stores/ui'
 import { useLandingMotion } from './motion'
-import { Band } from './Band'
 
 /** The story, in order. Each step has a silent clip per language, rendered with Remotion (video/render-clips.mjs). */
 const STORY = ['circle', 'chat', 'canvas', 'board', 'send', 'pirikoo'] as const
@@ -14,11 +13,11 @@ const WORDLESS: ReadonlySet<StepId> = new Set(['circle', 'send'])
 interface StepCopy { label: string; title: string; body: string; video: string }
 
 /**
- * One player for the six chapters (#247, band rhythm #250): a dark band with the chapters as a vertical list at the
- * start and the clip in a dark frame at the end. The open chapter shows its line and its body and draws the clip's
- * progress along its edge; the others fold to their titles. With motion on, a chapter plays muted while the frame
- * is on screen and the next one follows when it ends; otherwise a clip stays on its poster until someone presses
- * play. Nothing downloads until the frame gets close, and a language switch swaps the file.
+ * The story (#247, #250): a two-column intro, then the clip in a rounded card and the six chapters as small cards
+ * beside it. The open chapter wears a pastel outline, shows its body and runs the clip's progress along its bottom
+ * edge. With motion on, a chapter plays muted while the card is on screen and the next one follows when it ends;
+ * otherwise a clip stays on its poster until someone presses play. Nothing downloads until the card gets close, and
+ * a language switch swaps the file.
  */
 export function Player({ still }: { still: boolean }) {
   const { t } = useTranslation()
@@ -81,42 +80,13 @@ export function Player({ still }: { still: boolean }) {
 
   const label = steps[active].label
   return (
-    <Band id="story" tone="dark" className="film" labelledBy="story-title">
+    <section id="story" className="strip story" aria-labelledby="story-title">
+      <div className="story__intro">
+        <h2 id="story-title" className="section-title section-title--lg">{t('landing.story.title')}</h2>
+        <p className="section-lead">{t('landing.story.lead')}</p>
+      </div>
       <div className="film__grid">
-        <div className="film__side">
-          <div className="band__head-copy">
-            <p className="eyebrow">{t('landing.story.eyebrow')}</p>
-            <h2 id="story-title" className="band__title">{t('landing.story.title')}</h2>
-            <p className="band__lead">{t('landing.story.lead')}</p>
-          </div>
-          <ol className="film__chapters" aria-label={t('landing.story.nav')}>
-            {STORY.map((id, i) => {
-              const current = id === active
-              return (
-                <li key={id} id={`story-${id}`} className={`film__chapter${current ? ' is-open' : ''}`}>
-                  <button
-                    type="button"
-                    className="film__pick"
-                    aria-current={current ? 'true' : undefined}
-                    aria-expanded={current}
-                    style={{ '--p': current && progress.clip === clip ? progress.p : 0 } as CSSProperties}
-                    onClick={() => setActive(id)}
-                  >
-                    <span className="film__label"><span className="film__index">{String(i + 1).padStart(2, '0')}</span> {steps[id].label}</span>
-                    <span className="film__line">{steps[id].title}</span>
-                    <span className="film__bar" aria-hidden="true"><span /></span>
-                  </button>
-                  {current ? <p className="film__body">{steps[id].body}</p> : null}
-                </li>
-              )
-            })}
-          </ol>
-        </div>
         <div ref={stageRef} className="film__stage">
-          <div className="film__chrome" aria-hidden="true">
-            <span className="film__dot" /><span className="film__dot" /><span className="film__dot" />
-            <span className="film__chrome-title">{label}</span>
-          </div>
           <video
             key={clip}
             ref={videoRef}
@@ -144,7 +114,28 @@ export function Player({ still }: { still: boolean }) {
             {playing ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
           </button>
         </div>
+        <ol className="film__chapters" aria-label={t('landing.story.nav')}>
+          {STORY.map((id, i) => {
+            const current = id === active
+            return (
+              <li key={id} id={`story-${id}`} className={`film__chapter${current ? ' is-open' : ''}`}>
+                <button
+                  type="button"
+                  className="film__pick"
+                  aria-current={current ? 'true' : undefined}
+                  aria-expanded={current}
+                  onClick={() => setActive(id)}
+                >
+                  <span className="film__label"><span className="film__index">{String(i + 1).padStart(2, '0')}</span> {steps[id].label}</span>
+                  <span className="film__line">{steps[id].title}</span>
+                </button>
+                {current ? <p className="film__body">{steps[id].body}</p> : null}
+                <span className="film__bar" aria-hidden="true" style={{ '--p': current && progress.clip === clip ? progress.p : 0 } as CSSProperties}><span /></span>
+              </li>
+            )
+          })}
+        </ol>
       </div>
-    </Band>
+    </section>
   )
 }
