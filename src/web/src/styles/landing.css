@@ -3,8 +3,9 @@
    A sticky white bar with a compact console, a centred three-line headline with pastel icon chips flanked by
    character blobs, then grids of cards, one large rounded join panel where the circle composes itself, a zig-zag of
    steps, the story as cards, the three jobs, hairline questions and a charcoal footer panel.
-   Sections rise into place as they scroll in (scroll-driven, transform only); cards lift on hover, links underline,
-   the hero's board and pictures loop, all only while `.site[data-motion='on']:not(.is-still)`. Pastel surfaces keep day ink whatever the theme: they read `--on-sun`
+   Scrolling plays a choreography (titles wipe up, cards rise one by one, the hero settles away; scroll-driven,
+   transform and clip only); cards lift on hover, the hero's board and pictures loop; all of it only while
+   `.site[data-motion='on']:not(.is-still)`. Mobile first: base rules are the phone, min-width queries build up. Pastel surfaces keep day ink whatever the theme: they read `--on-sun`
    (always near-black) and `--on-field` (always white), the two theme-stable tokens. */
 .site {
   background: var(--ground);
@@ -63,7 +64,6 @@
 }
 .strip__more:hover,
 .step__link:hover,
-.made__byhand:hover,
 .footer__list a:hover,
 .footer__start:hover {
   text-decoration: underline;
@@ -101,19 +101,20 @@
   --btn-fg: var(--on-charcoal);
 }
 
-/* ---------- The top bar: sticky, white, a hairline under it, the composite console in the middle ---------- */
+/* ---------- The top bar: sticky, white, a hairline under it; the wordmark, the language menu and the Log in pill.
+   Mobile first: one tight row on phones, roomier from 34rem. ---------- */
 .sitebar--site {
   border-block-end: 1px solid var(--hairline);
 }
 .sitebar--site .sitebar__inner {
   flex-wrap: wrap;
-  gap: var(--s-3) var(--s-4);
+  gap: var(--s-2);
   min-block-size: 4.5rem;
   padding-block: var(--s-2);
 }
 .sitebar--site .lang-menu__trigger {
   min-block-size: 2.5rem;
-  padding-inline: 0.85rem;
+  padding-inline: 0.6rem;
   border: 2px solid var(--hairline);
   border-radius: var(--r-pill);
   background: var(--paper);
@@ -125,201 +126,46 @@
 }
 /* The wordmark leads the bar: bigger than the app's, so the face reads at a glance. */
 .sitebar--site .brand {
-  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.125rem);
+  font-size: 1.4rem;
 }
+/* The smallest phones drop the menu's chevron so the bar stays one row; it returns from 26rem. */
+.sitebar--site .lang-menu__trigger .dropdown__chevron {
+  display: none;
+}
+/* Log in is the bar's one call: the charcoal pill, at every width. */
 .sitebar--site .btn--sm {
   min-block-size: 2.5rem;
-  padding-inline: 1.1rem;
-  font-size: var(--fs-sm);
+  padding-inline: 0.75rem;
+  font-size: 0.8125rem;
 }
-/* Log in is the bar's one call: the charcoal pill, shown at every width (the plain sign-in link folds on phones). */
-.sitebar--site .sitebar__login {
-  padding-inline: 1.4rem;
-}
-/* Phones: one row. The sign-in link already folds away (components.css); the pill and the menu tighten. */
-@media (max-width: 34rem) {
-  .sitebar--site .sitebar__inner {
-    gap: var(--s-2);
-  }
+@media (min-width: 26rem) {
   .sitebar--site .brand {
     font-size: 1.6rem;
   }
-  .sitebar--site .lang-menu__trigger {
-    padding-inline: 0.6rem;
+  .sitebar--site .lang-menu__trigger .dropdown__chevron {
+    display: inline;
   }
   .sitebar--site .btn--sm {
-    padding-inline: 0.8rem;
-    font-size: 0.8125rem;
+    padding-inline: 1rem;
   }
 }
-/* ---------- Say: the line. The hero's white pill with the bird; the bar's compact bar with the language segment. ---------- */
-.say {
-  display: grid;
-  gap: var(--s-3);
-  inline-size: 100%;
-}
-.say__label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  line-height: 1.5;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-:lang(ar) .say__label {
-  font-size: 0.8125rem;
-  letter-spacing: 0;
-}
-.say__box {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: 0.375rem;
-  padding-inline-start: 0.75rem;
-  border: 2px solid var(--hairline-strong);
-  border-radius: var(--r-pill);
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
-  transition:
-    border-color var(--dur-state) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out);
-}
-.say__box:focus-within {
-  border-color: var(--ink);
-  box-shadow: 0 0 0 3px var(--focus);
-}
-.say__bird {
-  display: block;
-  flex: none;
-  inline-size: 2.25rem;
-  block-size: 2.5rem;
-}
-.say__field {
-  flex: 1;
-  min-inline-size: 0;
-  min-block-size: 2.75rem;
-  max-block-size: 9rem;
-  padding: 0.6rem var(--s-2);
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: var(--fs-lg);
-  font-weight: 500;
-  line-height: 1.4;
-  resize: none;
-  field-sizing: content;
-  outline: none;
-}
-.say__field::placeholder {
-  color: var(--ink-faint);
-}
-.say__go {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-inline-size: 2.75rem;
-  min-block-size: 2.75rem;
-  padding-inline: 0.8rem;
-  border: 0;
-  border-radius: var(--r-pill);
-  background: var(--charcoal);
-  color: var(--on-charcoal);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-state),
-    transform var(--dur-move) var(--ease-settle);
-}
-.say__go:hover {
-  background: var(--charcoal-hover);
-  transform: scale(1.03);
-}
-.say__go:active {
-  transform: scale(0.97);
-  transition-duration: var(--dur-press);
-}
-.say__go:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-/* The button keeps its name on phones: the word is clipped, never removed. */
-.say__go-label {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.say__examples {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-2);
-}
-.say__example {
-  min-block-size: 2.75rem;
-  padding: 0.5rem 1rem;
-  border: 1.5px solid var(--hairline-strong);
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  text-align: start;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-state),
-    border-color var(--dur-state),
-    transform var(--dur-move) var(--ease-settle);
-}
-.say__example:hover {
-  border-color: var(--ink);
-  background: var(--paper-sunken);
-  transform: scale(1.03);
-}
-.say__example:active {
-  transform: scale(0.98);
-}
-.say__example:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-.say__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  justify-self: center;
-  margin: 0;
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  color: var(--meta);
-}
-.say__hint svg {
-  flex: none;
-}
-@media (min-width: 40rem) {
-  .say__go-label {
-    position: static;
-    inline-size: auto;
-    block-size: auto;
-    overflow: visible;
-    clip-path: none;
+@media (min-width: 34rem) {
+  .sitebar--site .sitebar__inner {
+    gap: var(--s-3) var(--s-4);
   }
-  .say__go {
-    padding-inline: 1.1rem 0.9rem;
+  .sitebar--site .brand {
+    font-size: clamp(1.75rem, 1.4rem + 1vw, 2.125rem);
   }
-  .say__example {
-    min-block-size: 2.25rem;
+  .sitebar--site .lang-menu__trigger {
+    padding-inline: 0.85rem;
+  }
+  .sitebar--site .btn--sm {
+    padding-inline: 1.4rem;
+    font-size: var(--fs-sm);
   }
 }
-/* ---------- The hero: centred copy with icon chips in the headline, blobs each side ---------- */
+
+/* ---------- The hero: a short title over the live board, pictures each side ---------- */
 .hero {
   /* The wing each blob column takes beside the centre; the scene fills what is left. */
   --wing: var(--gutter);
@@ -977,25 +823,42 @@
   font-weight: 600;
   white-space: nowrap;
 }
-/* Phones: three notes and the question; the board keeps its shape. */
-@media (max-width: 40rem) {
+/* Phones first: three notes and the question, the cursors moved clear of them; the board keeps its shape. From
+   40rem the full board, every element back at the place Scene.tsx gives it. */
+.scene__note--4,
+.scene__note--5,
+.scene__count {
+  display: none;
+}
+.scene__bubble {
+  --y: 47 !important;
+  max-inline-size: 62cqi;
+}
+.scene__cursor--2 {
+  --x: 74 !important;
+}
+.scene__cursor--3 {
+  --x: 72 !important;
+  --y: 40 !important;
+}
+@media (min-width: 40rem) {
   .scene__note--4,
   .scene__note--5 {
-    display: none;
-  }
-  .scene__bubble {
-    --y: 47 !important;
-    max-inline-size: 62cqi;
-  }
-  .scene__cursor--2 {
-    --x: 74 !important;
-  }
-  .scene__cursor--3 {
-    --x: 72 !important;
-    --y: 40 !important;
+    display: block;
   }
   .scene__count {
-    display: none;
+    display: inline;
+  }
+  .scene__bubble {
+    --y: 48 !important;
+    max-inline-size: 46cqi;
+  }
+  .scene__cursor--2 {
+    --x: 88 !important;
+  }
+  .scene__cursor--3 {
+    --x: 56 !important;
+    --y: 54 !important;
   }
 }
 /* The loop (14 s): cursors arrive, notes pop in, Karim drags the peach note into place, Lucía drops the votes, the
@@ -1116,59 +979,146 @@
   100% { translate: calc(-46cqi * var(--dir)) -10cqi; }
 }
 
-/* ---------- The hero follows the mouse: the board tilts toward the pointer and the pictures drift at two depths
-   (--px, --py from usePointer.ts, -1 to 1). On `transform`, which no loop uses on these elements, so it layers over
-   the board's and the pictures' own movements. Eases back to the centre when the pointer leaves. ---------- */
-.site[data-motion='on']:not(.is-still) {
-  .scene {
-    transform: perspective(1400px) rotateY(calc(var(--px, 0) * 4deg)) rotateX(calc(var(--py, 0) * -3deg));
-    transition: transform 600ms var(--ease-out);
-  }
-  .hero__side--start {
-    transform: translate(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -12px));
-    transition: transform 700ms var(--ease-out);
-  }
-  .hero__side--end {
-    transform: translate(calc(var(--px, 0) * -24px), calc(var(--py, 0) * -16px));
-    transition: transform 700ms var(--ease-out);
-  }
-  .hero__title {
-    transform: translate(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px));
-    transition: transform 700ms var(--ease-out);
-  }
-}
-
-/* ---------- Rounds: a grid of cards, a pastel cover with the icon, a Free pill, the title and a meta line ---------- */
-.rounds__grid,
-.samples__grid {
+/* ---------- Rounds: category pills, then cards from the real catalog. Phones first: the pills and the cards are
+   rows that swipe and snap, bleeding to the screen's edges; from 40rem a wrapping row and a grid. ---------- */
+.rounds__intro {
   display: grid;
-  gap: var(--s-6) var(--s-5);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: var(--s-2);
 }
-.rounds__grid > li,
-.samples__grid > li {
+.rounds__intro .section-lead {
+  margin: 0;
+}
+.rounds__filters {
+  display: flex;
+  gap: var(--s-2);
+  margin: 0 calc(-1 * var(--gutter)) var(--s-5);
+  padding: 2px var(--gutter);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rounds__filters::-webkit-scrollbar {
+  display: none;
+}
+.filter {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.45rem;
+  min-block-size: 2.75rem;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid var(--hairline-strong);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    border-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out),
+    transform var(--dur-move) var(--ease-settle);
+}
+/* The kind's pastel as a small dot, so the pill matches its cards' covers. */
+.filter--mint::before,
+.filter--butter::before,
+.filter--lavender::before,
+.filter--sky::before,
+.filter--peach::before {
+  content: '';
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+}
+.filter--mint::before {
+  background: var(--mint);
+}
+.filter--butter::before {
+  background: var(--butter);
+}
+.filter--lavender::before {
+  background: var(--lavender);
+}
+.filter--sky::before {
+  background: var(--sky-pastel);
+}
+.filter--peach::before {
+  background: var(--peach);
+}
+.filter:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+.filter[aria-pressed='true'] {
+  border-color: var(--charcoal);
+  background: var(--charcoal);
+  color: var(--on-charcoal);
+}
+.filter:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.filter__count {
+  min-inline-size: 1.35rem;
+  padding-inline: 0.35rem;
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.35rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.filter[aria-pressed='true'] .filter__count {
+  background: color-mix(in srgb, var(--on-charcoal) 18%, var(--charcoal));
+  color: var(--on-charcoal);
+}
+.rounds__grid {
+  display: flex;
+  gap: var(--s-4);
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 0 var(--gutter) var(--s-3);
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: thin;
+}
+.rounds__item {
+  display: flex;
+  flex: 0 0 min(80%, 18rem);
   min-inline-size: 0;
+  scroll-snap-align: start;
 }
 .round {
   display: grid;
-  gap: 0.25rem;
-  border-radius: var(--r-md);
+  flex: 1;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 0.3rem;
+  padding: var(--s-2) var(--s-2) var(--s-3);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
   color: var(--ink);
   text-decoration: none;
-  transition: transform var(--dur-move) var(--ease-settle);
+  transition:
+    transform var(--dur-move) var(--ease-settle),
+    border-color var(--dur-state) var(--ease-out),
+    box-shadow var(--dur-move) var(--ease-settle);
 }
 .round:hover {
+  border-color: var(--hairline-strong);
   text-decoration: none;
-  transform: translateY(-2px);
-}
-.round:hover .round__cover {
+  transform: translateY(-3px);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .round:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 .round__cover {
   position: relative;
@@ -1179,7 +1129,6 @@
   border-radius: var(--r-md);
   color: var(--on-sun);
   overflow: hidden;
-  transition: box-shadow var(--dur-move) var(--ease-settle);
 }
 .round__cover--mint {
   background: var(--mint);
@@ -1199,18 +1148,27 @@
 .round__icon {
   inline-size: 3.75rem;
   block-size: 3.75rem;
+  transition:
+    scale var(--dur-move) var(--ease-settle),
+    rotate var(--dur-move) var(--ease-settle);
+}
+.round:hover .round__icon {
+  scale: 1.1;
+  rotate: -6deg;
 }
 .round__motif {
   position: absolute;
-  inset-block-end: 12%;
+  inset-block-start: 14%;
   inset-inline-end: 8%;
   inline-size: 2.25rem;
   opacity: 0.6;
 }
-.round__free {
+.round__free,
+.round__time {
   position: absolute;
-  inset-block-start: var(--s-3);
-  inset-inline-start: var(--s-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   padding: 0.1rem 0.6rem;
   border-radius: var(--r-pill);
   background: var(--on-field);
@@ -1218,6 +1176,32 @@
   font-size: var(--fs-xs);
   font-weight: 700;
   line-height: 1.5;
+}
+.round__free {
+  inset-block-start: var(--s-3);
+  inset-inline-start: var(--s-3);
+}
+.round__time {
+  inset-block-end: var(--s-3);
+  inset-inline-start: var(--s-3);
+  font-variant-numeric: tabular-nums;
+}
+.round__kind,
+.round__title,
+.round__blurb,
+.round__foot {
+  padding-inline: var(--s-2);
+}
+.round__kind {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--meta);
+}
+:lang(ar) .round__kind {
+  letter-spacing: 0;
+  text-transform: none;
 }
 .round__title {
   font-size: var(--fs-md);
@@ -1229,355 +1213,61 @@
   line-height: 1.45;
   color: var(--ink-soft);
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.round__meta,
-.sample__meta {
+.round__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding-block-start: var(--s-2);
+}
+.round__meta {
   font-size: var(--fs-xs);
   line-height: 1.5;
   color: var(--meta);
 }
+.round__go {
+  flex: none;
+  color: var(--ink-soft);
+  transition: translate var(--dur-move) var(--ease-settle);
+}
+.round:hover .round__go {
+  translate: 0 -2px;
+  color: var(--ink);
+}
 @media (min-width: 40rem) {
-  .rounds__grid,
-  .samples__grid {
+  .rounds__filters {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+  .rounds__grid {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-5);
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
   }
 }
 @media (min-width: 64rem) {
-  .rounds__grid,
-  .samples__grid {
+  .rounds__grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-/* ---------- Samples: one card per language, the question set in its language on a pastel cover ---------- */
-.samples {
-  overflow-x: clip;
+/* A filter switch deals the new cards in, one after another. */
+.site[data-motion='on']:not(.is-still) .rounds__item {
+  animation: deal var(--dur-focal) var(--ease-settle) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
 }
-.sample {
-  display: grid;
-  gap: 0.3rem;
-  justify-items: start;
-}
-.sample__cover {
-  position: relative;
-  display: grid;
-  align-content: center;
-  inline-size: 100%;
-  aspect-ratio: 16 / 10;
-  margin: 0 0 var(--s-2);
-  padding: var(--s-5) var(--s-5) var(--s-5) var(--s-6);
-  border-radius: var(--r-md);
-  color: var(--on-sun);
-  font-size: var(--fs-lg);
-  font-weight: 700;
-  line-height: 1.3;
-  overflow: hidden;
-}
-.sample__cover[dir='rtl'] {
-  padding: var(--s-5) var(--s-6) var(--s-5) var(--s-5);
-  line-height: 1.5;
-}
-.sample__cover--mint {
-  background: var(--mint);
-}
-.sample__cover--sky {
-  background: var(--sky-pastel);
-}
-.sample__cover--peach {
-  background: var(--peach);
-}
-.sample__cover--butter {
-  background: var(--butter);
-}
-.sample__quote {
-  position: absolute;
-  inset-block-start: 0.6rem;
-  inset-inline-start: 0.6rem;
-  inline-size: 3rem;
-}
-.sample__cover[dir='rtl'] .sample__quote {
-  transform: scaleX(-1);
-}
-.sample__cover p {
-  position: relative;
-  margin: 0;
-  text-wrap: balance;
-}
-.sample__in {
-  padding: 0.15rem 0.7rem;
-  border-radius: var(--r-pill);
-  background: var(--lavender);
-  color: var(--on-sun);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  line-height: 1.5;
-}
-.sample__title {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  line-height: 1.3;
-}
-.samples__note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-block-start: var(--s-7);
-  rotate: -2deg;
-}
-.samples__star {
-  inline-size: 1.5rem;
-  flex: none;
-}
-
-/* ---------- The join panel: the circle composing on one large rounded panel with pastel corners ---------- */
-.made {
-  position: relative;
-  display: grid;
-  gap: var(--s-5);
-  justify-items: center;
-  padding: clamp(2rem, 1.5rem + 3vw, 4rem) var(--gutter);
-  border-radius: 32px;
-  background-color: var(--paper-sunken);
-  background-image:
-    radial-gradient(closest-side at 0 0, var(--mint), transparent),
-    radial-gradient(closest-side at 100% 100%, var(--lavender), transparent);
-  background-position: 0 0, 100% 100%;
-  background-size: 24rem 20rem, 24rem 20rem;
-  background-repeat: no-repeat;
-  text-align: center;
-}
-.made__doodle {
-  display: none;
-  position: absolute;
-}
-.made__seats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.made__seat {
-  display: grid;
-  place-items: center;
-  inline-size: 3.5rem;
-  block-size: 3.5rem;
-  rotate: var(--r, 0deg);
-}
-.made__seat-body {
-  display: grid;
-  place-items: center;
-  inline-size: 100%;
-  block-size: 100%;
-  border-radius: 50%;
-  background: var(--paper);
-  outline: 2px solid var(--hairline-strong);
-  outline-offset: 3px;
-}
-/* A seat still empty is a small dot. */
-.made__empty-seat {
-  display: block;
-  inline-size: 0.875rem;
-  block-size: 0.875rem;
-  border-radius: 50%;
-  background: var(--hairline-strong);
-}
-.made__char {
-  inline-size: 78%;
-  block-size: 78%;
-}
-.made__centre {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  justify-items: center;
-  gap: var(--s-4);
-  max-inline-size: 36rem;
-}
-.made__name {
-  margin: 0;
-  font-size: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  min-block-size: 1.1em;
-  overflow-wrap: anywhere;
-}
-:lang(ar) .made__name {
-  letter-spacing: 0;
-  line-height: 1.3;
-}
-.made:not(.is-on) .made__name {
-  font-weight: 700;
-  color: var(--ink-soft);
-}
-.made__count {
-  margin: 0;
-  font-size: var(--fs-md);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
-}
-.made__more {
-  font-weight: 500;
-}
-.made__caret {
-  display: inline-block;
-  inline-size: 2px;
-  block-size: 1.05em;
-  margin-inline-start: 2px;
-  vertical-align: -0.15em;
-  background: currentColor;
-  animation: caret 900ms steps(2) infinite;
-}
-.made__caret--line {
-  block-size: 1em;
-}
-.made__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-2);
-  min-block-size: 2.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.made__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-block-size: 2.25rem;
-  padding: 0.3rem 0.85rem;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-pill);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-}
-.made__chip svg {
-  flex: none;
-  color: var(--ink-soft);
-}
-.made__say {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  max-inline-size: 32rem;
-  opacity: 0;
-  transition: opacity var(--dur-state);
-}
-.made__say.is-on {
-  opacity: 1;
-}
-.made__say-bird {
-  display: block;
-  flex: none;
-  inline-size: 2.25rem;
-  block-size: 2.5rem;
-}
-.made__say-text {
-  min-inline-size: 0;
-  margin: 0;
-  font-size: var(--fs-lg);
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: start;
-}
-.made__say-smile {
-  font-weight: 700;
-}
-.made__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-3) var(--s-4);
-  opacity: 0;
-  translate: 0 8px;
-  pointer-events: none;
-  transition:
-    opacity var(--dur-move) var(--ease-out),
-    translate var(--dur-move) var(--ease-out);
-}
-.made.is-done .made__actions {
-  opacity: 1;
-  translate: 0 0;
-  pointer-events: auto;
-}
-.made .btn--primary {
-  --btn-bg: var(--charcoal);
-  --btn-bg-hover: var(--charcoal-hover);
-  --btn-bg-active: var(--charcoal-hover);
-  --btn-fg: var(--on-charcoal);
-}
-.made__byhand {
-  color: var(--violet-link);
-  font-weight: 600;
-  text-decoration: none;
-  text-underline-offset: 0.2em;
-}
-@media (min-width: 60rem) {
-  .made {
-    min-block-size: 28rem;
-    align-content: center;
-    padding-inline: clamp(6rem, 12vw, 9rem);
-  }
-  .made__seats {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: block;
-    pointer-events: none;
-  }
-  .made__seat {
-    position: absolute;
-    inset-block-start: var(--y);
-    inset-inline-start: var(--x);
-    inline-size: 4rem;
-    block-size: 4rem;
-    margin: -2rem;
-  }
-  .made__doodle {
-    display: block;
-  }
-  .made__doodle--star {
-    inset-block-start: 2rem;
-    inset-inline-start: 44%;
-    inline-size: 1.5rem;
-  }
-  .made__doodle--squiggle {
-    inset-block-end: 2rem;
-    inset-inline-end: 34%;
-    inline-size: 3.5rem;
-  }
-}
-/* Seated characters breathe in turn while the visitor allows motion: on translate, never on transform (Motion owns
-   transform for the hops) and never on opacity (axe reads the resting contrast). */
-.site[data-motion='on']:not(.is-still) .made__seat.is-in .made__seat-body {
-  animation: seat-bob 3.2s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * -0.45s);
-}
-@keyframes seat-bob {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -5px;
-  }
-}
-@keyframes caret {
-  50% {
-    opacity: 0;
+@keyframes deal {
+  from {
+    translate: 0 1.25rem;
+    scale: 0.96;
   }
 }
 
@@ -1691,6 +1381,32 @@
     stroke-linecap: round;
     stroke-dasharray: 2 7;
     vector-effect: non-scaling-stroke;
+  }
+}
+
+/* The steps are numbered; phones read them down one dotted thread that runs behind the cards (wide screens draw
+   the curved threads instead). */
+.step__num {
+  position: absolute;
+  inset-block-start: var(--s-4);
+  inset-inline-end: var(--s-5);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--meta);
+  font-variant-numeric: tabular-nums;
+}
+.how__board::before {
+  content: '';
+  position: absolute;
+  inset-block: var(--s-6) 5rem;
+  inset-inline-start: calc(var(--s-5) + 1.375rem - 1px);
+  border-inline-start: 2px dashed var(--hairline-strong);
+}
+@media (min-width: 60rem) {
+  .how__board::before {
+    display: none;
   }
 }
 
@@ -2303,23 +2019,101 @@
   }
 }
 
-/* ---------- Vertical transitions: each section rises into place as it scrolls in, then stays. Transform only (the
-   text keeps its contrast while it moves), driven by the scroll itself, so nothing waits on a timer. Browsers
-   without scroll-driven animations simply show the sections in place. ---------- */
+/* ---------- Scroll choreography: the page moves as one piece while it scrolls. Section titles wipe up from their
+   baseline, every card rises and settles as it enters (a row arrives as a wave, because each card has its own
+   timeline), and the hero settles away as the page moves on: the board sinks back, the pictures lift faster than
+   the page (parallax). Driven by the scroll itself, transform and clip only, never opacity; browsers without
+   scroll-driven animations show everything in place. Phones first: on a phone the row of rounds rises as one,
+   since its cards scroll sideways. ---------- */
 @supports (animation-timeline: view()) {
-  .site[data-motion='on']:not(.is-still) main > .strip,
-  .site[data-motion='on']:not(.is-still) .footer {
-    animation: rise-in linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 55%;
+  .site[data-motion='on']:not(.is-still) {
+    .strip__head,
+    .story__intro,
+    .plan__head,
+    .how > .section-title,
+    .jobs > .section-title,
+    .faq > .section-title {
+      animation: head-in linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 28%;
+    }
+    .rounds__grid,
+    .rounds__filters,
+    .step,
+    .how__note,
+    .film__stage,
+    .film__chapter,
+    .job,
+    .plan__card,
+    .faqrow,
+    .footer__panel {
+      animation: card-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 85%;
+    }
+    .hero__title {
+      animation: hero-title-out linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+    .scene {
+      animation: hero-board-out linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+    .hero__side {
+      animation: hero-side-out linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+  @media (min-width: 40rem) {
+    .site[data-motion='on']:not(.is-still) {
+      .rounds__grid {
+        animation: none;
+      }
+      .round {
+        animation: card-in linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 85%;
+      }
+    }
   }
 }
-@keyframes rise-in {
+@keyframes head-in {
   from {
-    translate: 0 4rem;
+    translate: 0 2rem;
+    clip-path: inset(0 0 100% 0);
   }
   to {
     translate: 0 0;
+    clip-path: inset(-2rem);
+  }
+}
+@keyframes card-in {
+  from {
+    translate: 0 3.5rem;
+    scale: 0.94;
+  }
+  to {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+@keyframes hero-title-out {
+  to {
+    translate: 0 -1.5rem;
+  }
+}
+@keyframes hero-board-out {
+  to {
+    translate: 0 2.5rem;
+    scale: 0.9;
+  }
+}
+@keyframes hero-side-out {
+  to {
+    translate: 0 -7rem;
   }
 }
 
@@ -2507,9 +2301,8 @@
   }
 }
 
-/* ---------- Still paths: reduced motion without opt-in, or the visitor's pause ---------- */
+/* ---------- Still paths: the visitor's pause ---------- */
 :where(.site[data-motion='off'], .site.is-still) {
-  .made__caret,
   .blob,
   .blob__char,
   .blob__fx,
@@ -2519,23 +2312,18 @@
   .scene__vote,
   .scene__heart,
   .scene__cursor,
-  .made__seat-body,
+  .rounds__item,
   .faqrow[open] .faqrow__body {
     animation: none;
   }
-  .pk * {
-    animation: none !important;
-  }
-  .made__actions,
-  .made__say,
   .mood-demo__face,
   .mood,
   .round,
-  .round__cover,
+  .round__icon,
+  .round__go,
+  .filter,
   .film__chapter,
   .film__toggle,
-  .say__go,
-  .say__example,
   .motion-toggle {
     transition: none;
   }

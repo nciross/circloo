@@ -17,7 +17,10 @@ const Wire = () => (
   </svg>
 )
 
-/** "How it works": three cards on a zig-zag joined by dotted lines, one handwritten aside. */
+/**
+ * "How it works": three numbered cards. Phones read them down one dotted thread; wide screens lay them on a zig-zag
+ * joined by curved dotted lines, with one handwritten aside.
+ */
 export function How() {
   const { t } = useTranslation()
   return (
@@ -29,6 +32,7 @@ export function How() {
           const Icon = s.icon
           return (
             <article key={s.id} className={`step step--${i + 1}`} aria-labelledby={`step-${s.id}`}>
+              <span className="step__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <span className={`step__icon step__icon--${s.tone}`} aria-hidden="true"><Icon size={22} strokeWidth={2.25} /></span>
               <h3 id={`step-${s.id}`} className="step__title">{t(`landing.how.steps.${s.id}.title`)}</h3>
               <p className="step__body">{t(`landing.how.steps.${s.id}.body`)}</p>

@@ -54,19 +54,13 @@
     },
     "hero": {
       "scene": "Your circle, live together.",
-      "live": "Live"
-    },
-    "say": {
-      "label": "What is it for?",
-      "placeholder": "A retro for my team of 6, in French",
-      "build": "Build it",
-      "hint": "Try one of these, or write your own. Nothing leaves your browser until you create it.",
-      "examples": "Examples",
-      "list": [
-        "A retro for my team of 6, in French",
-        "Sunday lunch with the family, something silly for the kids",
-        "Game night with 5 friends: jokes and a would-you-rather"
-      ]
+      "live": "Live",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
     "blobs": {
       "a": "family sunday",
@@ -77,30 +71,13 @@
     "rounds": {
       "title1": "Rounds for",
       "titleLink": "your circle",
+      "lead": "Pick a few and circloo runs them with you. Every round works on a phone or on the big screen.",
       "all": "See all rounds",
       "free": "Free",
       "minutes_one": "{{count}} min",
       "minutes_other": "{{count}} min",
       "everyone": "everyone",
       "by": "by circloo"
-    },
-    "samples": {
-      "title": "Icebreakers in four languages",
-      "kind": "A warm question",
-      "meta": "Written by people, never translated",
-      "note": "same joke, four languages",
-      "in": {
-        "en": "In English",
-        "fr": "En français",
-        "ar": "بالعربية",
-        "es": "En español"
-      },
-      "texts": {
-        "en": "What's a small thing that made you smile this week?",
-        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
-        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
-        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
-      }
     },
     "made": {
       "preview": "Preview",
@@ -307,7 +284,6 @@
       "discover": {
         "title": "Discover",
         "rounds": "Rounds",
-        "icebreakers": "Icebreakers",
         "how": "How it works",
         "faq": "Questions",
         "free": "Free plan"

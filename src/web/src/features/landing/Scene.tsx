@@ -58,7 +58,7 @@ export function Scene() {
         ))}
         <div className="scene__bubble" style={at(4, 48)}>
           <Character id="panda" tag={false} className="scene__asker" />
-          <p lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>{t(`landing.samples.texts.${locale}`)}</p>
+          <p lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>{t(`landing.hero.ask.${locale}`)}</p>
         </div>
         {CURSORS.map((c, i) => (
           <span key={c.name} className={`scene__cursor scene__cursor--${i + 1}`} style={at(c.x, c.y, { '--cursor': `var(--body-${c.body})` })}>

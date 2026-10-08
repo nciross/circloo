@@ -54,19 +54,13 @@
     },
     "hero": {
       "scene": "Tu círculo, juntos y en vivo.",
-      "live": "En vivo"
-    },
-    "say": {
-      "label": "¿Para qué es?",
-      "placeholder": "Una retro para mi equipo de 6, en francés",
-      "build": "Prepararlo",
-      "hint": "Prueba una de estas líneas o escribe la tuya. Nada sale de tu navegador hasta que lo crees.",
-      "examples": "Ejemplos",
-      "list": [
-        "Una retro para mi equipo de 6, en francés",
-        "Comida del domingo en familia, algo gracioso para los niños",
-        "Noche de juegos con 5 amigos: chistes y un «qué prefieres»"
-      ]
+      "live": "En vivo",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
     "blobs": {
       "a": "domingo en familia",
@@ -77,30 +71,13 @@
     "rounds": {
       "title1": "Rondas para",
       "titleLink": "tu círculo",
+      "lead": "Elige unas cuantas y circloo las dirige contigo. Cada ronda funciona en el móvil o en la pantalla grande.",
       "all": "Ver todas las rondas",
       "free": "Gratis",
       "minutes_one": "{{count}} min",
       "minutes_other": "{{count}} min",
       "everyone": "todo el mundo",
       "by": "por circloo"
-    },
-    "samples": {
-      "title": "Rompehielos en cuatro idiomas",
-      "kind": "Una pregunta cercana",
-      "meta": "Escritos por personas, nunca traducidos",
-      "note": "el mismo chiste, cuatro idiomas",
-      "in": {
-        "en": "In English",
-        "fr": "En français",
-        "ar": "بالعربية",
-        "es": "En español"
-      },
-      "texts": {
-        "en": "What's a small thing that made you smile this week?",
-        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
-        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
-        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
-      }
     },
     "made": {
       "preview": "Vista previa",
@@ -307,7 +284,6 @@
       "discover": {
         "title": "Descubrir",
         "rounds": "Rondas",
-        "icebreakers": "Rompehielos",
         "how": "Cómo funciona",
         "faq": "Preguntas",
         "free": "Plan gratuito"

@@ -54,19 +54,13 @@
     },
     "hero": {
       "scene": "Votre cercle, ensemble, en direct.",
-      "live": "En direct"
-    },
-    "say": {
-      "label": "C'est pour quoi ?",
-      "placeholder": "Une rétro pour mon équipe de 6, en français",
-      "build": "Préparer",
-      "hint": "Essaie l'une de ces lignes, ou écris la tienne. Rien ne quitte ton navigateur avant la création.",
-      "examples": "Exemples",
-      "list": [
-        "Une rétro pour mon équipe de 6, en français",
-        "Déjeuner du dimanche en famille, un truc rigolo pour les enfants",
-        "Soirée jeux avec 5 amis : des blagues et un « tu préfères »"
-      ]
+      "live": "En direct",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
     "blobs": {
       "a": "dimanche en famille",
@@ -77,30 +71,13 @@
     "rounds": {
       "title1": "Des rounds pour",
       "titleLink": "votre cercle",
+      "lead": "Choisissez-en quelques-uns, circloo les anime avec vous. Chaque round marche sur téléphone comme sur grand écran.",
       "all": "Voir tous les rounds",
       "free": "Gratuit",
       "minutes_one": "{{count}} min",
       "minutes_other": "{{count}} min",
       "everyone": "tout le monde",
       "by": "par circloo"
-    },
-    "samples": {
-      "title": "Des brise-glace en quatre langues",
-      "kind": "Une question chaleureuse",
-      "meta": "Écrits par des personnes, jamais traduits",
-      "note": "même blague, quatre langues",
-      "in": {
-        "en": "In English",
-        "fr": "En français",
-        "ar": "بالعربية",
-        "es": "En español"
-      },
-      "texts": {
-        "en": "What's a small thing that made you smile this week?",
-        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
-        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
-        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
-      }
     },
     "made": {
       "preview": "Aperçu",
@@ -307,7 +284,6 @@
       "discover": {
         "title": "Découvrir",
         "rounds": "Rounds",
-        "icebreakers": "Brise-glace",
         "how": "Comment ça marche",
         "faq": "Questions",
         "free": "Formule gratuite"

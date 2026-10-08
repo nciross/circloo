@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Pause, Play, Plus } from 'lucide-react'
@@ -7,13 +6,11 @@ import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { useLandingMotion } from './motion'
 import { useStillMotion } from './useMotion'
-import { usePointer } from './usePointer'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import { Blobs } from './Blobs'
 import { Scene } from './Scene'
 import { Rounds } from './Rounds'
-import { Samples } from './Samples'
 import { How } from './How'
 import { Plan } from './Plan'
 import { Footer } from './Footer'
@@ -22,10 +19,10 @@ import '../../styles/landing.css'
 /**
  * The landing (issue #247, #250): a white canvas in the language of a people platform. The hero is a short headline
  * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character pictures that play along.
- * Then the rounds, the four languages, how it works, the story, the three jobs, the
- * free plan, the questions and the charcoal footer. Sections rise into place as they scroll in (transform only);
- * everything starts on its own for every visitor, the hero follows the mouse, and one Pause control stills the whole
- * page (WCAG 2.2.2).
+ * Then the rounds, how it works, the story, the three jobs, the
+ * free plan, the questions and the charcoal footer. Scrolling plays a choreography (titles reveal, cards rise one by
+ * one, the hero settles away; transform only); everything starts on its own for every visitor, and one Pause
+ * control stills the whole page (WCAG 2.2.2).
  */
 export function Landing() {
   const { t } = useTranslation()
@@ -33,8 +30,6 @@ export function Landing() {
   const motion = useStillMotion()
   const lm = useLandingMotion()
   const playing = lm.on && !motion.still
-  const heroRef = useRef<HTMLElement>(null)
-  usePointer(heroRef, playing)
 
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
 
@@ -46,7 +41,7 @@ export function Landing() {
       </SiteHeader>
 
       <main id="main">
-        <section ref={heroRef} id="start" className="hero" aria-labelledby="hero-title">
+        <section id="start" className="hero" aria-labelledby="hero-title">
           <Blobs />
           <div className="hero__copy">
             <h1 id="hero-title" className="hero__title">{t('landing.hero.scene')}</h1>
@@ -62,7 +57,6 @@ export function Landing() {
         </section>
 
         <Rounds />
-        <Samples />
         <How />
         <Player still={motion.still} />
         <Jobs motion={playing} />

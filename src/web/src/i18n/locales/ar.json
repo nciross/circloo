@@ -54,19 +54,13 @@
     },
     "hero": {
       "scene": "دائرتك، معًا، مباشرة.",
-      "live": "مباشر"
-    },
-    "say": {
-      "label": "ما الغرض منها؟",
-      "placeholder": "مراجعة لفريقي المكوّن من 6 أشخاص، بالفرنسية",
-      "build": "جهّزها",
-      "hint": "جرّب أحد هذه الأسطر أو اكتب سطرك. لا يغادر شيء متصفحك قبل أن تنشئها.",
-      "examples": "أمثلة",
-      "list": [
-        "مراجعة لفريقي المكوّن من 6 أشخاص، بالفرنسية",
-        "غداء الأحد مع العائلة، شيء مضحك للأطفال",
-        "سهرة ألعاب مع 5 أصدقاء: نكت ولعبة «ماذا تفضل»"
-      ]
+      "live": "مباشر",
+      "ask": {
+        "en": "What's a small thing that made you smile this week?",
+        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
+        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
+        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
+      }
     },
     "blobs": {
       "a": "أحد العائلة",
@@ -77,6 +71,7 @@
     "rounds": {
       "title1": "جولات تناسب",
       "titleLink": "دائرتك",
+      "lead": "اختر بعضها، وcircloo يديرها معك. كل جولة تعمل على الهاتف أو على الشاشة الكبيرة.",
       "all": "كل الجولات",
       "free": "مجاني",
       "minutes_zero": "{{count}} دقيقة",
@@ -87,24 +82,6 @@
       "minutes_other": "{{count}} دقيقة",
       "everyone": "للجميع",
       "by": "من circloo"
-    },
-    "samples": {
-      "title": "كاسرات جليد بأربع لغات",
-      "kind": "سؤال دافئ",
-      "meta": "كتبها أشخاص، ولم تُترجم أبدًا",
-      "note": "النكتة نفسها بأربع لغات",
-      "in": {
-        "en": "In English",
-        "fr": "En français",
-        "ar": "بالعربية",
-        "es": "En español"
-      },
-      "texts": {
-        "en": "What's a small thing that made you smile this week?",
-        "fr": "Quelle petite chose t'a fait sourire cette semaine ?",
-        "ar": "ما الشيء الصغير الذي جعلك تبتسم هذا الأسبوع؟",
-        "es": "¿Qué cosa pequeña te hizo sonreír esta semana?"
-      }
     },
     "made": {
       "preview": "معاينة",
@@ -319,7 +296,6 @@
       "discover": {
         "title": "اكتشف",
         "rounds": "الجولات",
-        "icebreakers": "كاسرات الجليد",
         "how": "كيف يعمل",
         "faq": "أسئلة",
         "free": "الخطة المجانية"
