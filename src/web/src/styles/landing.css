@@ -1915,8 +1915,8 @@
   border-radius: 32px;
   background-color: var(--paper);
   background-image:
-    radial-gradient(closest-side at 100% 0, var(--mint), transparent),
-    radial-gradient(closest-side at 0 100%, var(--lavender), transparent);
+    radial-gradient(farthest-side at 100% 0, var(--mint), transparent),
+    radial-gradient(farthest-side at 0 100%, var(--lavender), transparent);
   background-position: 100% 0, 0 100%;
   background-size: 14rem 12rem, 14rem 12rem;
   background-repeat: no-repeat;

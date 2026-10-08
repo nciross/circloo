@@ -483,50 +483,204 @@ a.navitem:active {
   }
 }
 
-/* ---------- Auth (sign in, profile setup, join, not found): the public bar, one outlined panel on white ---------- */
+/* ---------- Auth (sign in, profile setup, join, not found), in the public site's language (#250): the light mauve
+   bar with the site's larger wordmark and pills, one white card with 32px corners and soft pastel corners, the cast
+   beside it on wide screens. Phones first. ---------- */
 .auth {
   min-block-size: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr;
   background: var(--ground);
 }
+/* The public bars (auth on mauve, the guest room on white) share the site's top bar: a 4.5rem row, the wordmark
+   bigger than the app's, the language as an outlined pill and one charcoal pill for the action. */
+.auth .sitebar__inner,
+.guest .sitebar__inner {
+  gap: var(--s-2);
+  min-block-size: 4.5rem;
+}
+.auth .sitebar .brand,
+.guest .sitebar .brand {
+  font-size: 1.4rem;
+}
+.auth .sitebar .lang-menu__trigger,
+.guest .sitebar .lang-menu__trigger {
+  min-block-size: 2.5rem;
+  padding-inline: 0.6rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  font-weight: 700;
+}
+.auth .sitebar .lang-menu__trigger:hover,
+.auth .sitebar .lang-menu__trigger[aria-expanded='true'],
+.guest .sitebar .lang-menu__trigger:hover,
+.guest .sitebar .lang-menu__trigger[aria-expanded='true'] {
+  border-color: var(--ink);
+}
+.auth .sitebar .btn--sm,
+.guest .sitebar .btn--sm {
+  min-block-size: 2.5rem;
+  padding-inline: 1rem;
+  font-size: 0.8125rem;
+}
+.guest .sitebar {
+  border-block-end: 1px solid var(--hairline);
+}
+@media (min-width: 26rem) {
+  .auth .sitebar .brand,
+  .guest .sitebar .brand {
+    font-size: 1.6rem;
+  }
+}
+@media (min-width: 34rem) {
+  .auth .sitebar__inner,
+  .guest .sitebar__inner {
+    gap: var(--s-3) var(--s-4);
+  }
+  .auth .sitebar .brand,
+  .guest .sitebar .brand {
+    font-size: clamp(1.75rem, 1.4rem + 1vw, 2.125rem);
+  }
+  .auth .sitebar .lang-menu__trigger,
+  .guest .sitebar .lang-menu__trigger {
+    padding-inline: 0.85rem;
+  }
+  .auth .sitebar .btn--sm,
+  .guest .sitebar .btn--sm {
+    padding-inline: 1.4rem;
+    font-size: var(--fs-sm);
+  }
+}
+/* These pages are part of the site: their one primary action is the charcoal pill (the app keeps cerise). */
+.auth .btn--primary,
+.auth .btn--charcoal,
+.guest .sitebar .btn--charcoal {
+  --btn-bg: var(--charcoal);
+  --btn-bg-hover: var(--charcoal-hover);
+  --btn-bg-active: var(--charcoal-hover);
+  --btn-fg: var(--on-charcoal);
+}
+/* Secondary actions read as the site's purple links. */
+.auth .btn--subtle {
+  --btn-fg: var(--violet-link);
+}
 .auth__main {
+  position: relative;
   display: grid;
   align-content: start;
   justify-items: center;
   gap: var(--s-5);
-  padding: var(--s-9) var(--gutter) var(--s-10);
+  padding: var(--s-6) var(--gutter) var(--s-9);
+  overflow-x: clip;
 }
 .auth__card {
+  position: relative;
+  z-index: 1;
   inline-size: min(28rem, 100%);
-  padding: var(--s-7);
+  padding: var(--s-5);
   border: 2px solid var(--hairline);
-  border-radius: var(--r-xl);
-  background: var(--paper);
+  border-radius: 32px;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(farthest-side at 100% 0, color-mix(in srgb, var(--mint) 70%, transparent), transparent),
+    radial-gradient(farthest-side at 0 100%, color-mix(in srgb, var(--lavender) 45%, transparent), transparent);
+  background-position: 100% 0, 0 100%;
+  background-size: 12rem 10rem, 12rem 10rem;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
 }
 .auth__card--plain {
   inline-size: min(40rem, 100%);
   padding: 0;
   border: 0;
   background: transparent;
+  box-shadow: none;
 }
 .auth__note {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   font-weight: 500;
-  color: var(--ink-soft);
+  color: var(--meta);
+}
+/* The cast beside the card: still pictures on pastel blobs, only where there is room for them. */
+.auth__side {
+  display: none;
+}
+@media (min-width: 30rem) {
+  .auth__main {
+    padding-block-start: var(--s-9);
+  }
+  .auth__card {
+    padding: var(--s-7);
+  }
+}
+@media (min-width: 64rem) {
+  .auth__side {
+    position: absolute;
+    inset-block-start: var(--s-9);
+    display: block;
+    inline-size: 14rem;
+    block-size: 12rem;
+  }
+  .auth__side--start {
+    inset-inline-start: var(--gutter);
+  }
+  .auth__side--end {
+    inset-block-start: 18rem;
+    inset-inline-end: var(--gutter);
+  }
+  .auth__blob {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .auth__cast {
+    position: absolute;
+    inset-inline: 8% 6%;
+    inset-block-end: 14%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .auth__char {
+    inline-size: 6.5rem;
+    block-size: auto;
+  }
+  .auth__char + .auth__char {
+    inline-size: 5.25rem;
+    margin-inline-start: -1.25rem;
+  }
+  .auth__doodle {
+    position: absolute;
+    inset-block-start: -0.5rem;
+    inset-inline-end: 0.5rem;
+    inline-size: 1.75rem;
+  }
+}
+@media (min-width: 80rem) {
+  .auth__side--start {
+    inset-inline-start: calc(var(--gutter) + 4rem);
+  }
+  .auth__side--end {
+    inset-inline-end: calc(var(--gutter) + 4rem);
+  }
 }
 .authform {
   display: grid;
   gap: var(--s-5);
 }
 .authform__title {
-  font-size: var(--fs-3xl);
-  font-weight: var(--w-display);
-  letter-spacing: -0.035em;
-  line-height: 0.98;
+  font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 :lang(ar) .authform__title {
   letter-spacing: 0;
@@ -534,8 +688,8 @@ a.navitem:active {
 }
 .authform__lead {
   margin-block-start: calc(-1 * var(--s-3));
-  font-size: var(--fs-lg);
-  font-weight: 500;
+  font-size: var(--fs-md);
+  line-height: 1.55;
   color: var(--ink-soft);
 }
 .authform__email {
@@ -545,8 +699,8 @@ a.navitem:active {
 .authform__notice {
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-md);
-  background: var(--beam-subtle);
-  color: var(--beam-text);
+  background: var(--mint);
+  color: var(--on-sun);
   font-size: var(--fs-sm);
   font-weight: 600;
 }
@@ -560,16 +714,17 @@ a.navitem:active {
 .authform .btn--lg {
   inline-size: 100%;
 }
-/* Lost: a display headline, one character on the ground, one pill home. */
+/* Lost: centred like the site's hero; a big 404 with the cat standing beside it, one pill home. */
 .lost {
-  justify-items: start;
-  gap: var(--s-6);
+  justify-items: center;
+  gap: var(--s-5);
+  text-align: center;
 }
 .lost__char {
   position: relative;
+  order: -1;
   inline-size: 6rem;
   block-size: 6rem;
-  margin-block-end: var(--s-3);
 }
 .lost__char > svg {
   position: relative;
@@ -588,29 +743,26 @@ a.navitem:active {
   filter: blur(3px);
 }
 .lost__code {
+  order: -2;
+  padding: 0.1rem 1rem;
+  border-radius: var(--r-pill);
+  background: var(--butter);
+  color: var(--on-sun);
   font-size: var(--fs-sm);
-  font-weight: 700;
-  line-height: 1;
+  font-weight: 800;
+  line-height: 1.6;
   letter-spacing: 0.12em;
-  color: var(--ink-faint);
   font-variant-numeric: tabular-nums;
 }
 .lost .authform__title {
-  font-size: var(--fs-4xl);
+  font-size: clamp(2.25rem, 1.6rem + 3vw, 3.5rem);
 }
 .lost .authform__lead {
   margin: 0;
+  max-inline-size: 34rem;
 }
 .lost .btn--lg {
   inline-size: auto;
-}
-@media (max-width: 30rem) {
-  .auth__main {
-    padding-block-start: var(--s-7);
-  }
-  .auth__card {
-    padding: var(--s-5);
-  }
 }
 
 /* The six-digit code: one real input under six outlined cells, grouped 3 + 3. */
@@ -656,22 +808,21 @@ a.navitem:active {
 .code-tile:nth-of-type(4) {
   margin-inline-start: var(--s-3);
 }
-/* A digit arriving outlines its cell in ink and settles in from below. */
+/* A digit arriving outlines its cell in ink and settles in from below (movement only, never a fade). */
 .code-tile.is-filled {
   border-color: var(--ink);
   animation: digit-in var(--dur-move) var(--ease-settle);
 }
 @keyframes digit-in {
   from {
-    opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(6px) scale(0.92);
   }
 }
 /* The cell waiting for the next digit shows where the beam is. */
 .code-field__input:focus-visible ~ .code-tile.is-next,
 .code-field__input:focus-visible ~ .code-tile.is-last {
   border-color: var(--focus);
-  background: var(--beam-subtle);
+  background: var(--mauve);
 }
 .code-field__input[aria-invalid='true'] ~ .code-tile {
   border-color: var(--danger);

@@ -460,7 +460,7 @@
   }
 }
 
-/* ---------- Join: public, on white; the host, the name as a pill, the picker, one ink pill ---------- */
+/* ---------- Join: public, in the site's language; the host on a pill, the name as a pill, the picker, one charcoal pill ---------- */
 .join__host {
   display: flex;
   align-items: center;
@@ -483,6 +483,30 @@
 }
 .auth__card:has(.join) {
   inline-size: min(38rem, 100%);
+}
+/* The host on a soft pill, like the site's tags. */
+.join .join__host {
+  justify-self: start;
+  padding: var(--s-1) var(--s-4) var(--s-1) var(--s-1);
+  border-radius: var(--r-pill);
+  background: var(--mauve);
+}
+/* On the join page the picker speaks the site: white cards that lift, the picked one on mint with a charcoal
+   outline (the app's pickers keep their own look). */
+.join .pick__item {
+  border-radius: var(--r-lg);
+}
+.join .pick__item:hover {
+  border-color: var(--hairline-strong);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+.join .pick__item.is-picked {
+  border-color: var(--charcoal);
+  background: var(--mint);
+  box-shadow: inset 0 0 0 1px var(--charcoal);
+}
+.join .pick__item.is-picked .pick__name {
+  color: var(--on-sun);
 }
 
 /* ---------- Room ---------- */
