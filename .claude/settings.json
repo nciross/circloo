@@ -9,7 +9,7 @@
     "impeccable@impeccable": true
   },
   "enableAllProjectMcpServers": false,
-  "enabledMcpjsonServers": ["github"],
+  "enabledMcpjsonServers": ["github", "playwright"],
   "permissions": {
     "allow": [
       "mcp__github__get_issue",
