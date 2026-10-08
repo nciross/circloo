@@ -1,4 +1,4 @@
-/* circloo · the buddy list (#250). A white canvas, near-black ink, exactly one blue, and one dark card per view
+/* circloo · the buddy list (#250). A white canvas, near-black ink, exactly one colour (cerise), and one cerise card per view
    as the second read. Status colours (ok, mid, low) live only inside that card, as meters and values. The public
    site's hero is a cobalt field with a yellow sun for its one button. Violet stays AI, coral stays the face's mouth,
    the five skies stay the moods. Every text pair is AA or better in both themes.
@@ -21,29 +21,33 @@
   --ink-faint: #6b6b6b; /* 5.3:1 on paper, 4.7:1 on paper-sunken */
   --on-ink: #ffffff;
 
-  /* The one blue: links, the lead line under a title, the picked option, the Build button on the site */
-  --beam: #2b6bf3; /* white text 4.7:1 */
-  --beam-hover: #1f5be0;
-  --beam-pressed: #1a4fc7;
-  --beam-subtle: #e8effe;
-  --beam-subtle-hover: #d6e2fd;
-  --beam-text: #1d5be3; /* 5.7:1 */
+  /* The one colour, cerise: links, the lead line under a title, the picked option, primary pills */
+  --beam: #d6276b; /* white text 4.8:1 */
+  --beam-hover: #c01f5e;
+  --beam-pressed: #a81a52;
+  --beam-subtle: #fde8ef;
+  --beam-subtle-hover: #fbd3e0;
+  --beam-text: #b81b58; /* 6.2:1 */
   --on-beam: #ffffff;
-  --focus: #2b6bf3;
+  --accent: var(--beam);
+  --accent-hover: var(--beam-hover);
+  --accent-pressed: var(--beam-pressed);
+  --on-accent: var(--on-beam);
+  --focus: #d6276b;
 
-  /* The dark card: the one focal object of a view. Its own small palette. */
-  --card: #161616;
-  --card-line: #2a2a2a;
-  --card-sunken: #222222;
-  --card-hover: #262626;
-  --on-card: #ffffff;
-  --on-card-soft: #cfcfcf; /* 12:1 */
-  --on-card-faint: #9a9a9a; /* 5.4:1 */
-  --seg-empty: #3c3c3c;
-  --ok: #2fd6c3; /* healthy, here, done */
-  --mid: #f4623a; /* partial, a second source */
-  --low: #e5484d; /* empty, away, late */
-  --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.45), 0 18px 36px -24px rgb(0 0 0 / 0.4);
+  /* The cerise card: the one focal object of a view. Its own small palette. */
+  --card: #9c1242;
+  --card-line: #b8305f;
+  --card-sunken: #850d37;
+  --card-hover: #a9174b;
+  --on-card: #ffffff; /* 8.1:1 */
+  --on-card-soft: #ffe6ee; /* 6.9:1 */
+  --on-card-faint: #ffd5e2; /* 6:1 */
+  --seg-empty: #7a0d33;
+  --ok: #ffd23f; /* healthy, here, done: 5.7:1 */
+  --mid: #ffffff; /* partial, a second source */
+  --low: #ffb3c8; /* empty, away, late: 4:1 */
+  --shadow-card: 0 40px 80px -30px rgb(156 18 66 / 0.55), 0 18px 36px -24px rgb(156 18 66 / 0.45);
 
   /* The public hero: a cobalt field, white type, one yellow sun for its button and one prop */
   --field: #2b5cf0;
@@ -219,36 +223,36 @@
    Blue lightens and its text flips to dark. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --ground: #0f0f10;
-  --paper: #161616;
-  --paper-sunken: #1e1e1f;
-  --paper-hover: #242425;
-  --paper-pressed: #2c2c2d;
-  --hairline: #2a2a2a;
-  --hairline-strong: #3f3f41;
-  --ink: #f5f5f5;
-  --ink-soft: #b5b5b8;
-  --ink-faint: #9a9a9a;
-  --on-ink: #111111;
-  --beam: #6d9bff;
-  --beam-hover: #85acff;
-  --beam-pressed: #9dbcff;
-  --beam-subtle: #1c2a4d;
-  --beam-subtle-hover: #253766;
-  --beam-text: #8fb0ff;
-  --on-beam: #111111;
-  --focus: #8fb0ff;
-  --card: #f5f5f5;
-  --card-line: #e0e0e0;
-  --card-sunken: #ebebeb;
-  --card-hover: #e6e6e6;
-  --on-card: #111111;
-  --on-card-soft: #3a3a3a;
-  --on-card-faint: #666666;
-  --seg-empty: #d4d4d4;
-  --ok: #0f9f8e;
-  --mid: #d2491f;
-  --low: #d1343a;
+  --ground: #160810;
+  --paper: #1d0b14;
+  --paper-sunken: #26101b;
+  --paper-hover: #2e1421;
+  --paper-pressed: #381928;
+  --hairline: #36182a;
+  --hairline-strong: #4f2540;
+  --ink: #fff5f8;
+  --ink-soft: #d9b8c6;
+  --ink-faint: #b58fa1;
+  --on-ink: #160810;
+  --beam: #ff6fa3;
+  --beam-hover: #ff8ab5;
+  --beam-pressed: #ffa3c5;
+  --beam-subtle: #3d1024;
+  --beam-subtle-hover: #4f1630;
+  --beam-text: #ff9ec0;
+  --on-beam: #1a0610;
+  --focus: #ff9ec0;
+  --card: #ffe6ee;
+  --card-line: #f3c6d4;
+  --card-sunken: #fbd3e0;
+  --card-hover: #f7cbd9;
+  --on-card: #2a0613;
+  --on-card-soft: #5c1a33;
+  --on-card-faint: #7a2b47;
+  --seg-empty: #efb9ca;
+  --ok: #8a6400;
+  --mid: #9c1242;
+  --low: #5c1a33;
   --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
   --field: #2b5cf0;
   --field-deep: #1e45c4;
@@ -278,17 +282,17 @@
   --on-danger: #111111;
   --warning-subtle: #3a2d0a;
   --warning-text: #f0c75e;
-  --info-subtle: #1c2a4d;
-  --info-text: #8fb0ff;
-  --neutral-subtle: #1e1e1f;
-  --neutral-text: #b5b5b8;
+  --info-subtle: #3d1024;
+  --info-text: #ff9ec0;
+  --neutral-subtle: #26101b;
+  --neutral-text: #d9b8c6;
   --body-1: #60a5fa;
   --body-2: #fb923c;
   --body-3: #4ade80;
   --body-4: #f472b6;
   --body-5: #22d3ee;
-  --on-body: #111111;
-  --brand-ink: #f5f5f5;
+  --on-body: #160810;
+  --brand-ink: #fff5f8;
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
   --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
 }
@@ -296,36 +300,36 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
     color-scheme: dark;
-    --ground: #0f0f10;
-    --paper: #161616;
-    --paper-sunken: #1e1e1f;
-    --paper-hover: #242425;
-    --paper-pressed: #2c2c2d;
-    --hairline: #2a2a2a;
-    --hairline-strong: #3f3f41;
-    --ink: #f5f5f5;
-    --ink-soft: #b5b5b8;
-    --ink-faint: #9a9a9a;
-    --on-ink: #111111;
-    --beam: #6d9bff;
-    --beam-hover: #85acff;
-    --beam-pressed: #9dbcff;
-    --beam-subtle: #1c2a4d;
-    --beam-subtle-hover: #253766;
-    --beam-text: #8fb0ff;
-    --on-beam: #111111;
-    --focus: #8fb0ff;
-    --card: #f5f5f5;
-    --card-line: #e0e0e0;
-    --card-sunken: #ebebeb;
-    --card-hover: #e6e6e6;
-    --on-card: #111111;
-    --on-card-soft: #3a3a3a;
-    --on-card-faint: #666666;
-    --seg-empty: #d4d4d4;
-    --ok: #0f9f8e;
-    --mid: #d2491f;
-    --low: #d1343a;
+    --ground: #160810;
+    --paper: #1d0b14;
+    --paper-sunken: #26101b;
+    --paper-hover: #2e1421;
+    --paper-pressed: #381928;
+    --hairline: #36182a;
+    --hairline-strong: #4f2540;
+    --ink: #fff5f8;
+    --ink-soft: #d9b8c6;
+    --ink-faint: #b58fa1;
+    --on-ink: #160810;
+    --beam: #ff6fa3;
+    --beam-hover: #ff8ab5;
+    --beam-pressed: #ffa3c5;
+    --beam-subtle: #3d1024;
+    --beam-subtle-hover: #4f1630;
+    --beam-text: #ff9ec0;
+    --on-beam: #1a0610;
+    --focus: #ff9ec0;
+    --card: #ffe6ee;
+    --card-line: #f3c6d4;
+    --card-sunken: #fbd3e0;
+    --card-hover: #f7cbd9;
+    --on-card: #2a0613;
+    --on-card-soft: #5c1a33;
+    --on-card-faint: #7a2b47;
+    --seg-empty: #efb9ca;
+    --ok: #8a6400;
+    --mid: #9c1242;
+    --low: #5c1a33;
     --shadow-card: 0 40px 80px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
     --field: #2b5cf0;
     --field-deep: #1e45c4;
@@ -355,17 +359,17 @@
     --on-danger: #111111;
     --warning-subtle: #3a2d0a;
     --warning-text: #f0c75e;
-    --info-subtle: #1c2a4d;
-    --info-text: #8fb0ff;
-    --neutral-subtle: #1e1e1f;
-    --neutral-text: #b5b5b8;
+    --info-subtle: #3d1024;
+    --info-text: #ff9ec0;
+    --neutral-subtle: #26101b;
+    --neutral-text: #d9b8c6;
     --body-1: #60a5fa;
     --body-2: #fb923c;
     --body-3: #4ade80;
     --body-4: #f472b6;
     --body-5: #22d3ee;
-    --on-body: #111111;
-    --brand-ink: #f5f5f5;
+    --on-body: #160810;
+    --brand-ink: #fff5f8;
     --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.5);
     --shadow-overlay: 0 12px 28px -12px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.06);
   }

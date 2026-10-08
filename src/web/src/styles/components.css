@@ -69,12 +69,12 @@
   }
 }
 
-/* ---------- Buttons: pills. The primary is ink; inside the dark card it flips to white. ---------- */
+/* ---------- Buttons: pills. The primary is the one colour; inside the cerise card it flips to white. ---------- */
 .btn {
-  --btn-bg: var(--ink);
-  --btn-bg-hover: var(--ink-soft);
-  --btn-bg-active: var(--ink);
-  --btn-fg: var(--on-ink);
+  --btn-bg: var(--accent);
+  --btn-bg-hover: var(--accent-hover);
+  --btn-bg-active: var(--accent-pressed);
+  --btn-fg: var(--on-accent);
   --btn-ring: transparent;
   display: inline-flex;
   align-items: center;
@@ -286,9 +286,9 @@
 }
 .chip[aria-pressed='true'],
 .chip.is-on {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--on-ink);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* ---------- Lozenges: eyebrow tags, tiny pills with wide tracking ---------- */
@@ -1467,9 +1467,9 @@
   transform: scale(0.97);
 }
 .mood[aria-pressed='true'] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--on-ink);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .mood:focus-visible {
   outline: 2px solid var(--focus);

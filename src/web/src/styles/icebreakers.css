@@ -347,8 +347,8 @@
 }
 /* The add button is an ink dot. */
 .swimmer__add {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .swimmer__add:hover {
   background: var(--ink-soft);
@@ -538,8 +538,8 @@
   padding: 0;
 }
 .mini-btn--keep {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .mini-btn--keep:hover {
   background: var(--ink-soft);

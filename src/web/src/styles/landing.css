@@ -747,6 +747,88 @@
 .site[data-motion='on']:not(.is-still) .note__arrow {
   animation: arrow-wiggle 2.6s ease-in-out infinite;
 }
+/* The composition is alive while the visitor allows motion: seated characters breathe in turn, empty plates pulse,
+   the sticky note swings on its pin, the chips drift, the face nods once it is done. All on translate/rotate, never
+   on transform (Motion owns transform for the hops) and never on opacity (axe reads the resting contrast). */
+.site[data-motion='on']:not(.is-still) .made__seat.is-in .made__seat-body {
+  animation: seat-bob 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.45s);
+}
+.site[data-motion='on']:not(.is-still) .made__empty-seat {
+  animation: plate-pulse 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+}
+.site[data-motion='on']:not(.is-still) .made.is-on .made__name {
+  animation: note-swing 5s ease-in-out infinite;
+}
+.site[data-motion='on']:not(.is-still) :dir(rtl) .made.is-on .made__name {
+  animation-name: note-swing-rtl;
+}
+.site[data-motion='on']:not(.is-still) .made__chip {
+  animation: chip-drift 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+.site[data-motion='on']:not(.is-still) .made.is-done .made__face {
+  animation: face-nod 6s ease-in-out infinite;
+}
+@keyframes seat-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -5px;
+  }
+}
+@keyframes plate-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.25;
+  }
+}
+@keyframes note-swing {
+  0%,
+  100% {
+    rotate: 4.5deg;
+  }
+  50% {
+    rotate: 7.5deg;
+  }
+}
+@keyframes note-swing-rtl {
+  0%,
+  100% {
+    rotate: -4.5deg;
+  }
+  50% {
+    rotate: -7.5deg;
+  }
+}
+@keyframes chip-drift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
+}
+@keyframes face-nod {
+  0%,
+  88%,
+  100% {
+    rotate: 0deg;
+  }
+  92% {
+    rotate: -4deg;
+  }
+  96% {
+    rotate: 3deg;
+  }
+}
 @keyframes table-float {
   0%,
   100% {
@@ -911,8 +993,8 @@
   transform: translateY(-1px) scale(1.02);
 }
 .film__pick[aria-current='true'] {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .film__pick:focus-visible {
   outline: 2px solid var(--focus);

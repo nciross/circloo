@@ -194,8 +194,8 @@ a.navitem:active {
 }
 .navitem.is-active,
 .navitem.is-active:hover {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .navitem.is-soon {
   color: var(--ink-faint);

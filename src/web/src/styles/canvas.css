@@ -44,8 +44,8 @@
   transform: scale(0.97);
 }
 .canvas__tools .icon-btn[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .canvas__sep {
   inline-size: 2px;
@@ -526,9 +526,9 @@ button.presence__person:focus-visible {
 }
 .canvas__chip[aria-pressed='true'],
 .canvas__style .icon-btn[aria-pressed='true'] {
-  background: var(--ink);
+  background: var(--accent);
   box-shadow: none;
-  color: var(--on-ink);
+  color: var(--on-accent);
 }
 .canvas__style .canvas__sticker[aria-pressed='true'] {
   background: var(--paper-sunken);

@@ -228,8 +228,8 @@
   color: var(--ink);
 }
 .activity.is-on .activity__icon {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .activity__copy {
   display: grid;
@@ -288,8 +288,8 @@
   transform: scale(0.97);
 }
 .activity__toggle[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 @media (max-width: 36rem) {
   .activity {

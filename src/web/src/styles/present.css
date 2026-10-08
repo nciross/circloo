@@ -772,8 +772,8 @@
   cursor: default;
 }
 .answer-pad__option.is-on {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 .answer-pad__option.is-on .stage-slide__letter {
   border-color: var(--on-ink);

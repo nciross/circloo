@@ -191,9 +191,9 @@
   background: var(--paper-sunken);
 }
 .build__chips .build__opt.is-picked {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--on-ink);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 /* Colours: round swatches; picked = a 2px ink ring set off the swatch. */
 .build__dots .build__opt {
