@@ -1,100 +1,74 @@
-# Data model: Live discussion stage (spec 009)
+# Data model: Live discussion, group calls (spec 009)
 
-Changes to existing entities and the new ones. One EF Core migration, `LiveDiscussionStage`, in `src/Circloo.Api/Data/Migrations/`. Entities in `src/Circloo.Api/Data/Entities.cs`, mapping in `CirclooDbContext.cs`. Spec 008's `RaisedHand`, `MessageLike`, `Circle.ChatMode` are used as they are.
+**Amended 2026-10-08.** Only chat messages are stored (spec FR-930). The 2026-10-05 migration `20261006090000_LiveDiscussionStage` is merged on `main`. A second migration, `GroupCallsLiveKit`, in `src/Circloo.Api/Data/Migrations/`, removes what the amendment no longer needs and adds the speaking mode. Entities in `src/Circloo.Api/Data/Entities.cs`, mapping in `CirclooDbContext.cs`. Spec 008's `RaisedHand`, `MessageLike`, `Circle.ChatMode` and `Circle.ReactionsOn` are used as they are.
 
-## Circle (existing): the discussion setting
+## Circle (existing): the call setting
 
-| Field | Type | Rules |
-|---|---|---|
-| DiscussionOn | bool | **new**, default false. Only the animator changes it (FR-901). Remembered until changed (US1 #5) |
-| DiscussionVideo | bool | **new**, default true. "Allow cameras". When false, no video on the stage (kids-safe rule, R13) |
-| DiscussionChangedAt | DateTimeOffset? | **new**, set on every change |
-| DiscussionChangedByMemberId | Guid? | **new**, the animator's member id, or null when the system switched it off (animator away). No foreign key |
+Configuration, not content: it says what is allowed now, never what happened.
 
-Not reset when an activity changes (unlike `ChatMode`): the discussion is a circle preference, not an activity.
+| Field | Type | Status | Rules |
+|---|---|---|---|
+| DiscussionOn | bool | kept (2026-10-05), default false | **The group call is on.** Only the animator changes it (FR-901). Kept name, so the shipped switch and tests keep working |
+| DiscussionVideo | bool | kept, default true | **Video allowed in the call.** False means an audio call (the kids-safe path, R13). Only meaningful while `DiscussionOn` |
+| DiscussionSpeaking | string (8) | **new**, default `'hand'` | `'hand'` (Hand to speak) or `'open'` (Open mic). Check constraint on the two values. Set when the call starts and changeable during it (FR-928) |
+| DiscussionChangedAt | DateTimeOffset? | **dropped** | It recorded when a call started or ended (FR-930) |
+| DiscussionChangedByMemberId | Guid? | **dropped** | It recorded who started or ended a call (FR-930) |
+
+The chat switch is spec 008's `Circle.ChatMode` (`open`, `slow`, `paused`; "off" is `paused`). The reactions switch is spec 008's `Circle.ReactionsOn`. Both reset to their defaults when the activity changes (spec 008 FR-811); the call setting does not.
 
 ## CircleMessage (existing): replies
 
 | Field | Type | Rules |
 |---|---|---|
-| ReplyToId | long? | **new**. FK to `CircleMessage`, restrict. The parent must be in the same circle, `Kind = 'member'`, not hidden and itself not a reply (one level). Index on `ReplyToId` |
+| ReplyToId | long? | kept (2026-10-05). FK to `CircleMessage`, restrict. The parent must be in the same circle, `Kind = 'member'`, not hidden and itself not a reply (one level). Index on `ReplyToId` |
 
-System lines for the stage and the recording are ordinary `CircleMessage` rows with `Kind = 'system'` and a short coded `Text` (`discussion:on`, `discussion:off`, `stage:joined`, `stage:left`, `stage:taken`, `stage:removed`, `floor:given`, `muted`, `recording:started`, `recording:stopped`). `MemberId` is the person the line is about; the actor is in the coded text when it matters (`muted:<actorMemberId>`). The client translates them. Hand lines are not stored (R12).
+**No call system rows.** Call status changes (call started or ended, video on or off, mode changed, floor, mutes, removals) are **not** written as `CircleMessage` rows. The hub sends a `CallNotice` event and clients draw a live line that a reload does not bring back (R31). Activity lines (`start:<id>`, `end:<id>`) are unchanged.
 
-## Recording (new)
+## Recording, RecordingEvent: dropped
 
-One run of text recording in a circle.
+Created empty by `LiveDiscussionStage` (no code ever wrote them). `GroupCallsLiveKit` drops `RecordingEvents` (with `CK_RecordingEvents_TextOnlyForMessages` and `IX_RecordingEvents_RecordingId_Id`) and then `Recordings` (with `IX_Recordings_CircleId_Running` and `IX_Recordings_CircleId_StartedAt`). Its `Down` recreates them as they were, so the migration chain stays reversible.
 
-| Field | Type | Rules |
-|---|---|---|
-| Id | Guid | v7, primary key |
-| CircleId | Guid | FK to `Circle`, cascade. Index `(CircleId, StartedAt DESC)` |
-| StartedByMemberId | Guid? | the animator who started it. No foreign key |
-| Title | string | 1 to 80 characters, `TextRules.Clean` and `SafetyPolicy`. Default: the circle's name |
-| StartedAt | DateTimeOffset | the moment the notice goes out |
-| CaptureFrom | DateTimeOffset | `StartedAt + RecordingNoticeSeconds`. Nothing is captured before |
-| MaxAt | DateTimeOffset | `CaptureFrom + RecordingMaxMinutes` |
-| EndedAt | DateTimeOffset? | null while running |
-| EndedReason | string? | `animator`, `discussion-off`, `animator-away`, `max-length`, `max-events`, `circle-closed`, `restart` |
-
-- A **unique partial index on `CircleId` where `EndedAt IS NULL`** allows one running recording per circle (FR-920). A losing concurrent insert is mapped to "return the running one".
-- At most `Discussion:RecordingsPerCircle` (50) rows per circle.
-
-## RecordingEvent (new)
-
-An append-only line of the transcript. Text events only.
-
-| Field | Type | Rules |
-|---|---|---|
-| Id | long | identity. Transcript order is `(At, Id)` |
-| RecordingId | Guid | FK to `Recording`, cascade. Index `(RecordingId, Id)` |
-| At | DateTimeOffset | server time, never client time |
-| Kind | string | one of `message`, `hand.raised`, `hand.lowered`, `stage.joined`, `stage.left`, `floor.given`, `floor.taken`, `muted`, `unmute.allowed`, `recording.started`, `recording.stopped` |
-| ActorMemberId | Guid? | who did it (the animator for floor, mute, removal; the person for their own message or hand). No foreign key |
-| SubjectMemberId | Guid? | who it happened to, when different from the actor. No foreign key |
-| MessageId | long? | the chat message, for `message`. No foreign key (the chat may be cleaned later) |
-| ReplyToMessageId | long? | the parent's message id for a reply |
-| Reason | string? | at most 24 characters, for `stage.left` (`self`, `taken`, `removed`, `dropped`, `ended`) and `recording.stopped` (the `EndedReason`) |
-| Text | string? | the message text snapshot, 1 to 280 characters, **only** for `message` |
-
-- **Check constraint** `CK_RecordingEvents_TextOnlyForMessages`: `"Text" IS NULL OR "Kind" = 'message'`, and `Kind = 'message'` requires `Text IS NOT NULL`.
-- Per recording, at most `Discussion:RecordingMaxEvents` (50 000) rows; the cap ends the recording with `max-events`.
-- **There is nothing else to store.** No audio, video, speech-derived text, device labels, SDP, ICE, IP addresses or user agents exist in any column. A test enumerates the table's columns and the allowed `Kind` values (SC-906).
-- Names are not stored: the read path joins `CircleMember` (name, character). A missing member reads as "Former member". Hidden state is read from `CircleMessage.HiddenAt` through `MessageId`.
-
-## Not stored (live only, in memory)
+## Not stored (memory only, or nowhere)
 
 | What | Where | Lifetime |
 |---|---|---|
-| Stage seats, viewers, mute state, audio/video on flags, connection ids | `StageRegistry` | until the person leaves, the grace period ends or the room empties. A restart clears them |
-| Animator presence and the away clock | `StageRegistry` | per room session |
-| The active recording per circle (id, capture window, running event count) | `StageRegistry` (cache of the database row) | until it ends |
-| Signalling messages (offers, answers, ICE) | nowhere | forwarded to one connection, never kept or logged |
-| Per-member limits (`stage-join`, `signal-sdp`, `signal-ice`, `media`, `stage-admin`, `hand`, `rec-start`, `refused-audit`) | `RoomLimits` | sliding windows, single replica |
+| Call passes (tokens) | nowhere: minted per request, returned once, never logged | 5 minutes (`LiveKit:TokenMinutes`) |
+| Animator mutes: microphone muted, camera stopped, per member | `CallModeration` (singleton, per circle) | until allowed, or the call ends. Lost on an API restart |
+| Members removed from the current call | `CallModeration` | until `AllowBack` or the call ends |
+| Who is in the call (roster) | `CallModeration`, fed by webhooks | until they leave or the room closes |
+| Animator-away timer | `CallAway` (like `HandsGrace`, on `TimeProvider`) | cancelled when an animator connection returns |
+| Who has the floor | spec 008's `RaisedHand.HasFloor` row | while the hand is "up" with the floor. Deleted when lowered, when the next person gets the floor, or when the call ends |
+| Audio and video | the call server's memory while forwarding | never written. No egress, no recording |
+| Reactions | spec 008's in-memory burst buffer | 400 ms. Totals only during a presentation (spec 008, D11) |
+| Per-member limits (`call-token`, `call-admin`, `hand`, `reaction`, `refused-audit`) | `RoomLimits` | sliding windows, single replica |
 
 ## Lifecycle rules
 
-- **Switch on** (`EnableDiscussion`): sets the columns, audits `discussion.on`, adds a system line, broadcasts `Discussion`. Everyone starts muted with video off and nothing is asked of the browser.
-- **Switch off** or **animator away 5 min**: in one unit of work: set `DiscussionOn = false`, stop a running recording (reason `discussion-off` or `animator-away`), clear the registry for the circle, clear the hands queue of 008 (FR-902), add system lines, audit, broadcast `Discussion`, `Stage`, `Recording(null)`.
-- **Circle closed** (existing close endpoint): a running recording is stopped with `circle-closed` and the registry is cleared.
-- **Recording delete**: hard delete of the `Recording` row, cascade to events, audit `recording.deleted`. Refused while the recording is running.
-- **Circle deleted or expired**: expiry only closes the circle (the animator can still read transcripts of a closed circle). If the circle row itself is ever deleted, recordings cascade.
+- **Start a call** (`EnableDiscussion(videoAllowed, speaking)` while off): sets `DiscussionOn = true`, `DiscussionVideo`, `DiscussionSpeaking`; creates the LiveKit room; audit `discussion.on`; broadcasts `Discussion` and `CallNotice('call-started')`.
+- **Change video** (`EnableDiscussion` again while on, with another `videoAllowed`): updates the column, recomputes everyone's permissions on the call server (cameras stop within 2 s when off), broadcasts.
+- **Change speaking mode** (`SetSpeakingMode`): updates `DiscussionSpeaking`, recomputes permissions, audit `call.mode`, broadcasts.
+- **End a call** (`DisableDiscussion`, animator away 5 minutes, circle closed): in one unit of work sets `DiscussionOn = false` and deletes the circle's `RaisedHand` rows; then deletes the LiveKit room (everyone disconnects), clears `CallModeration` for the circle, audits `discussion.off` with the reason, broadcasts `Discussion`, `Hands` and `CallNotice('call-ended')`.
+- **A member leaves or is removed from the circle**: if they are in the call, `RemoveParticipant`.
+- **Circle deleted or expired**: expiry closes the circle, which ends the call. Nothing about calls remains to delete.
 
-## Configuration (`Discussion` section, `DiscussionOptions`)
+## Configuration
+
+`LiveKit` section (`LiveKitOptions`, validated at start-up):
+
+| Key | Default | Range or form | Meaning |
+|---|---|---|---|
+| `LiveKit:Url` | empty | `ws://` or `wss://` URL | The call server address browsers connect to. **Empty means calls are unavailable** (FR-935) |
+| `LiveKit:ApiUrl` | derived from `Url` (`ws`→`http`, `wss`→`https`) | `http://` or `https://` URL | Where the API calls RoomService. Locally the container's endpoint |
+| `LiveKit:ApiKey` | empty | 3 to 64 characters | The key id (not a secret) |
+| `LiveKit:ApiSecret` | empty | at least 32 characters | **Secret**: user-secrets via the AppHost parameter locally, Key Vault (`livekit-api-secret`) in Azure. Required when `Url` is set |
+| `LiveKit:TokenMinutes` | 5 | 1 to 30 | Lifetime of a call pass |
+
+`Discussion` section (`DiscussionOptions`, trimmed):
 
 | Key | Default | Range | Meaning |
 |---|---|---|---|
-| `Discussion:StageMax` | 8 | 2 to 12 | people sending at once, animator included |
-| `Discussion:ListenersMax` | 8 | 0 to 24 | receive-only viewers |
-| `Discussion:IceUrls` | `["stun:stun.cloudflare.com:3478"]` | schemes `stun`, `stuns`, `turn`, `turns` | ICE servers handed to the browsers. Blank entries are dropped |
-| `Discussion:SeatGraceSeconds` | 30 | 5 to 120 | a dropped connection keeps its seat this long |
-| `Discussion:InviteSeconds` | 60 | 10 to 300 | a floor invitation expires if the person does not join |
-| `Discussion:AwayFreezeSeconds` | 60 | 10 to 600 | animator away: stage freezes |
-| `Discussion:AwayEndSeconds` | 300 | 60 to 3600 | animator away: discussion ends (must exceed the freeze) |
-| `Discussion:RecordingNoticeSeconds` | 5 | 2 to 30 | notice phase before capture |
-| `Discussion:RecordingMaxMinutes` | 240 | 10 to 480 | recording length cap |
-| `Discussion:RecordingWarnMinutes` | 15 | 1 to 60 | animator warning before the cap |
-| `Discussion:RecordingMaxEvents` | 50000 | 1000 to 200000 | events per recording |
-| `Discussion:RecordingsPerCircle` | 50 | 1 to 500 | kept recordings per circle |
+| `Discussion:AwayEndSeconds` | 300 | 60 to 3600 | The call ends after the animator has been away this long (R34, D6) |
 
-All are plain settings (no secrets) with code defaults, so no Bicep change is needed. They are listed in `docs/architecture/overview.md`.
+**Removed keys** (shipped in T901, deleted by T918 and T924): `StageMax`, `ListenersMax`, `IceUrls`, `SeatGraceSeconds`, `InviteSeconds`, `AwayFreezeSeconds`, `RecordingNoticeSeconds`, `RecordingMaxMinutes`, `RecordingWarnMinutes`, `RecordingMaxEvents`, `RecordingsPerCircle`.
+
+The call size is spec 008's `Circles:MaxPeople` (default 100), passed to LiveKit as the room's `max_participants`.

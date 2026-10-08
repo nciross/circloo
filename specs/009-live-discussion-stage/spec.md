@@ -1,301 +1,328 @@
-# Feature Specification: Live discussion: stage with audio and video, raised hands and a text-only session record
+# Feature Specification: Live discussion: group audio and video calls with chat, raised hands and emoji
 
-**Feature Branch**: `feat/009-live-discussion-stage` (proposed; created by `/speckit-specify` through the git extension, not yet created)
+**Feature Branch**: `feat/009-live-discussion-stage` (first written on `docs/212-live-discussion-spec`; amended on `docs/212-livekit-group-calls`)
 
-**Created**: 2026-10-05
+**Created**: 2026-10-05 · **Amended**: 2026-10-08 (founder direction: group calls on a self-hosted call server, performance first; recording dropped)
 
-**Status**: Planned (plan, research, data model, contracts, quickstart and tasks written; see `plan.md`)
+**Status**: Planned, amended (plan, research, data model, contracts, quickstart and tasks updated; see `plan.md`). One founder decision blocks production only: hosting of the call server (research D8).
 
-**Parent idea**: #212 (type:idea, area:spaces) Epic: E4 (shared live activities) with E2 (circles and roles). Related: #96 (earlier audio/video/ask-to-speak scope, see Assumptions), #166 and spec 008 (sidebar, chat, raised hands), #174 (big circles), #126 (Impeccable runs), spec 006 (presenting).
+**Parent idea**: #212 (type:idea, area:spaces) Epic: E4 (shared live activities) with E2 (circles and roles). Related: #96 (superseded), #166 and spec 008 (sidebar, chat, reactions, raised hands), #174 (big circles), #126 (Impeccable runs), spec 006 (presenting), #244 (room workspace and its Call tab), #255 (training, certification and exams: a separate idea, not part of this spec).
 
-**Input**: User description: "Add the possibility that the animator and participants discuss and exchange ideas, and request to talk by raising a hand, with video, audio and a conversation. Add the possibility to record the session. Design this part using Impeccable and the test skill. No storage of audio or video, only conversation. The feature must be enabled or disabled by animators. Recording must be run only by animators." (Founder, 2026-10-05.)
+**Input**: User description (2026-10-05): "Add the possibility that the animator and participants discuss and exchange ideas, and request to talk by raising a hand, with video, audio and a conversation. [...] No storage of audio or video, only conversation. The feature must be enabled or disabled by animators."
+
+**Amendment input** (founder, 2026-10-08, verbatim): "start now conversation and interaction in circle status open animators can activate or disable chat audio group call or video group call only chat message saved in db but other not save so can send emoji participants can raise hand to speak ... i want like google chat or teams or zoom performance first"
 
 ## Design and test workflow
 
 - All UI of this feature MUST go through Impeccable: `/impeccable shape` first, then `/impeccable craft`, then `audit` and `critique` before merge (constitution IV, `docs/design/anti-ai-look.md`).
-- **The Impeccable skill is currently not installed (#126).** Until it is, `ux-designer` reviews are manual against `docs/design/anti-ai-look.md` and WCAG 2.2 AA, and the plan records which Impeccable steps were skipped so they can be rerun later.
-- No dedicated "test skill" exists in `.claude/skills/`. Tests follow constitution VI: hub tests (xUnit + Testcontainers) for every rule, Vitest for client logic, and Playwright with fake media devices for each story, including one Arabic RTL run and an axe check. The plan decides whether a test skill is wanted.
+- When the Impeccable skill cannot run in a session (#126), `ux-designer` reviews by hand against `docs/design/anti-ai-look.md` and WCAG 2.2 AA, and the PR lists the skipped Impeccable steps so they can be rerun.
+- Tests follow constitution VI: API tests (xUnit + Testcontainers) for every rule, Vitest for client logic, Playwright with fake media devices against a local call server for each story (one Arabic RTL run, axe), and a load and network test for the performance targets.
 
 ## Clarifications
 
-### Session 2026-10-05
+### Session 2026-10-08
 
-- Q: Who may read a saved transcript? -> A: The animator who ran it only; they can open, export and delete it. Participants are told this before recording starts. Sharing to the circle is not in this feature.
-- Q: What consent applies to recording? -> A: A clear notice when the animator starts, an always-visible recording indicator for the whole session (late joiners see it on entry), and the freedom to leave. No explicit accept step.
-- Q: What happens to #96? -> A: Closed as superseded by #212. Its fun filters and local camera recording conflict with "no media stored".
-- Q: Stage size and relay? -> A: Up to 8 people on camera or microphone at once (peer mesh). STUN only at launch; a TURN relay is a later, separate task if people on strict networks cannot connect.
-- Q: Watching limit (plan D1)? -> A: Watching the stage is opt-in and capped at 8 viewers (configurable); everyone else in a big circle uses chat and raise hand. A 100-person live audience is out of scope (it would need a media server).
-- Q: Strict networks (plan D2)? -> A: Public STUN only at launch; people behind strict firewalls see "Can't connect, chat and hands still work". A TURN relay is a later, separate task after an azure-infra check.
-- Q: Keeping minors off camera (plan D3)? -> A: A per-circle animator switch "Allow cameras", default on; off means audio and chat only. No new kids-safe flag.
-- Q: STUN provider (plan D4)? -> A: Cloudflare public STUN (`stun:stun.cloudflare.com:3478`), configurable through `Discussion__IceUrls__0..n`; the permission primer discloses that it sees public IP addresses.
-- Open questions 4 to 7, 8 (reuse the circle chat with replies), 10 to 12 and 14 are decided in `/speckit-plan` with the stated proposals as defaults: one animator controls the stage and recording, 60 s then 5 min animator-away rule, a muted person stays muted until the animator allows, stage size is a configuration value defaulting to 8, kids-safe circles allow audio and chat only, the projector shows only the recording indicator and the number of raised hands, a 4 h recording maximum with a warning, and Playwright with fake media devices plus hub tests stand in for a test skill.
+Founder decisions, binding. They supersede the earlier ones where they conflict.
+
+- Q: Which call engine? -> A: **A self-hosted LiveKit call server (SFU)** replaces the browser-to-browser mesh. The goal is Zoom, Teams or Google Meet quality group calls, performance first: several video qualities per camera, quality that adapts to each screen and network, an active speaker, good behaviour on phones and weak networks. Audio and video pass through our own call server but are **never recorded or stored**: no recording, no export of media, in any environment. This supersedes research R1 and R2 ("no SFU") and the 8-viewer cap (D1).
+- Q: What does the animator control while the circle is open? -> A: **Three switches**: Chat on or off, Audio group call on or off, Video group call on or off. Video implies audio. The server enforces them; a participant's attempt is refused. Chat on or off is the chat pause of spec 008 (participants read but cannot send). The "Allow cameras" switch of 2026-10-05 becomes the video switch.
+- Q: How do people speak? -> A: The animator picks a **speaking mode** per call: **Open mic** (anyone can unmute, like Zoom; a raised hand is only a signal) or **Hand to speak** (participants stay muted until the animator gives them the floor). It is enforced on the call server through each person's permissions, not only in the interface.
+- Q: What is saved? -> A: **Only chat messages are saved.** Calls, who joined, who spoke, the floor, mutes, emoji reactions, raised hands and every other call event are never saved. **User Story 6 (record the session as a text transcript) is dropped entirely**, with its requirements, entities and tasks.
+- Q: Emoji? -> A: Emoji reactions stay during calls. They are live only and reuse spec 008's reactions.
+- Q: Raised hands? -> A: Raise hand to speak stays.
+
+Interpretations recorded by the plan (not new founder decisions; the founder can override them):
+
+- "Raised hands are not saved" means no history is kept. A raised hand exists only while it is up (spec 008 keeps the live queue in a table so it survives a reload) and disappears when it is lowered, given the floor and then taken, or the call ends.
+- "Calls are not saved" includes the chat history: the call no longer writes "call started" or "Amina joined" lines into the stored chat. Those lines are shown live and never stored.
+- The security audit trail keeps only switch changes, removals from a call and refused attempts, with ids and no content (constitution VIII). It never records who joined, who spoke, the floor or mutes. Founder confirmation D10.
+- In Hand to speak mode, one participant holds the floor at a time (spec 008's single floor), plus the animator, who can always speak. Several floors at once can be a later setting.
+- The default speaking mode for a new call is Hand to speak (everyone starts muted, as the 2026-10-05 spec said). The animator changes it in one tap before or during the call.
+
+### Session 2026-10-05 (kept for history; superseded items are marked)
+
+- Q: Who may read a saved transcript? -> A: The animator only. **Superseded 2026-10-08: no transcript exists.**
+- Q: What consent applies to recording? -> A: Notice and indicator. **Superseded 2026-10-08: no recording exists.**
+- Q: What happens to #96? -> A: Closed as superseded by #212. Its fun filters and local camera recording conflict with "no media stored". **Still valid.**
+- Q: Stage size and relay? -> A: Up to 8 people on camera or microphone (peer mesh), STUN only. **Superseded 2026-10-08: the call server carries the whole circle; its own relay handles strict networks.**
+- Q: Watching limit (plan D1)? -> A: Opt-in, capped at 8 viewers. **Superseded 2026-10-08.**
+- Q: Strict networks (plan D2)? -> A: STUN only at launch. **Superseded 2026-10-08: the call server falls back to TCP and to TLS on port 443.**
+- Q: Keeping minors off camera (plan D3)? -> A: A per-circle animator switch "Allow cameras", default on. **Still valid, now the video switch: audio call means no cameras.**
+- Q: STUN provider (plan D4)? -> A: Cloudflare public STUN. **Superseded 2026-10-08: no third party; the call server answers STUN itself.**
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - The animator turns discussion on or off for a circle (Priority: P1)
+### User Story 1 - The animator switches chat, audio call and video call (Priority: P1)
 
-Théo, who animates a team circle, opens the room settings and switches on **Live discussion**. Nothing else changes for the circle until he does: it is off by default. When on, participants see a Discussion area with a stage, a Raise hand button and the conversation. He can switch it off at any moment, and everything live stops for everyone.
+Théo animates a team circle. While the circle is open, the room shows him three switches: **Chat**, **Audio call** and **Video call**. The call is off by default; the chat is on by default (spec 008). He starts a video call. Later he switches video off: cameras stop for everyone, and the call goes on with audio only. He switches the chat off for a focused moment: people can still read it but cannot write. He ends the call when the meeting is over.
 
-**Why this priority**: every other story depends on the switch, and the founder made the animator the owner of it. Off by default protects families and classes that only want today's behaviour.
+**Why this priority**: every other story depends on the switches, and the founder made the animator their owner. Calls off by default protect families and classes that only want today's behaviour.
 
-**Independent Test**: in a new circle, the participant sees no Discussion controls. The animator switches it on and the participant sees them within a second. The animator switches it off during a live call: media stops for everyone and the controls disappear.
+**Independent Test**: in a new circle, a participant sees no call control. The animator starts an audio call; the participant sees "Join call" within a second. The animator switches to video; the participant can now switch a camera on. The animator ends the call; everyone's audio stops within 2 seconds.
 
 **Acceptance Scenarios**:
 
-1. **Given** a circle that has never used the feature, **Then** Live discussion is off, and no camera, microphone or stage control is visible to anyone.
-2. **Given** I am the animator, **When** I switch Live discussion on, **Then** every member in the room sees the Discussion area within 1 second, everyone starts muted with video off, and nobody is asked for camera or microphone permission yet.
-3. **Given** I am a participant, **When** I try to switch it on or off (through the interface or by sending the request myself), **Then** the server refuses and nothing changes.
-4. **Given** Live discussion is on and people are on the stage, **When** the animator switches it off, **Then** all live audio and video end for everyone, an active recording is stopped and saved (User Story 6), and the room shows "The animator ended the discussion".
-5. **Given** the switch is on, **Then** the setting is remembered for the circle until the animator changes it (or the animator-away rule switches it off, research R8). Hands, stage and mute state reset when the room ends.
-6. **Given** the interface is in Arabic, **Then** the switch, its label and the explanation are right-to-left and readable.
+1. **Given** a circle that has never used calls, **Then** the call is off, chat is on, and no camera, microphone or call control is visible to participants.
+2. **Given** I am the animator, **When** I start an audio call or a video call, **Then** every member in the room sees "Join call" within 1 second. Nobody is joined automatically and nobody is asked for a camera or microphone yet.
+3. **Given** a video call, **When** the animator switches video off, **Then** every camera stops for everyone within 2 seconds, audio goes on, and the camera button is gone. Switching video back on lets people switch their camera on again; it never switches a camera on for them.
+4. **Given** I am a participant, **When** I try to change any switch (through the interface or by sending the request myself), **Then** the server refuses it and nothing changes.
+5. **Given** a call is running, **When** the animator ends it, **Then** all audio and video end for everyone within 2 seconds, raised hands are lowered, and the room shows "The animator ended the call".
+6. **Given** the animator switches the chat off, **Then** participants can still read earlier messages, cannot send new ones, and read "The animator paused the chat" (spec 008). The animator can always write.
+7. **Given** the call server is not available in this environment, **Then** the animator sees "Group calls are not available here" instead of the call switches, and chat and hands keep working.
+8. **Given** the interface is in Arabic, **Then** the switches, their labels and explanations are right-to-left and readable.
 
 ---
 
-### User Story 2 - A participant raises a hand and asks to talk (Priority: P1)
+### User Story 2 - Join a group call and see who is talking (Priority: P1)
 
-Amina wants to speak. She taps **Raise hand**. Her character waves in the people list and she is placed in the queue. She can lower her hand whenever she wants. She sees her place in the queue ("You are 2nd").
+Amina taps **Join call**. Within two seconds she hears Théo. In a video call she sees a grid of the people with their camera on, the person speaking highlighted, and her own small preview. With 30 people in the call, she sees one page of tiles and can move to the next; the person speaking is always on her screen. On her phone she sees fewer, larger tiles and the controls sit under her thumb. She taps **Leave** whenever she wants.
 
-**Why this priority**: it is the polite entry point for the whole discussion and works even for people with no camera or microphone.
+**Why this priority**: it is the call itself, and the founder asked for "performance first".
 
-**Independent Test**: three participants raise their hands. Everyone sees the queue in arrival order with characters and names. One lowers hers and the queue closes the gap.
+**Independent Test**: with fake devices and a local call server, five pages join a video call. Each hears the speaker within 2 seconds of joining. The speaker is highlighted on every page within a second of starting to talk. A phone-sized page shows at most 4 video tiles at once and decodes no more than that.
 
 **Acceptance Scenarios**:
 
-1. **Given** Live discussion is on, **When** I tap Raise hand, **Then** my hand is up for everyone within 1 second, and I can lower it myself.
-2. **Given** several hands are up, **Then** everyone sees the queue in arrival order with characters and names, the animator also sees the waiting time, and I see my own place.
-3. **Given** I leave the room, **Then** my hand is lowered. A hand keeps its place for 30 seconds after a connection drop.
-4. **Given** a screen reader, **Then** the animator hears "Amina raised her hand" (grouped when several arrive together), and I hear my place when it changes.
-5. **Given** Live discussion is off, **Then** there is no Raise hand button in this feature. The raised-hand queue of spec 008 behaves as that spec defines.
+1. **Given** a call is on, **When** I tap Join call, **Then** I am in the call with my microphone and camera off, I hear the others within 2 seconds on a normal network, and the others see that I joined.
+2. **Given** a video call with more people on camera than fit my screen, **Then** I see one page of tiles (at most 9 on a computer, 4 on a phone), I can move between pages, and the active speaker is always visible (pinned or brought onto my page).
+3. **Given** someone speaks, **Then** their tile and their name in the people list show "speaking" within 1 second, by an outline and a text label, never colour alone.
+4. **Given** a person's camera is off, **Then** I see their character and name instead of a black square (FR-912).
+5. **Given** my phone, **Then** the call controls (microphone, camera, raise hand, reactions, leave) are reachable with one thumb, never cover the chat composer, and the call keeps its audio when I scroll the chat.
+6. **Given** I lock my phone or switch to another app, **Then** my camera stops (the browser requires it), my audio continues where the browser allows it, and my camera stays off when I come back until I switch it on.
+7. **Given** I tap Leave, **Then** my audio and video stop at once and I am back in the room with chat and hands.
+8. **Given** the interface is in Arabic, **Then** the grid order, pages and controls mirror, and names of mixed direction stay readable.
 
 ---
 
-### User Story 3 - The animator gives and takes the floor (Priority: P1)
+### User Story 3 - Speaking mode, raised hands and the floor (Priority: P1)
 
-Théo gives Amina the floor. She joins the stage: she can now switch on her microphone and camera (she chooses; nothing starts by itself). Everyone on the stage can hear and see her. Théo can mute her, lower her hand or remove her from the stage. Amina can also leave the stage herself at any time.
+Before or during the call, Théo picks **Open mic** or **Hand to speak**. In Open mic anyone can unmute; a raised hand only says "I would like to speak". In Hand to speak participants cannot unmute: Amina taps **Raise hand**, sees her place in the queue, and when Théo gives her the floor she can switch her microphone on. Théo can take the floor back, mute someone, stop someone's camera, mute everyone at once, or remove someone from the call.
 
-**Why this priority**: it is the core of the feature, and the animator's control is the safety net for a room of friends, family or colleagues.
+**Why this priority**: it is how a call stays polite with 5 or 100 people, and the founder asked for both modes and for raise hand to speak.
 
-**Independent Test**: with the animator and three participants, the animator gives the floor to the first hand. She appears on the stage, unmutes, and the other three hear her. The animator mutes her: her audio stops for all and she sees "The animator muted you". She leaves the stage and is back among the audience.
+**Independent Test**: in Hand to speak, a participant who forces an unmute through a modified client publishes nothing (the call server refuses). The animator gives her the floor and she is heard. The animator switches to Open mic and every participant can unmute. The animator removes a participant, who cannot rejoin this call with an earlier pass.
 
 **Acceptance Scenarios**:
 
-1. **Given** hands are up, **When** the animator gives the floor to one person, **Then** that person joins the stage, their hand goes down, and everyone sees "Amina is on stage". The person still has microphone and camera off until they switch them on.
-2. **Given** I am on the stage, **When** I switch on my microphone or camera, **Then** the browser asks for permission with a short explanation shown first (User Story 4). Only then do others receive my audio or video.
-3. **Given** I am the animator, **When** I mute someone, lower a hand or remove someone from the stage, **Then** it takes effect for everyone within 1 second and the person is told what happened in kind words.
-4. **Given** I am on the stage, **When** I tap Leave stage, **Then** my audio and video stop at once and I return to the audience.
-5. **Given** a participant is muted by the animator, **Then** they can unmute themselves only after the animator allows it again, or by leaving and being given the floor again (decided in the plan, research R7).
-6. **Given** the stage holds its maximum number of people (default 8, a configuration value `Discussion:StageMax`, decided in the plan), **When** the animator tries to add one more, **Then** they are told the stage is full and can remove someone first.
-7. **Given** people in the audience (not on stage), **Then** they can use the chat and raise hand, and up to `Discussion:ListenersMax` of them (default 8, opt-in, Clarifications) can watch and listen to the stage. The audience never sends audio or video.
-8. **Given** the interface is in Arabic, **Then** the stage, its controls and its order mirror, and names of mixed direction stay readable.
+1. **Given** a call starts, **Then** the animator sees the speaking mode (default Hand to speak) and can change it before and during the call. Everyone sees the current mode in plain words ("Raise your hand to speak" or "Open mic").
+2. **Given** Hand to speak, **When** I am not the animator and do not have the floor, **Then** my microphone button is replaced by Raise hand, and the call server refuses any audio I try to send, even from a modified client.
+3. **Given** Hand to speak and hands are up, **When** the animator gives the floor to Amina, **Then** her hand goes down, she is told "You have the floor. Switch your microphone on when you are ready", and she can send audio. Nothing is switched on for her. The previous floor holder (if any) is muted and told so kindly.
+4. **Given** Open mic, **Then** anyone in the call can unmute, a raised hand is shown to the animator as a signal, and the animator can still give the floor (it only highlights the person).
+5. **Given** I raise my hand, **Then** I see my place ("You are 2nd"), I can lower it myself, and everyone sees the queue in arrival order (spec 008).
+6. **Given** I am the animator, **When** I mute someone's microphone or stop their camera, **Then** it takes effect for everyone within 1 second, the person reads what happened in kind words, and they cannot switch that device back on until the animator allows it again.
+7. **Given** Open mic, **When** the animator taps Mute everyone, **Then** every participant's microphone goes off within 1 second; participants may unmute again (a reset, not a lock).
+8. **Given** I am the animator, **When** I remove someone from the call, **Then** they leave the call within 1 second, stay in the circle with chat, and cannot rejoin this call unless the animator lets them back. Ending the call clears this.
+9. **Given** the animator switches from Hand to speak to Open mic or back, **Then** everyone's microphone permission follows within 2 seconds; people who were muted by the animator stay muted.
+10. **Given** the interface is in Arabic, **Then** the queue, the mode and the animator's menus are right-to-left.
 
 ---
 
 ### User Story 4 - Camera and microphone: permissions and fallbacks (Priority: P1)
 
-Before the browser asks for the camera or microphone, circloo explains in one short sentence why and that nothing is stored. If the person says no, has no device, or has no camera, the stage still works: they can listen, use the chat, raise a hand, or speak with audio only.
+Before the browser asks for the camera or microphone, circloo explains in one short sentence why and that nothing is kept. If the person says no, has no device, or has no camera, the call still works for them: they can listen, chat, raise a hand and react.
 
-**Why this priority**: real devices fail often, and the feature must never leave a person stuck. It also decides whether the feature is usable on a phone.
+**Why this priority**: real devices and networks fail often, and the feature must never leave a person stuck.
 
-**Independent Test**: with fake devices, a person accepts audio only and is heard. Another denies permission and still uses chat and raise hand. A third has no microphone and sees a clear message and the text options.
+**Independent Test**: with fake devices, a person accepts audio only and is heard. Another denies permission and still listens, chats and raises a hand. A third has no microphone and reads a clear message. A fourth is on a network that blocks UDP and still joins.
 
 **Acceptance Scenarios**:
 
-1. **Given** I am about to switch on a device, **Then** I first see a short explanation ("Your camera goes straight to the others. circloo does not keep it.") with a button to continue, and only then does the browser ask.
-2. **Given** I deny permission, **Then** I see how to allow it again in my browser, and everything else keeps working (listen, chat, raise hand).
-3. **Given** my device has no camera, **Then** I can join with audio only and the stage shows my character and name in place of video.
-4. **Given** my device has no microphone and no camera, **Then** I can still be on the stage as a listener with chat, and the interface says so plainly.
-5. **Given** my camera or microphone is taken by another application, **Then** I see a clear message and a Try again button.
-6. **Given** I switch off my camera, **Then** others see my character and name instead of a black square.
-7. **Given** my browser does not support live audio or video, **Then** I see "This browser cannot join the live discussion. You can still chat and raise your hand." and the rest works.
-8. **Given** the connection is poor, **Then** video stops first and audio keeps going, with a visible "Weak connection" notice.
-9. **Given** all messages are in French, Arabic or Spanish, **Then** every message above exists in all four languages.
+1. **Given** I am about to switch on a device for the first time in this session, **Then** I first see a short explanation ("Your camera and microphone go to the people in this call through circloo's call server. Nothing is recorded or kept.") with a Continue button, and only then does the browser ask.
+2. **Given** I deny permission, **Then** I see how to allow it again in my browser, and I can still listen, chat, raise a hand and react.
+3. **Given** my device has no camera, **Then** I can take part with audio only and the others see my character and name.
+4. **Given** my device has no microphone and no camera, **Then** I can still join and listen, and the interface says so plainly.
+5. **Given** my camera or microphone is used by another application, **Then** I see a clear message and a Try again button.
+6. **Given** my browser cannot do live audio or video, **Then** I read "This browser cannot join the call. You can still chat and raise your hand." and the rest works.
+7. **Given** my network blocks the usual call traffic (strict office firewall), **Then** the call connects through the fallback on the web port (TLS on 443) within 5 seconds, possibly with lower video quality, and I am not asked to do anything.
+8. **Given** my connection becomes poor, **Then** video quality drops first, then video pauses, while audio keeps going, and a "Weak connection" notice appears on my screen. It recovers by itself.
+9. **Given** the call server is briefly unreachable, **Then** I see "Reconnecting…", the call resumes by itself within 15 seconds if the network comes back, and otherwise I am back in the room with a Join again button.
+10. **Given** French, Arabic or Spanish, **Then** every message above exists in all four languages.
 
 ---
 
 ### User Story 5 - Talk in writing: the conversation (Priority: P2)
 
-Everyone can also exchange ideas in writing next to the stage: short messages, replies in a thread, likes. Théo can hide a message.
+Everyone can also exchange ideas in writing next to the call: short messages, replies in a thread, likes. Théo can hide a message and pause the chat. Chat messages are the only thing this feature keeps.
 
-**Why this priority**: the founder wants "conversation" as part of the discussion, and it is the only content that is recorded. It is P2 because spec 008 already provides most of it.
+**Why this priority**: the founder wants conversation as part of the discussion. It is P2 because spec 008 already provides most of it.
 
-**Independent Test**: during a discussion, participants post messages and replies. Everyone sees them in order. The transcript (User Story 6) later contains them.
+**Independent Test**: during a call, participants post messages and replies. Everyone sees them in order. After the call, the chat is still there; nothing about the call is.
 
 **Acceptance Scenarios**:
 
-1. **Given** Live discussion is on, **Then** the circle chat of spec 008 is the conversation: same safety filter, rate limits, slow mode, likes and hiding. This feature adds no second chat.
-2. **Given** I want to answer a specific message, **When** I reply, **Then** my message shows under it as a thread (reuse or new decided in the plan, open question).
-3. **Given** a message mentions or answers a raised hand or the stage (for example "Amina is on stage"), **Then** the room shows these status changes as small system lines in the conversation, so the transcript is complete.
+1. **Given** a call is on or off, **Then** the circle chat of spec 008 is the conversation: same safety filter, rate limits, slow mode, pause, likes and hiding. This feature adds no second chat.
+2. **Given** I want to answer a specific message, **When** I reply, **Then** my message shows under it as a one-level thread.
+3. **Given** call status changes (call started or ended, floor given, someone muted or removed), **Then** the room shows them as small live lines in the conversation, and they are **not** stored: a reload or a later visit does not show them.
 4. **Given** the interface is in Arabic, **Then** the conversation, threads and composer mirror.
 
 ---
 
-### User Story 6 - Record the session as a text transcript (Priority: P2)
+### User Story 6 - Record the session as a text transcript
 
-Théo taps **Record session**. Before it starts, everyone sees a clear banner ("The animator is recording this session as text: messages, raised hands and who was on stage. No audio or video is kept.") and an indicator that stays visible the whole time. When he stops, circloo saves a transcript: the chat messages, the raised hands and who was on the stage and when. No audio, no video and no speech-to-text.
-
-**Why this priority**: the founder asked for it. It is P2 because the discussion works without it, but it carries the strongest privacy rules, so it needs the most care.
-
-**Independent Test**: the animator starts the recording; a participant who joins afterwards sees the indicator at once. A participant tries to start or stop it with a crafted request and is refused. After stopping, the animator opens a transcript containing the messages, hands and stage times, and containing no media.
-
-**Acceptance Scenarios**:
-
-1. **Given** I am a participant, **When** I try to start or stop a recording (interface or crafted request), **Then** the server refuses it and the attempt is audited.
-2. **Given** I am the animator, **When** I tap Record session, **Then** every person in the room sees the notice and an always-visible "Recording (text only)" indicator before anything is captured. Capture starts only after the notice has been delivered.
-3. **Given** a recording is running, **When** someone joins or reconnects, **Then** they see the indicator and the notice on entry, before they can type or raise a hand.
-4. **Given** a recording is running, **Then** the indicator is never hidden, collapsed or covered, including when the sidebar is collapsed, on phones and on the audience screen. It is shown by text and an icon, not colour alone.
-5. **Given** a recording is running, **When** the animator stops it, or switches Live discussion off, or the animator leaves (see edge cases), **Then** the recording ends, everyone is told "Recording stopped", and the transcript is saved.
-6. **Given** a transcript, **Then** it contains: session title and date, start and end times, chat messages with sender name and time, hidden messages marked as hidden and excluded for non-animators, raised hands and lowering with times, stage joins, leaves, mutes and removals with times and who did them. It contains no audio, no video, no speech-to-text and no device or network information.
-7. **Given** a message is sent when no recording is running, **Then** it is not part of any transcript.
-8. **Given** the transcript is saved, **Then** the animator can read it, export it as text or Markdown, and delete it. Nobody else can read it (Clarifications). It is kept until the animator deletes it (research R10; retention to be confirmed by the founder, D7).
-9. **Given** the interface is in Arabic, **Then** the notice, indicator and transcript are right-to-left and exports keep correct text direction.
+**Removed on 2026-10-08** by founder decision: nothing about a call is saved, so there is no recording and no transcript. FR-914 to FR-920, SC-905, the `Recording` and `RecordingEvent` entities and tasks T910 to T913 are removed with it.
 
 ---
 
 ### User Story 7 - Everyone can follow along with keyboard and screen reader (Priority: P2)
 
-A participant using a screen reader hears when hands go up, when the floor changes and when the recording starts. Everything on the stage works from the keyboard. Under reduced motion, nothing waves or bounces.
+A participant using a screen reader hears when the call starts, when hands go up, when the floor changes and when they are muted. Everything in the call works from the keyboard. Under reduced motion, nothing waves, bounces or floats.
 
 **Why this priority**: WCAG 2.2 AA is the floor. It is its own story so it is tested on its own.
 
-**Independent Test**: with a keyboard only, a person raises a hand, joins the stage when given the floor, mutes and leaves. A screen-reader run hears each change once, politely.
+**Independent Test**: with a keyboard only, a person joins a call, raises a hand, unmutes when given the floor, sends a reaction and leaves. A screen-reader run hears each change once, politely.
 
 **Acceptance Scenarios**:
 
-1. **Given** only a keyboard, **Then** switching the feature on or off, raising and lowering a hand, giving the floor, mute, remove, leave stage, record start and stop, and the conversation are all reachable and usable, with visible focus and logical order.
-2. **Given** a screen reader, **Then** these changes are announced politely and grouped (never one interruption per event during a burst): a hand raised or lowered, the floor given, someone muted, someone removed, the recording starting and stopping. The recording start is announced assertively, because it concerns privacy.
-3. **Given** reduced motion, **Then** hands, speaking indicators and joins use no movement. A speaking person is shown with a text label ("speaking") as well as any pulse.
-4. **Given** a person who cannot see the stage, **Then** their name and state (on stage, muted, speaking) are available as text.
+1. **Given** only a keyboard, **Then** the three switches, the speaking mode, join, leave, microphone, camera, raise and lower hand, reactions, page changes in the grid, and every animator action are reachable and usable, with visible focus and logical order.
+2. **Given** a screen reader, **Then** these changes are announced politely and grouped (never one interruption per event during a burst): call started or ended, a hand raised or lowered, the floor given or taken, me muted or allowed, me removed. Active speaker changes are not announced one by one; the current speaker is available as text on demand.
+3. **Given** reduced motion, **Then** speaking indicators, joins and reactions use no movement. A speaking person is shown with a text label ("speaking") as well as any outline.
+4. **Given** a person who cannot see the grid, **Then** each person's name and state (in call, muted, camera on, speaking, has the floor) is available as text in the people list.
 5. **Given** a participant who is deaf or hard of hearing, **Then** the conversation is the way to take part. Captions are out of scope for this feature (a later idea).
-6. **Given** the interface is in any of the four languages, **Then** all announcements are translated. In Arabic, focus order and arrow keys follow right-to-left.
+6. **Given** any of the four languages, **Then** all announcements are translated. In Arabic, focus order and arrow keys follow right-to-left.
+
+---
+
+### User Story 8 - Emoji reactions during a call (Priority: P2)
+
+During a call, Lucía taps 👏. It floats briefly over the call on every screen in the room. When many people react together, the screen shows "👏 ×12" instead of a flood.
+
+**Why this priority**: it is the lightest way to take part without speaking, and the founder asked for it. The call works without it.
+
+**Independent Test**: twenty pages tap 👏 within two seconds during a call. Every page shows one grouped burst ending in "👏 ×20". After the call, nothing about the reactions is stored.
+
+**Acceptance Scenarios**:
+
+1. **Given** a call is on, **When** I tap a reaction from spec 008's set (👏 ❤️ 😂 😮 👍 🎉), **Then** it appears over the call on every screen in the room within 1 second and fades in about 2 seconds.
+2. **Given** many reactions arrive close together, **Then** they are grouped with a count and never hide a speaker's face for more than about 2 seconds.
+3. **Given** I tap very fast, **Then** at most 5 of my reactions count every 10 seconds (spec 008), extra taps are ignored silently.
+4. **Given** the animator switches reactions off (spec 008 room setting), **Then** the reaction bar disappears from the call.
+5. **Given** reduced motion, **Then** reactions show as a small counter, without movement, and a screen reader hears a summary at most every few seconds.
+6. **Given** a call ends, **Then** no reaction and no count from the call is stored. (During a running presentation, spec 008's anonymous totals per kind still apply; founder confirmation D11.)
 
 ---
 
 ### Edge Cases
 
-- **The animator disconnects**: if they return within 60 seconds nothing changes. Otherwise the stage freezes, new hands are queued but nobody can be given the floor, the recording keeps its state, and everyone sees "The animator is away". If the animator does not return in 5 minutes the room ends the discussion and saves the transcript. (Times are configuration, research R8; switching off after 5 minutes is decision D6.)
-- **The person holding the floor drops**: the stage removes them after 30 seconds, their media stops for others and the next hand is shown as next.
-- **Network loss for a participant**: audio and video stop for them first, chat and hands recover on reconnect, and the place in the queue is kept for 30 seconds.
-- **Browser unsupported or media blocked** (strict corporate network, no relay reachable): the person is told their audio and video cannot connect, and keeps chat and raise hand.
-- **Two animators** (owner and an admin with the animator role, if allowed by spec 003 roles): any of them can use the controls. Actions are shown with who did them. Only one recording can run at a time. The plan decides if two can be on duty at once; the spec treats co-animators as out of scope except that nothing breaks if a second one exists.
-- **The animator removes someone who is also recording nothing**: no effect on the transcript except the "removed" line.
-- **Someone tries to join a circle that is full or has Live discussion off**: no stage controls are shown and nothing is sent.
-- **A participant rejoins the stage after being removed**: allowed only when given the floor again.
-- **Recording is running when a participant leaves**: their earlier messages stay in the transcript. Leaving the circle does not erase them (research R10; erasure on request is decision D7).
-- **A very long session**: the recording has a maximum length (proposal: 4 hours), after which it stops and says so.
-- **The audience screen (projector)**: it shows only the recording indicator and the number of raised hands (decided in the plan, research R17), never video, and always shows the recording indicator. Showing speaker names would be a later setting.
-- **A kids-safe circle**: the animator must switch Live discussion on explicitly. Video is governed by the animator's "Allow cameras" switch (default on; off means audio and chat only, Clarifications).
-- **Two animators start or stop the recording at the same time**: exactly one recording results.
-- **A circle left on with nobody present**: nothing runs and nothing is recorded.
+- **The animator disconnects**: the call goes on. If the animator does not come back within 5 minutes, the call ends for everyone ("The animator ended the call"; configurable, decision D6). A second animator tab or device keeps the animator present.
+- **The person with the floor drops**: they keep the floor for 30 seconds (spec 008's hand grace). After that the floor is free and the next hand is shown as next.
+- **Network loss**: the call client reconnects by itself for up to 15 seconds; chat and hands recover with the room's connection. A dropped person who comes back gets the same permissions (floor, mutes) they had.
+- **Strict corporate network**: UDP blocked falls back to TCP; TCP on unusual ports blocked falls back to TLS on port 443. If even that fails, the person reads "You can't join the call from this network. Chat and hands still work."
+- **A removed person tries to rejoin with an earlier pass**: the call server removes them again within a second.
+- **A person leaves the circle or is removed from it during a call**: they lose the call within a second.
+- **The circle closes during a call**: the call ends for everyone.
+- **Two animator tabs change a switch at the same moment**: one result stands, and everyone sees it.
+- **The animator switches video off while someone shares a camera**: the camera stops; the person keeps audio.
+- **A kids-safe circle**: the animator starts an audio call (no cameras). There is no separate kids-safe flag yet (research R13).
+- **The audience screen (projector)**: it never joins the call (no audio, no video). It shows the number of raised hands and the reactions, as in spec 008.
+- **A call left on with nobody in it**: it costs nothing; the call server room closes itself after a short empty time and reopens when someone joins.
+- **The call server restarts**: everyone sees "Reconnecting…", then rejoins automatically when it is back; mutes made by the animator before the restart are re-applied when people rejoin (they are kept in the app's memory, not on the call server).
+- **The API restarts during a call**: the call continues on the call server. Animator mutes held in memory are lost and people keep their current state; the animator can mute again. (Accepted with one replica, plan Complexity Tracking.)
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-**Switch and roles**
-- **FR-901**: Live discussion MUST be off by default for every circle and MUST be switched on and off only by the animator. The server MUST enforce this on every request. The client's claim to be an animator MUST never be trusted.
-- **FR-902**: Switching it off MUST end all live audio and video for everyone, stop any running recording (saving the transcript), and lower hands, within 2 seconds.
-- **FR-903**: Every action in this feature (join stage, raise hand, mute, remove, record) MUST re-check circle membership and role on the server, as elsewhere in the room.
+Numbering is stable. Changed requirements say so. Removed ones keep their number.
 
-**Stage, hands and floor**
-- **FR-904**: When Live discussion is on, everybody MUST join with microphone off and video off. Nothing MUST be requested from the browser until the person chooses to switch a device on.
+**Switches and roles**
+- **FR-901** *(changed 2026-10-08)*: While a circle is open, the animator MUST have three switches: Chat (on or off), Audio call (on or off) and Video call (on or off; video implies audio). Calls MUST be off by default; chat follows spec 008 (on by default). Only the animator may change them. The server MUST enforce this on every request and MUST never trust the client's claim to be an animator.
+- **FR-902** *(changed)*: Ending the call MUST end all audio and video for everyone and lower hands within 2 seconds. Switching video off MUST stop every camera within 2 seconds while audio continues. Switching chat off MUST let participants read but not send (spec 008 FR-811).
+- **FR-903**: Every action in this feature (call pass, raise hand, floor, mute, remove, reaction, switch) MUST re-check circle membership and role on the server.
+
+**Call, hands and floor**
+- **FR-904** *(changed)*: Joining a call MUST be a person's own choice. Everyone MUST join with microphone and camera off. Nothing MUST be requested from the browser until the person switches a device on.
 - **FR-905**: Participants MUST be able to raise and lower a hand. The queue MUST be in arrival order and visible to everyone with characters and names. This feature reuses the raised-hand queue of spec 008 and does not create a second one.
-- **FR-906**: The animator MUST be able to give the floor to a person, mute them, lower one or all hands and remove someone from the stage. Anyone on the stage MUST be able to leave it at any time.
-- **FR-907**: The stage MUST have a maximum number of people at once (default 8, configuration `Discussion:StageMax`, Clarifications). Watching and listening to the stage MUST be opt-in and capped (default 8 viewers, `Discussion:ListenersMax`); everyone else in a larger circle follows through chat, raise hand and the stage roster. The audience never sends audio or video.
-- **FR-908**: The person given the floor MUST start with devices off and choose when to switch them on. The animator MUST be able to mute a person, but MUST NOT be able to switch a person's camera or microphone on.
+- **FR-906** *(changed)*: The animator MUST be able to give and take the floor, mute a person's microphone, stop a person's camera, allow either again, mute everyone (Open mic), lower one or all hands, and remove a person from the call. Anyone MUST be able to leave the call at any time.
+- **FR-907** *(changed)*: Every member of the circle (up to the circle's maximum, spec 008) MUST be able to join the same call. Each screen MUST show a limited number of video tiles at once, with pages and the active speaker always visible (numbers in SC-912).
+- **FR-908**: The person given the floor MUST choose when to switch their devices on. The animator MUST be able to switch a person's camera or microphone off, but MUST NOT be able to switch them on.
 
 **Audio, video and permissions**
-- **FR-909**: Live audio and video MUST travel directly between browsers (WebRTC). circloo servers MUST only relay the signalling needed to connect them, over the existing live hub. Signalling MUST be authorised on every message. No audio or video MUST pass through circloo servers or be stored by circloo, in any environment. At launch only public STUN is used (Clarifications), which carries no media. A TURN relay that forwards encrypted media and stores nothing is a later, separate task that needs a founder decision.
-- **FR-910**: Before the browser asks for camera or microphone, the interface MUST explain in one short sentence why and that nothing is stored.
-- **FR-911**: The feature MUST degrade gracefully: permission denied, no device, no camera, audio only, device busy, unsupported browser, and weak connection (video drops before audio). In every case chat and raise hand MUST keep working.
+- **FR-909** *(changed)*: Audio and video MUST travel through circloo's own call server (an SFU), encrypted between each browser and that server. The call server MUST NOT record, store, transcribe or forward media anywhere else, in any environment; its recording and export features MUST stay disabled. No third-party service MUST receive media or connection checks.
+- **FR-910** *(changed)*: Before the browser asks for a camera or microphone, the interface MUST explain in one short sentence why, that media goes through circloo's call server, and that nothing is recorded or kept.
+- **FR-911** *(changed)*: The feature MUST degrade gracefully: permission denied, no device, no camera, audio only, device busy, unsupported browser, UDP blocked (fallback over TCP, then TLS on port 443), weak connection (video quality drops before audio) and a short outage (automatic reconnection). In every case chat, hands and reactions MUST keep working.
 - **FR-912**: When the camera is off, others MUST see the person's character and name, never an empty box.
 
 **Conversation**
-- **FR-913**: The conversation MUST reuse the circle chat of spec 008 (safety filter, rate limits, slow mode, likes, hiding). Threads (replies under a message) MUST be offered, reusing the chat if the plan finds that possible. Status changes (hand raised, floor given, joined or left the stage, recording started or stopped) MUST appear as system lines.
+- **FR-913** *(changed)*: The conversation MUST reuse the circle chat of spec 008 (safety filter, rate limits, slow mode, pause, likes, hiding) with one-level replies. Call status changes MUST appear as live lines that are not stored.
 
-**Recording (text transcript only)**
-- **FR-914**: Starting and stopping a recording MUST be possible only for the animator, enforced on the server. Refused attempts MUST be audited.
-- **FR-915**: A recording MUST save text only: chat messages, raised hands and who was on the stage and when. The system MUST NOT record, store, transcribe or derive text from audio or video. No browser or server component may keep media to produce the transcript.
-- **FR-916**: Before a recording captures anything, every person in the room MUST see a notice stating what is recorded and that no audio or video is kept. Capture MUST start only after the notice has been delivered to those present.
-- **FR-917**: While a recording runs, an indicator MUST be visible to every person at all times, with text and an icon (never colour alone), on every layout including phones, the collapsed sidebar and the audience screen. People who join or reconnect MUST see it on entry, before they can send anything.
-- **FR-918**: The transcript MUST contain: session title, date, start and end times; messages with sender name and time; raised hands and lowering with times; stage joins, leaves, mutes and removals with times and the person who did them. Hidden messages MUST be marked for the animator and MUST NOT appear for others. It MUST NOT contain audio, video, speech-to-text, device information or network addresses.
-- **FR-919**: The animator MUST be able to read, export (text and Markdown) and delete a transcript. Nobody else may read it (Clarifications). It is kept until the animator deletes it, and a member's own lines follow research R10; both are bound by GDPR basics in the PRD and await founder confirmation (D7).
-- **FR-920**: A recording MUST stop when the animator stops it, when Live discussion is switched off, when the animator is away for longer than the grace period, or when the maximum length is reached. Only one recording MAY run in a circle at a time.
+**Recording**
+- **FR-914** to **FR-920**: *Removed 2026-10-08* (no recording or transcript, User Story 6).
 
 **Security, abuse and limits**
-- **FR-921**: The server MUST rate-limit raising hands (one at a time, a reasonable number of toggles per minute), signalling messages, and stage joins per person, and MUST validate every input. Abuse (spamming hands, repeated stage rejoining, signalling floods) MUST be refused without an error detail that helps an attacker.
-- **FR-922**: The animator MUST be able to remove a person from the stage and hide chat messages. Security-relevant events (feature on or off, floor given, removal, recording start and stop, refused attempts) MUST be audited with hashed identifiers and without media or message content in logs.
-- **FR-923**: The plan MUST include a threat model for this feature (constitution VIII), covering signalling abuse, unauthorised recording, IP exposure through direct connections (peers see each other's network addresses; this MUST be disclosed in the explanation before first use or mitigated through a relay), and transcript leaks.
+- **FR-921** *(changed)*: The server MUST rate-limit call passes, raising hands, animator actions and reactions per person, and MUST validate every input. Abuse MUST be refused without an error detail that helps an attacker.
+- **FR-922** *(changed)*: The animator MUST be able to remove a person from a call and hide chat messages. Switch changes, removals from a call and refused attempts MUST be audited with ids only. Who joined, who spoke, the floor, mutes and reactions MUST NOT be audited or logged.
+- **FR-923** *(changed)*: The plan MUST include a threat model covering call passes (tokens), server-side permission enforcement, a removed person rejoining, the call server's exposure on the internet, its secrets, and what the call server can technically see.
 
 **Quality**
 - **FR-924**: Every new string MUST exist in English, French, Arabic and Spanish. Layouts MUST use logical CSS properties and be verified in Arabic RTL.
-- **FR-925**: Every control MUST work from the keyboard. Changes of hands, floor and recording MUST be announced to screen readers, grouped, meeting WCAG 2.2 AA. Reduced motion MUST be respected. Captions are out of scope.
-- **FR-926**: All UI MUST go through Impeccable shape and craft, then audit and critique, and follow `docs/design/anti-ai-look.md`. While Impeccable is not installed (#126), manual `ux-designer` review stands in for it and is recorded in the plan.
-- **FR-927**: Enterprise behaviour (for example "Live discussion allowed" or "recording allowed" per organization) MUST be configuration if it is added later, never customer-specific code (constitution V). It is not part of this feature.
+- **FR-925**: Every control MUST work from the keyboard. Changes of hands, floor, mutes and call state MUST be announced to screen readers, grouped, meeting WCAG 2.2 AA. Reduced motion MUST be respected. Captions are out of scope.
+- **FR-926**: All UI MUST go through Impeccable shape and craft, then audit and critique, and follow `docs/design/anti-ai-look.md`. When Impeccable cannot run (#126), a manual `ux-designer` review stands in and is recorded.
+- **FR-927**: Enterprise behaviour (for example "calls allowed" per organization) MUST be configuration if it is added later, never customer-specific code (constitution V). It is not part of this feature.
+
+**Added 2026-10-08**
+- **FR-928**: The animator MUST pick a speaking mode for each call, Open mic or Hand to speak, and MUST be able to change it during the call. The default is Hand to speak.
+- **FR-929**: In Hand to speak, only the animator and the person with the floor (one at a time, spec 008) MUST be able to send audio. The call server MUST enforce it through the person's permissions, so a modified client cannot send audio without the floor.
+- **FR-930**: Only chat messages (with their replies, likes and hidden state, spec 008) MUST be stored. Calls, who joined or left, who spoke and for how long, the floor, mutes, removals, raised-hand history, reactions and call status lines MUST NOT be stored in the database, in files or in logs. A raised hand MAY exist only while it is up.
+- **FR-931**: During a call, members MUST be able to send spec 008's emoji reactions; they MUST show over the call on every screen in the room, grouped and rate-limited, and MUST NOT be stored when no presentation is running.
+- **FR-932**: The call MUST adapt to each device and network: several qualities per camera, each screen receiving only the quality and the videos it shows, audio before video when bandwidth is short, and an active-speaker highlight.
+- **FR-933**: A person removed from a call MUST NOT be able to rejoin it, even with a pass issued before, until the animator lets them back or the call ends.
+- **FR-934**: The audience screen (projector) MUST NOT join the call. It shows the number of raised hands and reactions only.
+- **FR-935**: When the call server is not configured for an environment, the call switches MUST be replaced by "Group calls are not available here", and chat, hands and reactions MUST keep working.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Discussion setting** (per circle): on or off, who changed it and when. Off by default.
-- **Raised hand** (existing in spec 008): person, time raised, whether they hold the floor. Live only.
-- **Stage seat**: a person on the stage, since when, muted by the animator or not. Live only. Not stored beyond what the transcript records.
-- **Recording**: one run of text recording in a circle: started by, started at, stopped at, how it ended (animator, switch off, grace period, maximum length).
-- **Transcript**: the saved text of a recording: ordered entries (message, hand, stage event, system note) with time and person. Contains no media. Retention and readers are open questions.
-- **Audit event** (existing): feature on or off, floor, removal, recording start and stop, refused attempts, with hashed identifiers.
+- **Call setting** (per circle, existing columns): call on or off, video allowed or not, speaking mode. Configuration, not content: it says what is allowed now, not what happened.
+- **Chat setting** (existing, spec 008): open, slow or paused.
+- **Raised hand** (existing, spec 008): person, time raised, whether they hold the floor. Exists only while the hand is up.
+- **Call pass** (not stored): a short-lived token that lets one member join the circle's call with the permissions the server computed.
+- **Call moderation state** (in memory only): who is muted or has the camera stopped by the animator, who is removed from this call. Lost when the call ends or the app restarts.
+- **Audit event** (existing): switch changes, removals from a call, refused attempts, with ids only.
+- **Removed**: `Recording` and `RecordingEvent`.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-No usage numbers exist yet and none are invented. These are measurable behaviour targets, checked by automated tests and by a manual session.
+No usage numbers exist yet and none are invented. These are behaviour and performance targets. Performance targets assume the recommended single call server node (research R23) on a normal network unless stated, and are checked by the load and network test (task T929) and a manual device session. No result is claimed before they are run.
 
-- **SC-901**: With Live discussion off (the default), 100% of existing circles show no new control and behave exactly as before, verified by the existing end-to-end tests still passing.
-- **SC-902**: A request to switch the feature on or off, give the floor, mute, remove, or start or stop a recording made by a non-animator is refused in 100% of hub and API tests.
-- **SC-903**: With 8 people on the stage in a test using fake devices, every person hears and sees every other within 3 seconds of them switching a device on, on a normal network.
+- **SC-901**: With calls off (the default), 100% of existing circles show no new control and behave exactly as before, verified by the existing end-to-end tests still passing.
+- **SC-902** *(changed)*: A request to change a switch or the speaking mode, give or take the floor, mute, stop a camera, remove, or obtain a pass with more permissions than allowed, made by a non-animator, is refused in 100% of API tests.
+- **SC-903** *(changed)*: **Join to first audio**: from tapping Join call to hearing the current speaker takes at most 2 seconds at the median and 4 seconds at the 95th percentile on a normal network, and at most 6 seconds when only TLS on port 443 works.
 - **SC-904**: A raised hand reaches the animator's screen within 1 second, and the queue order always matches the order the hands were raised.
-- **SC-905**: After the notice is shown, 100% of people in the room, including those who join later, see the recording indicator, verified in tests on desktop, phone and audience layouts in English and Arabic.
-- **SC-906**: A saved transcript contains zero audio, video or speech-derived text, verified by a test that inspects everything stored and every server-side channel for the session. Server logs of the session contain no media and no message text.
-- **SC-907**: When a person denies permission, has no device, or has no camera, they reach the chat and raise-hand controls in under 5 seconds, in every one of the four languages.
-- **SC-908**: Every new screen passes an automated accessibility check (WCAG 2.2 AA) in English and Arabic, and a screen reader hears at most one grouped announcement every few seconds during a burst of hands.
-- **SC-909**: In a manual session with 5 to 8 people, an animator who has never used the feature can switch it on, give the floor and start a recording without help. (Measured when the session is run; no results are claimed here.)
+- **SC-905**: *Removed 2026-10-08* (recording indicator).
+- **SC-906** *(changed)*: After a full call with switches, floor, mutes, removals and reactions, the database holds no row about the call other than chat messages (and the audited switch changes, removals and refusals), verified by a test that compares every table before and after. Server and call-server logs contain no message text and no media. The call server's configuration has no recording or export enabled, verified by a test on the shipped configuration.
+- **SC-907**: When a person denies permission, has no device, or has no camera, they reach the chat, hand and reaction controls in under 5 seconds, in every one of the four languages.
+- **SC-908**: Every new screen passes an automated accessibility check (WCAG 2.2 AA) in English and Arabic, and a screen reader hears at most one grouped announcement every few seconds during a burst.
+- **SC-909** *(changed)*: In a manual session with 5 to 10 people on mixed devices, an animator who has never used the feature can start a call, change the speaking mode, give the floor and end the call without help.
+- **SC-910**: **Call size, audio**: one call holds the whole circle (100 people, the default maximum) with up to 6 people speaking at once, with the call server's CPU under 70% and no person's audio dropping out.
+- **SC-911**: **Call size, video**: one call holds 25 people with cameras on and the rest listening, with the call server's CPU under 70%.
+- **SC-912**: **Tiles and decoding**: a computer shows at most 9 video tiles per page and a phone at most 4. A device never decodes more videos than the tiles it shows plus one (the speaker), verified from the browser's statistics in the end-to-end test. Each tile receives a quality that fits its size (a phone tile never receives more than about 360p).
+- **SC-913**: **Active speaker and moderation speed**: the speaking highlight follows the speaker within 1 second; a mute, a floor change, a camera stop or a removal takes effect for everyone within 1 second; a switch change within 2 seconds.
+- **SC-914**: **Weak networks**: with 10% packet loss and 150 ms of added delay, audio stays continuous (less than 10% of audio concealed by the browser) and video drops to a lower quality without freezing for more than 2 seconds. With 30% loss, audio continues and the person sees "Weak connection".
+- **SC-915**: **Phones**: on two reference phones (an iPhone 12 or newer with Safari, and a mid-range Android from 2023 or newer with Chrome), a 30-minute video call with 4 tiles shown stays smooth (the chat scrolls without stutter) and the battery use is recorded in the test report. The target is under 15% battery for 30 minutes; it is measured, not claimed.
+- **SC-916**: **Strict networks**: a browser whose UDP traffic is blocked joins within 6 seconds through the fallback, in the network test.
 
 ## Out of scope
 
-- Storing, recording, or uploading any audio or video, by circloo, a relay, or the browser for later upload.
-- Speech-to-text, automatic summaries of speech, and captions or live subtitles.
-- Screen sharing.
+- Recording, storing, uploading or exporting any audio, video or transcript, by circloo, the call server or the browser.
+- Speech-to-text, summaries of speech, captions and live subtitles.
+- Screen sharing (a later idea; presenting slides stays in spec 006).
+- Breakout rooms, virtual backgrounds, camera filters, phone dial-in.
+- End-to-end encryption that hides media from circloo's own call server (research R26 explains why not now).
 - Native mobile apps (the browser works on phones).
-- Camera filters, backgrounds and local camera recording to a file (the earlier #96 scope; see Assumptions).
-- Calls with more than the stage maximum sending at once, and broadcast to hundreds.
-- Co-animators, moderators and per-organization policies for this feature.
-- AI features on the transcript.
-- Recording audience screens or the whiteboard, boards or slides content (only the text of the discussion).
+- Several people holding the floor at once in Hand to speak (a later setting).
+- Co-animators, moderators and per-organization policies for calls.
+- Training, certification, exams and technical tests (#255, a separate idea).
 
 ## Assumptions
 
-- This feature builds on spec 008 (sidebar, chat, likes, hiding, slow mode, raised-hand queue, 100-person circles). Spec 008 is still a draft. This spec depends on its chat and hand queue and does not duplicate them. "Give the floor" in 008 is a visual signal only; here it also opens the stage.
-- #96 was an earlier, broader scope (audio/video mesh for up to 12 people, filters, local file recording of one's own camera, ask to speak). The founder's decisions of 2026-10-05 narrow media to browser-to-browser audio and video with no recording, so filters and local camera recording are out of this feature. The founder closed #96 as superseded by #212 (Clarifications). #96 also carries `type:task` although it predates a plan, which is a labelling issue for Nicolas, not for this spec.
-- Live audio and video are browser-to-browser. Stages of 8 at once (configuration) are the target. In circles up to 100 people (#174) everyone can chat and raise a hand; up to 8 can opt in to watch and listen (Clarifications).
-- circloo only relays signalling over the existing SignalR hub. Public STUN only at launch (Clarifications). A TURN relay for strict networks is a later, separate task (azure-infra and a founder decision); it would forward encrypted media and store nothing.
-- Default behaviour when on: everyone joins muted with video off; people raise a hand; the animator gives the floor, mutes, lowers hands or removes from stage; anyone can leave the stage.
-- The recording is text only (chat, hands, stage events). It is not a recording of audio or video.
+- This feature builds on spec 008: chat with pause and slow mode (merged, #179), the raised-hand queue with one floor (merged, #183), the room sidebar (merged, #178), reactions (not merged yet, #181 and #182) and the hands UI (not merged yet, #184). It does not duplicate them.
+- #96 was an earlier broader scope and stays closed as superseded.
+- The call server is self-hosted, pinned to one version, and runs as one node. One node is enough for the call sizes above; the load test confirms it before release.
+- Production hosting of the call server is a founder decision (research D8) because it adds a monthly cost. Local development and tests need no paid service (constitution IX): the call server runs as a local container.
 - The animator of a circle is the only moderator. The animator's identity comes from the server, never the client.
-- Browsers that cannot do live audio or video still get chat and raise hand.
-- Zero-cost development (constitution IX): STUN-only locally and fake media devices in tests; no paid service is needed to run this feature in development.
+- Browsers that cannot do live audio or video still get chat, hands and reactions.
 
-## Open questions (for `/speckit-clarify`)
+## Open questions
 
-All answered: 1, 3, 9, 10 and 13 in Clarifications (with plan decisions D1 to D4), the others in `research.md` with the proposals as defaults. Question 2 (retention and erasure) has a plan default (R10) that the founder still has to confirm (D7). Kept below for history.
-
-1. **Transcript readers**: only the animator, or all circle members, or all members who were present while it ran? Default proposal: animator only, with an option to share to the circle.
-2. **Retention and deletion**: how long is a transcript kept (proposal: until the animator deletes it, with an organization maximum later under E6 data retention)? Can a member ask for their messages to be removed from a transcript? How does GDPR export and delete apply?
-3. **Consent**: is notice plus an always-visible indicator enough, or must a participant explicitly accept before taking part while recording (and what happens if they decline: observe only, or leave)? Does a company or school need a different default?
-4. **Co-animators**: can an admin or a second animator control the stage and the recording? If two, does one recording at a time suffice?
-5. **Animator-away rule**: are 60 seconds and 5 minutes right? Should the discussion pause or end?
-6. **Muted by the animator**: can the person unmute themselves afterwards, or only when the animator allows it?
-7. **Stage size**: is 8 the right maximum, and is it a configuration value (like `Circles:MaxPeople`)?
-8. **Threads**: reuse the existing circle chat with reply support, or add a new threaded conversation? What happens to replies in the transcript?
-9. **STUN/TURN relay**: is a relay needed at launch, which provider and what cost? Is exposing peers' network addresses acceptable with disclosure, or is a relay required to hide them?
-10. **Kids-safe circles**: is video from minors allowed at all, or audio and chat only?
-11. **Projector**: should the audience screen show the stage (speaker names or video) or only the recording indicator and number of hands?
-12. **Recording maximum length**: is 4 hours right? Should the animator be warned before it ends?
-13. **#96 overlap**: close, re-scope or keep #96 for the filters? Who decides, and does this feature replace the "ask to speak" part of #96 and #166?
-14. **Test skill**: the founder asked for "test skill". None is installed. Is Playwright with fake media devices plus hub tests enough, or should a skill be added through its own idea issue?
+All questions of 2026-10-05 are answered or obsolete (see Clarifications and research). Open founder decisions, listed in `research.md`: **D8** production hosting of the call server (cost), **D9** constitution amendment for the call server, **D10** audit scope, **D11** reaction totals during presentations, **D6** animator away ends the call after 5 minutes.
