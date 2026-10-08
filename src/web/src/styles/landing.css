@@ -106,7 +106,7 @@
   padding-block: var(--s-2);
 }
 .sitebar--site .lang-menu__trigger {
-  min-block-size: 2.5rem;
+  min-block-size: 2.75rem;
   padding-inline: 0.6rem;
   border: 2px solid var(--hairline);
   border-radius: var(--r-pill);
@@ -127,7 +127,7 @@
 }
 /* Log in is the bar's one call: the charcoal pill, at every width. */
 .sitebar--site .btn--sm {
-  min-block-size: 2.5rem;
+  min-block-size: 2.75rem;
   padding-inline: 0.75rem;
   font-size: 0.8125rem;
 }

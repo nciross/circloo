@@ -439,7 +439,7 @@
 .ask-panel .ask-panel__field input {
   min-block-size: 2.75rem;
   padding-inline: 1.1rem;
-  border: 2px solid var(--hairline);
+  border: 2px solid var(--field-line);
   border-radius: var(--r-pill);
   color: var(--ink);
   font-weight: 500;

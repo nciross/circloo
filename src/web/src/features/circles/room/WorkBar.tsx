@@ -10,7 +10,7 @@ import { usePopover } from '../../../components/usePopover'
 import { activityById } from '../catalog'
 import { serverNow } from '../present/presentation'
 import { SendResults } from '../SendResults'
-import { useWide } from './useSide'
+import { useRoomy } from './useSide'
 import { formatElapsed, ROUND_LENGTH_S, stripFaces, stripMore } from './sidebar'
 
 export type RoomStatus = 'connecting' | 'live' | 'reconnecting' | 'offline'
@@ -42,7 +42,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
   closing: boolean
 }) {
   const { t } = useTranslation()
-  const wide = useWide()
+  const wide = useRoomy()
   const title = activity && activityById(activity) ? t(`activities.${activity}.title`) : ''
   const starter = members.find((m) => m.id === startedBy)
   const word = closed ? t('circles.room.closed') : t(`circles.status.${status}`)

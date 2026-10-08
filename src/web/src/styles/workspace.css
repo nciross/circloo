@@ -213,16 +213,22 @@
   line-height: 1;
 }
 /* The round that runs: who started it, how long it has run (tabular), with a small meter of the usual length under it. */
-/* It gives way before the circle's name (shrinks four times faster): the name is the bar's loudest thing. */
+/* It gives way before the circle's name (shrinks four times faster). A grid, so it is always two rows: who started it,
+   the round's name (gives way with an ellipsis), who started it in words and the time on the first, the meter alone
+   on the second. Nothing wraps, whatever the name or the language. */
 .workbar__round {
-  display: flex;
+  display: grid;
   flex: 0 4 auto;
-  flex-wrap: wrap;
+  grid-template-columns: auto minmax(0, max-content) minmax(0, 1fr) auto;
+  grid-template-areas:
+    'char title by time'
+    'meter meter meter meter';
   align-items: center;
-  gap: 0.35rem var(--s-2);
+  column-gap: var(--s-2);
+  row-gap: 0.3rem;
   min-inline-size: 9rem;
   max-inline-size: 28rem;
-  padding: 0.4rem var(--s-3) 0.55rem;
+  padding: 0.35rem var(--s-3) 0.45rem;
   border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
@@ -236,20 +242,19 @@
   padding-inline-start: var(--s-2);
 }
 .workbar__round-char {
-  flex: none;
+  grid-area: char;
   inline-size: 1.5rem;
   block-size: 1.5rem;
 }
-/* The first row (who, what, how long) never wraps: the round's name gives way with an ellipsis; only the meter has a
-   row of its own, so the chip stays two rows inside the bar. */
 .workbar__round-title {
-  flex: 0 1 auto;
+  grid-area: title;
   min-inline-size: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Who started it gives way first, then the circle name; the round's name and its time stay whole. */
+/* Who started it gives way first; the round's name and its time stay as whole as they can. */
 .workbar__round-by {
+  grid-area: by;
   min-inline-size: 0;
   overflow: hidden;
   font-weight: 400;
@@ -261,14 +266,12 @@
   margin-inline-end: var(--s-2);
 }
 .workbar__round-time {
-  flex: none;
-  margin-inline-start: auto;
-  padding-inline-start: var(--s-2);
+  grid-area: time;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .workbar__round-meter {
-  flex: 1 0 100%;
+  grid-area: meter;
 }
 .workbar__end {
   display: flex;
@@ -351,10 +354,6 @@
   .workbar__round:has(.workbar__round-char) {
     min-inline-size: 5.5rem;
     padding-inline: var(--s-2);
-  }
-  .workbar__round-time {
-    margin-inline-start: 0;
-    padding-inline-start: 0;
   }
   .workbar__home-label {
     position: absolute;
