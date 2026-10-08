@@ -1149,12 +1149,12 @@
   }
 }
 
-/* ---------- Public top bar (landing, sign in): paper on one hairline, no blur ---------- */
+/* ---------- Public top bar (landing, sign in): white on white with ink controls; on the landing it sits on the
+   cobalt field (.sitebar--field): white wordmark, a thin rule, the two-line tagline, white pills ---------- */
 .sitebar {
   position: sticky;
   inset-block-start: 0;
   z-index: 30;
-  border-block-end: 1px solid var(--hairline);
   background: var(--paper);
 }
 .sitebar__inner {
@@ -1166,11 +1166,91 @@
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
+.sitebar__rule {
+  display: none;
+  flex: none;
+  inline-size: 1px;
+  block-size: 2rem;
+  background: currentColor;
+  opacity: 0.55;
+}
+.sitebar__tagline {
+  display: none;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sitebar__tagline span {
+  display: block;
+}
+:lang(ar) .sitebar__tagline {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+}
+@media (min-width: 40rem) {
+  .sitebar__rule,
+  .sitebar__tagline {
+    display: block;
+  }
+}
 .sitebar__end {
   display: flex;
   align-items: center;
   gap: var(--s-2);
   margin-inline-start: auto;
+}
+.sitebar__signin {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.25rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--r-pill);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+.sitebar__signin:hover {
+  text-decoration: underline;
+}
+/* On the field: part of the hero, so it scrolls away with it rather than sitting white over the page. */
+.sitebar--field {
+  --focus: var(--on-field);
+  position: relative;
+  background: var(--field);
+  color: var(--on-field);
+}
+.sitebar--field .brand,
+.sitebar--field .sitebar__signin {
+  color: var(--on-field);
+}
+.sitebar--field .brand:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.sitebar--field .lang-menu__trigger {
+  min-block-size: 2.25rem;
+  padding-inline: 0.8rem;
+  border: 1.5px solid var(--on-field);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--on-field);
+  font-weight: 700;
+}
+.sitebar--field .lang-menu__trigger:hover,
+.sitebar--field .lang-menu__trigger[aria-expanded='true'] {
+  border-color: var(--on-field);
+  background: rgb(255 255 255 / 0.12);
+}
+.sitebar--field .lang-menu__trigger .dropdown__chevron {
+  color: inherit;
+}
+/* The list that opens under it is paper again, in the page's theme. */
+.sitebar--field .dropdown__panel {
+  --focus: var(--beam);
+  color: var(--ink);
 }
 @media (max-width: 34rem) {
   .sitebar__inner {
@@ -1183,22 +1263,23 @@
   .lang-menu__trigger {
     padding-inline: 0.5rem;
   }
+  .sitebar--field .lang-menu__trigger {
+    padding-inline: 0.6rem;
+  }
 }
 
-/* ---------- The live teaser card (landing and home) ---------- */
+/* ---------- The live teaser card (landing and home): white, a 2px ink outline, the question set heavy ---------- */
 .teaser {
   display: grid;
-  gap: var(--s-3);
-  padding: var(--s-4) var(--s-5) var(--s-5);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
+  gap: var(--s-4);
+  padding: var(--s-5) var(--s-6) var(--s-6);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-xl);
   background: var(--paper);
-  box-shadow: var(--shadow-raised);
 }
 .teaser--bare {
   padding: 0;
   border: 0;
-  box-shadow: none;
 }
 .teaser__head {
   display: flex;
@@ -1207,9 +1288,15 @@
   gap: var(--s-2);
 }
 .teaser__label {
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+:lang(ar) .teaser__label {
+  font-size: 0.75rem;
+  letter-spacing: 0;
 }
 .teaser__body {
   display: grid;
@@ -1217,13 +1304,14 @@
   min-block-size: 4.5rem;
 }
 .teaser__question {
-  font-size: var(--fs-xl);
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-}
-.teaser--bare .teaser__question {
   font-size: var(--fs-2xl);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+:lang(ar) .teaser__question {
+  letter-spacing: 0;
+  line-height: 1.4;
 }
 .teaser__question--wait {
   font-size: var(--fs-md);
@@ -1340,7 +1428,8 @@
   fill: var(--on-ring, #fff);
 }
 
-/* ---------- The five skies as one-tap chips (the landing demo and Home's today phase) ---------- */
+/* ---------- The five skies as one-tap tiles (the landing demo and Home's today phase): chunky outlines, the
+   picked one filled with ink. The icon and the word carry the mood, never a colour. ---------- */
 .moods {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1352,13 +1441,13 @@
   gap: var(--s-2);
   min-block-size: 2.75rem;
   padding: var(--s-3) var(--s-1);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
+  border: 2px solid var(--hairline-strong);
+  border-radius: 18px;
   background: var(--paper);
-  color: var(--ink-soft);
+  color: var(--ink);
   font: inherit;
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: 700;
   text-align: center;
   /* Five columns at 360 px leave ~57 px a label: a long word (es "Despejado") breaks instead of overflowing. */
   hyphens: auto;
@@ -1368,32 +1457,19 @@
     border-color var(--dur-state),
     background-color var(--dur-state),
     color var(--dur-state),
-    transform var(--dur-state) var(--ease-out);
+    transform var(--dur-move) var(--ease-spring);
 }
 .mood:hover {
-  border-color: var(--hairline-strong);
-  color: var(--ink);
+  border-color: var(--ink);
   transform: translateY(-2px);
 }
+.mood:active {
+  transform: scale(0.97);
+}
 .mood[aria-pressed='true'] {
-  border-color: var(--hairline-strong);
-  color: var(--on-sky);
-}
-.mood:nth-child(1)[aria-pressed='true'] {
-  background: var(--sky-stormy);
-  color: var(--on-sky-stormy);
-}
-.mood:nth-child(2)[aria-pressed='true'] {
-  background: var(--sky-foggy);
-}
-.mood:nth-child(3)[aria-pressed='true'] {
-  background: var(--sky-cloudy);
-}
-.mood:nth-child(4)[aria-pressed='true'] {
-  background: var(--sky-bright);
-}
-.mood:nth-child(5)[aria-pressed='true'] {
-  background: var(--sky-sunny);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--on-ink);
 }
 .mood:focus-visible {
   outline: 2px solid var(--focus);

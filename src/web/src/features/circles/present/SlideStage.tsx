@@ -1,20 +1,21 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
 import { ListChecks, Vote } from 'lucide-react'
+import { Meter } from '../../../components/Meter'
 import { dur, easeOut, useReducedMotion } from '../../../lib/motion'
 import { isRevealed, useLive, type PresentationState, type QuestionSlide, type Results } from './presentation'
 import { Reveal } from './Reveal'
 
-/** An option's share as a brass run under it, with count and percent at the end of the line. */
+/** An option's share: count and percent at the end of the line, a small meter of its votes under it. */
 export function Share({ results, id }: { results: Results | null | undefined; id: string }) {
   const { t } = useTranslation()
   const share = results?.options.find((o) => o.id === id)
-  if (!share) return null
+  if (!share || !results) return null
   return (
-    <span className="share" style={{ '--share': `${share.percent}%` } as CSSProperties}>
-      <span className="share__bar" aria-hidden="true" />
+    <span className="share">
       <span className="share__figures">{t('present.share', { percent: share.percent, count: share.count })}</span>
+      <Meter size="sm" tone="ink" value={share.count} max={results.total} className="share__meter" />
     </span>
   )
 }

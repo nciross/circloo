@@ -6,9 +6,10 @@ import { useStage } from './stage'
 import { DiscussionSwitch } from './DiscussionSwitch'
 
 /**
- * The Call tab of the room's rail. The animator gets the real Live discussion switch; everyone sees whether it is on and the
- * stage: a dome, Night even by day, with the people on stage as tiles (their character while the camera is off), the one
- * with the floor lit by a brass ring, and the raised hands queued along a brass arc. Audio and video (T906/T907) come next.
+ * The Call tab of the room's dark card (#250). The animator gets the real Live discussion switch; everyone sees whether it is
+ * on and the stage: a sunken block of the card with the people on stage as rounded tiles (their character while the camera
+ * is off), the one with the floor outlined in the ok colour, and the raised hands queued along an arc. Audio and video
+ * (T906/T907) come next.
  */
 export function CallPanel({ isAnimator, members = [], hands }: { isAnimator: boolean; members?: Member[]; hands?: HandsView }) {
   const { t } = useTranslation()

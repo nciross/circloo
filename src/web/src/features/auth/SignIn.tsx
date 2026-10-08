@@ -177,10 +177,10 @@ function CodeStep() {
         {verify.isPending ? t('auth.verifying') : t('auth.verify')}
       </Button>
       <div className="authform__links">
-        <button type="button" className="link-btn" onClick={resend} disabled={seconds > 0 || request.isPending}>
+        <Button variant="subtle" size="sm" onClick={resend} disabled={seconds > 0 || request.isPending}>
           {seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
-        </button>
-        <button type="button" className="link-btn" onClick={editEmail}>{t('auth.changeEmail')}</button>
+        </Button>
+        <Button variant="subtle" size="sm" onClick={editEmail}>{t('auth.changeEmail')}</Button>
       </div>
     </form>
   )

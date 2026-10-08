@@ -7,7 +7,6 @@ import { FaceMark } from '../../components/Brand'
 import { Character } from '../../components/Character'
 import type { CharacterId } from '../../components/characters'
 import type { Mood } from '../../components/MoodIcon'
-import { Ring } from '../../components/Ring'
 import { Bird } from '../pirikoo/Bird'
 import { activityById } from '../circles/catalog'
 import { clearPrompt, keepPrompt } from '../../lib/circlePrompt'
@@ -18,20 +17,31 @@ import type { Phase, Run } from './useCompose'
 const CAST: CharacterId[] = ['panda', 'fox', 'octopus', 'robot', 'frog', 'owl', 'bunny', 'dino']
 const NEXT = '/signin?returnTo=%2Fapp%2Fcircles%2Fnew'
 
-/** How far the composition has run: the brass arc around the ring, a transit that completes when the circle is ready. */
+/** How far the composition has run: the table's rim fills from white to the sun as the phases complete. */
 const TRANSIT: Record<Phase, number> = { thinking: 0.06, naming: 0.22, seating: 0.48, chipping: 0.66, speaking: 0.88, done: 1, settled: 1 }
 
-/** A body hopping onto the track (spring.snappy, 40 ms between bodies that arrive together); a chip dropping in. */
+/** A body hopping onto a seat (spring.snappy, 40 ms between bodies that arrive together); a chip dropping in. */
 const HOP = { opacity: 0, scale: 0.4 }
 const SEATED = { opacity: 1, scale: 1 }
 const DROP = { opacity: 0, y: -8 }
 const LANDED = { opacity: 1, y: 0 }
 const STAGGER = 0.04
 
+/** A hand-drawn arrow for the asides on the field: a curve with a small open head, drawn in the current colour. */
+export function Arrow() {
+  return (
+    <svg className="note__arrow" viewBox="0 0 80 60" aria-hidden="true" focusable="false">
+      <path d="M4 6 C 28 4, 54 14, 68 44" />
+      <path d="M56 40 L 69 46 L 70 32" />
+    </svg>
+  )
+}
+
 /**
- * The circle as it composes (#247, orrery #250): name, a ring whose seats fill with bodies, activity chips, the
- * language and Pirikoo's opening line, then the one button that makes it real. Decorative parts are hidden; one
- * polite status line announces the result (a plain div, not <output>: that would be a second status region).
+ * The circle as it composes (#247, buddy list #250): a round table seen from above with the circloo face at its centre,
+ * bodies hopping onto the seats around its edge, the name on a sticky note, activity chips scattered beside it, and
+ * Pirikoo's opening line on a notepad, then the one button that makes it real. Decorative parts are hidden; one polite
+ * status line announces the result (a plain div, not <output>: that would be a second status region).
  */
 export function Made({ run, motion: live }: { run: Run | null; motion: boolean }) {
   const { t, i18n } = useTranslation()
@@ -48,8 +58,8 @@ export function Made({ run, motion: live }: { run: Run | null; motion: boolean }
 
   const seats = run ? seatsFor(run.result.people) : { shown: 6, more: 0 }
   const shown = run ? run.seats : 0
-  // The circle's sky follows the composition: cloudy while it thinks, bright as people arrive, sunny once ready.
-  const mood: Mood = !run ? 3 : done ? 5 : run.seats > 0 ? 4 : 3
+  // The table's face follows the composition: cloudy while it thinks, bright as people arrive, sunny once ready.
+  const mood: Mood = !run ? 4 : done ? 5 : run.seats > 0 ? 4 : 3
 
   // Bodies that mount in the same commit hop in 40 ms apart; one arriving alone hops at once.
   const seated = useRef(0)
@@ -64,24 +74,15 @@ export function Made({ run, motion: live }: { run: Run | null; motion: boolean }
   return (
     <div className={`made${run ? ' is-on' : ''}${done ? ' is-done' : ''}`} data-phase={run?.phase ?? 'empty'}>
       <p className="visually-hidden" role="status" aria-live="polite">{announce}</p>
-      <div className="made__head">
-        <p className="made__name" aria-hidden={run ? undefined : 'true'}>
-          {run ? <bdi>{run.name.slice(0, run.nameChars)}</bdi> : t('landing.made.empty')}
-          {run && run.phase === 'naming' ? <span className="made__caret" aria-hidden="true" /> : null}
-        </p>
-        <span className="lozenge lozenge--neutral">{t('landing.made.preview')}</span>
-      </div>
 
-      <div className="made__ring" style={{ '--n': seats.shown } as CSSProperties}>
-        <Ring
-          key={run?.n ?? 0}
-          size="lg"
-          bodies={[]}
-          mood={run ? mood : null}
-          progress={run ? TRANSIT[run.phase] : undefined}
-          compose={live && Boolean(run)}
-          label={run ? t('circles.ring.label', { name: run.name, count: run.result.people }) : t('landing.made.empty')}
-        >
+      <div className="made__stage" style={{ '--n': seats.shown, '--transit': run ? TRANSIT[run.phase] : 0 } as CSSProperties}>
+        <div className="made__table">
+          <svg className="made__top" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <circle className="made__cast" cx="55" cy="56" r="46" />
+            <circle className="made__wood" cx="50" cy="50" r="46" />
+            <circle className="made__rim" cx="50" cy="50" r="41.5" pathLength="1" />
+            <circle className="made__arc" cx="50" cy="50" r="41.5" pathLength="1" />
+          </svg>
           <div className="made__centre">
             <FaceMark mood={mood} interactive={live ? 'force' : false} className="made__face" />
             {run && run.seats > 0 ? (
@@ -91,7 +92,7 @@ export function Made({ run, motion: live }: { run: Run | null; motion: boolean }
               </p>
             ) : null}
           </div>
-        </Ring>
+        </div>
         <ul className="made__seats" aria-hidden="true">
           {Array.from({ length: seats.shown }, (_, i) => (
             <li key={i} className={`made__seat${i < shown ? ' is-in' : ''}`} style={{ '--i': i } as CSSProperties}>
@@ -105,6 +106,20 @@ export function Made({ run, motion: live }: { run: Run | null; motion: boolean }
             </li>
           ))}
         </ul>
+
+        <p className="made__name" aria-hidden={run ? undefined : 'true'}>
+          {run ? <bdi>{run.name.slice(0, run.nameChars)}</bdi> : t('landing.made.empty')}
+          {run && run.phase === 'naming' ? <span className="made__caret" aria-hidden="true" /> : null}
+        </p>
+
+        <span className="note note--seats" aria-hidden="true">
+          <span className="note__text">{t('landing.notes.seats')}</span>
+          <Arrow />
+        </span>
+        <span className="note note--name" aria-hidden="true">
+          <span className="note__text">{t('landing.notes.name')}</span>
+          <Arrow />
+        </span>
       </div>
 
       <ul className="made__chips" aria-label={t('circles.create.activities')}>
@@ -133,6 +148,7 @@ export function Made({ run, motion: live }: { run: Run | null; motion: boolean }
         <p className="made__say-text">
           {run ? run.line.slice(0, run.lineChars) : ''}
           {run?.phase === 'speaking' ? <span className="made__caret made__caret--line" aria-hidden="true" /> : null}
+          {done ? <span className="made__say-smile" aria-hidden="true"> :)</span> : null}
         </p>
       </div>
 

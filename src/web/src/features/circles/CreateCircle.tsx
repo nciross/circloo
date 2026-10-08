@@ -7,6 +7,8 @@ import { useCreateCircle } from '../../api/circles'
 import { useDocumentTitle } from '../../app/locale'
 import { PageHeader } from '../../components/PageHeader'
 import { Button } from '../../components/Button'
+import { Character } from '../../components/Character'
+import { Meter } from '../../components/Meter'
 import { Segmented } from '../../components/Segmented'
 import type { AnyCharacter } from '../../components/characters'
 import { useUiStore } from '../../stores/ui'
@@ -22,6 +24,7 @@ type Mode = 'describe' | 'manual'
 /**
  * Animator: name the circle, pick your character and the activities, get a link. "Describe it" fills the name and the
  * activities from one line (the landing's composer, #247); "By hand" is the plain form. Every field stays editable.
+ * The form runs down the left; the one dark card on the right shows what will open and holds the submit.
  */
 export default function CreateCircle() {
   const { t } = useTranslation()
@@ -82,97 +85,141 @@ export default function CreateCircle() {
     }
   }
 
+  const shownName = name.trim()
+
   return (
     <form className="page create" onSubmit={submit} noValidate>
       <PageHeader crumbs={[{ to: '/app', label: t('common.nav.home') }]} title={t('circles.create.title')} lead={t('circles.create.lead')} />
 
-      <section className="panel" aria-labelledby="start-title">
-        <div className="panel__head">
-          <h2 id="start-title" className="panel__title">{t('circles.create.mode')}</h2>
-          <Segmented<Mode>
-            label={t('circles.create.mode')}
-            hideLabel
-            value={mode}
-            onChange={setMode}
-            choices={[{ value: 'describe', label: t('circles.create.describe') }, { value: 'manual', label: t('circles.create.byHand') }]}
-          />
-        </div>
-        {mode === 'describe' ? (
-          <div className="panel__body create__describe">
-            <label className="field" htmlFor={lineId}>
-              <span className="field__label">{t('circles.create.describeLabel')}</span>
-            </label>
-            <div className="create__line">
-              <textarea
-                id={lineId}
-                className="input create__line-field"
-                rows={2}
-                maxLength={PROMPT_MAX}
-                dir="auto"
-                placeholder={t('circles.create.describePlaceholder')}
-                value={line}
-                aria-describedby={lineHelp}
-                onChange={(e) => setLine(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-                    e.preventDefault()
-                    suggest(line)
-                  }
-                }}
+      <div className="create__grid">
+        <div className="create__main">
+          <section className="panel" aria-labelledby="start-title">
+            <div className="panel__head">
+              <h2 id="start-title" className="panel__title">{t('circles.create.mode')}</h2>
+              <Segmented<Mode>
+                label={t('circles.create.mode')}
+                hideLabel
+                value={mode}
+                onChange={setMode}
+                choices={[{ value: 'describe', label: t('circles.create.describe') }, { value: 'manual', label: t('circles.create.byHand') }]}
               />
-              <Button type="button" variant="default" icon={<ListChecks size={16} aria-hidden="true" />} onClick={() => suggest(line)}>
-                {suggested ? t('circles.create.suggestAgain') : t('circles.create.suggest')}
+            </div>
+            {mode === 'describe' ? (
+              <div className="panel__body create__describe">
+                <label className="field" htmlFor={lineId}>
+                  <span className="field__label">{t('circles.create.describeLabel')}</span>
+                </label>
+                <div className="create__line">
+                  <textarea
+                    id={lineId}
+                    className="input create__line-field"
+                    rows={2}
+                    maxLength={PROMPT_MAX}
+                    dir="auto"
+                    placeholder={t('circles.create.describePlaceholder')}
+                    value={line}
+                    aria-describedby={lineHelp}
+                    onChange={(e) => setLine(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                        e.preventDefault()
+                        suggest(line)
+                      }
+                    }}
+                  />
+                  <Button type="button" variant="default" icon={<ListChecks size={16} aria-hidden="true" />} onClick={() => suggest(line)}>
+                    {suggested ? t('circles.create.suggestAgain') : t('circles.create.suggest')}
+                  </Button>
+                </div>
+                <p id={lineHelp} className="field__help">{t('circles.create.suggestHelp')}</p>
+                <p className="visually-hidden" role="status" aria-live="polite">{applied}</p>
+              </div>
+            ) : null}
+          </section>
+
+          <section className="panel" aria-labelledby="basics-title">
+            <div className="panel__head">
+              <h2 id="basics-title" className="panel__title">{t('circles.create.basics')}</h2>
+              {suggested && mode === 'describe' ? <span className="lozenge lozenge--ai">{t('circles.create.suggested')}</span> : null}
+            </div>
+            <div className="panel__body">
+              <label className="field" htmlFor={nameId}>
+                <span className="field__label">{t('circles.create.name')}</span>
+              </label>
+              <input
+                id={nameId}
+                className="input create__name"
+                value={name}
+                maxLength={NAME_MAX}
+                dir="auto"
+                autoComplete="off"
+                placeholder={t('circles.create.namePlaceholder')}
+                onChange={(e) => setName(e.target.value)}
+                aria-invalid={errors.name ? true : undefined}
+                aria-describedby={errors.name ? nameErr : undefined}
+              />
+              {errors.name ? <p id={nameErr} className="field__error" role="alert">{errors.name}</p> : null}
+              <CharacterPicker legend={t('circles.create.yourCharacter')} value={character} onChange={setCharacter} invalid={!!errors.character} />
+            </div>
+          </section>
+
+          <section className="panel" data-perch="activities" aria-labelledby="acts-title" aria-describedby={errors.activities ? actErr : undefined}>
+            <div className="panel__head">
+              <h2 id="acts-title" className="panel__title">{t('circles.create.activities')}</h2>
+              <span className="lozenge lozenge--info">{t('circles.create.picked', { count: activities.length, max: MAX_ACTIVITIES })}</span>
+            </div>
+            <div className="panel__body">
+              <p className="field__help">{t('circles.create.activitiesHelp')}</p>
+              <ActivityGrid mode="choose" selected={activities} onToggle={toggle} />
+              {errors.activities ? <p id={actErr} className="field__error" role="alert">{errors.activities}</p> : null}
+            </div>
+          </section>
+        </div>
+
+        <aside className="create__side">
+          <section className="panel panel--dark" aria-labelledby="preview-title">
+            <div className="panel__head">
+              <h2 id="preview-title" className="panel__title">{t('circles.create.preview')}</h2>
+            </div>
+            <div className="panel__body create__preview">
+              <div className="create__preview-row">
+                <span className="create__preview-label">{t('circles.create.name')}</span>
+                <p className={`create__preview-name${shownName ? '' : ' is-empty'}`} dir="auto">
+                  <bdi>{shownName || t('circles.create.namePlaceholder')}</bdi>
+                </p>
+              </div>
+              <div className="create__preview-row">
+                <span className="create__preview-label">{t('circles.create.seats')}</span>
+                <div className="create__seats">
+                  <span className="stack" aria-hidden="true">
+                    {character ? <Character id={character} tag={false} /> : null}
+                  </span>
+                  <span className="create__seats-note">{t('circles.create.seatsNote')}</span>
+                </div>
+              </div>
+              <div className="create__preview-row">
+                <span className="create__preview-label">{t('circles.create.activities')}</span>
+                {activities.length > 0 ? (
+                  <ul className="create__acts">
+                    {activities.map((id) => <li key={id} className="create__act">{t(`activities.${id}.title`)}</li>)}
+                  </ul>
+                ) : null}
+                <p className="create__count">
+                  <strong>{t('circles.create.picked', { count: activities.length, max: MAX_ACTIVITIES })}</strong>
+                  <span>{t('circles.create.pickedOf')}</span>
+                </p>
+                <Meter value={activities.length} max={MAX_ACTIVITIES} tone="ok" label={t('circles.create.activities')} />
+              </div>
+            </div>
+            <div className="panel__actions">
+              {errors.form ? <p className="field__error" role="alert">{errors.form}</p> : null}
+              <Button type="submit" size="lg" busy={create.isPending} icon={<ArrowRight className="flip-rtl" size={18} />}>
+                {t('circles.create.submit')}
               </Button>
             </div>
-            <p id={lineHelp} className="field__help">{t('circles.create.suggestHelp')}</p>
-            <p className="visually-hidden" role="status" aria-live="polite">{applied}</p>
-          </div>
-        ) : null}
-      </section>
-
-      <section className="panel" aria-labelledby="basics-title">
-        <div className="panel__head">
-          <h2 id="basics-title" className="panel__title">{t('circles.create.basics')}</h2>
-          {suggested && mode === 'describe' ? <span className="lozenge lozenge--neutral">{t('circles.create.suggested')}</span> : null}
-        </div>
-        <div className="panel__body">
-          <label className="field" htmlFor={nameId}>
-            <span className="field__label">{t('circles.create.name')}</span>
-          </label>
-          <input
-            id={nameId}
-            className="input create__name"
-            value={name}
-            maxLength={NAME_MAX}
-            dir="auto"
-            autoComplete="off"
-            placeholder={t('circles.create.namePlaceholder')}
-            onChange={(e) => setName(e.target.value)}
-            aria-invalid={errors.name ? true : undefined}
-            aria-describedby={errors.name ? nameErr : undefined}
-          />
-          {errors.name ? <p id={nameErr} className="field__error" role="alert">{errors.name}</p> : null}
-          <CharacterPicker legend={t('circles.create.yourCharacter')} value={character} onChange={setCharacter} invalid={!!errors.character} />
-        </div>
-      </section>
-
-      <section className="panel" data-perch="activities" aria-labelledby="acts-title" aria-describedby={errors.activities ? actErr : undefined}>
-        <div className="panel__head">
-          <h2 id="acts-title" className="panel__title">{t('circles.create.activities')}</h2>
-          <span className="lozenge lozenge--info">{t('circles.create.picked', { count: activities.length, max: MAX_ACTIVITIES })}</span>
-        </div>
-        <div className="panel__body">
-          <p className="field__help">{t('circles.create.activitiesHelp')}</p>
-          <ActivityGrid mode="choose" selected={activities} onToggle={toggle} />
-          {errors.activities ? <p id={actErr} className="field__error" role="alert">{errors.activities}</p> : null}
-        </div>
-        <div className="panel__actions">
-          {errors.form ? <p className="field__error" role="alert">{errors.form}</p> : null}
-          <Button type="submit" size="lg" busy={create.isPending} icon={<ArrowRight className="flip-rtl" size={18} />}>
-            {t('circles.create.submit')}
-          </Button>
-        </div>
-      </section>
+          </section>
+        </aside>
+      </div>
     </form>
   )
 }

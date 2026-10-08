@@ -105,7 +105,9 @@ export default function JoinCircle() {
             <Trans i18nKey="circles.join.invitedBy" values={{ name: circle.animatorName }} components={{ b: <bdi className="join__host-name" /> }} />
           </p>
         </div>
-        <h1 className="authform__title"><bdi>{circle.name}</bdi></h1>
+        <h1 className="authform__title">
+          <Trans i18nKey="circles.join.heading" values={{ name: circle.name }} components={{ name: <bdi /> }} />
+        </h1>
         {circle.full ? <p className="authform__notice">{t('circles.join.errors.full')}</p> : null}
 
         <label className="field" htmlFor={nameId}>

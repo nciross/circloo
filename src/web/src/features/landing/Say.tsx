@@ -1,12 +1,13 @@
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Lock } from 'lucide-react'
 import { Bird, type BirdMood } from '../pirikoo/Bird'
 import { PROMPT_MAX } from '../../lib/circlePrompt'
 
 /**
- * The console: a labelled line with the bird at its start and the Build button inside the box (#247). Enter builds,
- * Shift+Enter adds a line. `examples` are three lines the visitor can tap instead of typing.
+ * The console: a labelled line with the bird at its start and the Build button inside the pill (#247). Enter builds,
+ * Shift+Enter adds a line. `examples` are three lines the visitor can tap instead of typing; the hint under them says
+ * that nothing leaves the browser.
  */
 export function Say({
   text, onText, onBuild, onTouch, mood, examples, compact = false, idle,
@@ -61,11 +62,10 @@ export function Say({
           onKeyDown={onKey}
         />
         <button type="submit" className="say__go">
-          <ArrowRight className="flip-rtl" size={20} strokeWidth={2.25} aria-hidden="true" />
           <span className={compact ? 'visually-hidden' : 'say__go-label'}>{t('landing.say.build')}</span>
+          <ArrowRight className="flip-rtl" size={20} strokeWidth={2.5} aria-hidden="true" />
         </button>
       </div>
-      <p id={`${id}-hint`} className="say__hint">{t('landing.say.hint')}</p>
       {examples ? (
         <div className="say__examples" role="group" aria-label={t('landing.say.examples')}>
           {examples.map((line) => (
@@ -84,6 +84,10 @@ export function Say({
           ))}
         </div>
       ) : null}
+      <p id={`${id}-hint`} className="say__hint">
+        <Lock size={13} strokeWidth={2.5} aria-hidden="true" />
+        <span>{t('landing.say.hint')}</span>
+      </p>
     </form>
   )
 }

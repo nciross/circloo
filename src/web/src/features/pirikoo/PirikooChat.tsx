@@ -154,7 +154,7 @@ function Launcher() {
   const calling = unread || shown !== null
   return (
     <div className={`pkl${open ? ' is-open' : ''}`}>
-      <div className="pkl__tip" role="status" aria-live="polite" hidden={!shown}>
+      <div className="pkl__tip card--dark" role="status" aria-live="polite" hidden={!shown}>
         {shown ? (
           <>
             <p className="pkl__name">{t('pirikoo.name')}</p>
@@ -294,6 +294,9 @@ function Answer({ item, live, onRetry, onRun }: { item: ChatItem; live: boolean;
     <li className={`pkc__pk${item.state === 'error' ? ' is-error' : ''}`}>
       <span className="pkc__avatar"><Bird mood={live ? mood : undefined} /></span>
       <div className="pkc__answer">
+        <span className="pkc__who">
+          {t('pirikoo.name')} <span className="lozenge lozenge--ai">{t('pirikoo.chat.ai')}</span>
+        </span>
         {item.state === 'waiting' ? <Typing /> : null}
         {item.state === 'error' ? (
           <>
@@ -420,7 +423,7 @@ function Conversation({ guest }: { guest: boolean }) {
                 <p className="pkc__tip-label">{t('pirikoo.chat.nextStep')}</p>
                 <p>{tip.text}</p>
                 {tip.action ? (
-                  <button type="button" className="btn btn--default btn--sm" onClick={() => void tip.action?.run()}>
+                  <button type="button" className="btn btn--primary btn--sm" onClick={() => void tip.action?.run()}>
                     <span className="btn__label">{tip.action.label}</span>
                   </button>
                 ) : null}

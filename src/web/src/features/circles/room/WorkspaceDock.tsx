@@ -5,8 +5,8 @@ import { CANVAS } from '../catalog'
 import { ActivityGrid } from '../parts'
 
 /**
- * What the animator sees between rounds. When the circle has the live canvas, a large sheet of the same dotted paper leads
- * with "Open the whiteboard" (the one primary action), and the other rounds sit under it; otherwise the rounds alone.
+ * What the animator sees between rounds (#250). When the circle has the live canvas, an outlined panel leads with "Open the
+ * whiteboard" (the one ink pill), and the other rounds sit under it as rows; otherwise the rounds alone.
  * Nothing starts by itself: the server lets only the animator start, and only the circle's chosen activities.
  */
 export function WorkspaceDock({ activities, onStart, starting, error }: {
@@ -24,7 +24,7 @@ export function WorkspaceDock({ activities, onStart, starting, error }: {
   return (
     <div className="dock" data-perch="pick">
       {hasCanvas ? (
-        <section className="dock__paper" aria-labelledby="dock-paper-title" data-activity={CANVAS}>
+        <section className="panel dock__paper" aria-labelledby="dock-paper-title" data-activity={CANVAS}>
           <h2 id="dock-paper-title" className="dock__title">{t('activities.canvas.title')}</h2>
           <p className="dock__lead">{t('activities.canvas.body')}</p>
           <Button size="lg" className="dock__open" icon={<StickyNote size={18} />} busy={starting === CANVAS} onClick={() => onStart(CANVAS)}>

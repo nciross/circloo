@@ -2,20 +2,20 @@ import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
-import { ArrowRight, Heart, Plus } from 'lucide-react'
+import { ArrowRight, ChevronRight, Heart, Plus } from 'lucide-react'
 import { useMe } from '../../api/hooks'
 import { useFavourites } from '../../api/sparks'
 import { useMyCircles, type CircleSummary } from '../../api/circles'
-import { Panda } from '../../components/Panda'
 import { useDocumentTitle } from '../../app/locale'
 import { ButtonLink } from '../../components/Button'
 import { FaceMark } from '../../components/Brand'
+import { Character } from '../../components/Character'
+import { Meter, type MeterTone } from '../../components/Meter'
 import { MoodScale } from '../../components/MoodScale'
 import type { Mood } from '../../components/MoodIcon'
-import { Ring } from '../../components/Ring'
 import { TourVideo } from '../../components/TourVideo'
 import { useDeckStore } from '../../stores/deck'
-import { listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
+import { enterVariants, listVariants, rowVariants, useReducedMotion } from '../../lib/motion'
 import { IcebreakerCard } from '../landing/IcebreakerCard'
 import '../../styles/app.css'
 import '../../styles/circles.css'
@@ -29,110 +29,121 @@ const readPhase = (): Mood | null => {
     return null
   }
 }
+const moodTone = (mood: Mood): MeterTone => (mood >= 4 ? 'ok' : mood === 3 ? 'mid' : 'low')
+
+/** The cast on the empty Home: three friends on the ground, waiting for the first circle. */
+const CAST = ['fox', 'panda', 'owl'] as const
 
 /** Today's phase: the person's mood, one tap, kept on this device until the circle-wide check-in ships. */
 function TodayPhase({ mood, onPick }: { mood: Mood | null; onPick: (m: Mood) => void }) {
   const { t } = useTranslation()
   const word = mood ? t(`landing.feel.moods.${mood}`).toLocaleLowerCase() : null
   return (
-    <section className="phase" aria-labelledby="phase-title">
-      <div className="phase__stage">
-        <FaceMark mood={mood ?? 4} interactive className="phase__face" />
-        <p className="phase__says" aria-live="polite">{word ? t('landing.feel.faceSays', { mood: word }) : t('landing.feel.tryIt')}</p>
-      </div>
-      <h2 id="phase-title" className="visually-hidden">{t('landing.feel.tryIt')}</h2>
-      <MoodScale mood={mood} onPick={onPick} label={t('landing.feel.tryIt')} />
-      <p className="phase__note">{t('home.phaseNote')}</p>
+    <section className="feel" aria-labelledby="feel-title">
+      <h2 id="feel-title" className="feel__title">{t('home.feelTitle')}</h2>
+      <MoodScale mood={mood} onPick={onPick} label={t('home.feelTitle')} />
+      <p className="feel__weather" aria-live="polite">
+        {word ? <Trans i18nKey="home.weather" values={{ mood: word }} components={{ b: <strong /> }} /> : t('landing.feel.tryIt')}
+      </p>
+      <p className="feel__note">{t('home.phaseNote')}</p>
     </section>
   )
 }
 
-/** One circle as a ring with its people on it; the open ones lead and are larger. */
-function CircleRing({ circle, lead, mood }: { circle: CircleSummary; lead: boolean; mood?: Mood | null }) {
+/** The lead circle: the newest open one, as the view's dark card with its people as buddy rows and one meter. */
+function LeadCard({ circle, mood }: { circle: CircleSummary; mood: Mood | null }) {
   const { t } = useTranslation()
-  const open = circle.status === 'open'
+  const reduced = useReducedMotion()
+  const here = circle.bodies.length
+  const word = mood ? t(`landing.feel.moods.${mood}`).toLocaleLowerCase() : null
   return (
-    <Link className={`orbit${lead ? ' orbit--lead' : ''}${open ? '' : ' is-closed'}`} to={`/app/circles/${circle.id}`} viewTransition>
-      <Ring
-        size={lead ? 'lg' : 'sm'}
-        bodies={circle.bodies.map((b) => ({ id: b.id, character: b.character, name: b.name, ring: b.ring, me: b.me }))}
-        people={circle.people}
-        mood={lead ? mood : null}
-        closed={!open}
-        compose={lead}
-        label={mood && lead ? t('circles.ring.labelMood', { name: circle.name, count: circle.people, mood: t(`landing.feel.moods.${mood}`).toLocaleLowerCase() }) : t('circles.ring.label', { name: circle.name, count: circle.people })}
-      >
-        {lead ? (
-          <span className="reading" aria-hidden="true">
-            {circle.people}
-          </span>
-        ) : null}
-      </Ring>
-      <span className="orbit__text">
-        <span className="orbit__name"><bdi>{circle.name}</bdi></span>
-        <span className="orbit__meta">
-          <span className={`lozenge ${open ? 'lozenge--success' : 'lozenge--neutral'}`}>{t(`circles.status.${circle.status}`)}</span>
-          {t(`circles.roles.${circle.role}`)} · {t('circles.people', { count: circle.people })}
-        </span>
-        <span className="orbit__open" aria-hidden="true">
-          <ArrowRight size={16} className="flip-rtl" />
-        </span>
-      </span>
-    </Link>
+    <motion.section className="panel panel--dark lead" aria-labelledby="lead-title" variants={enterVariants(reduced)} initial="hidden" animate="show">
+      <div className="panel__head">
+        <h2 id="lead-title" className="panel__title">
+          <bdi>{circle.name}</bdi>
+          <span className="lozenge lozenge--success">{t('circles.status.live')}</span>
+        </h2>
+      </div>
+      <div className="panel__body">
+        <motion.ul className="lead__people" variants={listVariants(reduced, 0.05)} initial="hidden" animate="show">
+          {circle.bodies.map((b) => (
+            <motion.li key={b.id} className="buddy" variants={rowVariants(reduced)}>
+              <span className="buddy__char"><Character id={b.character} ring={b.ring} tag={false} /></span>
+              <span className="buddy__text">
+                <span className="buddy__name">
+                  <bdi>{b.name}</bdi>
+                  {b.me ? <span className="buddy__you"> ({t('circles.you')})</span> : null}
+                </span>
+                <span className="buddy__status">{b.me ? t(`circles.roles.${circle.role}`) : t('home.here')}</span>
+              </span>
+              <span className={`buddy__value is-${b.me && mood ? moodTone(mood) : 'ok'}`}>{b.me && word ? word : t('home.here')}</span>
+            </motion.li>
+          ))}
+        </motion.ul>
+        <div className="lead__meter">
+          <p className="lead__count">
+            <strong>{t('home.hereOf', { value: here, max: circle.people })}</strong>
+            <span>{t('home.hereToday')}</span>
+          </p>
+          <Meter value={here} max={circle.people} label={t('home.hereToday')} />
+        </div>
+      </div>
+      <div className="panel__actions">
+        <ButtonLink to={`/app/circles/${circle.id}`} size="lg" className="lead__open" icon={<ArrowRight className="flip-rtl" size={18} />}>
+          {t('home.openRoom')}
+        </ButtonLink>
+      </div>
+    </motion.section>
   )
 }
 
-/** The circles you run or joined, as rings: the open ones first, the newest open one largest. */
-function MyCircles() {
+/** The other circles as outlined rows: name, what it is, who is in it, and the way in. */
+function CircleRows({ circles, title }: { circles: CircleSummary[]; title: string }) {
   const { t } = useTranslation()
   const reduced = useReducedMotion()
-  const circles = useMyCircles()
-  const [mood, setMood] = useState<Mood | null>(readPhase)
-  const pick = (m: Mood) => {
-    setMood(m)
-    try {
-      localStorage.setItem(PHASE_KEY(), String(m))
-    } catch {
-      /* private mode: the phase lives for this visit only */
-    }
-  }
-  const list = [...(circles.data ?? [])].sort((a, b) => Number(b.status === 'open') - Number(a.status === 'open'))
   return (
-    <section className="orrery" aria-labelledby="circles-title" data-perch="circles">
-      <div className="orrery__head">
-        <div>
-          <h2 id="circles-title" className="orrery__title">{t('home.orrery')}</h2>
-          <p className="orrery__lead">{t('home.orreryLead')}</p>
-        </div>
-        {list.length > 0 ? <ButtonLink to="/app/circles/new" variant="default" icon={<Plus size={16} />}>{t('circles.new')}</ButtonLink> : null}
+    <section className="circles" aria-labelledby="circles-title">
+      <div className="circles__head">
+        <h2 id="circles-title" className="circles__title">{title}</h2>
+        <span className="circles__count" aria-hidden="true">{circles.length}</span>
       </div>
-      {circles.isPending ? (
-        <p className="panel__empty" role="status">{t('common.loading')}</p>
-      ) : circles.isError ? (
-        <p className="field__error panel__empty" role="alert">{t('common.errorGeneric')}</p>
-      ) : list.length === 0 ? (
-        <div className="panel circles-empty">
-          <Panda className="circles-empty__panda" />
-          <div>
-            <p className="circles-empty__title">{t('circles.mine.emptyTitle')}</p>
-            <p className="field__help">{t('circles.mine.emptyBody')}</p>
-          </div>
-          <ButtonLink to="/app/circles/new" icon={<Plus size={16} />}>{t('circles.mine.create')}</ButtonLink>
-        </div>
-      ) : (
-        <motion.ul className="circle-list orbits" variants={listVariants(reduced, 0.06)} initial="hidden" animate="show">
-          {list.map((c, i) => (
-            <motion.li key={c.id} className="circle-list__item orbits__item" variants={rowVariants(reduced)}>
-              <CircleRing circle={c} lead={i === 0 && c.status === 'open'} mood={mood} />
+      <motion.ul className="circle-list" variants={listVariants(reduced, 0.05)} initial="hidden" animate="show">
+        {circles.map((c) => {
+          const open = c.status === 'open'
+          return (
+            <motion.li key={c.id} className={`circle-list__item${open ? '' : ' is-closed'}`} variants={rowVariants(reduced)}>
+              <Link className="circle-list__link" to={`/app/circles/${c.id}`} viewTransition>
+                <span className="circle-list__text">
+                  <span className="circle-list__name"><bdi>{c.name}</bdi></span>
+                  <span className="circle-list__meta">
+                    {open ? null : <span className="lozenge">{t('circles.status.closed')}</span>}
+                    {t(`circles.roles.${c.role}`)} · {t('circles.people', { count: c.people })}
+                  </span>
+                </span>
+                <span className="stack" aria-hidden="true">
+                  {c.bodies.slice(0, 4).map((b) => <Character key={b.id} id={b.character} tag={false} />)}
+                </span>
+                <ChevronRight className="circle-list__go flip-rtl" size={20} aria-hidden="true" />
+              </Link>
             </motion.li>
-          ))}
-          {list[0]?.status === 'open' ? (
-            <motion.li className="orbits__item orbits__item--phase" variants={rowVariants(reduced)}>
-              <TodayPhase mood={mood} onPick={pick} />
-            </motion.li>
-          ) : null}
-        </motion.ul>
-      )}
+          )
+        })}
+      </motion.ul>
+    </section>
+  )
+}
+
+/** Before the first circle: a headline, the cast on the ground, one pill. */
+function EmptyHome() {
+  const { t } = useTranslation()
+  return (
+    <section className="circles-empty" aria-labelledby="empty-title">
+      <div className="circles-empty__cast" aria-hidden="true">
+        {CAST.map((c) => <span key={c} className="ground"><Character id={c} tag={false} /></span>)}
+      </div>
+      <h2 id="empty-title" className="circles-empty__title">{t('home.firstTitle')}</h2>
+      <p className="circles-empty__body">{t('circles.mine.emptyBody')}</p>
+      <ButtonLink to="/app/circles/new" size="lg" icon={<Plus size={18} strokeWidth={2.5} />}>{t('circles.mine.create')}</ButtonLink>
     </section>
   )
 }
@@ -168,7 +179,7 @@ function KeepersSummary() {
       {favourites.isPending ? (
         <p className="panel__empty" role="status">{t('common.loading')}</p>
       ) : favourites.isError ? (
-        <p className="field__error" role="alert">{t('common.errorGeneric')}</p>
+        <p className="field__error panel__empty" role="alert">{t('common.errorGeneric')}</p>
       ) : list.length === 0 ? (
         <p className="panel__empty">{t('ice.keepers.emptyFavourites')}</p>
       ) : (
@@ -190,36 +201,77 @@ export default function Home() {
   useDocumentTitle('common.home')
   const { data: me } = useMe()
   const circles = useMyCircles()
+  const [mood, setMood] = useState<Mood | null>(readPhase)
+  const pick = (m: Mood) => {
+    setMood(m)
+    try {
+      localStorage.setItem(PHASE_KEY(), String(m))
+    } catch {
+      /* private mode: the phase lives for this visit only */
+    }
+  }
+
+  // Open circles first, the newest open one leads; closed ones follow, newest first.
+  const list = [...(circles.data ?? [])].sort(
+    (a, b) => Number(b.status === 'open') - Number(a.status === 'open') || b.createdAt.localeCompare(a.createdAt),
+  )
+  const lead = list[0]?.status === 'open' ? list[0] : null
+  const others = lead ? list.slice(1) : list
+  const empty = circles.isSuccess && list.length === 0
 
   return (
     <div className="page">
       <header className="hello">
-        <FaceMark mood={5} interactive className="hello__face" />
+        <FaceMark mood={mood ?? 5} interactive className="hello__face" />
         <div className="hello__text">
           <h1 className="page-header__title">
             <Trans i18nKey="home.greeting" values={{ name: me?.displayName ?? '' }} components={{ name: <bdi /> }} />
           </h1>
-          <p className="page-header__lead">{t('home.lead')}</p>
+          <p className="page-header__lead">
+            {lead ? t('home.liveLine', { name: lead.name, count: lead.people }) : t('home.lead')}
+          </p>
         </div>
       </header>
 
-      <MyCircles />
-
-      <div className="dash">
-        <div className="dash__main">
-          <section className="panel" aria-labelledby="today-title">
-            <div className="panel__head">
-              <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
-            </div>
-            <div className="panel__body">
-              <IcebreakerCard bare />
-            </div>
-          </section>
+      <div className="home-grid" data-perch="circles">
+        <div className="home-grid__main">
+          {circles.isPending ? (
+            <p className="panel__empty" role="status">{t('common.loading')}</p>
+          ) : circles.isError ? (
+            <p className="field__error panel__empty" role="alert">{t('common.errorGeneric')}</p>
+          ) : empty ? (
+            <EmptyHome />
+          ) : (
+            <>
+              {lead ? <LeadCard circle={lead} mood={mood} /> : null}
+              {others.length > 0 ? <CircleRows circles={others} title={lead ? t('home.otherCircles') : t('circles.mine.title')} /> : null}
+            </>
+          )}
+          {empty ? (
+            <section className="panel" aria-labelledby="today-title">
+              <div className="panel__head">
+                <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
+              </div>
+              <div className="panel__body">
+                <IcebreakerCard bare />
+              </div>
+            </section>
+          ) : null}
         </div>
-        <div className="dash__side">
-          {circles.data?.length === 0 ? <FirstTour /> : null}
+        <aside className="home-grid__side">
+          {empty ? <FirstTour /> : <TodayPhase mood={mood} onPick={pick} />}
+          {empty ? null : (
+            <section className="panel" aria-labelledby="today-title">
+              <div className="panel__head">
+                <h2 id="today-title" className="panel__title">{t('landing.teaser.title')}</h2>
+              </div>
+              <div className="panel__body">
+                <IcebreakerCard bare />
+              </div>
+            </section>
+          )}
           <KeepersSummary />
-        </div>
+        </aside>
       </div>
     </div>
   )

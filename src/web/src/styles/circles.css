@@ -1,7 +1,7 @@
 /* ---------- Guest shell ---------- */
 .guest {
   min-block-size: 100dvh;
-  background: var(--bg);
+  background: var(--ground);
 }
 .guest__main {
   /* Room at the end so the last content scrolls clear of Pirikoo's corner button. */
@@ -13,8 +13,31 @@
   display: block;
   overflow: visible;
 }
+/* A character standing on the ground: a soft ellipse under it (the public site, empty states, 404). */
+.ground {
+  position: relative;
+  display: inline-block;
+  inline-size: 6rem;
+  block-size: 6rem;
+}
+.ground > svg {
+  position: relative;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.ground::after {
+  content: '';
+  position: absolute;
+  inset-block-end: -0.6rem;
+  inset-inline-start: 12%;
+  inline-size: 76%;
+  block-size: 0.75rem;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.12);
+  filter: blur(3px);
+}
 
-/* ---------- Character picker (radio group) ---------- */
+/* ---------- Character picker (radio group): outlined tiles, the picked one in ink ---------- */
 .pick {
   margin: 0;
   padding: 0;
@@ -26,7 +49,7 @@
 }
 .pick__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(5.25rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
   gap: var(--s-2);
 }
 .pick__item {
@@ -35,17 +58,17 @@
   justify-items: center;
   gap: var(--s-1);
   padding: var(--s-3) var(--s-1) var(--s-2);
-  border: 1px solid var(--border);
+  border: 2px solid var(--hairline);
   border-radius: var(--r-md);
   background: var(--paper);
   cursor: pointer;
   transition:
-    border-color var(--dur-press) var(--ease-out),
-    background-color var(--dur-press) var(--ease-out),
-    transform var(--dur-state) var(--ease-out);
+    border-color var(--dur-state) var(--ease-spring),
+    background-color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
 .pick__item:hover {
-  border-color: var(--hairline-strong);
+  border-color: var(--ink);
   transform: translateY(-2px);
 }
 .pick__item input {
@@ -59,12 +82,15 @@
   outline-offset: 2px;
 }
 .pick__item.is-picked {
-  border-color: var(--beam);
-  background: var(--beam-subtle);
-  box-shadow: 0 0 0 1px var(--beam);
+  border-color: var(--ink);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.pick__item.is-picked .pick__name {
+  color: var(--ink);
 }
 .pick__item.is-picked .pick__char {
-  animation: hop var(--dur-enter) var(--ease-out);
+  animation: hop var(--dur-enter) var(--ease-spring);
 }
 .pick__item.is-taken {
   opacity: 0.45;
@@ -72,23 +98,25 @@
   transform: none;
 }
 .pick__char {
-  inline-size: 3rem;
-  block-size: 3rem;
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
 }
 .pick__name {
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 .pick__taken {
   position: absolute;
   inset-block-start: 4px;
   inset-inline-end: 4px;
-  padding: 0 0.3rem;
-  border-radius: var(--r-xs);
+  padding: 0 0.4rem;
+  border-radius: var(--r-pill);
   background: var(--neutral-subtle);
   color: var(--neutral-text);
   font-size: 0.625rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 /* "2 here": others use this character too; it can still be picked (spec 008). */
@@ -96,10 +124,10 @@
   position: absolute;
   inset-block-start: 4px;
   inset-inline-end: 4px;
-  padding: 0 0.3rem;
+  padding: 0 0.4rem;
   border-radius: var(--r-pill);
-  background: var(--surface-sunken);
-  color: var(--text-subtle);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
   font-size: 0.6875rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -127,9 +155,9 @@
   gap: var(--s-1);
   min-inline-size: 4.5rem;
   padding: var(--s-2);
-  border: 1px solid var(--border);
+  border: 2px solid var(--hairline);
   border-radius: var(--r-md);
-  background: var(--surface);
+  background: var(--paper);
   cursor: pointer;
 }
 .rings__item input {
@@ -143,9 +171,8 @@
   outline-offset: 2px;
 }
 .rings__item.is-picked {
-  border-color: var(--primary);
-  background: var(--primary-subtle);
-  box-shadow: 0 0 0 1px var(--primary);
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
 }
 .rings__char {
   inline-size: 2.75rem;
@@ -153,7 +180,7 @@
 }
 .rings__name {
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: 700;
 }
 .pick[aria-invalid='true'] .pick__item:not(.is-taken) {
   border-color: var(--danger);
@@ -164,101 +191,276 @@
   }
 }
 
-/* ---------- Activities ---------- */
+/* ---------- Activities: outlined rows with a pill toggle; on = ink outline and an ink check pill ---------- */
 .activities {
   display: grid;
   gap: var(--s-4);
 }
 .activities__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-2);
 }
 .activity {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: 1fr auto;
-  gap: var(--s-3);
-  padding: var(--s-4);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-5);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  transition: border-color var(--dur-state) var(--ease-spring);
+}
+.activity:hover {
+  border-color: var(--hairline-strong);
 }
 .activity.is-on {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary);
+  border-color: var(--ink);
 }
 .activity__icon {
   display: grid;
   place-items: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  border-radius: var(--r-md);
-  background: var(--primary-subtle);
-  color: var(--primary-text);
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
+  color: var(--ink);
 }
-.activity--energizers .activity__icon {
-  background: var(--warning-subtle);
-  color: var(--warning-text);
-}
-.activity--retro .activity__icon {
-  background: var(--success-subtle);
-  color: var(--success-text);
-}
-.activity--decide .activity__icon {
-  background: var(--danger-subtle);
-  color: var(--danger-text);
+.activity.is-on .activity__icon {
+  background: var(--ink);
+  color: var(--on-ink);
 }
 .activity__copy {
   display: grid;
   align-content: start;
-  gap: var(--s-1);
+  gap: 2px;
+  min-inline-size: 0;
 }
 .activity__title {
-  font-size: var(--fs-md);
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 .activity__body {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--ink-soft);
 }
 .activity__cat {
   font-size: var(--fs-xs);
-  color: var(--text-subtlest);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+:lang(ar) .activity__cat {
+  letter-spacing: 0;
 }
 .activity > .btn,
 .activity__toggle {
-  grid-column: 1 / -1;
-  justify-self: start;
+  grid-column: 3;
+  justify-self: end;
 }
 .activity__toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s-1);
-  min-block-size: 2rem;
-  padding: 0.25rem 0.8rem;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--text);
+  min-block-size: 2.5rem;
+  padding: 0.3rem 1rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-state) var(--ease-spring),
+    color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
+}
+.activity__toggle:hover {
+  background: var(--paper-sunken);
+  transform: translateY(-1px) scale(1.02);
+}
+.activity__toggle:active {
+  transform: scale(0.97);
 }
 .activity__toggle[aria-pressed='true'] {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+@media (max-width: 36rem) {
+  .activity {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: var(--s-4);
+  }
+  .activity > .btn,
+  .activity__toggle {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
 }
 
-/* ---------- Create ---------- */
+/* ---------- Create: the form on the left, the dark preview card on the right ---------- */
+.create__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
+  align-items: start;
+  gap: var(--s-6);
+}
+.create__main {
+  display: grid;
+  gap: var(--s-6);
+  min-inline-size: 0;
+}
+.create__side {
+  position: sticky;
+  inset-block-start: calc(var(--topbar-h) + var(--s-5));
+  display: grid;
+  gap: var(--s-4);
+}
 .create .panel__body > .field {
   margin-block-end: calc(-1 * var(--s-3));
 }
+/* The name: one big pill. */
 .create__name {
-  max-inline-size: 30rem;
+  max-inline-size: 32rem;
+  min-block-size: 3.5rem;
+  padding-inline: 1.25rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+.create__name:hover {
+  border-color: var(--ink);
+}
+.create__name:focus-visible {
+  border-color: var(--focus);
+}
+/* Describe it (#247): one line, a Suggest button beside it on wide screens, under it on phones. */
+.create__describe {
+  display: grid;
+  gap: var(--s-3);
+}
+.create__line {
+  display: grid;
+  gap: var(--s-2);
+  max-inline-size: 40rem;
+}
+.create__line-field {
+  min-block-size: 3.5rem;
+  padding: 0.85rem 1.25rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  resize: vertical;
+  font: inherit;
+  font-size: var(--fs-md);
+  line-height: 1.4;
+}
+.create__line-field:hover {
+  border-color: var(--ink);
+}
+.create__line-field:focus-visible {
+  border-color: var(--focus);
+}
+@media (min-width: 40rem) {
+  .create__line {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+}
+/* The preview: what will open, as the page's one dark card. */
+.create__preview {
+  display: grid;
+  gap: var(--s-4);
+}
+.create__preview-row {
+  display: grid;
+  gap: var(--s-2);
+}
+.create__preview-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-card-faint);
+}
+:lang(ar) .create__preview-label {
+  letter-spacing: 0;
+}
+.create__preview-name {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.create__preview-name.is-empty {
+  color: var(--on-card-faint);
+  font-weight: 600;
+}
+.create__seats {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.create__seats-note {
+  font-size: var(--fs-sm);
+  color: var(--on-card-soft);
+}
+.create__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+.create__act {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.75rem;
+  padding: 0 0.7rem;
+  border-radius: var(--r-pill);
+  background: var(--card-sunken);
+  color: var(--on-card);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.create__count {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: var(--fs-sm);
+  color: var(--on-card-soft);
+}
+.create__count strong {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--on-card);
+  font-variant-numeric: tabular-nums;
+}
+.create .panel__actions {
+  display: grid;
+  gap: var(--s-3);
+}
+.create .panel__actions .btn {
+  inline-size: 100%;
+}
+.create .panel__actions .field__error {
+  margin: 0;
+}
+@media (max-width: 60rem) {
+  .create__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .create__side {
+    position: static;
+  }
 }
 
-/* ---------- Join ---------- */
+/* ---------- Join: public, on white; the host, the name as a pill, the picker, one ink pill ---------- */
 .join__host {
   display: flex;
   align-items: center;
@@ -266,20 +468,21 @@
 }
 .join__host .authform__lead {
   margin: 0;
+  font-size: var(--fs-md);
 }
 .join__host-char {
   inline-size: 2.75rem;
   block-size: 2.75rem;
 }
 .join__host-name {
-  font-weight: 600;
-  color: var(--text);
+  font-weight: 700;
+  color: var(--ink);
 }
 .join__help {
   margin-block-start: calc(-1 * var(--s-4));
 }
 .auth__card:has(.join) {
-  inline-size: min(34rem, 100%);
+  inline-size: min(38rem, 100%);
 }
 
 /* ---------- Room ---------- */
@@ -338,25 +541,54 @@
   }
 }
 
-/* ---------- Invite ---------- */
+/* ---------- Invite: an outlined panel, the big code, the link and one ink pill ---------- */
 .invite__row {
   display: flex;
   gap: var(--s-2);
 }
+.invite__row .btn {
+  flex: none;
+}
 .invite__link {
   flex: 1;
   min-inline-size: 0;
+  min-block-size: 2.75rem;
+  padding-inline: 1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
   font-size: var(--fs-sm);
+  font-weight: 500;
 }
 .invite__code {
+  display: grid;
+  gap: var(--s-1);
   font-size: var(--fs-sm);
+  font-weight: 600;
   color: var(--ink-soft);
 }
 .invite__code-value {
-  font-size: var(--fs-lg);
-  letter-spacing: 0.08em;
+  display: block;
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+/* A new circle's invite card glows twice in the one blue, so the next step is obvious, then rests. */
+.invite.is-fresh {
+  animation: invite-glow var(--dur-orbit) var(--ease-in-out) 2;
+}
+@keyframes invite-glow {
+  50% {
+    border-color: var(--beam);
+    background: var(--beam-subtle);
+  }
+}
+@media (max-width: 40rem) {
+  .invite__row {
+    flex-direction: column;
+  }
 }
 
 /* ---------- Chat ---------- */
@@ -634,86 +866,150 @@
   }
 }
 
-/* ---------- Home: my circles as rings (the orrery) ---------- */
-.orrery {
+/* ---------- Home: the live circle as the dark card, the others as rows, today's feel beside (buddy list, #250) ---------- */
+.home-grid {
   display: grid;
-  gap: var(--s-5);
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: start;
+  gap: var(--s-7) var(--s-6);
 }
-.orrery__head {
+.home-grid__main,
+.home-grid__side {
+  display: grid;
+  gap: var(--s-6);
+  min-inline-size: 0;
+}
+/* The lead circle: its people as buddy rows, one meter, one white pill. */
+.lead .panel__title {
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+:lang(ar) .lead .panel__title {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+/* "Live": the canvas pair, which clears 4.5:1 on the card by day and by night (the --ok text does not at night). */
+.lead .lozenge--success {
+  background: var(--live-subtle);
+  color: var(--live-text);
+}
+.lead__people {
+  display: grid;
+}
+.buddy__text {
+  display: grid;
+  gap: 1px;
+  min-inline-size: 0;
+}
+.buddy__name {
+  overflow-wrap: anywhere;
+}
+.buddy__you {
+  font-weight: 500;
+  color: var(--on-card-faint);
+}
+/* The value sits at 19px bold so the status colours clear 3:1 in both themes. */
+.lead .buddy__value {
+  font-size: 1.1875rem;
+  text-transform: lowercase;
+}
+.lead__meter {
+  display: grid;
+  gap: var(--s-2);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--card-line);
+}
+.lead__count {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--s-3) var(--s-4);
+  align-items: baseline;
+  gap: var(--s-2);
+  font-size: var(--fs-sm);
+  color: var(--on-card-soft);
 }
-.orrery__title {
-  font-size: var(--fs-xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.lead__count strong {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--on-card);
+  font-variant-numeric: tabular-nums;
 }
-.orrery__lead {
-  color: var(--ink-soft);
+.lead .panel__actions .btn {
+  inline-size: 100%;
 }
-.orbits {
+
+/* The other circles: outlined rows. */
+.circles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  gap: var(--s-4);
-  align-items: stretch;
+  gap: var(--s-3);
 }
-.orbits__item {
+.circles__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding-inline: var(--s-1);
+}
+.circles__title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.circles__count {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.circle-list {
+  display: grid;
+  gap: var(--s-2);
+}
+.circle-list__item {
   display: grid;
   min-inline-size: 0;
 }
-/* The lead orbit (the newest open circle) takes two columns and the large ring. */
-.orbits__item:has(.orbit--lead) {
-  grid-column: span 2;
-}
-.orbit {
+.circle-list__link {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--s-4);
-  padding: var(--s-4);
-  border: 1px solid var(--hairline);
+  padding: var(--s-4) var(--s-5);
+  border: 2px solid var(--hairline);
   border-radius: var(--r-lg);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--shadow-raised);
   text-decoration: none;
   transition:
-    border-color var(--dur-state) var(--ease-out),
-    transform var(--dur-press) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out);
+    border-color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
-.orbit:hover {
-  border-color: var(--brass);
+.circle-list__link:hover {
+  border-color: var(--ink);
   text-decoration: none;
+  transform: translateY(-1px);
 }
-.orbit:active {
+.circle-list__link:active {
   transform: scale(0.99);
 }
-.orbit--lead {
-  padding: var(--s-5) var(--s-6);
-  gap: var(--s-6);
-}
-.orbit__text {
+.circle-list__text {
   display: grid;
-  gap: var(--s-1);
+  gap: 2px;
   min-inline-size: 0;
 }
-.orbit__name {
+.circle-list__name {
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.orbit--lead .orbit__name {
-  font-size: var(--fs-2xl);
-  letter-spacing: -0.01em;
-  white-space: normal;
-}
-.orbit__meta {
+.circle-list__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -721,121 +1017,100 @@
   font-size: var(--fs-sm);
   color: var(--ink-soft);
 }
-.orbit__open {
-  display: inline-grid;
-  place-items: center;
-  inline-size: 2rem;
-  block-size: 2rem;
-  margin-block-start: var(--s-2);
-  border-radius: var(--r-ring);
-  border: 1px solid var(--hairline);
-  color: var(--ink-soft);
-  transition: transform var(--dur-move) var(--ease-out), color var(--dur-state) var(--ease-out), border-color var(--dur-state) var(--ease-out);
+.circle-list__go {
+  color: var(--ink-faint);
+  transition: transform var(--dur-move) var(--ease-spring), color var(--dur-state) var(--ease-out);
 }
-.orbit:hover .orbit__open {
-  color: var(--beam);
-  border-color: var(--beam);
-  transform: translateX(2px);
-}
-[dir='rtl'] .orbit:hover .orbit__open {
-  transform: translateX(-2px);
-}
-.orbit.is-closed {
-  color: var(--ink-soft);
-}
-@media (max-width: 40rem) {
-  .orbits {
-    grid-template-columns: 1fr;
-  }
-  .orbits__item:has(.orbit--lead) {
-    grid-column: auto;
-  }
-  .orbit--lead {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-  .orbit--lead .orbit__meta {
-    justify-content: center;
-  }
-}
-/* Today's phase beside the lead ring: the face feels it, one tap sets the ring's sky. */
-.orbits__item--phase {
-  grid-column: span 2;
-}
-.phase {
-  display: grid;
-  gap: var(--s-4);
-  padding: var(--s-5) var(--s-6);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-lg);
-  background: var(--paper);
-  box-shadow: var(--shadow-raised);
-}
-.phase__stage {
-  display: flex;
-  align-items: center;
-  gap: var(--s-4);
-}
-.phase__face {
-  inline-size: 3.5rem;
-  flex: none;
+.circle-list__link:hover .circle-list__go {
   color: var(--ink);
+  transform: translateX(3px);
 }
-.phase__says {
-  font-size: var(--fs-lg);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+[dir='rtl'] .circle-list__link:hover .circle-list__go {
+  transform: translateX(-3px);
 }
-.phase__note {
+/* Closed circles step back: grey text, a neutral lozenge, the cast dimmed. */
+.circle-list__item.is-closed .circle-list__name {
+  color: var(--ink-soft);
+}
+.circle-list__item.is-closed .stack {
+  opacity: 0.55;
+}
+
+/* Today's feel: the title, the five tiles, the weather line, the note. */
+.feel {
+  display: grid;
+  gap: var(--s-3);
+}
+.feel__title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.feel__weather {
+  font-size: var(--fs-md);
+  color: var(--ink-soft);
+}
+.feel__weather strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.feel__note {
   font-size: var(--fs-sm);
   color: var(--ink-faint);
 }
-@media (max-width: 40rem) {
-  .orbits__item--phase {
-    grid-column: auto;
-  }
-  .phase {
-    padding: var(--s-4);
-  }
-}
-/* Kept for the specs and older pages that still list circles as rows. */
-.circle-list__name {
-  font-weight: 600;
-  color: var(--ink);
-}
-.circle-list__meta {
-  margin-inline-start: auto;
-  font-size: var(--fs-sm);
-  color: var(--ink-soft);
-}
+
+/* Before the first circle: a headline, the cast on the ground, one pill. */
 .circles-empty {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  justify-items: start;
   gap: var(--s-4);
-  padding: var(--s-5);
+  padding-block: var(--s-4) var(--s-6);
 }
-.circles-empty > div {
-  flex: 1;
-  min-inline-size: 14rem;
+.circles-empty__cast {
+  display: flex;
+  gap: var(--s-5);
+  margin-block-end: var(--s-3);
 }
-.circles-empty__panda {
-  inline-size: 3.5rem;
-  color: var(--text);
+.circles-empty__cast .ground:nth-child(2) {
+  translate: 0 -0.5rem;
 }
 .circles-empty__title {
-  font-weight: 600;
+  font-size: var(--fs-3xl);
+  font-weight: var(--w-display);
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+:lang(ar) .circles-empty__title {
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+.circles-empty__body {
+  max-inline-size: 34rem;
+  font-size: var(--fs-lg);
+  color: var(--ink-soft);
+}
+@media (max-width: 60rem) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media (max-width: 40rem) {
-  .chat {
-    block-size: calc(100dvh - var(--topbar-h) - 6rem);
+  .circle-list__link {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: var(--s-4);
   }
-  .chat__msg {
-    max-inline-size: 92%;
+  .circle-list__link .stack {
+    display: none;
   }
-  .invite__row {
-    flex-direction: column;
+  .circles-empty__cast {
+    gap: var(--s-3);
+  }
+  .circles-empty__cast .ground {
+    inline-size: 4.5rem;
+    block-size: 4.5rem;
+  }
+  .lead .panel__title {
+    font-size: var(--fs-2xl);
   }
 }
 
@@ -1148,19 +1423,6 @@
 }
 
 /* ---------- Alive moments (issue #84) ---------- */
-/* A new circle's invite card is marked in brass so the next step is obvious; the mark settles after a moment. */
-.invite.is-fresh {
-  border-color: var(--brass);
-  box-shadow: 0 0 0 1px var(--brass), var(--shadow-raised);
-  animation: invite-mark var(--dur-focal) var(--ease-out) both;
-}
-.invite.is-fresh .invite__code-value {
-  color: var(--brass);
-}
-@keyframes invite-mark {
-  from { box-shadow: 0 0 0 0 var(--brass), var(--shadow-raised); }
-}
-
 /* A vote lands: the count pops once. */
 .note-card__count {
   display: inline-block;
@@ -1176,7 +1438,9 @@
   .pick__item.is-picked .pick__char {
     animation: none;
   }
-  .pick__item:hover {
+  .pick__item:hover,
+  .activity__toggle:hover,
+  .circle-list__link:hover {
     transform: none;
   }
 }
@@ -1204,28 +1468,5 @@
 @media (prefers-reduced-motion: reduce) {
   .chat__typing {
     animation: none;
-  }
-}
-
-/* Describe it (#247): one line, a Suggest button beside it on wide screens, under it on phones. */
-.create__describe {
-  display: grid;
-  gap: var(--s-3);
-}
-.create__line {
-  display: grid;
-  gap: var(--s-2);
-  max-inline-size: 40rem;
-}
-.create__line-field {
-  min-block-size: 3.5rem;
-  resize: vertical;
-  font: inherit;
-  line-height: 1.4;
-}
-@media (min-width: 40rem) {
-  .create__line {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
   }
 }

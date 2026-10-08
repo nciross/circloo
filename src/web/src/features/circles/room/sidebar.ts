@@ -98,7 +98,7 @@ export function roundStartedAt(messages: Message[], activity: string | null): st
   return null
 }
 
-/** A round has no fixed end; the brass rule under its chip fills over the usual length of one, then stays full. */
+/** A round has no fixed end; the meter under its chip fills over the usual length of one, then stays full. */
 export const ROUND_LENGTH_S = 15 * 60
 
 /** Share of the usual round elapsed, 0–1. */

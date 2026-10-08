@@ -75,13 +75,14 @@ export function RitualCard({ big = false }: { big?: boolean }) {
 
   return (
     <div className={`deck${dealing ? ' is-dealing' : ''}`}>
-      <article className={`panel deal${big ? ' deal--big' : ''}`} aria-labelledby="deal-title">
+      {/* The one dark card of the page: the card on the table. Everything on it reads in --on-card. */}
+      <article className={`panel panel--dark deal${big ? ' deal--big' : ''}`} aria-labelledby="deal-title">
         <div className="panel__head">
           <h2 id="deal-title" className="panel__title">{t('ice.card.label')}</h2>
           <div className="deal__meta">
             {current?.source === 'ai' ? <span className="lozenge lozenge--ai">{t('ice.card.fresh')}</span> : null}
-            {current ? <span className="lozenge lozenge--neutral">{t(`ice.filters.kinds.${current.kind}`)}</span> : null}
-            {current ? <span className="lozenge lozenge--neutral" lang={current.lang}>{t(`common.languages.${current.lang}`)}</span> : null}
+            {current ? <span className="lozenge">{t(`ice.filters.kinds.${current.kind}`)}</span> : null}
+            {current ? <span className="lozenge" lang={current.lang}>{t(`common.languages.${current.lang}`)}</span> : null}
           </div>
         </div>
         <p className="visually-hidden" aria-live="polite" lang={current?.lang}>

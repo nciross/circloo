@@ -1,5 +1,5 @@
-/* ---------- Live canvas (issue #93, orrery look #250) ---------- */
-/* The whiteboard is a sheet of dotted paper on the ground: the panel frame goes, the toolbar sits above the sheet. */
+/* ---------- Live canvas (issue #93, buddy list #250) ---------- */
+/* The whiteboard is a white sheet with an ink outline; the panel frame goes, the tools sit above the sheet as pills. */
 .panel.canvas {
   border: 0;
   border-radius: 0;
@@ -18,29 +18,58 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-1);
+  gap: var(--s-2);
+}
+/* The primary tool is the ink pill (Add a note); the others are outlined round pills, filled when pressed. */
+.canvas__tools .btn {
+  min-block-size: 2.75rem;
+  padding-inline: 1.1rem;
+  font-size: var(--fs-md);
+}
+.canvas__tools .icon-btn {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  box-shadow: inset 0 0 0 2px var(--ink);
+  color: var(--ink);
+  transition:
+    background-color var(--dur-state) var(--ease-spring),
+    color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
+}
+.canvas__tools .icon-btn:hover {
+  background: var(--paper-sunken);
+  transform: translateY(-1px) scale(1.02);
+}
+.canvas__tools .icon-btn:active {
+  transform: scale(0.97);
+}
+.canvas__tools .icon-btn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--on-ink);
 }
 .canvas__sep {
-  inline-size: 1px;
+  inline-size: 2px;
   block-size: 1.5rem;
   margin-inline: var(--s-1);
+  border-radius: var(--r-pill);
   background: var(--hairline);
 }
 .canvas__zoom {
   min-inline-size: 3rem;
   font-size: var(--fs-sm);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   text-align: center;
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 
-/* The surface: dotted paper that pans and zooms with the content. */
+/* The sheet: white, an ink outline, a faint dot grid that pans and zooms with the content. No bezel, no shadow. */
 .canvas__viewport {
   position: relative;
   overflow: hidden;
   block-size: min(68dvh, 44rem);
   min-block-size: 24rem;
-  border: 1px solid var(--hairline);
+  border: 2px solid var(--ink);
   border-radius: var(--r-xl);
   background-color: var(--paper);
   background-image: radial-gradient(circle, var(--hairline-strong) 1px, transparent 1.3px);
@@ -71,6 +100,7 @@
   place-items: center;
   padding: var(--s-6);
   color: var(--ink-soft);
+  font-weight: 500;
   text-align: center;
   pointer-events: none;
 }
@@ -83,7 +113,8 @@
   padding: var(--s-3) var(--s-1) 0;
 }
 
-/* Notes: paper colours fixed in both themes (a note is a thing on the board, not chrome), a hand-placed tilt, centred on their point. */
+/* Notes: paper colours fixed in both themes (a note is a thing on the board, not chrome), a hand-placed tilt, centred on
+   their point, a soft shadow. */
 .canvas-note {
   --note: #fff3b0;
   --note-ink: #17293a;
@@ -132,15 +163,16 @@
   inline-size: var(--w);
   min-block-size: var(--w);
   padding: var(--s-3);
-  border: 1px solid rgb(23 41 58 / 0.1);
-  border-radius: var(--r-sm);
+  border: 0;
+  border-radius: var(--r-md);
   background: var(--note);
   color: var(--note-ink);
   font: inherit;
   font-size: var(--fs-md);
+  font-weight: 500;
   line-height: 1.35;
   text-align: start;
-  box-shadow: var(--shadow-raised);
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.3);
   cursor: grab;
   transition:
     scale var(--dur-state) var(--ease-out),
@@ -172,7 +204,7 @@
 .canvas-note.is-dragging .canvas-note__body {
   scale: 1.04;
   cursor: grabbing;
-  box-shadow: var(--shadow-overlay);
+  box-shadow: 0 18px 36px -14px rgb(0 0 0 / 0.4);
 }
 .canvas-note__body:focus-visible,
 .canvas-note.is-selected .canvas-note__body {
@@ -189,7 +221,7 @@
   block-size: 1.9rem;
   border-radius: 50%;
   background: #fff;
-  box-shadow: var(--shadow-overlay);
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.35);
   animation: canvas-stick var(--dur-enter) var(--ease-out);
 }
 .canvas-note__sticker--heart,
@@ -224,10 +256,10 @@
   gap: var(--s-2);
   inline-size: 13rem;
   padding: var(--s-3);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   background: var(--note);
   color: var(--note-ink);
-  box-shadow: var(--shadow-float);
+  box-shadow: 0 18px 36px -14px rgb(0 0 0 / 0.4);
   translate: calc(var(--x, 0) * 1px) calc(var(--y, 0) * 1px);
   transform: translate(-50%, -50%);
   cursor: auto;
@@ -235,8 +267,8 @@
 .canvas-draft textarea {
   inline-size: 100%;
   padding: var(--s-2);
-  border: 1px solid rgb(23 41 58 / 0.25);
-  border-radius: var(--r-xs);
+  border: 2px solid rgb(23 41 58 / 0.2);
+  border-radius: var(--r-sm);
   background: rgb(255 255 255 / 0.7);
   color: inherit;
   font: inherit;
@@ -249,7 +281,7 @@
 .canvas-draft__colors {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-1);
+  gap: var(--s-2);
 }
 .canvas-draft__actions {
   display: flex;
@@ -259,15 +291,23 @@
 .swatch--white {
   background: #ffffff;
 }
-.swatch[aria-pressed='true'] {
+/* Swatches are round; the chosen one wears a 2px ink ring. */
+.canvas__style .swatch,
+.canvas-draft__colors .swatch {
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+.canvas__style .swatch[aria-pressed='true'],
+.canvas-draft__colors .swatch[aria-pressed='true'] {
   box-shadow:
     0 0 0 2px var(--paper),
     0 0 0 4px var(--ink);
 }
 
-/* Someone else's pointer: their colour, their character, a gentle glide. */
+/* Someone else's pointer: a dark pill with their character, a gentle glide. */
 .canvas-cursor {
-  --cursor: #d9480f;
   position: absolute;
   top: 0;
   left: 0;
@@ -284,21 +324,6 @@
     opacity var(--dur-enter) var(--ease-out);
   pointer-events: none;
 }
-.canvas-cursor--c1 {
-  --cursor: #0b5bd3;
-}
-.canvas-cursor--c2 {
-  --cursor: #2b8a3e;
-}
-.canvas-cursor--c3 {
-  --cursor: #9c36b5;
-}
-.canvas-cursor--c4 {
-  --cursor: #c2255c;
-}
-.canvas-cursor--c5 {
-  --cursor: #0b7285;
-}
 .canvas-cursor.is-idle {
   opacity: 0;
 }
@@ -306,8 +331,8 @@
   flex: none;
   inline-size: 1.15rem;
   block-size: 1.15rem;
-  fill: var(--cursor);
-  stroke: #fff;
+  fill: var(--card);
+  stroke: var(--on-card);
   stroke-width: 1.4;
   stroke-linejoin: round;
 }
@@ -315,42 +340,35 @@
   flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   margin-block-start: 0.85rem;
   margin-inline-start: -0.2rem;
-  padding: 2px 0.6rem 2px 2px;
-  border-radius: var(--r-ring);
-  background: var(--cursor);
-  color: #fff;
+  padding: 3px 0.7rem 3px 3px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--on-card);
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
-  box-shadow: var(--shadow-raised);
+  box-shadow: var(--shadow-overlay);
 }
 .canvas-cursor__char {
-  inline-size: 1.4rem;
-  block-size: 1.4rem;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
   border-radius: 50%;
-  background: #fff;
+  background: var(--on-card);
 }
 .canvas-cursor.is-moving .canvas-cursor__char {
   animation: cursor-wiggle 280ms ease-in-out infinite alternate;
 }
-
-/* The animator's pointer wears a crown and a squarer tag so it reads as the one leading. */
-.canvas-cursor.is-animator .canvas-cursor__tag {
-  padding-inline-end: 0.7rem;
-  border-radius: var(--r-md);
-  box-shadow:
-    0 0 0 2px #fff,
-    var(--shadow-raised);
-}
+/* The animator's pointer wears a crown so it reads as the one leading. */
 .canvas-cursor__crown {
   flex: none;
   margin-inline-start: 0.1rem;
+  color: var(--sun);
 }
 
-/* Who is here: characters with a presence ring, the animator first and crowned. */
+/* Who is here: characters in a stack with an ink ring when here, the animator first and crowned. */
 .presence {
   display: flex;
   align-items: center;
@@ -383,14 +401,8 @@
     opacity var(--dur-state) var(--ease-out),
     transform var(--dur-state) var(--ease-out);
 }
-.presence__person--c0 { --cursor: #d9480f; }
-.presence__person--c1 { --cursor: #0b5bd3; }
-.presence__person--c2 { --cursor: #2b8a3e; }
-.presence__person--c3 { --cursor: #9c36b5; }
-.presence__person--c4 { --cursor: #c2255c; }
-.presence__person--c5 { --cursor: #0b7285; }
 .presence__person.is-here {
-  --ring: var(--cursor);
+  --ring: var(--ink);
   opacity: 1;
   filter: none;
 }
@@ -409,7 +421,7 @@ button.presence__person:focus-visible {
   content: '';
   position: absolute;
   inset: -5px;
-  border: 2px solid var(--cursor);
+  border: 2px solid var(--ink);
   border-radius: 50%;
   animation: presence-live var(--dur-orbit) ease-out infinite;
 }
@@ -424,7 +436,7 @@ button.presence__person:focus-visible {
   padding: 2px;
   border-radius: 50%;
   background: var(--paper);
-  color: var(--brass);
+  color: var(--ink);
   box-sizing: content-box;
 }
 .presence__more {
@@ -433,15 +445,16 @@ button.presence__person:focus-visible {
   min-inline-size: 2rem;
   block-size: 2rem;
   padding-inline: 0.3rem;
-  border: 2px solid var(--hairline);
-  border-radius: var(--r-ring);
+  border: 2px solid var(--paper);
+  border-radius: var(--r-pill);
   background: var(--paper-sunken);
   font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-weight: 700;
+  color: var(--ink);
 }
 .presence__count {
   font-size: var(--fs-sm);
+  font-weight: 500;
   color: var(--ink-soft);
   white-space: nowrap;
 }
@@ -465,7 +478,7 @@ button.presence__person:focus-visible {
   }
 }
 
-/* Style bar for the selected note. */
+/* Style bar for the selected note: one outlined pill of small pill groups. */
 .canvas__style {
   position: absolute;
   top: var(--s-3);
@@ -478,9 +491,9 @@ button.presence__person:focus-visible {
   gap: var(--s-2);
   inline-size: max-content;
   max-inline-size: calc(100% - 2rem);
-  padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-4);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-lg);
   background: var(--paper);
   box-shadow: var(--shadow-overlay);
   translate: -50% 0;
@@ -494,24 +507,32 @@ button.presence__person:focus-visible {
 }
 .canvas__style-group + .canvas__style-group {
   padding-inline-start: var(--s-2);
-  border-inline-start: 1px solid var(--hairline);
+  border-inline-start: 2px solid var(--hairline);
 }
 .canvas__chip {
-  min-inline-size: 1.75rem;
-  min-block-size: 1.75rem;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-sm);
+  min-inline-size: 2rem;
+  min-block-size: 2rem;
+  border: 0;
+  border-radius: var(--r-pill);
   background: var(--paper);
-  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 2px var(--hairline);
+  color: var(--ink);
   font-size: var(--fs-xs);
   font-weight: 700;
   cursor: pointer;
 }
+.canvas__style .icon-btn {
+  color: var(--ink);
+}
 .canvas__chip[aria-pressed='true'],
 .canvas__style .icon-btn[aria-pressed='true'] {
-  border-color: var(--beam);
-  background: var(--beam-subtle);
-  color: var(--beam-text);
+  background: var(--ink);
+  box-shadow: none;
+  color: var(--on-ink);
+}
+.canvas__style .canvas__sticker[aria-pressed='true'] {
+  background: var(--paper-sunken);
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 
 /* Bring in content from the circle. */
@@ -529,15 +550,21 @@ button.presence__person:focus-visible {
   max-block-size: 22rem;
   padding: var(--s-3);
   overflow-y: auto;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
   background: var(--paper);
   box-shadow: var(--shadow-overlay);
 }
 .canvas__bring-title {
   font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+:lang(ar) .canvas__bring-title {
+  letter-spacing: 0;
+  text-transform: none;
 }
 .canvas__bring-empty {
   font-size: var(--fs-sm);
@@ -552,7 +579,7 @@ button.presence__person:focus-visible {
   align-items: flex-start;
   gap: var(--s-2);
   inline-size: 100%;
-  min-block-size: 2rem;
+  min-block-size: 2.25rem;
   padding: var(--s-1) var(--s-2);
   border: 0;
   border-radius: var(--r-sm);
@@ -565,7 +592,7 @@ button.presence__person:focus-visible {
 }
 .canvas__bring-item:hover,
 .canvas__bring-item:focus-visible {
-  background: var(--paper-hover);
+  background: var(--paper-sunken);
 }
 .canvas__bring-dot {
   flex: none;
@@ -584,8 +611,12 @@ button.presence__person:focus-visible {
   padding: var(--s-4) var(--s-2) var(--s-5);
 }
 .canvas__list-title {
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+:lang(ar) .canvas__list-title {
+  letter-spacing: 0;
 }
 .canvas__list ol {
   display: grid;
@@ -595,6 +626,11 @@ button.presence__person:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--s-2);
+  min-block-size: 2.75rem;
+  border-block-start: 1px solid var(--hairline);
+}
+.canvas__list-item:first-child {
+  border-block-start: 0;
 }
 .canvas__list-text {
   flex: 1;
@@ -636,6 +672,9 @@ button.presence__person:focus-visible {
     animation: none !important;
     transition: none !important;
   }
+  .canvas__tools .icon-btn:hover {
+    transform: none;
+  }
 }
 /* A shared character's owner is named on the note (spec 008): the ring alone would be too thin to tell apart. */
 .canvas-note__by-name {
@@ -643,8 +682,76 @@ button.presence__person:focus-visible {
   max-inline-size: 6rem;
   overflow: hidden;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: 0.8;
+}
+
+/* ---------- Boards in the centre: outlined columns with heavy titles, notes as paper cards ---------- */
+.room__centre .board {
+  border: 0;
+  background: transparent;
+}
+.room__centre .board > .panel__head {
+  padding-inline: var(--s-1);
+}
+.room__centre .board .board__columns {
+  padding: 0 var(--s-1) var(--s-2);
+  gap: var(--s-4);
+}
+.room__centre .board .board__col {
+  padding: var(--s-4);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+}
+.room__centre .board .board__col.is-over {
+  border-color: var(--ink);
+  background: var(--paper-sunken);
+  box-shadow: none;
+}
+.room__centre .board .board__head {
+  padding: 0 0 var(--s-2);
+  font-size: var(--fs-xl);
+  font-weight: var(--w-title);
+  letter-spacing: -0.02em;
+}
+:lang(ar) .room__centre .board .board__head {
+  letter-spacing: 0;
+}
+.room__centre .board .board__head::before {
+  display: none;
+}
+.room__centre .board .board__count {
+  padding: 0 0.6rem;
+  background: var(--paper-sunken);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+.room__centre .board .board__dots {
+  color: var(--ink);
+  font-weight: 600;
+}
+.room__centre .board .board__dots .note-card__dot {
+  background: var(--ink);
+}
+.room__centre .board .note-card {
+  border-radius: var(--r-md);
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.3);
+}
+.room__centre .board .note-card.is-voted {
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 10px 24px -12px rgb(0 0 0 / 0.3);
+}
+.room__centre .board .note-card__vote[aria-pressed='true'] {
+  border-color: #0f2537;
+  background: #0f2537;
+  color: #ffffff;
+}
+.room__centre .board .board__col .add-note__input {
+  border-radius: var(--r-md);
 }

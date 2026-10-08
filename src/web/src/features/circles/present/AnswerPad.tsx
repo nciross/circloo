@@ -15,7 +15,8 @@ const EMPTY: string[] = []
  * A participant answers the current question from their own screen (spec 006 US4). One tap answers a single-choice
  * question; a multiple-choice poll is picked, then sent. A poll answer can change while answering is open, a quiz
  * answer cannot, and nothing is sendable once the server's deadline has passed. Mount it with the slide id as key, so
- * a new question starts clean, its own errors included.
+ * a new question starts clean, its own errors included. Options are big outlined pills, the picked ones filled in ink;
+ * once the answer is in, the status line (and a quiz's countdown meter) sit on the view's one dark card (#250).
  */
 export function AnswerPad({ state, slide }: { state: PresentationState; slide: QuestionSlide }) {
   const { t } = useTranslation()
@@ -71,21 +72,24 @@ export function AnswerPad({ state, slide }: { state: PresentationState; slide: Q
     : answered ? t(quiz ? 'present.answer.inFinal' : 'present.answer.inChange')
     : t(quiz ? 'present.answer.tapFinal' : multiple ? 'present.answer.pickMany' : 'present.answer.tap')
 
+  const inCard = answered && !revealed && !failed
   return (
     <section className={['stage-slide', 'is-question', 'answer-pad', open ? 'is-open' : ''].filter(Boolean).join(' ')} aria-labelledby={`pad-${slide.slideId}`}>
       <div className="stage-slide__question">
         <div id={`pad-${slide.slideId}`}><QuestionHead slide={slide} /></div>
-        {quiz && state.phase === 'answering' && state.deadline ? (
-          // The status line says when answers close, so the countdown does not announce it too.
-          <Countdown deadline={state.deadline} total={slide.timerSeconds ?? 20} announceEnd={false} className="answer-pad__countdown" />
-        ) : null}
-        {/* Where the eye already is: an error replaces the status line. */}
-        {failed ? (
-          <p className="answer-pad__status field__error" role="alert">{t(`circles.errors.${failed}`, { defaultValue: t('circles.errors.failed') })}</p>
-        ) : (
-          // Once revealed, the results make the one announcement; this line stays quiet.
-          <p className={['answer-pad__status', right ? 'is-right' : ''].filter(Boolean).join(' ')} role={revealed ? undefined : 'status'}>{status}</p>
-        )}
+        <div className={['answer-pad__state', inCard ? 'card--dark' : ''].filter(Boolean).join(' ')}>
+          {quiz && state.phase === 'answering' && state.deadline ? (
+            // The status line says when answers close, so the countdown does not announce it too.
+            <Countdown deadline={state.deadline} total={slide.timerSeconds ?? 20} announceEnd={false} className="answer-pad__countdown" />
+          ) : null}
+          {/* Where the eye already is: an error replaces the status line. */}
+          {failed ? (
+            <p className="answer-pad__status field__error" role="alert">{t(`circles.errors.${failed}`, { defaultValue: t('circles.errors.failed') })}</p>
+          ) : (
+            // Once revealed, the results make the one announcement; this line stays quiet.
+            <p className={['answer-pad__status', right ? 'is-right' : ''].filter(Boolean).join(' ')} role={revealed ? undefined : 'status'}>{status}</p>
+          )}
+        </div>
         {isRevealed(state) && state.results ? (
           <Reveal slide={slide} results={state.results} mine={confirmed} animate={animate} />
         ) : (

@@ -1,22 +1,73 @@
-/* ---------- Icebreakers · the deck on the table (orrery restyle, #250) ----------
-   The dealt card is the content, set large on paper and lifted off the ground; the rest of the deck
-   shows as two hairline offsets underneath. Kinds, language and AI provenance are lozenges; the
-   Keep/favourite state is --live; AI suggestions sit on --ai-subtle. Brass marks whose turn it is. */
+/* ---------- Icebreakers · the buddy list (#250) ----------
+   A white page: the title and its blue lead, a toolbar of outlined pills, then the one dark card of the view: the
+   dealt card, set in Rubik 800 on --card, with a white "Deal another" pill and the heart. Behind it the rest of the
+   deck shows as two --card-sunken offsets. The line (who is in the room), the Ask panel (AI, violet lozenge) and the
+   keepers are outlined panels. Status colours never leave the card; the meter under the turn timer is ink. */
 
-/* ---------- Filter bar: a hairline rule, no chrome ---------- */
+/* ---------- Filter bar: three outlined pills and a pill toggle ---------- */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--s-3) var(--s-4);
-  padding-block: 0 var(--s-4);
-  border-block-end: 1px solid var(--hairline);
+}
+.toolbar .select {
+  min-inline-size: 8.5rem;
+}
+.toolbar .select__label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+:lang(ar) .toolbar .select__label {
+  letter-spacing: 0;
+}
+.toolbar .select select {
+  min-block-size: 2.75rem;
+  padding-block: 0.4rem;
+  padding-inline: 1.1rem 2.5rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.toolbar .select select:hover {
+  border-color: var(--ink);
+  background: var(--paper-sunken);
+}
+.toolbar .select__chevron {
+  inset-inline-end: 1rem;
+  color: var(--ink);
 }
 .toolbar .switch {
   margin-inline-start: auto;
+  min-block-size: 2.75rem;
+  padding-block: 0.3rem;
+  padding-inline: 0.6rem 1.1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  font-weight: 700;
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
+}
+.toolbar .switch:hover {
+  border-color: var(--hairline-strong);
+}
+/* On: the picked-option look, the one blue. */
+.toolbar .switch[aria-pressed='true'] {
+  border-color: var(--beam);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
 }
 
-/* ---------- Layout: board (card + round) with fresh AI cards at the side ---------- */
+/* ---------- Layout: board (card + line) with the Ask panel at the side ---------- */
 .ice {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
@@ -40,10 +91,10 @@
   min-inline-size: 0;
 }
 
-/* ---------- The deck: two hairline offsets under the dealt card ---------- */
+/* ---------- The deck: two card-coloured offsets under the dealt card ---------- */
 .deck {
-  --deck-1: 6px;
-  --deck-2: 12px;
+  --deck-1: 8px;
+  --deck-2: 16px;
   position: relative;
   display: grid;
   padding-block-end: var(--deck-2);
@@ -52,15 +103,14 @@
 .deck::after {
   content: '';
   position: absolute;
-  inset: 0 var(--s-2) var(--deck-2);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-lg);
-  background: var(--paper);
+  inset: 0 var(--s-4) var(--deck-2);
+  border-radius: var(--r-xl);
+  background: var(--card-sunken);
   translate: 0 var(--deck-2);
   transition: translate var(--dur-move) var(--ease-out);
 }
 .deck::after {
-  inset-inline: var(--s-1);
+  inset-inline: var(--s-2);
   translate: 0 var(--deck-1);
 }
 /* While a card drops in, the offsets tuck up under it, then settle back. */
@@ -71,24 +121,27 @@
   translate: 0 calc(var(--deck-1) - 2px);
 }
 
-/* ---------- The dealt card ---------- */
-.deal {
+/* ---------- The dealt card: the one dark card ---------- */
+.deck .deal {
   position: relative;
   z-index: 1;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-lg);
-  background: var(--paper);
-  box-shadow: var(--shadow-overlay);
 }
-.deal > .panel__head {
+.deck .deal > .panel__head {
   min-block-size: 0;
-  padding-block: var(--s-4) 0;
-  border-block-end: 0;
+  padding: var(--s-5) var(--s-6) 0;
+  gap: var(--s-2) var(--s-3);
 }
-.deal > .panel__head .panel__title {
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  color: var(--ink-faint);
+/* The eyebrow: a tracked label, then the kind and the language as lozenges on the card. */
+.deck .deal .panel__title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-card-faint);
+}
+.deck .deal .panel__title:lang(ar) {
+  font-size: 0.75rem;
+  letter-spacing: 0;
 }
 .deal__meta {
   display: flex;
@@ -96,98 +149,104 @@
   gap: var(--s-2);
 }
 .deal__error {
-  padding: var(--s-3) var(--s-5) 0;
+  padding: var(--s-3) var(--s-6) 0;
+  color: var(--on-card);
+  font-weight: 700;
 }
 .deal__body {
   display: grid;
   gap: var(--s-4);
   align-content: center;
   min-block-size: 11rem;
-  padding: var(--s-7) var(--s-5) var(--s-6);
+  padding: var(--s-6) var(--s-6) var(--s-5);
   transform-origin: 50% 0;
 }
 .deal__question {
-  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.125rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--on-card);
   text-wrap: balance;
 }
 .deal__question:lang(ar) {
   letter-spacing: 0;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 .deal--big .deal__question {
-  font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
+  font-size: clamp(2.25rem, 1.5rem + 3.5vw, 4.5rem);
 }
 .deal__message {
   font-size: var(--fs-lg);
-  color: var(--ink-soft);
+  font-weight: 600;
+  color: var(--on-card-soft);
 }
 .deal__note {
   font-size: var(--fs-sm);
-  color: var(--ink-faint);
+  color: var(--on-card-faint);
 }
 .deal__answer {
   padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-sm);
-  background: var(--paper-sunken);
-  font-weight: 500;
+  border-radius: var(--r-md);
+  background: var(--card-sunken);
+  color: var(--on-card);
+  font-weight: 600;
 }
-.deal__reveal {
+.deck .deal .deal__reveal {
   justify-self: start;
+  color: var(--on-card);
+  font-weight: 700;
+}
+.deck .deal .deal__reveal:hover {
+  color: var(--on-card-soft);
 }
 .deal__actions {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: var(--s-3) var(--s-5);
-  border-block-start: 1px solid var(--hairline);
-  border-end-start-radius: var(--r-lg);
-  border-end-end-radius: var(--r-lg);
+  padding: 0 var(--s-6) var(--s-6);
 }
 .deal__actions .btn--lg {
-  min-inline-size: 9rem;
+  min-inline-size: 10rem;
 }
 
-/* Keep: the heart goes --live when a card is kept. */
+/* The heart: a white outline on the card; kept = filled white, the heart in the card's colour. */
 .heart {
   display: grid;
   place-items: center;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-sm);
-  background: var(--paper);
-  color: var(--ink-soft);
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
+  border: 2px solid var(--on-card);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--on-card);
   transition:
-    background-color var(--dur-state) var(--ease-out),
-    border-color var(--dur-state) var(--ease-out),
-    color var(--dur-state) var(--ease-out);
+    background-color var(--dur-state) var(--ease-spring),
+    color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
 .heart:hover {
-  border-color: var(--hairline-strong);
-  background: var(--paper-hover);
-  color: var(--ink);
+  background: var(--card-hover);
+  transform: translateY(-1px) scale(1.02);
 }
-.heart:active svg {
-  transform: scale(0.92);
+.heart:active {
+  transform: scale(0.97);
+}
+.heart:focus-visible {
+  outline: 2px solid var(--on-card);
+  outline-offset: 3px;
 }
 .heart[aria-pressed='true'] {
-  border-color: var(--live);
-  background: var(--live-subtle);
-  color: var(--live-text);
+  background: var(--on-card);
+  color: var(--card);
 }
 .heart[aria-pressed='true'] svg {
   fill: currentColor;
   animation: keep-pop var(--dur-move) var(--ease-out);
 }
-.heart svg {
-  transition: transform var(--dur-press) var(--ease-out);
-}
 @keyframes keep-pop {
   50% {
-    transform: scale(1.12);
+    transform: scale(1.15);
   }
 }
 @keyframes rise-in {
@@ -197,16 +256,13 @@
   }
 }
 
-/* ---------- The round: who is in the room ---------- */
-.line {
-  border-radius: var(--r-md);
-}
+/* ---------- The line: who is in the room, as pills with characters ---------- */
 .line__strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-2);
-  padding: var(--s-4) var(--s-5) 0;
+  padding: var(--s-2) var(--s-5) 0;
 }
 .swimmers {
   display: contents;
@@ -214,75 +270,88 @@
 .swimmer {
   display: inline-flex;
   align-items: center;
-  gap: var(--s-1);
-  min-block-size: 2.25rem;
-  padding-block: 0.15rem;
-  padding-inline: 0.75rem 0.2rem;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-ring);
+  gap: var(--s-2);
+  min-block-size: 2.75rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.3rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
   background: var(--paper);
+  color: var(--ink);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: 700;
   transition:
     background-color var(--dur-state) var(--ease-out),
     border-color var(--dur-state) var(--ease-out),
-    color var(--dur-state) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out);
+    color var(--dur-state) var(--ease-out);
 }
-/* Whose turn it is: the brass mark on the dial. */
+.swimmer__char {
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+.swimmer__char > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+/* Whose turn it is: the picked-option blue. */
 .swimmer.is-now {
-  border-color: var(--brass);
-  box-shadow: inset 0 0 0 1px var(--brass);
-  color: var(--ink);
-  font-weight: 600;
-}
-.swimmer.is-now::before {
-  content: '';
-  inline-size: 0.5rem;
-  block-size: 0.5rem;
-  margin-inline-end: 0.3rem;
-  border-radius: 50%;
-  background: var(--brass);
+  border-color: var(--beam);
+  background: var(--beam-subtle);
+  color: var(--beam-text);
 }
 .swimmer.is-done {
-  border-color: transparent;
-  background: var(--paper-sunken);
-  color: var(--ink-soft);
+  color: var(--ink-faint);
   text-decoration: line-through;
 }
 .swimmer__remove,
 .swimmer__add {
   display: grid;
   place-items: center;
-  inline-size: 1.75rem;
-  block-size: 1.75rem;
+  flex: none;
+  inline-size: 2rem;
+  block-size: 2rem;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: inherit;
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
 }
-.swimmer__remove:hover,
-.swimmer__add:hover {
+.swimmer__remove:hover {
   background: var(--paper-hover);
 }
+.swimmer__remove:active,
+.swimmer__add:active {
+  transform: scale(0.94);
+}
 .swimmer--add {
-  padding-inline: 0.2rem;
+  padding-inline-start: 0.35rem;
   border-style: dashed;
   border-color: var(--hairline-strong);
 }
 .swimmer--add:focus-within {
   border-style: solid;
   border-color: var(--focus);
-  box-shadow: 0 0 0 1px var(--focus);
 }
 .swimmer--add input {
   inline-size: 9rem;
-  min-block-size: 1.75rem;
-  padding-inline: 0.6rem;
+  min-block-size: 2rem;
+  padding-inline: 0.5rem;
   border: 0;
   background: transparent;
   color: var(--ink);
+  font-weight: 500;
   outline: none;
+}
+/* The add button is an ink dot. */
+.swimmer__add {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.swimmer__add:hover {
+  background: var(--ink-soft);
 }
 .line > .field__error {
   padding: var(--s-2) var(--s-5) 0;
@@ -300,28 +369,35 @@
 .line__turn {
   margin-inline-end: auto;
   font-size: var(--fs-xl);
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.line__turn:lang(ar) {
+  letter-spacing: 0;
 }
 .line__who {
   color: var(--beam-text);
 }
-/* The running-time rule: a brass hairline over a tabular count. */
+/* The running count, as an outlined pill; the ink meter under it says how much is left. */
 .turn-timer {
   display: inline-grid;
   place-items: center;
-  min-inline-size: 4.25rem;
-  padding: 0.25rem 0.75rem;
-  border-block-start: 2px solid var(--brass);
-  border-radius: var(--r-xs);
-  background: var(--paper-sunken);
+  min-inline-size: 4.75rem;
+  min-block-size: 2.75rem;
+  padding: 0.25rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 .turn-timer.is-ringing {
-  border-block-start-color: var(--danger);
+  border-color: var(--danger);
   background: var(--danger-subtle);
   color: var(--danger-text);
+}
+.line__meter {
+  padding: 0 var(--s-5) var(--s-3);
 }
 .line__keys {
   padding: 0 var(--s-5) var(--s-4);
@@ -329,11 +405,12 @@
   color: var(--ink-faint);
 }
 .line__keys kbd {
-  padding: 0 0.35em;
-  border: 1px solid var(--hairline);
+  padding: 0 0.4em;
+  border: 1px solid var(--hairline-strong);
   border-radius: var(--r-xs);
   background: var(--paper-sunken);
   font: inherit;
+  font-weight: 700;
   color: var(--ink-soft);
 }
 @media (hover: none) and (pointer: coarse) {
@@ -342,13 +419,9 @@
   }
 }
 
-/* ---------- Fresh cards (AI) ---------- */
-.ask-panel {
-  border-radius: var(--r-md);
-}
+/* ---------- Fresh cards (AI): an outlined panel, a pill field, a violet Ask ---------- */
 .ask-panel__lead {
-  padding: var(--s-4) var(--s-5) 0;
-  font-size: var(--fs-sm);
+  padding: 0 var(--s-5);
   color: var(--ink-soft);
 }
 .ask-panel__form {
@@ -358,16 +431,35 @@
 }
 .ask-panel__field {
   display: grid;
-  gap: var(--s-1);
+  gap: var(--s-2);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink-soft);
+}
+.ask-panel .ask-panel__field input {
+  min-block-size: 2.75rem;
+  padding-inline: 1.1rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  color: var(--ink);
+  font-weight: 500;
+}
+.ask-panel .ask-panel__field input:hover {
+  border-color: var(--hairline-strong);
+}
+.ask-panel .ask-panel__field input:focus-visible {
+  border-color: var(--focus);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.ask-panel .ask-panel__field input[aria-invalid='true'] {
+  border-color: var(--danger);
+  box-shadow: none;
 }
 .ask-panel__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s-3);
 }
 .ask-panel__allowance {
@@ -381,23 +473,17 @@
 .fresh-list {
   display: grid;
   gap: var(--s-3);
-  padding: var(--s-2) var(--s-4) var(--s-4);
-  border-block-start: 1px solid var(--hairline);
-}
-.fresh-list:first-child {
-  border-block-start: 0;
+  padding: var(--s-2) var(--s-5) var(--s-5);
 }
 .fresh-card {
   display: grid;
   gap: var(--s-2);
   padding: var(--s-4);
-  border: 1px solid var(--ai-border);
-  border-radius: var(--r-md);
-  background: var(--ai-subtle);
-  animation: rise-in var(--dur-enter) var(--ease-out) backwards;
-  transition:
-    background-color var(--dur-state) var(--ease-out),
-    border-color var(--dur-state) var(--ease-out);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  animation: rise-in var(--dur-enter) var(--ease-spring) backwards;
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .fresh-card:nth-child(2) {
   animation-delay: 40ms;
@@ -412,56 +498,59 @@
   justify-self: start;
 }
 .fresh-card p {
-  font-weight: 500;
-  line-height: 1.45;
+  font-weight: 600;
+  line-height: 1.4;
 }
 .fresh-card.is-kept {
   border-color: var(--live);
-  background: var(--paper);
 }
 .fresh-card__actions {
   display: flex;
   gap: var(--s-2);
 }
+/* Keep is an ink pill, dismiss a round text button. */
 .mini-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--s-1);
-  min-block-size: 2rem;
-  padding: 0.25rem 0.7rem;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-sm);
-  background: var(--paper);
+  min-block-size: 2.25rem;
+  padding: 0.25rem 0.9rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--paper-sunken);
   color: var(--ink);
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: 700;
   transition:
-    background-color var(--dur-state) var(--ease-out),
-    border-color var(--dur-state) var(--ease-out);
+    background-color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
 .mini-btn:hover {
-  border-color: var(--hairline-strong);
   background: var(--paper-hover);
+  transform: translateY(-1px) scale(1.02);
+}
+.mini-btn:active {
+  transform: scale(0.97);
+}
+.mini-btn[aria-label] {
+  inline-size: 2.25rem;
+  padding: 0;
 }
 .mini-btn--keep {
-  border-color: transparent;
-  background: var(--beam-subtle);
-  color: var(--beam-text);
+  background: var(--ink);
+  color: var(--on-ink);
 }
 .mini-btn--keep:hover {
-  background: var(--beam-subtle-hover);
+  background: var(--ink-soft);
 }
 .fresh-card.is-kept .mini-btn--keep {
-  border-color: transparent;
   background: var(--live-subtle);
   color: var(--live-text);
   cursor: default;
 }
 
-/* ---------- Keepers: a hairline grid ---------- */
-.keepers {
-  border-radius: var(--r-md);
-}
+/* ---------- Keepers: outlined rows, the text heavy, a small pill to put it on the board ---------- */
 .keepers .seg__track {
   flex-wrap: nowrap;
 }
@@ -475,48 +564,43 @@
 }
 .keepers__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: 1px;
-  margin: var(--s-4) var(--s-5) var(--s-5);
-  padding: 1px;
+  gap: var(--s-2);
+  margin: var(--s-2) var(--s-5) var(--s-5);
+  padding: 0;
+  list-style: none;
 }
-/* Each card draws its own hairline; neighbours share it, and an empty slot stays on the paper. */
 .keeper {
-  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: var(--s-1);
-  padding: var(--s-1);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding-block: var(--s-3);
+  padding-inline: var(--s-4) var(--s-3);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
   background: var(--paper);
-  box-shadow: 0 0 0 1px var(--hairline);
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .keeper:hover {
-  z-index: 1;
-  box-shadow: 0 0 0 1px var(--hairline-strong);
+  border-color: var(--hairline-strong);
 }
-.keeper__open {
-  flex: 1;
-  padding: var(--s-2) var(--s-3);
-  border: 0;
-  border-radius: var(--r-sm);
-  background: none;
-  color: var(--ink);
-  text-align: start;
-  line-height: 1.45;
-}
-.keeper__open:hover {
-  background: var(--paper-hover);
+.keeper__text {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  font-weight: 700;
+  line-height: 1.35;
 }
 .keeper__icon {
   display: grid;
   place-items: center;
-  inline-size: 2rem;
-  block-size: 2rem;
   flex: none;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: 50%;
   background: transparent;
   color: var(--live-text);
+  transition: background-color var(--dur-state) var(--ease-out);
 }
 .keeper__icon:hover {
   background: var(--live-subtle);
@@ -532,7 +616,7 @@
   color: var(--danger-text);
 }
 
-/* ---------- Adaptive ---------- */
+/* ---------- Adaptive: phones first, every control 44px ---------- */
 @media (max-width: 70rem) {
   .ice {
     grid-template-columns: minmax(0, 1fr);
@@ -550,17 +634,48 @@
     min-inline-size: 0;
   }
   .toolbar .switch {
+    grid-column: 1 / -1;
     margin-inline-start: 0;
-    min-block-size: 2.75rem;
+    justify-content: flex-start;
+  }
+  .deck .deal > .panel__head {
+    padding-inline: var(--s-5);
   }
   .deal__body {
-    padding-inline: var(--s-4);
+    padding: var(--s-5);
+  }
+  .deal__actions {
+    padding-inline: var(--s-5);
   }
   .deal__actions .btn {
     flex: 1;
+    min-inline-size: 0;
+  }
+  .swimmer {
+    padding-block: 0;
+  }
+  .swimmer__remove,
+  .swimmer__add {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+  .swimmer--add input {
+    inline-size: 8rem;
+  }
+  .mini-btn {
+    min-block-size: 2.75rem;
+  }
+  .mini-btn[aria-label] {
+    inline-size: 2.75rem;
   }
   .keepers__list {
     margin-inline: var(--s-4);
+  }
+  .keeper {
+    padding-inline: var(--s-4);
+  }
+  .keeper__open {
+    min-block-size: 2.75rem;
   }
 }
 
@@ -581,5 +696,9 @@
   .fresh-card,
   .heart[aria-pressed='true'] svg {
     animation: none;
+  }
+  .heart:hover,
+  .mini-btn:hover {
+    transform: none;
   }
 }

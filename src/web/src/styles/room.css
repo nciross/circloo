@@ -1,10 +1,12 @@
 /*
- * The room layout (spec 008 T804, #244, orrery look #250): a work bar on top, then the centre and one side area for every
+ * The room layout (spec 008 T804, #244, buddy list #250): a work bar on top, then the centre and one side area for every
  * activity, the presenting layout included. From 960 px both are app height (a workspace, not a page) and the side area
- * is a rail on the inline end (280 to 360 px) on the ground with a hairline, collapsible to an icon rail.
- * Below 960 px it is a bottom sheet; the page keeps the sheet's height free below the content, so the sheet never
- * covers the answer pad or the presenter controls. Logical properties only, so Arabic mirrors without extra rules.
- * Slots in the side area: tabs in RoomSidebar.tsx (People, Chat, Call; Hands as it lands). Tabs cross-fade (workspace.css).
+ * is THE dark card of the room on the inline end (280 to 360 px), collapsible to an icon rail on the ground.
+ * Below 960 px it is a bottom sheet with the same dark card look; the page keeps the sheet's height free below the
+ * content, so the sheet never covers the answer pad or the presenter controls. Logical properties only, so Arabic
+ * mirrors without extra rules. Slots in the side area: tabs in RoomSidebar.tsx (People, Chat, Call; Hands as it lands).
+ * Everything inside the card uses the card's own tokens (--card, --on-card, --card-sunken, --card-line, --ok, --low),
+ * which flip at night by themselves.
  */
 :root {
   /* On :root because the assistant's corner button (outside the room) rises above the open sheet. */
@@ -14,7 +16,8 @@
 .room__grid {
   /* A third of the room at most, so the slide keeps two thirds (spec 008 US2), between 17.5rem and 22.5rem. */
   --side-w: clamp(17.5rem, calc(100% / 3 - var(--s-5)), 22.5rem);
-  --people-row: 3.25rem;
+  /* A buddy row: the 44 px character with its padding. The group head takes the same height (windowing measures one row). */
+  --people-row: 4.25rem;
 }
 
 @media (min-width: 60rem) {
@@ -32,10 +35,18 @@
     min-block-size: 0;
     /* Ends above the bottom corner, which belongs to Pirikoo's button, so the chat's send button stays clear of it. */
     margin-block-end: var(--corner-clear);
-    border: 1px solid var(--hairline);
+    border: 2px solid var(--hairline);
     border-radius: var(--r-lg);
-    background: var(--ground);
+    background: var(--paper);
     overflow: clip;
+  }
+  /* Open, it is the room's one dark card. */
+  .room-side.is-open {
+    border: 0;
+    border-radius: var(--r-xl);
+    background: var(--card);
+    color: var(--on-card);
+    box-shadow: var(--shadow-card);
   }
   .room-side__grip {
     display: none;
@@ -56,11 +67,11 @@
   border: 0;
   background: var(--paper);
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--fs-sm);
 }
 .room-side__handle:hover {
-  background: var(--paper-hover);
+  background: var(--paper-sunken);
 }
 .room-side__handle:focus-visible,
 .room-side__tab:focus-visible,
@@ -78,7 +89,7 @@
   align-items: center;
   gap: 3px;
   padding: 0 0.45rem;
-  border-radius: var(--r-ring);
+  border-radius: var(--r-pill);
   background: var(--beam);
   color: var(--on-beam);
   font-size: var(--fs-xs);
@@ -102,9 +113,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--s-2);
-  padding-block: var(--s-2);
-  padding-inline: var(--s-2);
-  border-block-end: 1px solid var(--hairline);
+  padding-block: var(--s-3);
+  padding-inline: var(--s-3);
+  border-block-end: 1px solid var(--card-line);
 }
 .room-side__tabs {
   display: flex;
@@ -113,46 +124,45 @@
   overflow-x: auto;
   scrollbar-width: none;
 }
+/* Tabs are pills on the card; the open one is the white pill. */
 .room-side__tab {
   flex: none;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  min-block-size: 2.25rem;
-  padding-inline: var(--s-3);
+  min-block-size: 2.5rem;
+  padding-inline: var(--s-4);
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill);
   background: transparent;
-  color: var(--ink-soft);
-  font-weight: 600;
+  color: var(--on-card-soft);
+  font-weight: 700;
   font-size: var(--fs-sm);
   transition:
     background-color var(--dur-press) var(--ease-out),
     color var(--dur-press) var(--ease-out);
 }
 .room-side__tab:hover {
-  background: var(--paper-hover);
-  color: var(--ink);
+  background: var(--card-hover);
+  color: var(--on-card);
 }
-/* The open tab is the one on paper, raised off the ground. */
 .room-side__tab[aria-selected='true'] {
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: var(--shadow-raised);
+  background: var(--on-card);
+  color: var(--card);
 }
 .room-side__tab-icon {
   display: inline-flex;
   flex: none;
 }
-/* A narrow sidebar drops the tab icons before a label would be cut (French, Arabic). */
+/* A narrow card drops the tab icons before a label would be cut (French, Arabic). */
 .room-side__body {
   container: room-side / inline-size;
 }
 @container room-side (max-width: 23rem) {
   .room-side__tab {
     gap: var(--s-1);
-    padding-inline: var(--s-2);
+    padding-inline: var(--s-3);
   }
   .room-side__tab-icon {
     display: none;
@@ -162,13 +172,17 @@
   min-inline-size: 1.25rem;
   padding: 0.125rem 0.4rem;
   line-height: 1.2;
-  border-radius: var(--r-ring);
-  background: var(--paper-sunken);
-  color: var(--ink-soft);
+  border-radius: var(--r-pill);
+  background: var(--card-sunken);
+  color: var(--on-card-soft);
   font-size: var(--fs-xs);
   font-weight: 700;
   text-align: center;
   font-variant-numeric: tabular-nums;
+}
+.room-side__tab[aria-selected='true'] .room-side__badge {
+  background: var(--card);
+  color: var(--on-card);
 }
 .room-side__tab[aria-controls$='-panel-chat'] .room-side__badge {
   background: var(--beam);
@@ -178,28 +192,52 @@
   display: flex;
   flex: none;
 }
+.room-side__tools .icon-btn {
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  color: var(--on-card-soft);
+}
+.room-side__tools .icon-btn:hover {
+  background: var(--card-hover);
+  color: var(--on-card);
+}
+.room-side__tools .icon-btn:active {
+  background: var(--card-sunken);
+}
 .room-side__panel {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: var(--s-3);
+  gap: var(--s-4);
   min-block-size: 0;
-  padding: var(--s-3);
+  padding: var(--s-4);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-/* The chat brings its own panel; inside the rail it fills the tab and drops the frame, its bubbles on paper. */
+/* Field messages on the card. */
+.room-side .field__help {
+  color: var(--on-card-faint);
+}
+.room-side .field__error {
+  color: var(--low);
+}
+.room-side .field__ok {
+  color: var(--ok);
+}
+
+/* ---------- Chat on the card: bubbles without tails, a white composer pill with the card's send button ---------- */
 .room-side__panel > .chat {
   flex: 1;
   block-size: auto;
   min-block-size: 0;
-  margin: calc(var(--s-3) * -1);
+  margin: calc(var(--s-4) * -1);
   border: 0;
   border-radius: 0;
   background: transparent;
+  color: var(--on-card);
   box-shadow: none;
 }
-/* In the sidebar the tab already names the chat: the activity title is kept for screen readers only, the End button stays. */
+/* In the card the tab already names the chat: the activity title is kept for screen readers only, the End button stays. */
 .room-side__panel > .chat > .panel__head {
   justify-content: flex-end;
   padding-block: var(--s-2);
@@ -214,27 +252,133 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-.room-side__panel > .chat .composer {
+.room-side .chat__system {
+  background: var(--card-sunken);
+  color: var(--on-card-faint);
+}
+.room-side .chat__bubble {
+  padding: var(--s-2) var(--s-4);
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.room-side .chat__bubble .chat__name {
+  color: var(--on-card-faint);
+}
+.room-side .chat__msg.is-mine .chat__bubble {
+  background: var(--on-card);
+  color: var(--card);
+}
+.room-side .chat__msg.is-mine .chat__bubble .chat__name {
+  color: inherit;
+  opacity: 0.7;
+}
+.room-side .chat__msg.is-animator .chat__name::after {
+  color: inherit;
+}
+/* Pirikoo's answers: the one violet thing on the card, labelled. */
+.room-side .chat__ai {
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--ai);
+  color: var(--on-ai);
+}
+.room-side .chat__ai .chat__panda {
+  color: var(--on-ai);
+}
+.room-side .chat__ai .lozenge--ai {
+  background: var(--on-ai);
+  color: var(--ai);
+  box-shadow: none;
+}
+.room-side .chat__caret {
+  background: var(--on-ai);
+}
+.room-side .chat__typing {
+  color: var(--on-card-soft);
+}
+.room-side .composer {
+  border-block-start: 1px solid var(--card-line);
   background: transparent;
+  border-radius: 0;
+}
+.room-side .seg__track {
+  background: var(--card-sunken);
+  box-shadow: none;
+  border-radius: var(--r-pill);
+}
+.room-side .seg__opt {
+  border-radius: var(--r-pill);
+  color: var(--on-card-soft);
+}
+.room-side .seg__opt:hover {
+  background: var(--card-hover);
+  color: var(--on-card);
+}
+.room-side .seg__opt[aria-pressed='true'] {
+  background: var(--on-card);
+  color: var(--card);
+  box-shadow: none;
+}
+.room-side .seg__opt::before {
+  display: none;
+}
+.room-side .seg__opt {
+  padding-inline-start: 0.85rem;
+}
+.room-side .chip {
+  border-color: var(--card-line);
+  background: transparent;
+  color: var(--on-card);
+}
+.room-side .chip:hover {
+  border-color: var(--on-card-faint);
+  background: var(--card-hover);
+}
+.room-side .composer__box {
+  padding: 0.3rem 0.3rem 0.3rem 1.1rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--on-card);
+  color: var(--card);
+  box-shadow: none;
+}
+.room-side .composer__box:focus-within {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+.room-side .composer__box textarea {
+  color: inherit;
+}
+.room-side .composer__box textarea::placeholder {
+  color: inherit;
+  opacity: 0.6;
+}
+.room-side .composer__send {
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--on-card);
+}
+.room-side .composer__send:hover {
+  background: var(--card-hover);
+}
+.room-side .composer__send.is-ai {
+  background: var(--ai);
+  color: var(--on-ai);
 }
 .room-side__panel > .invite {
   flex: none;
 }
 
-/* ---------- People: character with its online dot, name, role ---------- */
+/* ---------- People: buddy rows on the card, a search on top, the meter of people here under ---------- */
 .people {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: var(--s-2);
+  gap: var(--s-3);
   min-block-size: 18rem;
-}
-.people__summary {
-  margin: 0;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
 }
 .people__search {
   position: relative;
@@ -244,12 +388,27 @@
 .people__search svg {
   position: absolute;
   inset-inline-start: var(--s-3);
-  color: var(--ink-faint);
+  color: var(--on-card-faint);
   pointer-events: none;
 }
 .people__search .input {
   inline-size: 100%;
-  padding-inline-start: 2.1rem;
+  min-block-size: 2.75rem;
+  padding-inline-start: 2.3rem;
+  border: 2px solid var(--card-line);
+  border-radius: var(--r-sm);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.people__search .input::placeholder {
+  color: var(--on-card-faint);
+}
+.people__search .input:hover {
+  border-color: var(--on-card-faint);
+}
+.people__search .input:focus-visible {
+  border-color: var(--focus);
+  background: var(--card-sunken);
 }
 .people__scroll {
   flex: 1;
@@ -265,54 +424,48 @@
 .people__row {
   block-size: var(--people-row);
 }
+/* The group head is an eyebrow: tiny, tracked, faint. */
 .people__head {
   display: flex;
   align-items: flex-end;
-  padding-inline: var(--s-2);
-  padding-block-end: var(--s-1);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  padding-inline: var(--s-1);
+  padding-block-end: var(--s-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--on-card-faint);
 }
 :lang(ar) .people__head {
+  font-size: 0.75rem;
   letter-spacing: 0;
   text-transform: none;
 }
+/* A buddy row: the character at 44 px, the name and its line, "here" or "away" as the value at the end. */
 .people__row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  column-gap: var(--s-3);
+  row-gap: 0;
   align-items: center;
-  gap: var(--s-3);
-  padding-inline: var(--s-2);
-  border-radius: var(--r-sm);
+  padding-block: var(--s-3);
+  padding-inline: var(--s-1);
+  border-block-start: 1px solid var(--card-line);
+  border-radius: 0;
+}
+.people__head + .people__row {
+  border-block-start: 0;
 }
 .people__body {
   position: relative;
   flex: none;
-  inline-size: 2rem;
-  block-size: 2rem;
+  grid-row: auto;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
 }
 .people__char {
   inline-size: 100%;
   block-size: 100%;
-}
-/* The online dot at the character's foot, cut out of the ground; away is a hollow dot and the word. */
-.people__dot {
-  position: absolute;
-  inset-block-end: -1px;
-  inset-inline-end: -1px;
-  inline-size: 0.625rem;
-  block-size: 0.625rem;
-  border-radius: 50%;
-  background: var(--live);
-  box-shadow: 0 0 0 2px var(--ground);
-}
-.people__row.is-away .people__dot {
-  background: transparent;
-  box-shadow:
-    inset 0 0 0 1.5px var(--ink-faint),
-    0 0 0 2px var(--ground);
 }
 .people__text {
   display: grid;
@@ -322,29 +475,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
-  font-size: var(--fs-md);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  line-height: 1.15;
+  color: var(--on-card);
 }
 .people__you {
   font-weight: 400;
-  color: var(--ink-soft);
+  color: var(--on-card-faint);
 }
 .people__meta {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  font-size: var(--fs-xs);
-  color: var(--ink-soft);
+  font-size: var(--fs-sm);
+  color: var(--on-card-faint);
 }
 .people__role {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-weight: 500;
+  color: var(--on-card-faint);
 }
 .people__role svg {
-  color: var(--brass);
+  color: var(--on-card-soft);
+}
+.people__state {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  text-align: end;
+  white-space: nowrap;
 }
 /* Away: faded art, a dashed ring and the word, so it is never colour alone. */
 .people__row.is-away .char__art {
@@ -355,17 +516,78 @@
   stroke-dasharray: 5 4;
 }
 .people__row.is-away .people__name {
-  color: var(--ink-soft);
+  color: var(--on-card-soft);
 }
-/* Someone just arrived: their row is marked in brass for a moment, then settles. */
+/* Someone just arrived: their row lifts for a moment, then settles. */
 .people__row.is-new {
-  background: var(--brass-faint);
+  background: var(--card-hover);
 }
 .people__empty {
   padding: var(--s-4) var(--s-2);
 }
+.people__meter {
+  display: grid;
+  gap: var(--s-2);
+  padding-block-start: var(--s-3);
+  border-block-start: 1px solid var(--card-line);
+}
+.people__summary {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--on-card-soft);
+  font-variant-numeric: tabular-nums;
+}
 
-/* ---------- Bottom sheet (phones) ---------- */
+/* ---------- The invite inside the card: a section of it, white pills ---------- */
+.room-side .invite {
+  padding-block-start: var(--s-3);
+  border: 0;
+  border-block-start: 1px solid var(--card-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--on-card);
+  box-shadow: none;
+}
+.room-side .invite .panel__head {
+  min-block-size: 0;
+  padding: var(--s-2) var(--s-1) var(--s-1);
+}
+.room-side .invite .panel__title {
+  font-size: var(--fs-lg);
+  color: var(--on-card);
+}
+.room-side .invite .panel__body {
+  gap: var(--s-3);
+  padding: var(--s-1) var(--s-1) var(--s-2);
+}
+.room-side .invite__link {
+  min-block-size: 2.75rem;
+  border: 2px solid var(--card-line);
+  border-radius: var(--r-sm);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.room-side .invite__link:focus-visible {
+  border-color: var(--focus);
+  background: var(--card-sunken);
+}
+.room-side .invite__code {
+  color: var(--on-card-soft);
+}
+.room-side .invite__code-value {
+  color: var(--on-card);
+}
+.room-side .invite.is-fresh {
+  border-color: var(--card-line);
+  box-shadow: none;
+  animation: none;
+}
+.room-side .invite.is-fresh .invite__code-value {
+  color: var(--ok);
+}
+
+/* ---------- Bottom sheet (phones): the same dark card, edge to edge ---------- */
 @media (max-width: 59.99rem) {
   .room__grid {
     padding-block-end: 4.5rem;
@@ -385,12 +607,12 @@
     flex-direction: column;
     block-size: var(--sheet-half);
     padding-block-end: env(safe-area-inset-bottom);
+    border: 0;
     border-start-start-radius: var(--r-xl);
     border-start-end-radius: var(--r-xl);
-    border: 1px solid var(--hairline);
-    border-block-end: 0;
-    background: var(--ground);
-    box-shadow: var(--shadow-float);
+    background: var(--card);
+    color: var(--on-card);
+    box-shadow: var(--shadow-card);
   }
   .room-side.is-full {
     block-size: var(--sheet-full);
@@ -401,30 +623,44 @@
     inset-block-end: calc(var(--s-4) + env(safe-area-inset-bottom));
     block-size: auto;
     padding: 0;
-    border-radius: var(--r-ring);
-    border-block-end: 1px solid var(--hairline);
+    border-radius: var(--r-pill);
     background: var(--paper);
-    box-shadow: var(--shadow-overlay);
+    color: var(--ink);
+    box-shadow:
+      inset 0 0 0 2px var(--ink),
+      var(--shadow-overlay);
     overflow: clip;
   }
   .room-side__handle {
     padding-inline: var(--s-4);
+    background: transparent;
   }
   .room-side__grip {
     position: absolute;
-    inset-block-start: 4px;
+    inset-block-start: 6px;
     inset-inline-start: 50%;
     inline-size: 2.25rem;
     block-size: 4px;
     margin-inline-start: -1.125rem;
-    border-radius: var(--r-ring);
-    background: var(--hairline-strong);
+    border-radius: var(--r-pill);
+    background: var(--on-card-faint);
   }
   .room-side__bar {
-    padding-block-start: var(--s-3);
+    padding-block-start: var(--s-4);
+  }
+  .room-side__tab {
+    min-block-size: 2.75rem;
+  }
+  .room-side__tools .icon-btn {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
   }
   .room-side__panel > .chat {
-    margin: calc(var(--s-3) * -1);
+    margin: calc(var(--s-4) * -1);
+  }
+  .room-side .composer__send {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
   }
   /* The assistant's corner button rises above an open sheet instead of covering its send button. */
   body:has(.room-side.is-open) .pkl {

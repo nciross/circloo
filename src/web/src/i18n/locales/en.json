@@ -47,6 +47,8 @@
   "landing": {
     "title": "circloo · your circle, in one private space",
     "cta": "Start your circle",
+    "tagline1": "Your circle.",
+    "tagline2": "One private space.",
     "nav": {
       "label": "On this page",
       "story": "How it works",
@@ -57,11 +59,17 @@
     "hero": {
       "title": "Say what your circle needs.",
       "title2": "circloo sets it up.",
+      "lead": "One line is enough. circloo opens a private room for your people, with a board, a game and a daily check-in.",
       "facts": [
         "No password: a six-digit code by email.",
         "Private by default. No ads.",
         "English, français, العربية, español."
       ]
+    },
+    "notes": {
+      "seats": "your people, as characters",
+      "say": "say it in one line",
+      "name": "the name writes itself"
     },
     "say": {
       "label": "What is it for?",
@@ -320,7 +328,7 @@
     }
   },
   "home": {
-    "greeting": "Hi <name>{{name}}</name>!",
+    "greeting": "Hi <name>{{name}}</name>.",
     "lead": "Start a circle, or jump back into one.",
     "nextTitle": "Your workspace",
     "modules": {
@@ -363,7 +371,17 @@
     "orreryLead": "Open a circle to go back into its room.",
     "live": "Live now",
     "today": "Today in your circles",
-    "phaseNote": "Only on this device for now: daily check-ins for the whole circle are coming."
+    "phaseNote": "Only on this device for now: daily check-ins for the whole circle are coming.",
+    "liveLine_one": "{{name}} is live. One person is in.",
+    "liveLine_other": "{{name}} is live. {{count}} people are in.",
+    "hereOf": "{{value}} of {{max}}",
+    "hereToday": "people here today",
+    "here": "here",
+    "openRoom": "Open the room",
+    "otherCircles": "Your other circles",
+    "feelTitle": "How do you feel today?",
+    "weather": "Circle weather: <b>{{mood}}</b>.",
+    "firstTitle": "Start your first circle"
   },
   "settings": {
     "title": "Settings",
@@ -390,9 +408,9 @@
     "autonomyHelp": "With Suggest, Pirikoo pops up with the next step as you go. Nothing runs until you choose it. You can chat with Pirikoo either way."
   },
   "notFound": {
-    "title": "We can't find this page.",
+    "title": "Nothing here.",
     "body": "The page you are looking for does not exist or moved.",
-    "home": "Back to home"
+    "home": "Back home"
   },
   "ice": {
     "title": "Icebreakers",
@@ -421,7 +439,7 @@
     },
     "card": {
       "label": "Current card",
-      "shake": "Deal",
+      "shake": "Deal another",
       "favourite": "Favourite",
       "showAnswer": "Show the answer",
       "empty": "No card matches these filters. Change one, or ask for fresh cards.",
@@ -688,7 +706,11 @@
       "suggestAgain": "Suggest again",
       "suggested": "Suggested",
       "suggestHelp": "A quick suggestion from your words, nothing more: change anything below. circloo composing it with AI is on the way.",
-      "applied": "Name and activities filled in from your line."
+      "applied": "Name and activities filled in from your line.",
+      "preview": "What will open",
+      "seats": "Seats",
+      "seatsNote": "You first. Anyone with the link takes a seat.",
+      "pickedOf": "activities picked"
     },
     "invite": {
       "title": "Invite people",
@@ -722,7 +744,8 @@
       "ringLegend": "Your colour ring",
       "ringHelp": "Others picked this character too. You will wear ring {{n}}, and your name always shows with it. Change it here if you like.",
       "ringOption": "Ring {{n}}",
-      "ringNone": "No ring"
+      "ringNone": "No ring",
+      "heading": "Join <name>{{name}}</name>"
     },
     "room": {
       "title": "Circle",
@@ -797,7 +820,10 @@
       "expandSide": "Open the sidebar",
       "callTab": "Call",
       "openWhiteboard": "Open the whiteboard",
-      "otherRounds": "Other rounds"
+      "otherRounds": "Other rounds",
+      "valueHere": "here",
+      "valueAway": "away",
+      "peopleHere": "People here"
     },
     "missing": {
       "title": "Circle not found",
@@ -969,7 +995,8 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
-    }
+    },
+    "connectedTitle": "Connected services"
   },
   "pirikoo": {
     "name": "Pirikoo",
@@ -1140,7 +1167,8 @@
       "title": "Drop a PowerPoint file here",
       "hint": "A .pptx file up to 50 MB and 100 slides. Each slide becomes a picture; your speaker notes come along.",
       "choose": "Choose a file",
-      "sending": "Uploading"
+      "sending": "Uploading",
+      "pick": "Upload a PowerPoint"
     },
     "errors": {
       "not-pptx": "This is not a PowerPoint (.pptx) file. In PowerPoint, use Save as and pick .pptx.",
@@ -1226,7 +1254,8 @@
     "movedTo": "Slide moved to place {{number}} of {{count}}.",
     "autoOpen": "Open answers as soon as a question shows",
     "autoOpenOn": "Participants can answer the moment you reach a question.",
-    "autoOpenOff": "You open answers yourself on each question."
+    "autoOpenOff": "You open answers yourself on each question.",
+    "ready": "Ready"
   },
   "present": {
     "pickTitle": "Pick a presentation",

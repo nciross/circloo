@@ -4,11 +4,12 @@ import { motion, type Variants } from 'motion/react'
 import { CircleCheck, Crown } from 'lucide-react'
 import { Character } from '../../../components/Character'
 import { isAnyCharacter } from '../../../components/characters'
-import { dur, easeOut, listVariants, spring, useReducedMotion } from '../../../lib/motion'
+import { Meter } from '../../../components/Meter'
+import { listVariants, spring, useReducedMotion } from '../../../lib/motion'
 import { confetti, countUp, formatPercent, formatSeconds, REVEAL_MS, STAGGER_MS } from '../../presentations/reveal'
 import type { QuestionSlide, Results } from './presentation'
 
-/** Read from the theme (present.css sets them to the skies and brass), so a question style (#168) can change them. */
+/** Read from the theme (present.css sets them to the card's colours and the sun), so a question style (#168) can change them. */
 const CONFETTI_VARS = ['--confetti-1', '--confetti-2', '--confetti-3', '--confetti-4', '--confetti-5', '--confetti-6'] as const
 const CONFETTI_FALLBACK = ['#ffc53d', '#7fb8ff', '#1f4fff', '#cfd6e2', '#1c7c52', '#aab4c3']
 
@@ -108,29 +109,19 @@ function rankOf(results: Results, id: string): number {
 }
 
 /**
- * The rank's numeral in a disc of its sky, inside a ring. For the winner and the right answer the brass ring draws
- * once the shares have run (the reveal's focal moment); for the others the ring stays a hairline.
+ * The rank's numeral in a disc, where a buddy row has its character: white for the winner and the right answer (lit
+ * once the shares have run, the reveal's focal moment), sunken for the others.
  */
 function Rank({ rank, drawn, delay, still, lang }: { rank: number; drawn: boolean; delay: number; still: boolean; lang: string }) {
   return (
-    <span className="reveal__rank">
-      <svg className="reveal__ring" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-        <circle className="reveal__ring-track" cx="20" cy="20" r="18.5" />
-        {drawn ? (
-          <motion.circle
-            className="reveal__ring-run"
-            cx="20"
-            cy="20"
-            r="18.5"
-            pathLength={100}
-            initial={still ? false : { pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={still ? { duration: 0 } : { duration: dur.focal, ease: easeOut, delay }}
-          />
-        ) : null}
-      </svg>
+    <motion.span
+      className={['reveal__rank', drawn ? 'is-lit' : ''].filter(Boolean).join(' ')}
+      initial={still || !drawn ? false : { scale: 0.9 }}
+      animate={{ scale: 1 }}
+      transition={still ? { duration: 0 } : { ...spring.snappy, delay }}
+    >
       <span className="reveal__rank-num">{new Intl.NumberFormat(lang).format(rank)}</span>
-    </span>
+    </motion.span>
   )
 }
 
@@ -156,7 +147,7 @@ function Spotlight({ slide, results, text, delay, still }: { slide: QuestionSlid
     <motion.section className="reveal__spotlight" aria-label={t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')} {...enter}>
       {isAnyCharacter(first.character) ? <Character id={first.character} ring={first.ring ?? 0} className="reveal__spotlight-char" /> : null}
       <p className="reveal__spotlight-text">
-        <span className="reveal__spotlight-label">{t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}</span>
+        <span className="reveal__spotlight-label lozenge lozenge--success">{t(quiz ? 'present.reveal.firstRight' : 'present.reveal.fastest')}</span>
         <span className="reveal__spotlight-who">{text}</span>
       </p>
     </motion.section>
@@ -164,11 +155,12 @@ function Spotlight({ slide, results, text, delay, still }: { slide: QuestionSlid
 }
 
 /**
- * Revealed results (spec 006 US5): rows rise one after another, shares run along their tracks while the figures count
- * up in step, every option carries its rank as a numeral in its sky, the most chosen options of a poll carry a crown
- * and a label, a quiz marks its right answer with an icon and a label (never colour alone), then the winner's brass
- * ring draws, the spotlight lands and the confetti pops once. Screen readers get a table and one announcement with the
- * marks and the spotlight. Under reduced motion everything shows at once, without confetti.
+ * Revealed results (spec 006 US5) on the view's dark card (#250): buddy-like rows rise one after another, each option's
+ * meter fills while its figures count up in step, every option carries its rank as a numeral, the most chosen options
+ * of a poll carry a crown and a lozenge, a quiz marks its right answer with an icon and a lozenge (never colour alone),
+ * then the winner's rank lights, the spotlight lands with its own lozenge and the confetti pops once. Screen readers
+ * get a table and one announcement with the marks and the spotlight. Under reduced motion everything shows at once,
+ * without confetti.
  * Only the reveal this page saw happen plays (animate); coming back to it, unblanking or reloading shows the stored
  * results still and silent.
  */
@@ -243,18 +235,16 @@ export function Reveal({ slide, results, mine, animate }: { slide: QuestionSlide
               <span className="reveal__text">
                 <bdi className="reveal__label">{o.text}</bdi>
                 <span className="reveal__marks">
-                  {r.correct ? <span className="reveal__mark is-correct"><CircleCheck size={16} /> {t('present.reveal.correct')}</span> : null}
-                  {r.winner ? <span className="reveal__mark is-winner"><Crown size={16} /> {t('present.reveal.mostChosen')}</span> : null}
-                  {mine?.includes(o.id) ? <span className="reveal__mark is-mine">{t('present.reveal.yours')}</span> : null}
+                  {r.correct ? <span className="reveal__mark lozenge lozenge--success is-correct"><CircleCheck size={14} /> {t('present.reveal.correct')}</span> : null}
+                  {r.winner ? <span className="reveal__mark lozenge is-winner"><Crown size={14} /> {t('present.reveal.mostChosen')}</span> : null}
+                  {mine?.includes(o.id) ? <span className="reveal__mark lozenge is-mine">{t('present.reveal.yours')}</span> : null}
                 </span>
               </span>
               <span className="reveal__figures">
                 <span className="reveal__percent">{formatPercent(countUp(r.percent, local), lang)}</span>
                 <span className="reveal__count">{t(quiz ? 'present.reveal.answers' : 'present.reveal.votes', { count: countUp(r.count, local) })}</span>
               </span>
-              <span className="reveal__track">
-                <span className="reveal__bar" />
-              </span>
+              <Meter tone="ok" value={countUp(r.count, local)} max={results.total} className="reveal__meter" />
             </motion.li>
           )
         })}

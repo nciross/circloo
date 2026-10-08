@@ -1,8 +1,9 @@
-/* ---------- Pirikoo, the parakeet guide (orrery restyle, #250) ----------
-   The launcher is a round paper button that gets a brass ring when the bird has something to say.
-   The conversation is paper with --r-lg; circloo's bubbles are AI violet (subtle fill, hairline
-   border, violet caret while the words stream), the person's are sunken paper. The only loops are
-   the explicit "thinking", "listening" and "speaking" indicators, which stop when the bird is still. */
+/* ---------- Pirikoo, the parakeet guide (the buddy list, #250) ----------
+   The launcher is a white round button with an ink outline; a blue ring when the bird has something to say.
+   The desktop tip is a small dark card with a violet bar and white pills. The conversation is white with an ink
+   outline and big corners: the person's bubbles are ink, Pirikoo's sit on the AI violet with its label. The plan
+   is a list of round steps and one ink Run. The only loops are the explicit "thinking", "listening" and
+   "speaking" indicators, which stop when the bird is still. */
 
 /* The bird. Moods show what the AI is doing; without a mood it stays still (older messages). */
 .pk {
@@ -182,89 +183,93 @@
 .pkl > * {
   pointer-events: auto;
 }
+/* 64px, white, an ink outline, the bird. */
 .pkl__button {
   position: relative;
   display: grid;
   place-items: center;
-  inline-size: 3.75rem;
-  block-size: 3.75rem;
-  border: 1px solid var(--hairline);
+  inline-size: 4rem;
+  block-size: 4rem;
+  border: 2px solid var(--ink);
   border-radius: 50%;
   background: var(--paper);
   box-shadow: var(--shadow-overlay);
   cursor: pointer;
   transition:
-    translate var(--dur-state) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out),
-    border-color var(--dur-state) var(--ease-out);
+    translate var(--dur-state) var(--ease-spring),
+    border-color var(--dur-state) var(--ease-out),
+    border-width var(--dur-state) var(--ease-out);
 }
 .pkl__button:hover {
   translate: 0 -2px;
-  box-shadow: var(--shadow-float);
 }
 .pkl__button:active {
   translate: 0;
   transition-duration: var(--dur-press);
 }
-/* Something to say: the brass ring around the paper. */
+/* Something to say: the ring goes blue, the one accent. */
 .pkl__button.is-calling {
-  border-color: var(--brass);
-  box-shadow:
-    0 0 0 2px var(--brass),
-    var(--shadow-overlay);
-}
-.pkl__button.is-calling:hover {
-  box-shadow:
-    0 0 0 2px var(--brass),
-    var(--shadow-float);
+  border-width: 3px;
+  border-color: var(--beam);
 }
 .pkl__button:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 .pkl__bird {
-  inline-size: 2.6rem;
-  block-size: 2.9rem;
+  inline-size: 2.7rem;
+  block-size: 3rem;
   margin-block-start: 2px;
 }
-.pkl__tip {
-  inline-size: min(20rem, calc(100vw - 2rem));
+/* The suggestion: a small dark card with the AI violet as a bar at its start; the pills flip to white on it. */
+.pkl .pkl__tip {
+  inline-size: min(21rem, calc(100vw - 2rem));
   display: grid;
   gap: var(--s-2);
-  padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--hairline);
+  padding: var(--s-4) var(--s-5);
+  border: 0;
+  border-inline-start: 4px solid var(--ai);
   border-radius: var(--r-lg);
-  border-end-end-radius: var(--r-xs);
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: var(--shadow-overlay);
   transform-origin: 90% 100%;
-  animation: pk-pop var(--dur-enter) var(--ease-out);
+  animation: pk-pop var(--dur-enter) var(--ease-spring);
 }
-/* The pointed corner is logical and follows the bird; only the growth origin needs mirroring. */
-[dir='rtl'] .pkl__tip {
+/* The growth origin follows the bird. */
+[dir='rtl'] .pkl .pkl__tip {
   transform-origin: 10% 100%;
 }
-.pkl__tip[hidden] {
+.pkl .pkl__tip[hidden] {
   display: none;
 }
 .pkl__name {
-  font-size: var(--fs-xs);
+  font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--ai-text);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-card-faint);
+}
+.pkl__name:lang(ar) {
+  font-size: 0.75rem;
+  letter-spacing: 0;
 }
 .pkl__text {
   font-size: var(--fs-md);
+  font-weight: 600;
   line-height: 1.45;
 }
 .pkl__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--s-1);
+  gap: var(--s-2);
+  margin-block-start: var(--s-1);
 }
-.pkl__off {
+.pkl .pkl__off {
   margin-inline-start: auto;
+  color: var(--on-card-soft);
+}
+.pkl .pkl__off:hover {
+  background: var(--card-hover);
+  color: var(--on-card);
 }
 @keyframes pk-pop {
   from {
@@ -273,9 +278,9 @@
   }
 }
 
-/* The thing a suggestion is about gets the brass mark, twice, then rests. */
+/* The thing a suggestion is about gets the ink mark, twice, then rests. */
 [data-pirikoo-spot] {
-  outline: 2px solid var(--brass);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
   animation: pk-spot var(--dur-orbit) var(--ease-out) 2;
 }
@@ -290,21 +295,21 @@
 .pkc {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  border: 1px solid var(--hairline);
+  border: 2px solid var(--ink);
   background: var(--paper);
   color: var(--ink);
 }
 .pkc--panel {
   position: fixed;
   inset-inline-end: var(--s-5);
-  inset-block-end: calc(var(--s-5) + 4.5rem + env(safe-area-inset-bottom));
+  inset-block-end: calc(var(--s-5) + 4.75rem + env(safe-area-inset-bottom));
   z-index: 80;
   inline-size: min(25rem, calc(100vw - 2rem));
   block-size: min(38rem, calc(100dvh - 7.5rem));
-  border-radius: var(--r-lg);
+  border-radius: var(--r-xl);
   box-shadow: var(--shadow-overlay);
   transform-origin: 100% 100%;
-  animation: pk-pop var(--dur-move) var(--ease-out);
+  animation: pk-pop var(--dur-move) var(--ease-spring);
 }
 [dir='rtl'] .pkc--panel {
   transform-origin: 0% 100%;
@@ -316,26 +321,26 @@
   max-block-size: none;
   margin: auto;
   padding: 0;
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-float);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
 }
 .pkc--center:not([open]) {
   display: none;
 }
 .pkc--center[open] {
-  animation: pk-pop var(--dur-move) var(--ease-out);
+  animation: pk-pop var(--dur-move) var(--ease-spring);
 }
 .pkc--center::backdrop {
-  background: rgb(10 10 11 / 0.45);
+  background: rgb(0 0 0 / 0.45);
 }
 
 .pkc__head {
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding-block: var(--s-2);
-  padding-inline: var(--s-4) var(--s-2);
-  border-block-end: 1px solid var(--hairline);
+  padding-block: var(--s-3);
+  padding-inline: var(--s-5) var(--s-3);
+  border-block-end: 2px solid var(--hairline);
 }
 .pkc__face {
   flex: none;
@@ -350,16 +355,23 @@
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  font-size: var(--fs-md);
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.pkc__title:lang(ar) {
+  letter-spacing: 0;
+}
+.pkc--center .pkc__title {
+  font-size: var(--fs-xl);
 }
 .pkc__status {
   font-size: var(--fs-xs);
+  font-weight: 600;
   color: var(--ink-soft);
 }
 .pkc__status.is-busy {
   color: var(--ai-text);
-  font-weight: 600;
 }
 .pkc__tools {
   display: flex;
@@ -405,8 +417,8 @@
 }
 .pkc__hello-title {
   font-size: var(--fs-xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 .pkc__hello-title:lang(ar) {
   letter-spacing: 0;
@@ -418,25 +430,35 @@
   max-inline-size: 30rem;
   color: var(--ink-soft);
 }
+/* The suggested next step: an outlined row with a small ink pill. */
 .pkc__tip {
-  display: grid;
-  justify-items: start;
-  gap: var(--s-1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
   inline-size: 100%;
   max-inline-size: 30rem;
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-md);
-  background: var(--paper-sunken);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
   text-align: start;
 }
 .pkc__tip-label {
-  font-size: var(--fs-xs);
+  flex-basis: 100%;
+  font-size: 0.6875rem;
   font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--ink-soft);
 }
-.pkc__tip .btn {
-  margin-block-start: var(--s-1);
+.pkc__tip-label:lang(ar) {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+}
+.pkc__tip > p:not(.pkc__tip-label) {
+  flex: 1 1 12rem;
+  font-weight: 600;
 }
 .pkc__chips {
   display: flex;
@@ -454,7 +476,7 @@
 }
 .pkc__me,
 .pkc__pk {
-  animation: pk-rise var(--dur-enter) var(--ease-out) backwards;
+  animation: pk-rise var(--dur-enter) var(--ease-spring) backwards;
 }
 @keyframes pk-rise {
   from {
@@ -466,38 +488,48 @@
   display: flex;
   justify-content: flex-end;
 }
-/* The person: sunken paper. */
+/* The person: an ink pill. */
 .pkc__bubble {
   max-inline-size: 85%;
-  padding: var(--s-2) var(--s-3);
+  padding: var(--s-3) var(--s-4);
   border-radius: var(--r-lg);
   border-end-end-radius: var(--r-xs);
-  background: var(--paper-sunken);
+  background: var(--ink);
+  color: var(--on-ink);
+  font-weight: 500;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.5;
 }
 .pkc__pk {
   display: grid;
-  grid-template-columns: 1.9rem minmax(0, 1fr);
+  grid-template-columns: 2rem minmax(0, 1fr);
   gap: var(--s-3);
   align-items: start;
 }
 .pkc__avatar {
-  inline-size: 1.9rem;
-  block-size: 2.15rem;
+  inline-size: 2rem;
+  block-size: 2.25rem;
 }
-/* circloo: AI violet, a hairline border, a violet caret while the words stream. */
+/* Pirikoo: on the AI violet, with its label, a violet caret while the words stream. */
 .pkc__answer {
   display: grid;
   justify-items: start;
   gap: var(--s-2);
   min-inline-size: 0;
   padding: var(--s-3) var(--s-4);
-  border: 1px solid var(--ai-border);
   border-radius: var(--r-lg);
   border-start-start-radius: var(--r-xs);
   background: var(--ai-subtle);
+  color: var(--ai-text);
+}
+.pkc__who {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--ai-text);
 }
 .pkc__text {
   font-size: var(--fs-md);
@@ -506,15 +538,14 @@
   overflow-wrap: anywhere;
 }
 .pkc__pk.is-error .pkc__answer {
-  border-color: var(--hairline);
   background: var(--paper-sunken);
+  color: var(--ink-soft);
 }
-.pkc__pk.is-error .pkc__text {
+.pkc__pk.is-error .pkc__who {
   color: var(--ink-soft);
 }
 .pkc__note {
   font-size: var(--fs-sm);
-  color: var(--ink-faint);
 }
 .pkc__caret {
   display: inline-block;
@@ -534,84 +565,103 @@
   display: inline-flex;
   align-items: center;
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ai-text);
 }
 
-/* The plan: a numbered list on the paper inside the bubble, one primary to run it. */
+/* The plan: outlined rows on white, each step in a round outline, one ink Run. */
 .pk-plan {
   display: grid;
   gap: var(--s-2);
   inline-size: 100%;
+  color: var(--ink);
 }
 .pk-plan__title {
   font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--ink-soft);
+  font-weight: 700;
+  color: var(--ai-text);
 }
 .pk-plan .plan-steps {
-  gap: 0;
-  border: 1px solid var(--ai-border);
-  border-radius: var(--r-md);
-  background: var(--paper);
+  gap: var(--s-1);
 }
 .pk-plan .plan-steps__item {
   min-block-size: 2.75rem;
-  border-radius: 0;
-  background: transparent;
+  padding-block: var(--s-1);
+  padding-inline: var(--s-3) var(--s-1);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--paper);
   animation: none;
 }
-.pk-plan .plan-steps__item + .plan-steps__item {
-  border-block-start: 1px solid var(--hairline);
-}
 .pk-plan .plan-steps__item::before {
-  color: var(--ink-soft);
+  display: none;
 }
 .pk-plan .plan-steps__icon {
-  background: var(--paper-sunken);
-  box-shadow: none;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 .pk-plan .plan-steps__item--ask .plan-steps__icon {
-  background: var(--ai-subtle);
   color: var(--ai-text);
-  box-shadow: inset 0 0 0 1px var(--ai-border);
+  box-shadow: inset 0 0 0 2px var(--ai);
 }
+.pk-plan .plan-steps__label {
+  font-weight: 600;
+}
+.pk-plan .icon-btn {
+  color: var(--ink-soft);
+}
+.pk-plan .icon-btn:hover {
+  color: var(--ink);
+}
+/* Ran: the round check fills with ink. */
 .pk-plan__done {
   flex: none;
-  margin-inline-end: var(--s-2);
-  color: var(--live);
+  box-sizing: border-box;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  padding: 0.3rem;
+  margin-inline-end: var(--s-1);
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--on-ink);
 }
 .pk-plan__run {
   justify-self: start;
 }
 
+/* The composer: a pill, the send button round and ink. */
 .pkc__composer {
   display: flex;
   align-items: flex-end;
   gap: var(--s-2);
-  margin: 0 var(--s-3);
-  padding: var(--s-2);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--r-lg);
+  margin: 0 var(--s-4);
+  padding: 0.3rem;
+  padding-inline-start: var(--s-4);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
   background: var(--paper);
-  transition:
-    border-color var(--dur-state) var(--ease-out),
-    box-shadow var(--dur-state) var(--ease-out);
+  transition: border-color var(--dur-state) var(--ease-out);
 }
 .pkc--center .pkc__composer {
-  inline-size: min(44rem, calc(100% - 2 * var(--s-3)));
+  inline-size: min(44rem, calc(100% - 2 * var(--s-4)));
   margin-inline: auto;
 }
+.pkc__composer:hover {
+  border-color: var(--hairline-strong);
+}
 .pkc__composer:focus-within {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 1px var(--focus);
+  border-color: var(--ink);
 }
 .pkc__composer textarea {
   flex: 1;
   min-inline-size: 0;
-  min-block-size: 2.25rem;
+  min-block-size: 2.5rem;
   max-block-size: 9rem;
-  padding: var(--s-2);
+  padding: var(--s-2) 0;
   border: 0;
   background: transparent;
   color: inherit;
@@ -626,27 +676,29 @@
   display: grid;
   place-items: center;
   flex: none;
-  inline-size: 2.25rem;
-  block-size: 2.25rem;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
   border: 0;
   border-radius: 50%;
-  background: var(--beam);
-  color: var(--on-beam);
+  background: var(--ink);
+  color: var(--on-ink);
   cursor: pointer;
   transition:
-    background-color var(--dur-state) var(--ease-out),
-    transform var(--dur-press) var(--ease-out);
+    background-color var(--dur-state) var(--ease-spring),
+    transform var(--dur-move) var(--ease-spring);
 }
 .pkc__send:hover {
-  background: var(--beam-hover);
+  background: var(--ink-soft);
+  transform: translateY(-1px) scale(1.02);
 }
 .pkc__send:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 .pkc__send[aria-disabled='true'] {
   background: var(--paper-sunken);
   color: var(--ink-faint);
   cursor: default;
+  transform: none;
 }
 .pkc__send.is-stop {
   background: var(--ink);
@@ -671,7 +723,7 @@
   .pkl.is-open {
     display: none;
   }
-  /* No bubble over a phone's content: the brass ring calls, and the panel opens on the suggested next step. */
+  /* No bubble over a phone's content: the blue ring calls, and the panel opens on the suggested next step. */
   .pkl__tip {
     display: none;
   }
@@ -685,9 +737,18 @@
   .pkc--center {
     inline-size: 100%;
     block-size: 100dvh;
+    border: 0;
     border-radius: 0;
   }
+  .pkc__composer textarea {
+    min-block-size: 2.75rem;
+  }
   .pkc__send {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+  .pkc__tools .icon-btn,
+  .pk-plan .icon-btn {
     inline-size: 2.75rem;
     block-size: 2.75rem;
   }
@@ -710,8 +771,10 @@
   .pk--thinking .pk__crest {
     transform: rotate(9deg) scaleY(1.1);
   }
-  .pkl__button:hover {
+  .pkl__button:hover,
+  .pkc__send:hover {
     translate: none;
+    transform: none;
   }
   .pkc__caret {
     animation: none;

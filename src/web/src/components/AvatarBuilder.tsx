@@ -26,7 +26,7 @@ export function AvatarBuilder({ code, onChange }: { code: AvatarCode | null; onC
   return (
     <div className="build">
       <div className="build__preview">
-        <Character id={encodeAvatar(avatar)} className="build__char" />
+        <span className="build__figure"><Character id={encodeAvatar(avatar)} className="build__char" /></span>
         <button type="button" className="btn btn--default btn--sm" onClick={() => onChange(encodeAvatar(randomAvatar()))}>
           <span className="btn__icon" aria-hidden="true"><Dices size={14} /></span>
           <span className="btn__label">{t('avatar.surprise')}</span>

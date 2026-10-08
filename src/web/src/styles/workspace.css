@@ -1,11 +1,12 @@
 /*
- * The room as a workspace (#244, the orrery look of #250): a work bar under the top bar, then the centre and the rail at
- * app height from 960 px, each scrolling inside itself. The work bar carries the circle's small ring, its name and status,
- * and the running round with its time over a brass rule. The centre is the whiteboard's dotted paper. On phones the page
- * keeps scrolling, with the work bar sticky and the sheet below (room.css). Logical properties only.
+ * The room as a workspace (#244, the buddy list of #250): a work bar under the top bar, then the centre and the side
+ * card at app height from 960 px, each scrolling inside itself. The work bar carries the circle's name at display size
+ * with its status as an ink lozenge, a stack of the people's characters, the running round as a chip with a small meter
+ * under it, and the animator's two pills. The centre is a white sheet. On phones the page keeps scrolling, with the
+ * work bar sticky and the sheet below (room.css). Logical properties only.
  */
 .room {
-  --workbar-h: 3.5rem;
+  --workbar-h: 4.75rem;
   /* Inline-end in the reading direction, for the few movements that have a side. */
   --flow: 1;
   /* Pirikoo's corner button (3.75rem at 1.25rem from the edges), plus a breath, less the room's own margin. */
@@ -38,7 +39,7 @@
   .room .room__grid {
     grid-template-rows: minmax(0, 1fr);
     align-items: stretch;
-    gap: var(--s-4);
+    gap: var(--s-5);
     block-size: calc(100dvh - var(--topbar-h) - var(--workbar-h) - 2 * var(--s-4));
     min-block-size: 30rem;
     margin-block-end: var(--s-4);
@@ -68,7 +69,7 @@
     block-size: auto;
     min-block-size: 26rem;
   }
-  /* The paper grew with the centre; its help line keeps a readable measure. */
+  /* The sheet grew with the centre; its help line keeps a readable measure. */
   .room__centre .canvas__hint {
     max-inline-size: 80ch;
   }
@@ -84,32 +85,40 @@
   z-index: 25;
   display: flex;
   align-items: center;
-  gap: var(--s-3);
-  block-size: var(--workbar-h);
+  gap: var(--s-4);
+  min-block-size: var(--workbar-h);
+  padding-block: var(--s-2);
   padding-inline: var(--s-3) var(--s-4);
   border-block-end: 1px solid var(--hairline);
   background: var(--paper);
   container: workbar / inline-size;
 }
+@media (min-width: 60rem) {
+  .workbar {
+    block-size: var(--workbar-h);
+    padding-block: 0;
+  }
+}
 .workbar__home {
   display: inline-flex;
   flex: none;
   align-items: center;
+  justify-content: center;
   gap: var(--s-1);
-  min-block-size: 2rem;
-  padding-inline: var(--s-2);
-  border-radius: var(--r-sm);
-  color: var(--ink-soft);
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  padding-inline: var(--s-3);
+  border-radius: var(--r-pill);
+  color: var(--ink);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   transition:
     background-color var(--dur-press) var(--ease-out),
     color var(--dur-press) var(--ease-out);
 }
 .workbar__home:hover {
-  background: var(--paper-hover);
-  color: var(--ink);
+  background: var(--paper-sunken);
   text-decoration: none;
 }
 .workbar__home:focus-visible,
@@ -117,92 +126,112 @@
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-/* The circle's ring: the people as bodies (you outlined), the count beside it. It opens the People tab. */
-.workbar__people {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: var(--s-1);
-  block-size: 3rem;
-  padding: 0;
-  padding-inline-end: var(--s-2);
-  border: 0;
-  border-radius: var(--r-ring);
-  background: transparent;
-  color: var(--ink-soft);
-  transition:
-    background-color var(--dur-press) var(--ease-out),
-    color var(--dur-press) var(--ease-out);
-}
-.workbar__people:hover {
-  background: var(--paper-hover);
-  color: var(--ink);
-}
-.workbar .ring--sm.workbar__ring {
-  --ring-size: 2.25rem;
-  --body-size: 0.8125rem;
-  margin: 0.375rem;
-}
-.workbar__ring .ring__body.is-me {
-  outline-width: 2px;
-  outline-offset: 1px;
-}
-.workbar__ring .ring__more {
-  font-size: 0.5rem;
-}
-.workbar__count {
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
+/* The circle's name, loudest thing in the bar, with its status as an ink lozenge beside it. */
 .workbar__id {
   display: flex;
   flex: 0 1 auto;
   align-items: center;
   gap: var(--s-3);
-  min-inline-size: min(12rem, 100%);
+  min-inline-size: min(10rem, 100%);
 }
 .workbar__name {
   min-inline-size: 0;
   margin: 0;
   overflow: hidden;
-  font-size: var(--fs-xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+  font-size: clamp(1.75rem, 1.25rem + 1.4vw, 2.5rem);
+  font-weight: var(--w-display);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+:lang(ar) .workbar__name {
+  letter-spacing: 0;
+  line-height: 1.25;
+}
 .workbar__status {
   flex: none;
-  font-size: var(--fs-sm);
-  color: var(--ink-soft);
+  gap: 0.4rem;
+  padding: 0 0.7rem;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.5rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+:lang(ar) .workbar__status {
+  font-size: 0.75rem;
+  letter-spacing: 0;
 }
 .workbar__status .dot {
   position: relative;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  background: var(--ink-faint);
 }
-/* The round that runs: who started it, how long it has run (tabular), over a brass rule that fills. */
-.workbar__round {
-  position: relative;
+.workbar__status .dot--live {
+  background: var(--ok);
+}
+.workbar__status .dot--connecting,
+.workbar__status .dot--reconnecting {
+  background: var(--sun);
+}
+/* The people as a stack of their characters, those here first, "+n" past four; you with an ink ring. It opens the People tab. */
+.workbar__people {
   display: inline-flex;
-  flex: 0 1 auto;
+  flex: none;
   align-items: center;
-  gap: var(--s-2);
-  min-inline-size: 0;
+  min-block-size: 2.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink);
+  transition: background-color var(--dur-press) var(--ease-out);
+}
+.workbar__people:hover {
+  background: var(--paper-sunken);
+}
+.workbar__stack > .is-me {
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 3.5px var(--ink);
+}
+.workbar__stack > .workbar__stack-more {
+  display: inline-grid;
+  place-items: center;
+  background: var(--paper-sunken);
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+/* The round that runs: who started it, how long it has run (tabular), with a small meter of the usual length under it. */
+.workbar__round {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem var(--s-2);
+  min-inline-size: 7rem;
   max-inline-size: 28rem;
-  block-size: 2.25rem;
-  padding-inline: var(--s-3);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-sm);
+  padding: 0.4rem var(--s-3) 0.55rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
   background: var(--paper);
   color: var(--ink);
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
 }
 .workbar__round:has(.workbar__round-char) {
-  padding-inline-start: var(--s-1);
+  padding-inline-start: var(--s-2);
 }
 .workbar__round-char {
   flex: none;
@@ -226,25 +255,13 @@
 }
 .workbar__round-time {
   flex: none;
+  margin-inline-start: auto;
   padding-inline-start: var(--s-2);
-  border-inline-start: 1px solid var(--hairline);
-  font-weight: 500;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
 }
-.workbar__round-rule {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  block-size: 2px;
-  background: var(--brass-faint);
-}
-.workbar__round-fill {
-  display: block;
-  block-size: 100%;
-  inline-size: calc(var(--round-progress, 0) * 100%);
-  background: var(--brass);
-  transition: inline-size 1s linear;
+.workbar__round-meter {
+  flex: 1 0 100%;
 }
 .workbar__end {
   display: flex;
@@ -274,11 +291,18 @@
   background: var(--paper);
   box-shadow: var(--shadow-overlay);
 }
+.workbar__more {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  box-shadow: inset 0 0 0 2px var(--ink);
+  color: var(--ink);
+}
 .workbar__menu-panel {
   display: grid;
   gap: var(--s-2);
   min-inline-size: 16rem;
   padding: var(--s-3);
+  border-radius: var(--r-lg);
 }
 .workbar__menu-panel .send {
   justify-items: stretch;
@@ -308,8 +332,9 @@
 @container workbar (max-width: 40rem) {
   .workbar {
     gap: var(--s-2);
+    padding-inline: var(--s-3);
   }
-  /* Phones keep only the time of the round (the centre already names it) and its brass rule. */
+  /* Phones keep only the time of the round (the centre already names it) and its meter. */
   .workbar__round-title,
   .workbar__round-by,
   .workbar__round-char {
@@ -317,11 +342,12 @@
   }
   .workbar__round,
   .workbar__round:has(.workbar__round-char) {
+    min-inline-size: 5.5rem;
     padding-inline: var(--s-2);
   }
   .workbar__round-time {
+    margin-inline-start: 0;
     padding-inline-start: 0;
-    border-inline-start: 0;
   }
   .workbar__home-label {
     position: absolute;
@@ -332,26 +358,20 @@
     white-space: nowrap;
   }
   .workbar__home {
-    justify-content: center;
     inline-size: 2.75rem;
-    block-size: 2.75rem;
     padding: 0;
   }
   .workbar__name {
-    font-size: var(--fs-md);
+    font-size: var(--fs-2xl);
   }
   .workbar__id {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0;
+    gap: var(--s-1);
     min-inline-size: 0;
   }
-  .workbar__status {
-    font-size: var(--fs-xs);
-  }
-  .workbar__more {
-    inline-size: 2.75rem;
-    block-size: 2.75rem;
+  .workbar__people {
+    padding-inline: 0.25rem;
   }
 }
 
@@ -376,16 +396,15 @@
   min-block-size: 0;
   padding: 0;
   border: 0;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill);
   background: transparent;
-  color: var(--ink-soft);
+  color: var(--ink);
   transition:
     background-color var(--dur-press) var(--ease-out),
     color var(--dur-press) var(--ease-out);
 }
 .room-side__rail-btn:hover {
-  background: var(--paper-hover);
-  color: var(--ink);
+  background: var(--paper-sunken);
 }
 .room-side__rail-btn:active {
   background: var(--paper-pressed);
@@ -403,8 +422,9 @@
 }
 .room-side__rail-sep {
   inline-size: 1.5rem;
-  block-size: 1px;
+  block-size: 2px;
   margin-block: var(--s-1);
+  border-radius: var(--r-pill);
   background: var(--hairline);
 }
 .room-side__rail-count {
@@ -413,10 +433,10 @@
   inset-inline-end: 0;
   min-inline-size: 1.125rem;
   padding-inline: 0.25rem;
-  border-radius: var(--r-ring);
-  background: var(--paper-sunken);
+  border-radius: var(--r-pill);
+  background: var(--ink);
   box-shadow: 0 0 0 2px var(--ground);
-  color: var(--ink-soft);
+  color: var(--on-ink);
   font-size: var(--fs-xs);
   font-weight: 700;
   line-height: 1.125rem;
@@ -437,41 +457,29 @@
   align-content: start;
   gap: var(--s-4);
 }
-/* The whiteboard's own paper, set large: a sheet of dotted paper on the ground. */
+/* The whiteboard leads: an outlined panel with the one ink pill. */
 .dock__paper {
-  position: relative;
-  isolation: isolate;
-  display: grid;
   align-content: center;
   justify-items: start;
   gap: var(--s-3);
-  min-block-size: clamp(15rem, 40dvh, 24rem);
+  min-block-size: clamp(14rem, 36dvh, 22rem);
   padding: var(--s-7);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-xl);
-  background-color: var(--paper);
-  overflow: clip;
-}
-.dock__paper::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image: radial-gradient(circle, var(--hairline-strong) 1px, transparent 1.3px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  animation: dots-settle var(--dur-focal) var(--ease-out) both;
 }
 .dock__title {
   margin: 0;
-  font-size: var(--fs-2xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: var(--fs-3xl);
+  font-weight: var(--w-title);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+:lang(ar) .dock__title {
+  letter-spacing: 0;
   line-height: 1.25;
 }
 .dock__lead {
   max-inline-size: 44ch;
   margin: 0;
+  font-size: var(--fs-lg);
   color: var(--ink-soft);
 }
 .dock__open {
@@ -480,7 +488,7 @@
 .dock__paper .field__error {
   margin: 0;
 }
-/* The other rounds, as rows with the icon inline (no tile grid): title, what it is, Start at the end. */
+/* The other rounds as rows: the icon in ink, the title heavy on one line, its category as a lozenge, Start at the end. */
 .dock .activities__grid {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -490,7 +498,7 @@
   grid-template-rows: auto;
   align-items: center;
   gap: var(--s-3) var(--s-4);
-  padding: var(--s-3) var(--s-2);
+  padding: var(--s-3) var(--s-1);
   border: 0;
   border-block-end: 1px solid var(--hairline);
   border-radius: 0;
@@ -505,42 +513,115 @@
   block-size: 1.5rem;
   border-radius: 0;
   background: transparent;
+  color: var(--ink);
+}
+.dock .activity__icon svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+.dock .activity__copy {
+  display: grid;
+  grid-template-columns: minmax(0, auto) auto;
+  grid-template-areas:
+    'title cat'
+    'body body';
+  align-items: center;
+  justify-content: start;
+  gap: var(--s-1) var(--s-3);
+}
+.dock .activity__title {
+  grid-area: title;
+  overflow: hidden;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dock .activity__body {
+  grid-area: body;
+  overflow: hidden;
   color: var(--ink-soft);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .dock .activity__cat {
-  color: var(--ink-faint);
+  grid-area: cat;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--neutral-subtle);
+  color: var(--neutral-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.5rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+:lang(ar) .dock .activity__cat {
+  font-size: 0.75rem;
+  letter-spacing: 0;
 }
 .dock .activity > .btn {
   grid-column: auto;
   justify-self: end;
+  min-block-size: 2.75rem;
+  padding-inline: 1.2rem;
+  font-size: var(--fs-md);
 }
 @media (max-width: 59.99rem) {
   .dock__paper {
     padding: var(--s-5);
   }
 }
+@media (max-width: 36rem) {
+  .dock .activity__copy {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'title'
+      'cat';
+    justify-items: start;
+  }
+  .dock .activity__body {
+    display: none;
+  }
+}
 
-/* ---------- Call tab: the stage, Night even by day ---------- */
+/* ---------- Call tab: the stage inside the dark card ---------- */
 .call {
   display: grid;
   align-content: start;
   gap: var(--s-4);
-  /* With the panel's own padding, text keeps 1rem from the edge of a full-width phone sheet. */
   padding-inline: var(--s-1);
 }
 .call__switch {
   display: grid;
   gap: var(--s-2);
   padding-block-end: var(--s-4);
-  border-block-end: 1px solid var(--hairline);
+  border-block-end: 1px solid var(--card-line);
 }
 .call__switch .field__help {
   margin: 0;
+  color: var(--on-card-faint);
 }
 .call__switch .switch {
   justify-self: start;
+  color: var(--on-card);
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: 700;
+}
+.call__switch .switch__track {
+  background: var(--seg-empty);
+}
+.call__switch .switch:hover .switch__track {
+  background: var(--on-card-faint);
+}
+.call__switch .switch[aria-checked='true'] .switch__track {
+  background: var(--ok);
+}
+.call__switch .switch__knob {
+  background: var(--on-card);
 }
 .call__switch .switch:focus-visible {
   outline: 2px solid var(--focus);
@@ -553,14 +634,15 @@
   gap: var(--s-2);
   justify-self: start;
   min-block-size: 2.75rem;
-  font-size: var(--fs-sm);
+  color: var(--on-card);
+  font-size: var(--fs-md);
   font-weight: 500;
 }
 .call__check input {
-  inline-size: 1.125rem;
-  block-size: 1.125rem;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
   margin: 0;
-  accent-color: var(--beam);
+  accent-color: var(--on-card);
 }
 .call__switch .call__check-help {
   margin-block-start: calc(-1 * var(--s-2));
@@ -570,40 +652,30 @@
   align-items: center;
   gap: var(--s-2);
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 .call__state-mark {
   flex: none;
   inline-size: 0.6rem;
   block-size: 0.6rem;
-  border: 2px solid var(--ink-faint);
+  border: 2px solid var(--on-card-faint);
   border-radius: 50%;
 }
 .call__state-mark.is-on {
-  border-color: var(--live);
-  background: var(--live);
+  border-color: var(--ok);
+  background: var(--ok);
 }
-/* The dome: the Night values of tokens.css, fixed, so the stage is a night scene in both themes. */
+/* The stage: a sunken block of the card. */
 .call__stage {
-  --dome: #0a0a0b;
-  --dome-paper: #111318;
-  --dome-ink: #fafafa;
-  --dome-ink-soft: #b3b8c2;
-  --dome-hairline: #24272e;
-  --dome-neutral: #1b2639;
-  --dome-brass: #6b8cff;
-  --dome-brass-faint: #2a3566;
   --hand: 1.75rem;
   --arc-r: 4.25rem;
   --dir: 1;
-  color-scheme: dark;
   display: grid;
   gap: var(--s-3);
   padding: var(--s-4);
-  border: 1px solid var(--dome-hairline);
   border-radius: var(--r-lg);
-  background: var(--dome);
-  color: var(--dome-ink);
+  background: var(--card-sunken);
+  color: var(--on-card);
 }
 [dir='rtl'] .call__stage {
   --dir: -1;
@@ -613,20 +685,19 @@
   align-items: center;
   gap: var(--s-2);
   margin: 0;
-  font-size: var(--fs-md);
-  font-weight: 600;
-  color: var(--dome-ink);
+  font-size: var(--fs-lg);
+  font-weight: 800;
 }
 .call__stage .lozenge {
-  background: var(--dome-neutral);
-  color: var(--dome-ink-soft);
+  background: var(--card);
+  color: var(--on-card-soft);
 }
 .call__stage-body {
   margin: 0;
   font-size: var(--fs-sm);
-  color: var(--dome-ink-soft);
+  color: var(--on-card-faint);
 }
-/* Raised hands wait along a brass arc, first to speak at the inline start. */
+/* Raised hands wait along an arc, first to speak at the inline start. */
 .call__arc {
   position: relative;
   block-size: calc(var(--arc-r) + var(--hand) / 2 + 2px);
@@ -643,9 +714,8 @@
   inline-size: calc(2 * var(--arc-r));
   block-size: calc(2 * var(--arc-r));
   margin-inline-start: calc(-1 * var(--arc-r));
-  border: 1.5px solid var(--dome-brass);
+  border: 2px solid var(--seg-empty);
   border-radius: 50%;
-  opacity: 0.6;
 }
 .call__hand {
   --a: calc(-60deg + 120deg * (var(--i, 0) + 0.5) / var(--n, 1));
@@ -657,9 +727,9 @@
   margin-inline-start: calc(var(--hand) / -2);
   display: grid;
   place-items: center;
-  border-radius: var(--r-ring);
-  background: var(--dome-paper);
-  box-shadow: 0 0 0 1.5px var(--dome-brass);
+  border-radius: var(--r-pill);
+  background: var(--card);
+  box-shadow: 0 0 0 2px var(--on-card-faint);
   transform: rotate(calc(var(--a) * var(--dir))) translateY(calc(-1 * var(--arc-r))) rotate(calc(var(--a) * var(--dir) * -1));
   animation: side-fade var(--dur-enter) var(--ease-out) both;
 }
@@ -667,10 +737,10 @@
   inline-size: 85%;
   block-size: 85%;
 }
-/* On stage: a tile each, the character while the camera is off; the one with the floor lit by a brass ring. */
+/* On stage: a rounded tile each, the character while the camera is off; the one with the floor outlined in the ok colour. */
 .call__tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
   gap: var(--s-2);
   margin: 0;
   padding: 0;
@@ -682,39 +752,35 @@
   gap: var(--s-1);
   min-inline-size: 0;
   padding: var(--s-3) var(--s-2) var(--s-2);
-  border: 1px solid var(--dome-hairline);
   border-radius: var(--r-md);
-  background: var(--dome-paper);
+  background: var(--card);
   animation: side-fade var(--dur-enter) var(--ease-out) both;
 }
 .call__tile.is-floor {
-  border-color: var(--dome-brass);
-  box-shadow: 0 0 0 2px var(--dome-brass);
+  box-shadow: 0 0 0 2px var(--ok);
 }
 .call__tile.is-dim {
-  border-style: dashed;
-  opacity: 0.65;
+  opacity: 0.6;
 }
 .call__tile-char {
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
 }
 .call__tile-name {
   max-inline-size: 100%;
   overflow: hidden;
   font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--dome-ink);
+  font-weight: 700;
+  color: var(--on-card);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 /* ---------- Motion ---------- */
 /*
- * Focal: a round opens. The centre is revealed by a circle that grows from the work bar's ring (its position comes in
- * --reveal-x/--reveal-y, set by CircleRoom before the paint) over --dur-focal, and the paper's dots settle under it.
- * Arrival: a body hops onto the ring (spring.snappy in Ring.tsx) and the people count pops once.
- * Continuity: the rail panel fades and shifts 8 px, never a size; its tabs cross-fade; the round's chip slides in from
+ * Focal: a round opens. The centre is revealed by a circle that grows from the work bar's people stack (its position
+ * comes in --reveal-x/--reveal-y, set by CircleRoom before the paint) over --dur-focal, and the sheet's dots settle.
+ * Continuity: the side card fades and shifts 8 px, never a size; its tabs cross-fade; the round's chip slides in from
  * the inline end. Feedback: the status dot pulses once on going live, rail buttons answer in 120 ms. Exits are faster.
  * Reduced motion keeps every fade and drops the movement and the pop (base.css zeroes the durations as well).
  */
@@ -723,7 +789,7 @@
   gap: var(--s-5);
   animation: round-open var(--dur-focal) var(--ease-out) backwards;
 }
-/* The whiteboard opens on paper whose dots settle into place: a looser copy of the dots fades as the real ones show. */
+/* The whiteboard opens on a sheet whose dots settle into place: a looser copy of the dots fades as the real ones show. */
 .room__centre .canvas__viewport::before {
   content: '';
   position: absolute;
@@ -756,7 +822,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--live);
+  background: var(--ok);
   opacity: 0;
   pointer-events: none;
   animation: dot-pulse var(--dur-enter) var(--ease-out);
@@ -769,16 +835,6 @@
   to {
     opacity: 1;
     clip-path: circle(160% at var(--reveal-x, 1.5rem) var(--reveal-y, -1rem));
-  }
-}
-@keyframes dots-settle {
-  from {
-    opacity: 0;
-    background-size: 30px 30px;
-  }
-  to {
-    opacity: 1;
-    background-size: 24px 24px;
   }
 }
 @keyframes dots-settle-out {
@@ -829,8 +885,7 @@
   }
   .room-side__rail-btn,
   .workbar__home,
-  .workbar__people,
-  .workbar__round-fill {
+  .workbar__people {
     transition: none;
   }
 }

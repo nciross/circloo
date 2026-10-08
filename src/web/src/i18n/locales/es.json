@@ -47,6 +47,8 @@
   "landing": {
     "title": "circloo · tu círculo, en un espacio privado",
     "cta": "Crea tu círculo",
+    "tagline1": "Tu círculo.",
+    "tagline2": "Un espacio privado.",
     "nav": {
       "label": "En esta página",
       "story": "Cómo funciona",
@@ -57,11 +59,17 @@
     "hero": {
       "title": "Di qué necesita tu círculo.",
       "title2": "circloo lo prepara.",
+      "lead": "Con una línea basta. circloo abre una sala privada para tu gente, con un tablero, un juego y un registro de ánimo diario.",
       "facts": [
         "Sin contraseña: un código de seis dígitos por correo.",
         "Privado por defecto. Sin anuncios.",
         "English, français, العربية, español."
       ]
+    },
+    "notes": {
+      "seats": "tu gente, como personajes",
+      "say": "dilo en una línea",
+      "name": "el nombre se escribe solo"
     },
     "say": {
       "label": "¿Para qué es?",
@@ -320,7 +328,7 @@
     }
   },
   "home": {
-    "greeting": "¡Hola, <name>{{name}}</name>!",
+    "greeting": "Hola, <name>{{name}}</name>.",
     "lead": "Crea un círculo o vuelve a uno de los tuyos.",
     "nextTitle": "Tu espacio",
     "modules": {
@@ -363,7 +371,17 @@
     "orreryLead": "Abre un círculo para volver a su sala.",
     "live": "En directo",
     "today": "Hoy en tus círculos",
-    "phaseNote": "Solo en este dispositivo por ahora: el check-in diario de todo el círculo está en camino."
+    "phaseNote": "Solo en este dispositivo por ahora: el check-in diario de todo el círculo está en camino.",
+    "liveLine_one": "{{name}} está en directo. Hay una persona.",
+    "liveLine_other": "{{name}} está en directo. Hay {{count}} personas.",
+    "hereOf": "{{value}} de {{max}}",
+    "hereToday": "personas aquí hoy",
+    "here": "aquí",
+    "openRoom": "Abrir la sala",
+    "otherCircles": "Tus otros círculos",
+    "feelTitle": "¿Cómo te sientes hoy?",
+    "weather": "Tiempo del círculo: <b>{{mood}}</b>.",
+    "firstTitle": "Empieza tu primer círculo"
   },
   "settings": {
     "title": "Ajustes",
@@ -390,7 +408,7 @@
     "autonomyHelp": "Con Sugerir, Pirikoo te propone el siguiente paso sobre la marcha. Nada se ejecuta hasta que lo elijas. Puedes hablar con Pirikoo en cualquier caso."
   },
   "notFound": {
-    "title": "No encontramos esta página.",
+    "title": "Aquí no hay nada.",
     "body": "La página que buscas no existe o se ha mudado.",
     "home": "Volver al inicio"
   },
@@ -421,7 +439,7 @@
     },
     "card": {
       "label": "Tarjeta actual",
-      "shake": "Sacar",
+      "shake": "Otra carta",
       "favourite": "Favorita",
       "showAnswer": "Ver la respuesta",
       "empty": "Ninguna tarjeta encaja con estos filtros. Cambia uno o pide tarjetas nuevas.",
@@ -688,7 +706,11 @@
       "suggestAgain": "Sugerir otra vez",
       "suggested": "Sugerido",
       "suggestHelp": "Una sugerencia rápida a partir de tus palabras, nada más: cambia lo que quieras abajo. La composición con IA de circloo está en camino.",
-      "applied": "Nombre y actividades rellenados a partir de tu línea."
+      "applied": "Nombre y actividades rellenados a partir de tu línea.",
+      "preview": "Lo que se abrirá",
+      "seats": "Asientos",
+      "seatsNote": "Tú primero. Quien tenga el enlace ocupa un asiento.",
+      "pickedOf": "actividades elegidas"
     },
     "invite": {
       "title": "Invitar",
@@ -722,7 +744,8 @@
       "ringLegend": "Tu anillo de color",
       "ringHelp": "Otras personas eligieron este personaje. Llevarás el anillo {{n}} y tu nombre siempre aparece con él. Cámbialo aquí si quieres.",
       "ringOption": "Anillo {{n}}",
-      "ringNone": "Sin anillo"
+      "ringNone": "Sin anillo",
+      "heading": "Únete a <name>{{name}}</name>"
     },
     "room": {
       "title": "Círculo",
@@ -797,7 +820,10 @@
       "expandSide": "Abrir la barra lateral",
       "callTab": "Llamada",
       "openWhiteboard": "Abrir la pizarra",
-      "otherRounds": "Otras rondas"
+      "otherRounds": "Otras rondas",
+      "valueHere": "aquí",
+      "valueAway": "ausente",
+      "peopleHere": "Personas presentes"
     },
     "missing": {
       "title": "Círculo no encontrado",
@@ -969,7 +995,8 @@
       "spaceId": "98304",
       "token": "ntn_…",
       "parentPageId": "https://www.notion.so/…"
-    }
+    },
+    "connectedTitle": "Servicios conectados"
   },
   "pirikoo": {
     "name": "Pirikoo",
@@ -1140,7 +1167,8 @@
       "title": "Suelta aquí un archivo de PowerPoint",
       "hint": "Un archivo .pptx de hasta 50 MB y 100 diapositivas. Cada diapositiva se convierte en imagen; tus notas también se guardan.",
       "choose": "Elegir un archivo",
-      "sending": "Subiendo"
+      "sending": "Subiendo",
+      "pick": "Subir un PowerPoint"
     },
     "errors": {
       "not-pptx": "No es un archivo de PowerPoint (.pptx). En PowerPoint, usa Guardar como y elige .pptx.",
@@ -1230,7 +1258,8 @@
     "movedTo": "Diapositiva movida al puesto {{number}} de {{count}}.",
     "autoOpen": "Abrir las respuestas en cuanto aparece una pregunta",
     "autoOpenOn": "Los participantes pueden responder en cuanto llegas a una pregunta.",
-    "autoOpenOff": "Tú abres las respuestas en cada pregunta."
+    "autoOpenOff": "Tú abres las respuestas en cada pregunta.",
+    "ready": "Lista"
   },
   "present": {
     "pickTitle": "Elige una presentación",

@@ -1,20 +1,13 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MoodDemo } from './MoodDemo'
+import { IcebreakerCard } from './IcebreakerCard'
 import { useLandingMotion } from './motion'
 
 const BOARD = [
   { col: 'well', notes: [0], votes: [3] },
   { col: 'improve', notes: [1, 3], votes: [5, 2] },
   { col: 'actions', notes: [2, 4], votes: [4, 1] },
-] as const
-
-/** Real seed jokes, one per language, shown in their own language and direction. */
-const FUN_CARDS = [
-  { lang: 'fr', text: 'Que dit un escargot quand il croise une limace ? « Oh, un nudiste ! »' },
-  { lang: 'es', text: '—¿Qué le dice una iguana a su hermana gemela? —¡Somos iguanitas!' },
-  { lang: 'ar', text: 'قال الحاسوب لصاحبه: أنا متعب. فقال له: نَم قليلًا. فدخل في وضع السكون!' },
-  { lang: 'en', text: "Why don't eggs tell jokes? They'd crack each other up." },
 ] as const
 
 export function BoardDemo() {
@@ -37,20 +30,6 @@ export function BoardDemo() {
         </div>
       ))}
     </div>
-  )
-}
-
-export function Jokes() {
-  const { t } = useTranslation()
-  return (
-    <ul className="jokes">
-      {FUN_CARDS.map((c) => (
-        <li key={c.lang} className="joke" lang={c.lang} dir={c.lang === 'ar' ? 'rtl' : 'ltr'}>
-          <span className="joke__lang" aria-hidden="true">{t(`common.languageShort.${c.lang}`)}</span>
-          <p>{c.text}</p>
-        </li>
-      ))}
-    </ul>
   )
 }
 
@@ -84,14 +63,14 @@ function Job({ id, title, body, children }: { id: string; title: string; body: s
   )
 }
 
-/** Three rows, no cards: each job shown by the real thing, at real size. */
+/** Three rows, no cards: each job shown by the real thing, at real size. The side alternates per row. */
 export function Jobs({ motion }: { motion: boolean }) {
   const { t } = useTranslation()
   return (
     <section id="jobs" className="jobs" aria-label={t('landing.jobs.title')}>
       <Job id="feel" title={t('landing.feel.title')} body={t('landing.feel.body')}><MoodDemo motion={motion} /></Job>
       <Job id="work" title={t('landing.work.title')} body={t('landing.work.body')}><BoardDemo /></Job>
-      <Job id="fun" title={t('landing.fun.title')} body={t('landing.fun.body')}><Jokes /></Job>
+      <Job id="fun" title={t('landing.fun.title')} body={t('landing.fun.body')}><IcebreakerCard /></Job>
     </section>
   )
 }

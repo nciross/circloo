@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { ArrowRight, Check, Pause, Play, Plus, Undo2 } from 'lucide-react'
+import { ArrowRight, Check, Pause, Play, Plus, Undo2, UserRound } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { ButtonLink } from '../../components/Button'
 import { Wordmark } from '../../components/Brand'
+import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { useUiStore } from '../../stores/ui'
 import type { BirdMood } from '../pirikoo/Bird'
@@ -14,17 +15,43 @@ import { useStillMotion } from './useMotion'
 import { useCompose, type Words } from './useCompose'
 import type { Composition } from './compose'
 import { Say } from './Say'
-import { Made } from './Made'
+import { Arrow, Made } from './Made'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import '../../styles/landing.css'
 
 const AUTO_DEMO_MS = 1200
 
+/** The yellow marker stroke under the last line of the title. */
+const Underline = () => (
+  <svg className="console__stroke" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M3 9 C 40 3, 80 11, 120 6 S 180 4, 197 8" />
+  </svg>
+)
+
+/** Two small flat props on the hero's bottom edge: a sticky-note corner and a pencil. Colours live in the SVG. */
+const Props = () => (
+  <>
+    <svg className="console__prop console__prop--note" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+      <path d="M12 18 L 108 6 L 118 80 L 2 80 Z" fill="#fff3b0" />
+      <path d="M12 18 L 108 6 L 118 80" fill="none" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M30 40 L 90 34 M 32 54 L 80 50" stroke="#111111" strokeWidth="3" strokeLinecap="round" opacity="0.35" />
+    </svg>
+    <svg className="console__prop console__prop--pencil" viewBox="0 0 160 40" aria-hidden="true" focusable="false">
+      <path d="M20 12 L 130 12 L 130 28 L 20 28 Z" fill="#ffd23f" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M130 12 L 154 20 L 130 28 Z" fill="#f4e3c0" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M146 17.5 L 154 20 L 146 22.5 Z" fill="#111111" />
+      <path d="M8 12 L 20 12 L 20 28 L 8 28 Z" fill="#ef4a32" stroke="#111111" strokeWidth="3" strokeLinejoin="round" />
+      <path d="M36 20 L 118 20" stroke="#111111" strokeWidth="3" strokeLinecap="round" opacity="0.25" />
+    </svg>
+  </>
+)
+
 /**
- * The landing (issue #247): the prompt is the product. One line composes a circle in front of the visitor, then the
- * story clips, the three jobs shown by the real thing, the four languages, the integrations, the free plan, the FAQ
- * and one more line. Mobile first; every animation has a still path and a pause.
+ * The landing (issue #247, buddy list #250): the prompt is the product. One line composes a circle in front of the
+ * visitor on a cobalt field, then the story clips, the three jobs shown by the real thing, the four languages, the
+ * integrations, the free plan, the FAQ and one more line, all on white. Mobile first; every animation has a still
+ * path and a pause.
  */
 export function Landing() {
   const { t, i18n } = useTranslation()
@@ -87,44 +114,43 @@ export function Landing() {
 
   return (
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
-      <SiteHeader
-        links={
-          <nav className="sitebar__links" aria-label={t('landing.nav.label')}>
-            <a href="#story">{t('landing.nav.story')}</a>
-            <a href="#jobs">{t('landing.nav.jobs')}</a>
-            <a href="#free">{t('landing.nav.free')}</a>
-            <a href="#faq">{t('landing.nav.faq')}</a>
-          </nav>
-        }
-      >
-        <ButtonLink to="/signin" variant="subtle" size="sm" className="sitebar__signin">{t('common.signIn')}</ButtonLink>
-        <ButtonLink to="/signin" size="sm">{t('landing.cta')}</ButtonLink>
+      <SiteHeader tone="field" showLanguages={false}>
+        <Link to="/signin" className="sitebar__signin" viewTransition>{t('common.signIn')}</Link>
+        <LanguageMenu />
+        <ButtonLink to="/signin" variant="default" size="sm" icon={<UserRound size={16} strokeWidth={2.25} />}>{t('landing.cta')}</ButtonLink>
       </SiteHeader>
 
       <main id="main">
-        <section id="start" className="console" aria-labelledby="hero-title">
+        <section id="start" className="console on-field" aria-labelledby="hero-title">
           <div className="console__inner">
             <div className="console__copy">
               <h1 id="hero-title" className="console__title">
-                {t('landing.hero.title')} <span className="console__title2">{t('landing.hero.title2')}</span>
+                {t('landing.hero.title')} <span className="console__title2">{t('landing.hero.title2')}<Underline /></span>
               </h1>
-              <Say
-                text={text}
-                onText={setText}
-                onBuild={build}
-                onTouch={() => { touched.current = true }}
-                mood={mood}
-                idle={playing ? 'idle' : undefined}
-                examples={examples}
-              />
+              <p className="console__lead">{t('landing.hero.lead')}</p>
+              <div className="console__say">
+                <Say
+                  text={text}
+                  onText={setText}
+                  onBuild={build}
+                  onTouch={() => { touched.current = true }}
+                  mood={mood}
+                  idle={playing ? 'idle' : undefined}
+                  examples={examples}
+                />
+                <span className="note note--say" aria-hidden="true">
+                  <span className="note__text">{t('landing.notes.say')}</span>
+                  <Arrow />
+                </span>
+              </div>
+              <ul className="console__facts">
+                {facts.map((f) => <li key={f}><bdi>{f}</bdi></li>)}
+              </ul>
             </div>
             <div id="made" className="console__made">
               <Made run={run} motion={playing} />
             </div>
             <div className="console__foot">
-              <ul className="console__facts">
-                {facts.map((f) => <li key={f}><Check size={16} aria-hidden="true" /> <bdi>{f}</bdi></li>)}
-              </ul>
               <div className="hero__motion">
                 {motion.offered ? (
                   <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
@@ -141,6 +167,7 @@ export function Landing() {
               </div>
             </div>
           </div>
+          <Props />
         </section>
 
         <Player still={motion.still} />
@@ -159,24 +186,30 @@ export function Landing() {
 
         <section id="integrations" className="plugs" aria-labelledby="plugs-title">
           <div className="plugs__inner">
-            <div className="section-head">
-              <h2 id="plugs-title" className="section-title">{t('landing.integrations.title')}</h2>
-              <p className="section-lead">{t('landing.integrations.body')}</p>
+            <div className="panel panel--dark plugs__card">
+              <div className="panel__head">
+                <h2 id="plugs-title" className="panel__title">{t('landing.integrations.title')}</h2>
+              </div>
+              <div className="panel__body">
+                <p className="plugs__lead">{t('landing.integrations.body')}</p>
+                <ul className="plugs__list">
+                  {INTEGRATIONS.map((p) => (
+                    <li key={p.id} className="buddy plug">
+                      <span className="buddy__char plug__logos" aria-hidden="true">
+                        {p.logos.map((l) => <img key={l} className="plug__logo" src={`/brands/${l}.svg`} alt="" width="44" height="44" />)}
+                      </span>
+                      <span className="buddy__name plug__name" lang="en" dir="ltr">{p.name}</span>
+                      <span className="buddy__status plug__what">{t(`landing.integrations.items.${p.id}`)}</span>
+                      <span className="buddy__value plug__status">
+                        {p.id === 'salesforce'
+                          ? <span className="lozenge">{t('landing.integrations.stamp')}</span>
+                          : <span className="lozenge lozenge--success">{t('landing.integrations.available')}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <ul className="plugs__list">
-              {INTEGRATIONS.map((p) => (
-                <li key={p.id} className="plug">
-                  <span className="plug__logos" aria-hidden="true">
-                    {p.logos.map((l) => <img key={l} className="plug__logo" src={`/brands/${l}.svg`} alt="" width="36" height="36" />)}
-                  </span>
-                  <span className="plug__name" lang="en" dir="ltr">{p.name}</span>
-                  <span className="plug__what">{t(`landing.integrations.items.${p.id}`)}</span>
-                  {p.id === 'salesforce'
-                    ? <span className="lozenge lozenge--neutral plug__status">{t('landing.integrations.stamp')}</span>
-                    : <span className="lozenge lozenge--success plug__status">{t('landing.integrations.available')}</span>}
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 
@@ -184,7 +217,7 @@ export function Landing() {
           <div className="free__inner">
             <h2 id="free-title" className="section-title">{t('landing.free.title')}</h2>
             <ul className="free__facts">
-              {free.map((f) => <li key={f}><Check size={18} aria-hidden="true" /> {f}</li>)}
+              {free.map((f) => <li key={f}><Check size={20} strokeWidth={2.5} aria-hidden="true" /> {f}</li>)}
             </ul>
             <ButtonLink to="/signin" size="lg" icon={arrow}>{t('landing.free.cta')}</ButtonLink>
           </div>
@@ -196,7 +229,7 @@ export function Landing() {
             <div className="faq__list">
               {faq.map((f, i) => (
                 <details key={f.q} className="faqrow" name="faq" open={i === 0}>
-                  <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={18} /></span></summary>
+                  <summary className="faqrow__sum"><span>{f.q}</span><span className="faqrow__plus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span></summary>
                   <div className="faqrow__body"><p>{f.a}</p></div>
                 </details>
               ))}
@@ -207,7 +240,7 @@ export function Landing() {
         <section className="again" aria-labelledby="again-title">
           <div className="again__inner">
             <h2 id="again-title" className="again__title">{t('landing.final.title')}</h2>
-            <p>{t('landing.final.body')}</p>
+            <p className="again__lead">{t('landing.final.body')}</p>
             <Say
               compact
               text={text}

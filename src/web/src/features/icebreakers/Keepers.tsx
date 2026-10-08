@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Heart, Trash2 } from 'lucide-react'
 import { useDeleteMine, useFavourites, useMine, useToggleFavourite, type Spark } from '../../api/sparks'
 import { useDeckStore } from '../../stores/deck'
+import { Button } from '../../components/Button'
 import { Segmented } from '../../components/Segmented'
 
 /** The keepers shelf: favourites and the AI cards a member decided to keep. */
@@ -54,7 +55,10 @@ export function Keepers() {
         <ul ref={listRef} className="keepers__list">
           {(list ?? []).map((s, i) => (
             <li key={s.id} className={`keeper keeper--${s.kind}`} lang={s.lang}>
-              <button type="button" className="keeper__open" dir="auto" aria-describedby="keepers-put" onClick={() => pin(s)}>{s.text}</button>
+              <p className="keeper__text" dir="auto">{s.text}</p>
+              <Button size="sm" variant="default" className="keeper__open" aria-label={`${t('ice.keepers.putOnBoard')}: ${s.text.slice(0, 40)}`} onClick={() => pin(s)}>
+                {t('ice.keepers.putOnBoard')}
+              </Button>
               {tab === 'favourites' ? (
                 <button type="button" className="keeper__icon" aria-label={`${t('ice.card.favourite')}: ${s.text.slice(0, 40)}`} aria-pressed="true"
                   onClick={() => { setFailed(false); toggle.mutate({ id: s.id, on: false }, { onSuccess: () => afterRemove(i), onError: onFail }) }}>
@@ -70,7 +74,6 @@ export function Keepers() {
           ))}
         </ul>
       )}
-      <p id="keepers-put" className="visually-hidden">{t('ice.keepers.putOnBoard')}</p>
     </section>
   )
 }

@@ -1,26 +1,26 @@
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { DoorClosed, Ellipsis, House } from 'lucide-react'
 import type { Member } from '../../../api/circles'
 import { Button } from '../../../components/Button'
 import { Character } from '../../../components/Character'
-import { Ring } from '../../../components/Ring'
+import { Meter } from '../../../components/Meter'
 import { usePopover } from '../../../components/usePopover'
 import { activityById } from '../catalog'
 import { serverNow } from '../present/presentation'
 import { SendResults } from '../SendResults'
-import { Count } from './Count'
 import { useWide } from './useSide'
-import { formatElapsed, roundProgress, stripFaces } from './sidebar'
+import { formatElapsed, ROUND_LENGTH_S, stripFaces, stripMore } from './sidebar'
 
 export type RoomStatus = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
 /**
- * The room's work bar, one sticky row under the top bar: the circle's small ring (the people as bodies, you outlined;
- * it opens the People tab), the circle name with its connection status, the round that runs with who started it and
- * the time it has run over a brass rule, and the animator's Send results and Close circle. On phones the animator's
- * actions fold into a "More" menu. A polite status line announces round and connection changes.
+ * The room's work bar, one sticky row under the top bar (buddy list, #250): the circle's name at display size with its
+ * status as an ink lozenge, a stack of the people's characters (it opens the People tab), the round that runs as a chip
+ * with who started it, the time it has run and a small meter under it, and the animator's Send results (outlined) and
+ * Close circle (ink). On phones the animator's actions fold into a "More" menu. A polite status line announces round
+ * and connection changes.
  */
 export function WorkBar({ circleId, name, isAnimator, closed, status, activity, startedBy, startedAt = null, members, online, meId, centreId, onPeople, onClose, closing }: {
   circleId: string
@@ -64,8 +64,8 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
   }
 
   const elapsed = useElapsed(running, startedAt, seen.openedAt)
-  const progress = roundProgress(elapsed)
   const faces = stripFaces(members, online, meId)
+  const more = stripMore(members.length)
   const actions = (shown: boolean) => <RoomActions circleId={circleId} closed={closed} onClose={onClose} closing={closing} shown={shown} />
   const peopleLabel = t('circles.room.peopleStrip', { count: members.length })
 
@@ -78,20 +78,6 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
           <span className="workbar__home-label">{t('common.nav.home')}</span>
         </Link>
       ) : null}
-      {/* The circle as a ring: the people here first, you outlined, "+n" past four. Pressing it opens the People tab. */}
-      <button type="button" className="workbar__people" aria-label={peopleLabel} title={peopleLabel} onClick={onPeople}>
-        <Ring
-          size="sm"
-          className="workbar__ring"
-          bodies={faces.map((m) => ({ id: m.id, character: m.character, name: m.name, ring: m.ring, me: m.id === meId }))}
-          people={members.length}
-          progress={running ? progress : undefined}
-          closed={closed}
-          compose
-          label={peopleLabel}
-        />
-        <Count value={members.length} className="workbar__count" />
-      </button>
       <div className="workbar__id">
         <h1 className="workbar__name" title={name}><bdi>{name}</bdi></h1>
         <span className="room__status workbar__status">
@@ -99,8 +85,17 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
           {word}
         </span>
       </div>
+      {/* The circle as a stack of its people, those here first and "+n" past four. Pressing it opens the People tab. */}
+      <button type="button" className="workbar__people" aria-label={peopleLabel} title={peopleLabel} onClick={onPeople}>
+        <span className="stack workbar__stack" aria-hidden="true">
+          {faces.map((m) => (
+            <Character key={m.id} id={m.character} ring={m.ring} tag={false} className={`workbar__face${m.id === meId ? ' is-me' : ''}`} />
+          ))}
+          {more ? <span className="workbar__stack-more">{more}</span> : null}
+        </span>
+      </button>
       {running ? (
-        <span key={activity} className="workbar__round" data-activity={activity} style={{ '--round-progress': progress } as CSSProperties}>
+        <span key={activity} className="workbar__round" data-activity={activity}>
           {starter ? <Character id={starter.character} ring={starter.ring} tag={false} className="workbar__round-char" /> : null}
           <span className="workbar__round-title">{title}</span>
           {starter ? (
@@ -111,7 +106,7 @@ export function WorkBar({ circleId, name, isAnimator, closed, status, activity, 
           <span className="workbar__round-time" role="timer" aria-label={t('circles.room.elapsed', { time: formatElapsed(elapsed) })}>
             <bdi dir="ltr" aria-hidden="true">{formatElapsed(elapsed)}</bdi>
           </span>
-          <span className="workbar__round-rule" aria-hidden="true"><span className="workbar__round-fill" /></span>
+          <Meter size="sm" tone="ink" value={elapsed} max={ROUND_LENGTH_S} className="workbar__round-meter" />
         </span>
       ) : null}
       <div className="workbar__end">
@@ -173,7 +168,7 @@ function RoomActions({ circleId, closed, onClose, closing, shown }: { circleId: 
       <SendResults circleId={circleId} />
       <Button
         ref={closeRef}
-        variant="default"
+        variant="primary"
         className="room__close"
         icon={<DoorClosed size={16} />}
         onClick={() => {

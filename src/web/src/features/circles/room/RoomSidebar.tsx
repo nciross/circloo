@@ -16,7 +16,8 @@ export interface SideTab {
 }
 
 /**
- * The room's side area, on the inline end like a meeting rail. From 960 px: a column, collapsible to an icon rail with one
+ * The room's side area, on the inline end like a meeting rail: open, it is the room's one dark card (buddy list, #250).
+ * From 960 px: a column, collapsible to an icon rail with one
  * button per tab (and its count) that opens the column on that tab. Below 960 px: a bottom sheet, half height by default,
  * expandable, closable to a pill; the page keeps room below the content for it, so it never covers the answer pad or the
  * presenter controls (FR-807). Tabs are data.
@@ -67,7 +68,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
   const flip = 'room-side__flip'
   const railName = (x: SideTab) => (x.badge && x.badgeLabel ? `${x.label}, ${x.badgeLabel}` : x.label)
   return (
-    <aside className={`room-side${open ? ' is-open' : ' is-closed'}${!wide && sheet === 'full' ? ' is-full' : ''}`} aria-label={t('circles.room.sideLabel')} data-slot="room-side">
+    <aside className={`room-side${open ? ' is-open card--dark' : ' is-closed'}${!wide && sheet === 'full' ? ' is-full' : ''}`} aria-label={t('circles.room.sideLabel')} data-slot="room-side">
       {wide ? (
         <div className="room-side__rail" hidden={open}>
           <button
