@@ -1,272 +1,273 @@
 /**
- * Store and hub bindings of the live discussion stage (spec 009, contracts/hub.md).
+ * Store and hub bindings of the group call (spec 009, contracts/hub.md and contracts/rest.md), built on the call engine
+ * (`call.ts`). The hub carries the switches, the roster, notices and the animator's actions; audio and video go through
+ * the call server with a pass fetched once per Join.
  *
- * The store talks to the hub only through the injected `invoke` (see `configureStage`), so it can be tested with a
- * fake hub and does not call hub methods before the room wires it up (T906). Nobody asks for a camera or a microphone
- * until a device action runs, and everyone joins the stage muted with the camera off.
+ * Nobody asks for a camera or a microphone until a device action runs, everyone joins with both off, and nothing is ever
+ * switched on by the server or by a notice. The store reaches the hub only through the injected `invoke` (see
+ * `configureStage`) and the engine only through `createEngine`, so both are faked in tests.
  */
 import { create } from 'zustand'
 import type { HubConnection } from '@microsoft/signalr'
-import { fetchIce, type IceConfig, type Seat, type SignalKind, type StageNoticeKind, type StageView } from '../../../api/discussion'
-import type { DiscussionState, RecordingState } from '../../../api/circles'
-import { mediaSupported, openMedia, type MediaProblem, type OpenedMedia } from './media'
-import { MeshManager, type MeshMode } from './mesh'
-import type { LinkState, Receiving } from './link'
+import { ApiError } from '../../../api/client'
+import { CALL_NOTICE_KINDS, fetchCallPass, type CallNoticeKind, type CallPass } from '../../../api/discussion'
+import type { DiscussionState } from '../../../api/circles'
+import { mediaSupported, type MediaKind, type MediaProblem } from './media'
+import { createCallEngine, type CallConnection, type CallEngine, type CallListener, type CallParticipant, type CallRights } from './call'
 
-export interface MyMedia {
-  audioOn: boolean
-  videoOn: boolean
-  /** Why a device did not start; the UI explains it (T907). A working microphone with a failed camera is audio only. */
-  problem: MediaProblem | null
-}
+export type { CallConnection, CallParticipant, CallRights } from './call'
 
-export interface Announcement {
+/**
+ * Why joining failed or the call dropped, as a key under `circles.call.errors`. The server's codes come through as they
+ * are; `unreachable` is a call server the browser cannot reach, `lost` a connection that did not come back.
+ */
+export type CallError =
+  | 'calls-unavailable' | 'call-off' | 'removed-from-call' | 'try-again' | 'slow-down'
+  | 'unreachable' | 'unsupported' | 'lost' | 'joined-elsewhere'
+
+export interface CallNotice {
   id: number
-  kind: StageNoticeKind
+  kind: CallNoticeKind
   byMemberId: string | null
+  subjectMemberId: string | null
 }
 
-export interface LinkInfo {
-  memberId: string
-  state: LinkState
-  receiving: Receiving
+export interface MyDevices {
+  mic: boolean
+  camera: boolean
 }
+
+export type Source = 'microphone' | 'camera'
 
 interface StageState {
   discussion: DiscussionState | null
-  seats: Seat[]
-  watching: number
-  recording: RecordingState | null
-  /** Seconds left before the recording cap, from the animator's warning. */
-  recordingWarning: number | null
-  mode: MeshMode
-  myMedia: MyMedia
-  links: LinkInfo[]
-  announcements: Announcement[]
-  joinStage: () => Promise<void>
-  leaveStage: () => Promise<void>
-  watchStage: () => Promise<void>
-  stopWatching: () => Promise<void>
-  /** Turns the microphone and camera on or off. Asking for a device happens here and only here. */
-  setMedia: (audio: boolean, video: boolean) => Promise<void>
-  /** After a dropped connection: take the seat again and report the devices. */
-  rejoin: () => Promise<void>
-  dismissAnnouncement: (id: number) => void
+  /** Member ids in the call, from the call server through the hub (never on the audience screen). */
+  roster: string[]
+  connection: CallConnection
+  error: CallError | null
+  /** What the call server lets you publish; null while you are not in the call. */
+  myPermissions: CallRights | null
+  me: MyDevices
+  /** Why the last device did not start; the UI explains it (T907). */
+  deviceProblem: { kind: MediaKind; problem: MediaProblem } | null
+  /** The browser blocks the call's sound until a tap calls `startAudio`. */
+  audioBlocked: boolean
+  participants: CallParticipant[]
+  notices: CallNotice[]
+  /** Joins the call. Call it from the Join tap: it starts the sound there. */
+  join: () => Promise<void>
+  leave: () => Promise<void>
+  /** Switches the microphone. Asking for the device happens here and only here. */
+  setMic: (on: boolean) => Promise<void>
+  setCamera: (on: boolean) => Promise<void>
+  startAudio: () => Promise<void>
+  dismissNotice: (id: number) => void
   /** Starts the call, or changes video and the speaking mode while it is on. The mode stays as it is unless given. */
   enableDiscussion: (videoAllowed: boolean, speaking?: DiscussionState['speaking']) => Promise<void>
   disableDiscussion: () => Promise<void>
+  setSpeakingMode: (mode: DiscussionState['speaking']) => Promise<void>
   giveFloor: (memberId: string) => Promise<void>
+  /** Lowers the floor holder's hand, which ends their turn (research R33). */
   takeFloor: (memberId: string) => Promise<void>
-  removeFromStage: (memberId: string) => Promise<void>
-  muteMember: (memberId: string) => Promise<void>
-  allowUnmute: (memberId: string) => Promise<void>
+  muteMember: (memberId: string, source: Source) => Promise<void>
+  allowMember: (memberId: string, source: Source) => Promise<void>
+  muteEveryone: () => Promise<void>
+  removeFromCall: (memberId: string) => Promise<void>
+  allowBack: (memberId: string) => Promise<void>
 }
 
 export interface StageDeps {
   invoke: (method: string, ...args: unknown[]) => Promise<void>
-  fetchIce: (circleId: string) => Promise<IceConfig>
-  createPeer: (config: RTCConfiguration) => RTCPeerConnection
-  openMedia: (want: { audio: boolean; video: boolean }) => Promise<OpenedMedia>
+  fetchPass: (circleId: string) => Promise<CallPass>
+  createEngine: (listener: CallListener) => Promise<CallEngine>
 }
 
 const offline = () => Promise.reject(new Error('offline'))
 const defaults: StageDeps = {
-  // Not wired to the room's hub yet: T906 passes the room's `invoke` through configureStage.
+  // Wired to the room's hub by configureStage.
   invoke: offline,
-  fetchIce,
-  createPeer: (c) => new RTCPeerConnection(c),
-  openMedia,
+  fetchPass: fetchCallPass,
+  createEngine: (listener) => createCallEngine(listener),
 }
 
 let deps: StageDeps = defaults
-let who: { circleId: string; selfId: string } | null = null
-let mesh: MeshManager | null = null
+let circleId: string | null = null
+/** The engine of the current join; events of an older one are ignored by their generation. */
+let engine: CallEngine | null = null
+let generation = 0
 let noticeId = 0
-const MAX_ANNOUNCEMENTS = 20
-const NO_MEDIA: MyMedia = { audioOn: false, videoOn: false, problem: null }
+const MAX_NOTICES = 20
+const OFF: MyDevices = { mic: false, camera: false }
+const NOT_IN_CALL = { connection: 'idle' as CallConnection, myPermissions: null, me: OFF, participants: [], audioBlocked: false, deviceProblem: null }
+const SERVER_ERRORS = new Set<string>(['calls-unavailable', 'call-off', 'removed-from-call', 'try-again'])
+const NOTICE_KINDS = new Set<string>(CALL_NOTICE_KINDS)
 
-/** Says which circle and who you are, and how to reach the hub. Call it when the room is entered. */
-export function configureStage(c: { circleId: string; selfId: string; deps?: Partial<StageDeps> }) {
-  teardown()
-  who = { circleId: c.circleId, selfId: c.selfId }
+/** Says which circle and how to reach the hub. Call it when the room is entered. */
+export function configureStage(c: { circleId: string; deps?: Partial<StageDeps> }) {
+  void endCall()
+  circleId = c.circleId
   deps = { ...defaults, ...c.deps }
 }
 
-function ensureMesh(): MeshManager {
-  if (!who) throw new Error('not-configured')
-  const { circleId, selfId } = who
-  mesh ??= new MeshManager({
-    selfId,
-    createPeer: (c) => deps.createPeer(c),
-    getIce: () => deps.fetchIce(circleId),
-    // A refused signal (limits, unknown seat) only means that link does not come up; never an error for the person.
-    send: (to, kind, linkId, payload) => void deps.invoke('Signal', to, kind, linkId, payload).catch(() => undefined),
-    // The server no longer sends mesh limits (spec 009, 2026-10-08); the mesh itself goes with T924.
-    limits: () => ({ stageMax: 8, listenersMax: 8 }),
-    onChange: () => useStage.setState({ links: mesh?.snapshot() ?? [] }),
-  })
-  return mesh
+/** Joining needs WebRTC; devices are checked one by one later. */
+export const callSupported = () => typeof RTCPeerConnection !== 'undefined'
+
+/** Local end: the engine disconnects and every track stops; the store forgets the call. */
+async function endCall(state: Partial<StageState> = {}) {
+  generation++
+  const e = engine
+  engine = null
+  useStage.setState({ ...NOT_IN_CALL, ...state })
+  await e?.leave().catch(() => undefined)
 }
 
-/** Local teardown: links closed, camera and microphone stopped, nothing left running. */
-function teardown() {
-  mesh?.close()
-  mesh = null
-  useStage.setState({ mode: 'none', myMedia: NO_MEDIA, links: [] })
+function listenerFor(gen: number): CallListener {
+  const live = () => gen === generation
+  const set = (s: Partial<StageState>) => {
+    if (live()) useStage.setState(s)
+  }
+  return {
+    onConnection: (connection) => set({ connection }),
+    onEnded: (reason) => {
+      if (!live()) return
+      // Removed and ended arrive as notices from the hub too; they leave nothing to fix.
+      if (reason === 'lost') void endCall({ connection: 'failed', error: 'lost' })
+      else void endCall({ error: reason === 'elsewhere' ? 'joined-elsewhere' : null })
+    },
+    onParticipants: (participants) => set({ participants }),
+    onRights: (myPermissions) => set({ myPermissions }),
+    onDevices: (me) => set({ me }),
+    onDeviceProblem: (kind, problem) => set({ deviceProblem: { kind, problem } }),
+    onAudioBlocked: (audioBlocked) => set({ audioBlocked }),
+  }
 }
 
-function announce(kind: StageNoticeKind, byMemberId: string | null) {
-  useStage.setState((s) => ({ announcements: [...s.announcements, { id: ++noticeId, kind, byMemberId }].slice(-MAX_ANNOUNCEMENTS) }))
+function passError(e: unknown): CallError {
+  if (!(e instanceof ApiError)) return 'try-again'
+  if (e.status === 429) return 'slow-down'
+  return e.type && SERVER_ERRORS.has(e.type) ? (e.type as CallError) : 'try-again'
+}
+
+function announce(kind: CallNoticeKind, byMemberId: string | null, subjectMemberId: string | null) {
+  useStage.setState((s) => ({ notices: [...s.notices, { id: ++noticeId, kind, byMemberId, subjectMemberId }].slice(-MAX_NOTICES) }))
 }
 
 const call = (method: string, ...args: unknown[]) => deps.invoke(method, ...args)
+const inCall = (c: CallConnection) => c === 'connected' || c === 'reconnecting'
 
 export const useStage = create<StageState>()((set, get) => ({
   discussion: null,
-  seats: [],
-  watching: 0,
-  recording: null,
-  recordingWarning: null,
-  mode: 'none',
-  myMedia: NO_MEDIA,
-  links: [],
-  announcements: [],
-  joinStage: async () => {
-    const m = ensureMesh()
-    // Fresh ICE servers first (client behaviour in the contract); no media is requested here.
-    await m.warmIce()
-    await call('JoinStage')
-    m.setMode('stage')
-    set({ mode: 'stage', myMedia: NO_MEDIA })
-    m.apply({ seats: get().seats, watching: get().watching })
-  },
-  leaveStage: async () => {
+  roster: [],
+  error: null,
+  notices: [],
+  ...NOT_IN_CALL,
+  join: async () => {
+    const { connection, discussion } = get()
+    if (connection === 'joining' || inCall(connection) || !circleId) return
+    if (discussion && !discussion.on) return set({ connection: 'failed', error: 'call-off' })
+    if (!callSupported()) return set({ connection: 'failed', error: 'unsupported' })
+    const gen = ++generation
+    set({ ...NOT_IN_CALL, connection: 'joining', error: null })
+    // The pass and the engine's code load side by side; the pass is fetched once per join.
+    const created = deps.createEngine(listenerFor(gen))
+    created.catch(() => undefined)
+    let pass: CallPass
     try {
-      await call('LeaveStage')
-    } finally {
-      teardown()
-    }
-  },
-  watchStage: async () => {
-    const m = ensureMesh()
-    await m.warmIce()
-    await call('WatchStage')
-    m.setMode('viewer')
-    set({ mode: 'viewer', myMedia: NO_MEDIA })
-    m.apply({ seats: get().seats, watching: get().watching })
-  },
-  stopWatching: async () => {
-    try {
-      await call('StopWatching')
-    } finally {
-      teardown()
-    }
-  },
-  setMedia: async (audio, video) => {
-    const m = mesh
-    if (!m || get().mode !== 'stage') return
-    const before = get().myMedia
-    const allowVideo = video && (get().discussion?.videoAllowed ?? false)
-    let problem: MediaProblem | null = null
-    if ((audio && !before.audioOn) || (allowVideo && !before.videoOn)) {
-      const opened = await deps.openMedia({ audio: audio && !before.audioOn, video: allowVideo && !before.videoOn })
-      problem = opened.problem
-      if (opened.audio) m.setLocalTrack('audio', opened.audio)
-      if (opened.video) m.setLocalTrack('video', opened.video)
-    }
-    if (!audio) m.setLocalTrack('audio', null)
-    if (!video) m.setLocalTrack('video', null)
-    const next: MyMedia = {
-      audioOn: audio && (before.audioOn || m.hasTrack('audio')),
-      videoOn: allowVideo && (before.videoOn || m.hasTrack('video')),
-      problem,
-    }
-    set({ myMedia: next })
-    try {
-      await call('SetMedia', next.audioOn, next.videoOn)
+      pass = await deps.fetchPass(circleId)
     } catch (e) {
-      // The server refused (muted by the animator, cameras off): nothing stays on.
-      m.setLocalTrack('audio', null)
-      m.setLocalTrack('video', null)
-      set({ myMedia: NO_MEDIA })
-      throw e
-    }
-  },
-  rejoin: async () => {
-    const { mode, myMedia } = get()
-    if (mode === 'none' || !mesh) return
-    mesh.reset()
-    try {
-      await call(mode === 'stage' ? 'JoinStage' : 'WatchStage')
-      if (mode === 'stage') await call('SetMedia', myMedia.audioOn, myMedia.videoOn)
-    } catch {
-      teardown()
+      void created.then((x) => x.leave()).catch(() => undefined)
+      if (gen === generation) set({ connection: 'failed', error: passError(e) })
       return
     }
-    // Local tracks are still live; the next Stage view (pushed on Enter) opens the links again.
-    mesh.apply({ seats: get().seats, watching: get().watching })
+    let e: CallEngine
+    try {
+      e = await created
+    } catch {
+      if (gen === generation) set({ connection: 'failed', error: 'try-again' })
+      return
+    }
+    if (gen !== generation) {
+      await e.leave().catch(() => undefined)
+      return
+    }
+    engine = e
+    set({ myPermissions: { canSpeak: pass.canSpeak, canVideo: pass.canVideo } })
+    try {
+      await e.connect(pass)
+    } catch {
+      if (gen === generation) await endCall({ connection: 'failed', error: 'unreachable' })
+      return
+    }
+    if (gen === generation) set({ connection: 'connected' })
   },
-  dismissAnnouncement: (id) => set((s) => ({ announcements: s.announcements.filter((a) => a.id !== id) })),
+  leave: () => endCall({ error: null }),
+  setMic: async (on) => {
+    const e = engine
+    if (!e || !inCall(get().connection)) return
+    if (on) {
+      // A revoked microphone (Hand to speak without the floor, muted by the animator) is a disabled button: no request.
+      if (!get().myPermissions?.canSpeak) return
+      if (!mediaSupported()) return set({ deviceProblem: { kind: 'audio', problem: 'unsupported' } })
+      set({ deviceProblem: null })
+    }
+    await e.setMic(on)
+  },
+  setCamera: async (on) => {
+    const e = engine
+    if (!e || !inCall(get().connection)) return
+    if (on) {
+      if (!get().myPermissions?.canVideo || get().discussion?.videoAllowed === false) return
+      if (!mediaSupported()) return set({ deviceProblem: { kind: 'video', problem: 'unsupported' } })
+      set({ deviceProblem: null })
+    }
+    await e.setCamera(on)
+  },
+  startAudio: async () => {
+    await engine?.startAudio()
+  },
+  dismissNotice: (id) => set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })),
   enableDiscussion: (videoAllowed, speaking) =>
     call('EnableDiscussion', videoAllowed, speaking ?? get().discussion?.speaking ?? 'hand'),
   disableDiscussion: () => call('DisableDiscussion'),
+  setSpeakingMode: (mode) => call('SetSpeakingMode', mode),
   giveFloor: (memberId) => call('GiveFloor', memberId),
-  takeFloor: (memberId) => call('TakeFloor', memberId),
-  removeFromStage: (memberId) => call('RemoveFromStage', memberId),
-  muteMember: (memberId) => call('MuteMember', memberId),
-  allowUnmute: (memberId) => call('AllowUnmute', memberId),
+  takeFloor: (memberId) => call('LowerHand', memberId),
+  muteMember: (memberId, source) => call('MuteMember', memberId, source),
+  allowMember: (memberId, source) => call('AllowMember', memberId, source),
+  muteEveryone: () => call('MuteEveryone'),
+  removeFromCall: (memberId) => call('RemoveFromCall', memberId),
+  allowBack: (memberId) => call('AllowBack', memberId),
 }))
 
-/** What the browser needs before anyone can join (R14). */
-export const stageSupported = mediaSupported
-
-/** Notices that end your seat: the media stops at once, whatever the Stage view says next. */
-const SEAT_ENDED = new Set<StageNoticeKind>(['removed', 'floor-taken', 'seat-moved', 'seat-lost', 'discussion-ended'])
-
-const SIGNAL_KINDS = new Set<unknown>(['offer', 'answer', 'ice'])
-/** A forwarded message comes from another browser: only well-formed ones reach the mesh. */
-function isSignal(from: unknown, kind: unknown, linkId: unknown, payload: unknown): kind is SignalKind {
-  return typeof from === 'string' && SIGNAL_KINDS.has(kind) && typeof linkId === 'string' && typeof payload === 'string' && payload.length <= 16_384
-}
+/** Notices that end your call at once, whatever the call server says next. */
+const CALL_ENDED = new Set<string>(['call-ended', 'removed'])
+const optionalId = (v: unknown) => (typeof v === 'string' ? v : null)
 
 /** Hooked to the connection the way `bindPresentation` is; `isCurrent` ignores events from a connection that was replaced. */
 export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () => boolean) {
   connection.on('Discussion', (d: DiscussionState) => {
     if (!isCurrent()) return
     useStage.setState({ discussion: d })
-    if (!d.on && useStage.getState().mode !== 'none') teardown()
-  })
-  connection.on('Stage', (view: StageView) => {
-    if (!isCurrent()) return
-    useStage.setState({ seats: view.seats, watching: view.watching })
-    mesh?.apply(view)
-  })
-  connection.on('StageNotice', (kind: StageNoticeKind, byMemberId?: string | null) => {
-    if (!isCurrent()) return
-    if (SEAT_ENDED.has(kind) && useStage.getState().mode !== 'none') teardown()
-    // The server already switched the microphone off; the device follows.
-    if (kind === 'muted' && mesh) {
-      mesh.setLocalTrack('audio', null)
-      useStage.setState((s) => ({ myMedia: { ...s.myMedia, audioOn: false } }))
+    if (!d.on) {
+      useStage.setState({ roster: [] })
+      if (useStage.getState().connection !== 'idle') void endCall({ error: null })
     }
-    announce(kind, byMemberId ?? null)
   })
-  connection.on('Recording', (r: RecordingState | null) => {
-    if (isCurrent()) useStage.setState({ recording: r, recordingWarning: null })
+  connection.on('CallRoster', (ids: unknown) => {
+    if (!isCurrent() || !Array.isArray(ids)) return
+    useStage.setState({ roster: ids.filter((x): x is string => typeof x === 'string') })
   })
-  connection.on('RecordingWarning', (secondsLeft: number) => {
-    if (isCurrent()) useStage.setState({ recordingWarning: secondsLeft })
-  })
-  connection.on('Signal', (fromMemberId: unknown, kind: unknown, linkId: unknown, payload: unknown) => {
-    if (!isCurrent() || !isSignal(fromMemberId, kind, linkId, payload)) return
-    void mesh?.receive(fromMemberId as string, kind, linkId as string, payload as string)
+  connection.on('CallNotice', (kind: unknown, byMemberId?: unknown, subjectMemberId?: unknown) => {
+    if (!isCurrent() || typeof kind !== 'string' || !NOTICE_KINDS.has(kind)) return
+    if (CALL_ENDED.has(kind) && useStage.getState().connection !== 'idle') void endCall({ error: null })
+    announce(kind as CallNoticeKind, optionalId(byMemberId), optionalId(subjectMemberId))
   })
 }
 
 /** Leaves everything behind: used when the room closes or the circle changes. */
 export function resetStage() {
-  teardown()
-  who = null
+  void endCall({ error: null })
+  circleId = null
   deps = defaults
-  useStage.setState({ discussion: null, seats: [], watching: 0, recording: null, recordingWarning: null, announcements: [] })
+  useStage.setState({ discussion: null, roster: [], notices: [] })
 }

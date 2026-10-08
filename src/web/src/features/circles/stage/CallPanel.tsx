@@ -14,14 +14,14 @@ import { DiscussionSwitch } from './DiscussionSwitch'
 export function CallPanel({ isAnimator, members = [], hands }: { isAnimator: boolean; members?: Member[]; hands?: HandsView }) {
   const { t } = useTranslation()
   const on = useStage((s) => s.discussion?.on ?? false)
-  const seats = useStage((s) => s.seats)
+  const roster = useStage((s) => s.roster)
   const byId = (id: string) => members.find((m) => m.id === id)
 
-  // Discussion on: the seats are the stage, those on it have the floor. Off: the one 008 floor marker, if any.
+  // Call on: the people in the call, the floor holder outlined. Off: the one 008 floor marker, if any. The call UI is T925.
   const tiles = on
-    ? seats.flatMap((seat) => {
-        const member = byId(seat.memberId)
-        return member ? [{ member, floor: seat.state === 'onStage', dim: seat.state !== 'onStage' }] : []
+    ? roster.flatMap((id) => {
+        const member = byId(id)
+        return member ? [{ member, floor: hands?.floor === id, dim: false }] : []
       })
     : hands?.floor && byId(hands.floor)
       ? [{ member: byId(hands.floor)!, floor: true, dim: false }]
