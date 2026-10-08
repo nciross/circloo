@@ -19,3 +19,27 @@ public static class DiscussionRules
     /// <summary>Cameras are allowed only while the call is on and it is a video call (kids-safe path).</summary>
     public static bool VideoAllowed(Circle circle) => circle.DiscussionOn && circle.DiscussionVideo;
 }
+
+/// <summary>
+/// The kinds of <c>CallNotice</c> (contracts/hub.md). The first group goes to the whole circle, the second to one
+/// member's connections. The client words them. They are never stored (FR-930).
+/// </summary>
+public static class CallNoticeKinds
+{
+    public const string CallStarted = "call-started";
+    public const string CallEnded = "call-ended";
+    public const string VideoOn = "video-on";
+    public const string VideoOff = "video-off";
+    public const string ModeOpen = "mode-open";
+    public const string ModeHand = "mode-hand";
+    public const string MutedEveryone = "muted-everyone";
+
+    public const string FloorGiven = "floor-given";
+    public const string FloorTaken = "floor-taken";
+    public const string MicMuted = "mic-muted";
+    public const string MicAllowed = "mic-allowed";
+    public const string CameraStopped = "camera-stopped";
+    public const string CameraAllowed = "camera-allowed";
+    public const string Removed = "removed";
+    public const string AllowedBack = "allowed-back";
+}

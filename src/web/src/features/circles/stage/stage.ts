@@ -52,7 +52,8 @@ interface StageState {
   /** After a dropped connection: take the seat again and report the devices. */
   rejoin: () => Promise<void>
   dismissAnnouncement: (id: number) => void
-  enableDiscussion: (videoAllowed: boolean) => Promise<void>
+  /** Starts the call, or changes video and the speaking mode while it is on. The mode stays as it is unless given. */
+  enableDiscussion: (videoAllowed: boolean, speaking?: DiscussionState['speaking']) => Promise<void>
   disableDiscussion: () => Promise<void>
   giveFloor: (memberId: string) => Promise<void>
   takeFloor: (memberId: string) => Promise<void>
@@ -206,7 +207,8 @@ export const useStage = create<StageState>()((set, get) => ({
     mesh.apply({ seats: get().seats, watching: get().watching })
   },
   dismissAnnouncement: (id) => set((s) => ({ announcements: s.announcements.filter((a) => a.id !== id) })),
-  enableDiscussion: (videoAllowed) => call('EnableDiscussion', videoAllowed),
+  enableDiscussion: (videoAllowed, speaking) =>
+    call('EnableDiscussion', videoAllowed, speaking ?? get().discussion?.speaking ?? 'hand'),
   disableDiscussion: () => call('DisableDiscussion'),
   giveFloor: (memberId) => call('GiveFloor', memberId),
   takeFloor: (memberId) => call('TakeFloor', memberId),

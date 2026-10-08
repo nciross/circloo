@@ -5,10 +5,10 @@ using Circloo.Api.Data;
 using Circloo.Api.Discussion;
 using Circloo.Api.Tests.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Circloo.Api.Tests.Discussion;
@@ -20,7 +20,7 @@ namespace Circloo.Api.Tests.Discussion;
 [Collection(ApiCollection.Name)]
 public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
 {
-    private const string CallUrl = "wss://lk-test.example.com";
+    private const string CallUrl = FakeLiveKitRooms.Url;
 
     private readonly FakeLiveKitRooms _rooms = new();
     private readonly CapturingLoggerProvider _logs = new();
@@ -29,29 +29,19 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
 
     public Task InitializeAsync()
     {
-        _factory = new ApiFactory(pg.Container.GetConnectionString(), CallServer())
+        _factory = new ApiFactory(pg.Container.GetConnectionString(), FakeLiveKitRooms.Settings())
         {
-            Configure = b => b
-                .ConfigureLogging(l => l.AddProvider(_logs).AddFilter<CapturingLoggerProvider>(null, LogLevel.Trace))
-                .ConfigureTestServices(s =>
-                {
-                    s.RemoveAll<ILiveKitRooms>();
-                    s.AddSingleton<ILiveKitRooms>(_rooms);
-                }),
+            Configure = b =>
+            {
+                b.ConfigureLogging(l => l.AddProvider(_logs).AddFilter<CapturingLoggerProvider>(null, LogLevel.Trace));
+                _rooms.Install(b);
+            },
         };
         _host = new DiscussionHost(_factory);
         return Task.CompletedTask;
     }
 
     public async Task DisposeAsync() => await _factory.DisposeAsync();
-
-    private static Dictionary<string, string?> CallServer() => new()
-    {
-        ["LiveKit:Url"] = CallUrl,
-        ["LiveKit:ApiUrl"] = "https://lk-test.example.com",
-        ["LiveKit:ApiKey"] = LiveKitFixture.ApiKey,
-        ["LiveKit:ApiSecret"] = LiveKitFixture.ApiSecret,
-    };
 
     private static string TokenUrl(Guid circleId) => $"/api/circles/{circleId}/call/token";
 
@@ -65,9 +55,13 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
         return await http.SendAsync(req);
     }
 
-    private Task<int> SetCallAsync(Guid circleId, bool on, bool video = true, string speaking = CallSpeakingModes.Hand) =>
-        _host.Room.DbAsync(db => db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(c => c
-            .SetProperty(x => x.DiscussionOn, on).SetProperty(x => x.DiscussionVideo, video).SetProperty(x => x.DiscussionSpeaking, speaking)));
+    /// <summary>The animator starts the call, or changes it while it is on, through the hub (issue #260).</summary>
+    private async Task StartCallAsync((Guid Id, string Code, HttpClient Http, CookieContainerHandler Cookies, string Csrf) circle,
+        bool video = true, string speaking = CallSpeakingModes.Hand)
+    {
+        await using var animator = await _host.EnteredAsync(circle.Cookies, circle.Id);
+        await animator.InvokeAsync("EnableDiscussion", video, speaking);
+    }
 
     private async Task<(HttpClient Http, string Csrf, CircleMember Member)> GuestAsync(string code, string name = "Guest", string character = "fox")
     {
@@ -85,7 +79,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task A_participant_gets_a_pass_for_this_circle_with_their_identity_room_expiry_and_rights()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true, video: true, speaking: CallSpeakingModes.Hand);
+        await StartCallAsync(circle, video: true, speaking: CallSpeakingModes.Hand);
         var (http, csrf, member) = await GuestAsync(circle.Code, "Kenji");
         var now = _factory.Clock.GetUtcNow();
 
@@ -125,7 +119,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Passes_follow_the_role_the_floor_and_the_mode_read_from_the_database()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true, video: false, speaking: CallSpeakingModes.Hand);
+        await StartCallAsync(circle, video: false, speaking: CallSpeakingModes.Hand);
         var (http, csrf, member) = await GuestAsync(circle.Code);
 
         // Audio call, Hand to speak, no floor: nothing to publish, so canPublish is false (the empty-sources trap).
@@ -151,7 +145,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
         Assert.True(floor.GetProperty("canSpeak").GetBoolean());
 
         // Open mic, but muted by the animator: no microphone until allowed.
-        await SetCallAsync(circle.Id, on: true, video: true, speaking: CallSpeakingModes.Open);
+        await StartCallAsync(circle, video: true, speaking: CallSpeakingModes.Open);
         var moderation = _factory.Services.GetRequiredService<CallModeration>();
         moderation.Mute(circle.Id, member.Id, CallRights.MicrophoneSource);
         var muted = await (await PassAsync(http, circle.Id, csrf)).Content.ReadFromJsonAsync<JsonElement>();
@@ -163,7 +157,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task A_stranger_or_someone_who_left_gets_404_and_the_attempt_is_audited()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         var (stranger, _, strangerId) = await _host.SignedInStrangerAsync();
 
         using var res = await PassAsync(stranger, circle.Id, await stranger.CsrfAsync());
@@ -182,14 +176,15 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
         var other = await _host.Room.CircleAsync();
         using var elsewhere = await PassAsync(other.Http, circle.Id, other.Csrf);
         Assert.Equal(HttpStatusCode.NotFound, elsewhere.StatusCode);
-        Assert.DoesNotContain(_rooms.Created, r => r.Room == CallRules.RoomName(circle.Id));
+        // Only the animator's start opened the room: no refused request did.
+        Assert.Single(_rooms.Created, r => r.Room == CallRules.RoomName(circle.Id));
     }
 
     [Fact]
     public async Task A_closed_circle_gives_no_pass()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         (await circle.Http.PostJsonAsync($"/api/circles/{circle.Id}/close", new { }, circle.Csrf)).EnsureSuccessStatusCode();
 
         using var res = await PassAsync(circle.Http, circle.Id, circle.Csrf);
@@ -228,7 +223,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Someone_removed_from_the_call_gets_no_pass_until_allowed_back()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         var (http, csrf, member) = await GuestAsync(circle.Code);
         var moderation = _factory.Services.GetRequiredService<CallModeration>();
         moderation.Remove(circle.Id, member.Id);
@@ -249,7 +244,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Ten_passes_a_minute_per_member_then_429_with_Retry_After()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         var (http, csrf, _) = await GuestAsync(circle.Code);
 
         for (var i = 0; i < 10; i++)
@@ -273,20 +268,20 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task Without_the_CSRF_header_there_is_no_pass()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
 
         using var res = await PassAsync(circle.Http, circle.Id, csrf: null);
 
         Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
         Assert.Equal("antiforgery", await ProblemTypeAsync(res));
-        Assert.DoesNotContain(_rooms.Created, r => r.Room == CallRules.RoomName(circle.Id));
+        Assert.Single(_rooms.Created, r => r.Room == CallRules.RoomName(circle.Id));
     }
 
     [Fact]
     public async Task Without_a_session_there_is_no_pass()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         var anonymous = _host.Room.Browser().Http;
 
         using var res = await PassAsync(anonymous, circle.Id, await anonymous.CsrfAsync());
@@ -298,7 +293,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task When_the_call_server_does_not_answer_the_member_is_told_to_try_again()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         _rooms.Down = true;
         try
         {
@@ -317,7 +312,7 @@ public sealed class CallTokenTests(PostgresFixture pg) : IAsyncLifetime
     public async Task The_pass_never_reaches_the_logs_and_a_granted_pass_is_not_audited()
     {
         var circle = await _host.Room.CircleAsync();
-        await SetCallAsync(circle.Id, on: true);
+        await StartCallAsync(circle);
         var auditsBefore = await _host.Room.DbAsync(db => db.AuditEvents.CountAsync());
 
         using var res = await PassAsync(circle.Http, circle.Id, circle.Csrf);

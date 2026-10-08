@@ -38,6 +38,12 @@ public static class RateLimits
     /// </summary>
     public const string CallToken = "call-token";
 
+    /// <summary>
+    /// The animator's call actions (spec 009 contracts/hub.md), 30 per 10 s per member across tabs. Counted in the hub
+    /// with <c>RoomLimits</c> and answered <c>slow-down</c>.
+    /// </summary>
+    public const string CallAdmin = "call-admin";
+
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
         var opts = config.GetSection(RateLimitOptions.Section).Get<RateLimitOptions>() ?? new RateLimitOptions();

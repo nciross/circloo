@@ -73,6 +73,8 @@ builder.Services.AddOptions<CircleOptions>().BindConfiguration(CircleOptions.Sec
 DiscussionOptions.AddDiscussion(builder.Services);
 // Group calls (spec 009): passes signed here, rooms driven through the call server's RoomService.
 builder.Services.AddSingleton<CallModeration>();
+builder.Services.AddScoped<CallPermissions>();
+builder.Services.AddScoped<CallLifecycle>();
 LiveKitRooms.AddLiveKitRooms(builder.Services);
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
