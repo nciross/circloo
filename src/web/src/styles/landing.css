@@ -132,6 +132,10 @@
   padding-inline: 1.1rem;
   font-size: var(--fs-sm);
 }
+/* Log in is the bar's one call: the charcoal pill, shown at every width (the plain sign-in link folds on phones). */
+.sitebar--site .sitebar__login {
+  padding-inline: 1.4rem;
+}
 /* Phones: one row. The sign-in link already folds away (components.css); the pill and the menu tighten. */
 @media (max-width: 34rem) {
   .sitebar--site .sitebar__inner {
@@ -1110,6 +1114,28 @@
   68%, 74% { translate: calc(-12cqi * var(--dir)) -12cqi; }
   84%, 92% { translate: 0 0; }
   100% { translate: calc(-46cqi * var(--dir)) -10cqi; }
+}
+
+/* ---------- The hero follows the mouse: the board tilts toward the pointer and the pictures drift at two depths
+   (--px, --py from usePointer.ts, -1 to 1). On `transform`, which no loop uses on these elements, so it layers over
+   the board's and the pictures' own movements. Eases back to the centre when the pointer leaves. ---------- */
+.site[data-motion='on']:not(.is-still) {
+  .scene {
+    transform: perspective(1400px) rotateY(calc(var(--px, 0) * 4deg)) rotateX(calc(var(--py, 0) * -3deg));
+    transition: transform 600ms var(--ease-out);
+  }
+  .hero__side--start {
+    transform: translate(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -12px));
+    transition: transform 700ms var(--ease-out);
+  }
+  .hero__side--end {
+    transform: translate(calc(var(--px, 0) * -24px), calc(var(--py, 0) * -16px));
+    transition: transform 700ms var(--ease-out);
+  }
+  .hero__title {
+    transform: translate(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px));
+    transition: transform 700ms var(--ease-out);
+  }
 }
 
 /* ---------- Rounds: a grid of cards, a pastel cover with the icon, a Free pill, the title and a meta line ---------- */

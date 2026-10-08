@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Pause, Play, Plus } from 'lucide-react'
@@ -6,6 +7,7 @@ import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
 import { useLandingMotion } from './motion'
 import { useStillMotion } from './useMotion'
+import { usePointer } from './usePointer'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import { Blobs } from './Blobs'
@@ -22,7 +24,8 @@ import '../../styles/landing.css'
  * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character pictures that play along.
  * Then the rounds, the four languages, how it works, the story, the three jobs, the
  * free plan, the questions and the charcoal footer. Sections rise into place as they scroll in (transform only);
- * everything starts on its own for every visitor, and one Pause control stills the whole page (WCAG 2.2.2).
+ * everything starts on its own for every visitor, the hero follows the mouse, and one Pause control stills the whole
+ * page (WCAG 2.2.2).
  */
 export function Landing() {
   const { t } = useTranslation()
@@ -30,6 +33,8 @@ export function Landing() {
   const motion = useStillMotion()
   const lm = useLandingMotion()
   const playing = lm.on && !motion.still
+  const heroRef = useRef<HTMLElement>(null)
+  usePointer(heroRef, playing)
 
   const faq = t('landing.faq.items', { returnObjects: true }) as { q: string; a: string }[]
 
@@ -37,12 +42,11 @@ export function Landing() {
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
       <SiteHeader tone="site" showLanguages={false}>
         <LanguageMenu />
-        <Link to="/signin" className="sitebar__signin" viewTransition>{t('landing.nav.login')}</Link>
-        <Link to="/signin" className="btn btn--sm btn--charcoal" viewTransition>{t('landing.cta')}</Link>
+        <Link to="/signin" className="btn btn--sm btn--charcoal sitebar__login" viewTransition>{t('landing.nav.login')}</Link>
       </SiteHeader>
 
       <main id="main">
-        <section id="start" className="hero" aria-labelledby="hero-title">
+        <section ref={heroRef} id="start" className="hero" aria-labelledby="hero-title">
           <Blobs />
           <div className="hero__copy">
             <h1 id="hero-title" className="hero__title">{t('landing.hero.scene')}</h1>
