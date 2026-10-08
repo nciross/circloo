@@ -194,7 +194,7 @@ Night is a full theme: the canvas goes plum-black, the focal card goes pale pink
 `ground` and `paper` are both white. `paper-sunken` is the only grey well (search fields on the canvas, the sunken option in a toggle). `hairline` draws the 2px outlines of panels and inputs; `hairline-strong` the dot grid of the whiteboard and switch tracks. `ink` carries everything that matters, `ink-soft` leads and secondary text, `ink-faint` hints and placeholders (5.3:1 on paper).
 
 ### The one colour, cerise
-`beam` is links, the lead line under every page title (`page-header__lead`, bold), the picked option (`beam-subtle` fill, `beam-text`), the focus ring, Pirikoo's calling ring, and at most one blue button per view (`btn--beam`: the site's Build). Primary buttons are **cerise pills**; black is never a fill.
+`beam` is links, the lead line under every page title (`page-header__lead`, bold), the picked option (`beam-subtle` fill, `beam-text`), the focus ring, Pirikoo's calling ring, and at most one accent button per view (`btn--beam`). Primary buttons are **cerise pills**; black is never a fill.
 
 ### The cerise card
 `card` (#9c1242) with `on-card` white text, `on-card-soft` for secondary lines (12:1), `on-card-faint` for status lines (5.4:1), `card-line` dividers, `card-sunken` wells. Inside it, and only inside it, live the three status colours: `ok` sun yellow (here, healthy, done), `mid` white (partial, a second source), `low` pale pink (away, late, empty). They appear as `buddy__value` words at 18px bold and as meter fills, never on the white canvas, never as the only signal.
@@ -236,8 +236,8 @@ One family, **Rubik** (variable, 300–900), for Latin and Arabic. **Caveat** fo
 ## Layout
 
 - **App shell**: a 3.75rem white top bar with the wordmark, the navigation as pills (current = cerise), Ask Pirikoo as an outlined pill, "New circle" as an ink pill and the avatar. No rail. Under 62rem the pills fold into a white drawer with big pill rows. Content up to 76rem with `gutter` sides.
-- **Home**: the face and "Hi Nadia." at display size, the blue lead, then a 7/5 grid: the live circle as the cerise card (buddy rows, a people meter, a white "Open the room" pill) and the other circles as outlined rows with character stacks; today's mood tiles, the weather line and the icebreaker teaser at the side. One column under 60rem.
-- **Pages** open with breadcrumbs, the display title and the blue lead; actions at the inline end as pills.
+- **Home**: the face and "Hi Nadia." at display size, the cerise lead, then a 7/5 grid: the live circle as the cerise card (buddy rows, a people meter, a white "Open the room" pill) and the other circles as outlined rows with character stacks; today's mood tiles, the weather line and the icebreaker teaser at the side. One column under 60rem.
+- **Pages** open with breadcrumbs, the display title and the cerise lead; actions at the inline end as pills.
 - **Rooms**: the display name with an ink "Live" lozenge and a character stack in the work bar; the whiteboard or board at the centre as a white sheet with a 2px ink outline; the side area as the cerise card with People (buddy rows and a meter), Chat (bubbles without tails) and Call. On phones the side is a 44dvh bottom sheet in the same dark card, so the centre of the screen stays free for the canvas tools.
 - **Public site**: the hero is one viewport (min-height 100dvh minus the bar); copy at ~45%, the table at ~55%; one column on phones with the table under the copy and the annotations hidden.
 - Logical properties everywhere; RTL mirrors automatically, including arrows and the direction of meters.
@@ -261,7 +261,7 @@ Pills (`999px`) for every control: buttons, inputs, chips, nav items, tabs, togg
 ## Components
 
 ### Buttons
-`btn` is a 44px pill, 700, with a 1px lift and 1.02 scale on hover and 0.97 on press. `btn--primary` cerise on white; inside `panel--dark` / `card--dark` it flips to a white pill with ink text; on the field (`on-field`) to a white pill with field text. `btn--default` outlined 2px, `btn--subtle` text only, `btn--beam` the one blue, `btn--sun` yellow on the field, `btn--ai` violet, `btn--danger` red. Busy keeps focus and spins the icon.
+`btn` is a 44px pill, 700, with a 1px lift and 1.02 scale on hover and 0.97 on press. `btn--primary` cerise on white; inside `panel--dark` / `card--dark` it flips to a white pill with ink text; on the field (`on-field`) to a white pill with field text. `btn--default` outlined 2px, `btn--subtle` text only, `btn--beam` the same cerise, `btn--sun` yellow on the field, `btn--ai` violet, `btn--danger` red. Busy keeps focus and spins the icon.
 
 ### Panels and the cerise card
 `panel`: white, 2px `hairline` outline, 22px corners, no shadow; head (title and actions), body, actions. `panel--dark` / `card--dark`: `card` background, 28px corners, `shadow-card`; the title at 26px 800; rows are buddies; the primary pill is white and full width.
@@ -300,7 +300,7 @@ Forty-eight characters plus Pirikoo and the panda, drawn in code with the navy o
 
 ## Pirikoo, the parakeet guide
 
-A 64px white round launcher with a 2px ink outline; a 3px blue ring when Pirikoo has something to say. On desktop the suggestion is a small dark card with the name, an "AI" lozenge and white pills; on phones there is no bubble, the ring calls and the panel opens on the suggested next step. The panel is white with a 2px ink outline and 28px corners; Pirikoo's answers are violet and labelled; the plan is a list of rows with round checks and an ink "Run" pill.
+A 64px white round launcher with a 2px ink outline; a 3px cerise ring when Pirikoo has something to say. On desktop the suggestion is a small cerise card with the name, an "AI" lozenge and white pills; on phones there is no bubble, the ring calls and the panel opens on the suggested next step. The panel is white with a 2px ink outline and 28px corners; Pirikoo's answers are violet and labelled; the plan is a list of rows with round checks and an ink "Run" pill.
 
 ## The site's hero
 
@@ -312,7 +312,7 @@ One grammar (`src/web/src/lib/motion.ts`): `spring.snappy` for arrivals and pres
 
 ## Accessibility
 
-Every text pair is AA in both themes; status colours inside the card are 3:1 at 18px bold and always paired with words. Tap targets are 44px on phones and never under 24px. Focus is a 2px blue outline with offset. Colour is never the only signal (icon and word with every mood, "here"/"away" next to every value). Arabic is a first-class mirrored layout.
+Every text pair is AA in both themes; status colours inside the card are 3:1 at 18px bold and always paired with words. Tap targets are 44px on phones and never under 24px. Focus is a 2px cerise outline with offset. Colour is never the only signal (icon and word with every mood, "here"/"away" next to every value). Arabic is a first-class mirrored layout.
 
 ## Do's and Don'ts
 
