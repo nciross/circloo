@@ -42,7 +42,7 @@ description: "Tasks for the live discussion: group calls (spec 009, amended 2026
 | T914 Accessibility and i18n pass | #229 | **Changed** | Keep the issue; update its body to the new T914 below (call surfaces, no recording) |
 | T915 Journey, docs and audit | #230 | **Changed** | Keep the issue; update its body to the new T915 below (real devices on the deployed call server, perf results) |
 
-New task issues T916 to T929 are created by `/speckit-taskstoissues` after this amendment is merged. Issue edits and closures are Nicolas's or the issue-planner's job, not part of this docs change.
+Task issues for T916 to T929 are published from this list. T930 was added after the founder's answers of 2026-10-08 and needs its own issue. Issue edits and closures are Nicolas's or the issue-planner's job, not part of this docs change.
 
 ---
 
@@ -72,14 +72,24 @@ New task issues T916 to T929 are created by `/speckit-taskstoissues` after this 
 
   Depends on nothing (T901 merged).
 
-- [ ] T917 [P] [infra] **Production call server (azure-infra), after founder decision D8.** With the option the founder picks (recommended: research R23, option C):
-  - `infra/modules/livekit.bicep` called from `infra/modules/app.bicep` when the new parameter `callsEnabled` is true (default false; `infra/main.bicep` and `infra/main.parameters.json` pass it from `CALLS_ENABLED`): Ubuntu LTS VM (size parameter, default `Standard_B2als_v2`), system-assigned identity with Key Vault Secrets User, two Standard static public IPs with DNS labels `lk-<token>` and `turn-<token>`, NSG allowing only 443/tcp (both IPs), 7881/tcp, 7882/udp, 3478/udp, no SSH from the internet, Standard SSD, auto OS security updates.
-  - `infra/livekit/livekit.yaml` (the LiveKit configuration template, added to `CallServerConfigTests`) and `infra/livekit/cloud-init.yaml`: Docker, the pinned `livekit/livekit-server:v1.13.7` with host networking, Caddy (pinned) terminating TLS for `lk-…` (WebSocket and Twirp to 7880) and for `turn-…` (to LiveKit's TURN with `external_tls: true`), Let's Encrypt certificates, a boot script that reads `livekit-api-secret` from Key Vault through the VM identity (IMDS) into a root-only key file, LiveKit config with `node_ip` = the static IP, `udp_port: 7882`, `tcp_port: 7881`, TURN on, `auto_create: false`, `enable_remote_unmute: false`, webhook to `https://<web fqdn>/api/livekit/webhook`, logging `warn` with `pion_level: error`, journald retention 3 days. No egress, ingress or SIP.
+- [ ] T917 [P] [infra] **Call server in Azure (azure-infra): one small VM, cheap in dev.** Founder decision D8 (research R23):
+  - `infra/modules/livekit.bicep` called from `infra/modules/app.bicep` only when the new parameter `callsEnabled` is true (**default false in every environment**; `infra/main.bicep` and `infra/main.parameters.json` pass it from `CALLS_ENABLED`). Ubuntu LTS VM, system-assigned identity with Key Vault Secrets User, Standard static public IP with DNS label `lk-<token>`, NSG allowing only 443/tcp, 7881/tcp, 7882/udp, 3478/udp, no SSH from the internet, auto OS security updates.
+  - **Per-environment parameters** (defaults picked from `environmentName` like spec 008 T812, each overridable by an azd variable; table in research R23):
+    - `callsVmSize` (`CALLS_VM_SIZE`): `Standard_B2als_v2` in `prod`, `Standard_B2ats_v2` elsewhere. Check that a 5-person video call runs on B2ats_v2 (CPU and memory noted in the PR); if not, use `Standard_B1ms` as the dev default and say so.
+    - `callsDiskSku` (`CALLS_DISK_SKU`): `StandardSSD_LRS` in `prod`, `Standard_LRS` (Standard HDD, 32 GiB) elsewhere.
+    - `callsTurnTls` (`CALLS_TURN_TLS`): true in `prod` (a second static IP with DNS label `turn-<token>` and TURN/TLS on 443), false elsewhere (one IP, no extra static resource).
+    - `callsShutdownTime` (`CALLS_SHUTDOWN_TIME`): empty in `prod`, `2000` elsewhere, time zone `Romance Standard Time`, as a `Microsoft.DevTestLab/schedules` daily auto-shutdown (deallocates the VM).
+  - **Starting it again**: `scripts/deploy.ps1` and `.sh` run `az vm start` after provisioning when calls are enabled (a deployment does not start a deallocated VM); new `scripts/calls-start.ps1` and `.sh` (`-Environment dev`) start it without a full deploy. Document both in the scripts' help and in `docs/architecture/overview.md`.
+  - `infra/livekit/livekit.yaml` (the LiveKit configuration template, added to `CallServerConfigTests`) and `infra/livekit/cloud-init.yaml`: Docker, the pinned `livekit/livekit-server:v1.13.7` with host networking, Caddy (pinned) terminating TLS for `lk-…` (WebSocket and Twirp to 7880) and, when `callsTurnTls`, for `turn-…` (to LiveKit's TURN with `external_tls: true`), Let's Encrypt certificates, a boot script that reads `livekit-api-secret` from Key Vault through the VM identity (IMDS) into a root-only key file, LiveKit config with `node_ip` = the static IP, `udp_port: 7882`, `tcp_port: 7881`, TURN/UDP on 3478, `auto_create: false`, `enable_remote_unmute: false`, webhook to `https://<web fqdn>/api/livekit/webhook`, logging `warn` with `pion_level: error`, journald retention 3 days. No egress, ingress or SIP.
   - **Secret**: `scripts/deploy.ps1` and `.sh` generate `LIVEKIT_API_SECRET` into `.azure/<env>/.env` like `AUTH_SECRET`; Bicep stores it as Key Vault secret `livekit-api-secret`; the `web` app gets `LiveKit__ApiSecret` as a secret reference and `LiveKit__Url`, `LiveKit__ApiUrl`, `LiveKit__ApiKey`, `Discussion__AwayEndSeconds` as plain values (only when `callsEnabled`).
-  - **Outputs**: `liveKitUrl`. **Docs**: confirm the env list and the "Call server" infrastructure paragraph in `docs/architecture/overview.md`, and the monthly cost from the pricing calculator.
-  - **Checks**: `az bicep build --file infra/main.bicep`; deploy to a dev environment with `callsEnabled=true`, join from two networks, then `scripts/destroy` removes it all.
+  - **Outputs**: `liveKitUrl`. **Docs**: confirm the env list, the parameters and the "Call server" paragraph in `docs/architecture/overview.md`, with the monthly cost of both profiles from the pricing calculator.
+  - **Checks**: `az bicep build --file infra/main.bicep`; with `callsEnabled` false nothing new is created; deploy a dev environment with `CALLS_ENABLED=true`, join from two networks, let the nightly shutdown run, start it with `scripts/calls-start`, then `scripts/destroy` removes it all.
 
-  Depends on D8 (and on T916 for the config shape). Production calls are off until it lands.
+  Depends on T916 for the config shape. Deployed calls are off until it lands. Merge after T930 if possible, so the constitution already allows the VM.
+
+- [ ] T930 [P] **Constitution amendment for the call server (MINOR).** Founder decision D9. Run `/speckit-constitution` in its own branch, issue and PR (not on a feature branch): version 2.0.0 → 2.1.0; Technology & Infrastructure Constraints gains "Real-time media: a self-hosted LiveKit SFU, one node, never recording"; the "production is one container" line and principle VII name the call server VM as an accepted exception (created only on request, disposable, nightly shutdown outside production); the Sync Impact Report lists spec 009 and `docs/architecture/overview.md`. Then remove the "until the D9 amendment" wording from this plan's Complexity Tracking.
+
+  Depends on nothing. Merge before T917 if possible.
 
 ---
 
@@ -197,7 +207,7 @@ New task issues T916 to T929 are created by `/speckit-taskstoissues` after this 
 - [ ] T927 [US3] [US8] [UI] **Raise hand and reactions in the call.** `/impeccable shape call-reactions` first (or manual), then:
   - Raise and lower hand in `CallControls.tsx`, reusing spec 008's `HandsQueue` (T810) with "You are 2nd"; the queue in the Call tab.
   - Reactions: `React` allowed while a call is on (`CircleHub.Room.cs` rule from spec 008 T807, extended here, with a hub test); `CallReactions.tsx` floats grouped bursts over the call grid on every screen, a counter under reduced motion, a summary for screen readers; hidden when reactions are off.
-  - **Tests**: hub test that reactions work with a call on and no presentation and store nothing; e2e "hands and reactions": raise, place, floor given from the queue; 20 pages send 👏 and every page shows one grouped burst; en desktop and ar phone with axe.
+  - **Tests**: hub test that reactions work with a call on and no presentation and store nothing, and that during a running presentation they add to its anonymous totals (D11); e2e "hands and reactions": raise, place, floor given from the queue; 20 pages send 👏 and every page shows one grouped burst; en desktop and ar phone with axe.
 
   Depends on T925, T926 and spec 008 T807 (#181), T808 (#182), T810 (#184).
 
@@ -236,7 +246,7 @@ New task issues T916 to T929 are created by `/speckit-taskstoissues` after this 
   - `tests/perf/netem/`: a Linux container with `tc netem` (10% and 30% loss, 150 ms delay) running headless Chromium in a call; reads concealment and freeze counts (SC-914).
   - Phone session for SC-915 recorded by hand (quickstart C).
   - A short `tests/perf/README.md` saying how to run each part and that results go in the PR, never invented.
-  - If the recommended VM size misses the targets, say which size does (input to D8).
+  - If the production size (B2als_v2) misses the targets, say which size does; the founder allowed sizing up only on this evidence (D8).
 
   Depends on T928 for the local run and T917 for the Azure numbers.
 
@@ -263,7 +273,7 @@ New task issues T916 to T929 are created by `/speckit-taskstoissues` after this 
 
 ## Dependencies & Execution Order
 
-- **Setup**: T916 [P] first (needs only merged T901). T917 [P] [infra] waits for founder decision D8; it blocks production calls and the Azure half of T929 and T915, nothing else.
+- **Setup**: T916 [P] first (needs only merged T901). T917 [P] [infra] follows T916; it blocks deployed calls and the Azure half of T929 and T915, nothing else. T930 [P] (constitution) can start at once and should merge before T917.
 - **Foundational**: T918 → T919.
 - **API**: T919 → T920 → T921 → T922.
 - **Client**: T923 [P] after T919 (contract) → T924. T925 after T923 and T920. T926 after T925, T921, T922. T907 after T925.
@@ -281,7 +291,7 @@ T901 (done) ─ T916 ─┐
      008 T807+T808+T810 ─────────────────────┼─ T927               │          │
               T918 ─ T908 ───────────────────┴─ T909 (008 T806)    │          │
                                                     T914 ──────────┴──────── T915
-     D8 ─ T917 ──────────────────────────────────────────────────── (T929 Azure, T915 devices)
+     T930 ─ T917 ────────────────────────────────────────────────── (T929 Azure, T915 devices)
 ```
 
 ## Parallel Example
@@ -303,7 +313,7 @@ T920, T921 and T922 all add to `CircleHub.Discussion.cs`; merge them one at a ti
 1. **MVP**: T916 → T918 → T919 → T920 → T921 → T923 → T924 → T925. The animator starts an audio or video call, Hand to speak is enforced, the floor grants the microphone, everyone sees a fast grid. Locally, at zero cost.
 2. **Increment 2**: T922 (removal holds, roster, animator away), T926 (all animator controls), T907 (devices and networks).
 3. **Increment 3**: T927 (hands and reactions in the call), T908 → T909 (threads and live lines).
-4. **Production**: D8 → T917, then T929 and the device part of T915 on Azure.
+4. **Deployed**: T930 → T917, then T929 and the device part of T915 on Azure.
 5. **Release gate**: T928, T914, T915.
 
 ## Notes

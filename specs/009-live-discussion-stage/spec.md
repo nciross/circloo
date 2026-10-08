@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-05 · **Amended**: 2026-10-08 (founder direction: group calls on a self-hosted call server, performance first; recording dropped)
 
-**Status**: Planned, amended (plan, research, data model, contracts, quickstart and tasks updated; see `plan.md`). One founder decision blocks production only: hosting of the call server (research D8).
+**Status**: Planned, amended (plan, research, data model, contracts, quickstart and tasks updated; see `plan.md`). All founder decisions are answered (D6, D8 to D11 on 2026-10-08).
 
 **Parent idea**: #212 (type:idea, area:spaces) Epic: E4 (shared live activities) with E2 (circles and roles). Related: #96 (superseded), #166 and spec 008 (sidebar, chat, reactions, raised hands), #174 (big circles), #126 (Impeccable runs), spec 006 (presenting), #244 (room workspace and its Call tab), #255 (training, certification and exams: a separate idea, not part of this spec).
 
@@ -35,9 +35,17 @@ Interpretations recorded by the plan (not new founder decisions; the founder can
 
 - "Raised hands are not saved" means no history is kept. A raised hand exists only while it is up (spec 008 keeps the live queue in a table so it survives a reload) and disappears when it is lowered, given the floor and then taken, or the call ends.
 - "Calls are not saved" includes the chat history: the call no longer writes "call started" or "Amina joined" lines into the stored chat. Those lines are shown live and never stored.
-- The security audit trail keeps only switch changes, removals from a call and refused attempts, with ids and no content (constitution VIII). It never records who joined, who spoke, the floor or mutes. Founder confirmation D10.
+- The security audit trail keeps only animator actions: call on and off (including switching between audio and video), speaking-mode changes, removals from a call and refused attempts, with ids and no content (constitution VIII). It never records who joined, who spoke, the floor or mutes. Confirmed by the founder (D10).
 - In Hand to speak mode, one participant holds the floor at a time (spec 008's single floor), plus the animator, who can always speak. Several floors at once can be a later setting.
 - The default speaking mode for a new call is Hand to speak (everyone starts muted, as the 2026-10-05 spec said). The animator changes it in one tap before or during the call.
+
+Open decisions answered by the founder later the same day (research D6, D8 to D11):
+
+- Q: Where does the call server run in production (D8)? -> A: **One small Linux VM** (B2als_v2 class), sized up only if the load test (T929) needs it. **In the deployed dev environment, cost must be minimal**: the smallest burstable size that runs LiveKit for a handful of people, a nightly auto-shutdown, the cheapest disk, no extra static resources unless needed, and calls stay off by default so the VM is created only when asked. Local development stays the free container.
+- Q: Amend the constitution (D9)? -> A: **Yes, a MINOR amendment in its own PR** (call server in the stack, VM exception). Task T930. Not in this branch.
+- Q: What does the audit keep (D10)? -> A: **Animator actions only**: call on and off, speaking-mode changes, removals from a call, refused attempts. Never joins, speaking, the floor or mutes.
+- Q: Do emoji sent in a call count toward a running presentation's totals (D11)? -> A: **Yes.** They count toward that presentation's anonymous per-emoji totals (spec 008). Nothing says who reacted, and without a presentation nothing is counted.
+- Q: Animator away (D6)? -> A: **The call ends after the animator has been away 5 minutes.**
 
 ### Session 2026-10-05 (kept for history; superseded items are marked)
 
@@ -197,13 +205,13 @@ During a call, Lucía taps 👏. It floats briefly over the call on every screen
 3. **Given** I tap very fast, **Then** at most 5 of my reactions count every 10 seconds (spec 008), extra taps are ignored silently.
 4. **Given** the animator switches reactions off (spec 008 room setting), **Then** the reaction bar disappears from the call.
 5. **Given** reduced motion, **Then** reactions show as a small counter, without movement, and a screen reader hears a summary at most every few seconds.
-6. **Given** a call ends, **Then** no reaction and no count from the call is stored. (During a running presentation, spec 008's anonymous totals per kind still apply; founder confirmation D11.)
+6. **Given** a call ends, **Then** no reaction and no count from the call is stored, except that reactions sent while a presentation runs count toward that presentation's anonymous totals per kind (spec 008, founder decision D11). Nothing ever says who reacted.
 
 ---
 
 ### Edge Cases
 
-- **The animator disconnects**: the call goes on. If the animator does not come back within 5 minutes, the call ends for everyone ("The animator ended the call"; configurable, decision D6). A second animator tab or device keeps the animator present.
+- **The animator disconnects**: the call goes on. If the animator does not come back within 5 minutes, the call ends for everyone ("The animator ended the call"; configurable, founder decision D6). A second animator tab or device keeps the animator present.
 - **The person with the floor drops**: they keep the floor for 30 seconds (spec 008's hand grace). After that the floor is free and the next hand is shown as next.
 - **Network loss**: the call client reconnects by itself for up to 15 seconds; chat and hands recover with the room's connection. A dropped person who comes back gets the same permissions (floor, mutes) they had.
 - **Strict corporate network**: UDP blocked falls back to TCP; TCP on unusual ports blocked falls back to TLS on port 443. If even that fails, the person reads "You can't join the call from this network. Chat and hands still work."
@@ -250,7 +258,7 @@ Numbering is stable. Changed requirements say so. Removed ones keep their number
 
 **Security, abuse and limits**
 - **FR-921** *(changed)*: The server MUST rate-limit call passes, raising hands, animator actions and reactions per person, and MUST validate every input. Abuse MUST be refused without an error detail that helps an attacker.
-- **FR-922** *(changed)*: The animator MUST be able to remove a person from a call and hide chat messages. Switch changes, removals from a call and refused attempts MUST be audited with ids only. Who joined, who spoke, the floor, mutes and reactions MUST NOT be audited or logged.
+- **FR-922** *(changed)*: The animator MUST be able to remove a person from a call and hide chat messages. Animator actions only MUST be audited, with ids only: call on and off, speaking-mode changes, removals from a call and refused attempts (D10). Who joined, who spoke, the floor, mutes and reactions MUST NOT be audited or logged.
 - **FR-923** *(changed)*: The plan MUST include a threat model covering call passes (tokens), server-side permission enforcement, a removed person rejoining, the call server's exposure on the internet, its secrets, and what the call server can technically see.
 
 **Quality**
@@ -263,7 +271,7 @@ Numbering is stable. Changed requirements say so. Removed ones keep their number
 - **FR-928**: The animator MUST pick a speaking mode for each call, Open mic or Hand to speak, and MUST be able to change it during the call. The default is Hand to speak.
 - **FR-929**: In Hand to speak, only the animator and the person with the floor (one at a time, spec 008) MUST be able to send audio. The call server MUST enforce it through the person's permissions, so a modified client cannot send audio without the floor.
 - **FR-930**: Only chat messages (with their replies, likes and hidden state, spec 008) MUST be stored. Calls, who joined or left, who spoke and for how long, the floor, mutes, removals, raised-hand history, reactions and call status lines MUST NOT be stored in the database, in files or in logs. A raised hand MAY exist only while it is up.
-- **FR-931**: During a call, members MUST be able to send spec 008's emoji reactions; they MUST show over the call on every screen in the room, grouped and rate-limited, and MUST NOT be stored when no presentation is running.
+- **FR-931**: During a call, members MUST be able to send spec 008's emoji reactions; they MUST show over the call on every screen in the room, grouped and rate-limited. They MUST NOT be stored, except as anonymous per-kind totals of a presentation that is running at the time (spec 008 FR-818, D11).
 - **FR-932**: The call MUST adapt to each device and network: several qualities per camera, each screen receiving only the quality and the videos it shows, audio before video when bandwidth is short, and an active-speaker highlight.
 - **FR-933**: A person removed from a call MUST NOT be able to rejoin it, even with a pass issued before, until the animator lets them back or the call ends.
 - **FR-934**: The audience screen (projector) MUST NOT join the call. It shows the number of raised hands and reactions only.
@@ -319,10 +327,10 @@ No usage numbers exist yet and none are invented. These are behaviour and perfor
 - This feature builds on spec 008: chat with pause and slow mode (merged, #179), the raised-hand queue with one floor (merged, #183), the room sidebar (merged, #178), reactions (not merged yet, #181 and #182) and the hands UI (not merged yet, #184). It does not duplicate them.
 - #96 was an earlier broader scope and stays closed as superseded.
 - The call server is self-hosted, pinned to one version, and runs as one node. One node is enough for the call sizes above; the load test confirms it before release.
-- Production hosting of the call server is a founder decision (research D8) because it adds a monthly cost. Local development and tests need no paid service (constitution IX): the call server runs as a local container.
+- Production hosting of the call server is one small Linux VM (founder decision D8). The deployed dev environment uses a cheaper size with a nightly shutdown, and only when calls are switched on for it. Local development and tests need no paid service (constitution IX): the call server runs as a local container.
 - The animator of a circle is the only moderator. The animator's identity comes from the server, never the client.
 - Browsers that cannot do live audio or video still get chat, hands and reactions.
 
 ## Open questions
 
-All questions of 2026-10-05 are answered or obsolete (see Clarifications and research). Open founder decisions, listed in `research.md`: **D8** production hosting of the call server (cost), **D9** constitution amendment for the call server, **D10** audit scope, **D11** reaction totals during presentations, **D6** animator away ends the call after 5 minutes.
+All questions are answered or obsolete: those of 2026-10-05 in the first Clarifications session and research, and the founder decisions D6, D8, D9, D10 and D11 in the Session 2026-10-08.

@@ -39,7 +39,7 @@ Created empty by `LiveDiscussionStage` (no code ever wrote them). `GroupCallsLiv
 | Animator-away timer | `CallAway` (like `HandsGrace`, on `TimeProvider`) | cancelled when an animator connection returns |
 | Who has the floor | spec 008's `RaisedHand.HasFloor` row | while the hand is "up" with the floor. Deleted when lowered, when the next person gets the floor, or when the call ends |
 | Audio and video | the call server's memory while forwarding | never written. No egress, no recording |
-| Reactions | spec 008's in-memory burst buffer | 400 ms. Totals only during a presentation (spec 008, D11) |
+| Reactions | spec 008's in-memory burst buffer | 400 ms. Reactions sent while a presentation runs (from the call too) add to that presentation's anonymous totals per kind (spec 008, D11) |
 | Per-member limits (`call-token`, `call-admin`, `hand`, `reaction`, `refused-audit`) | `RoomLimits` | sliding windows, single replica |
 
 ## Lifecycle rules
@@ -67,7 +67,7 @@ Created empty by `LiveDiscussionStage` (no code ever wrote them). `GroupCallsLiv
 
 | Key | Default | Range | Meaning |
 |---|---|---|---|
-| `Discussion:AwayEndSeconds` | 300 | 60 to 3600 | The call ends after the animator has been away this long (R34, D6) |
+| `Discussion:AwayEndSeconds` | 300 | 60 to 3600 | The call ends after the animator has been away this long (R34, founder decision D6) |
 
 **Removed keys** (shipped in T901, deleted by T918 and T924): `StageMax`, `ListenersMax`, `IceUrls`, `SeatGraceSeconds`, `InviteSeconds`, `AwayFreezeSeconds`, `RecordingNoticeSeconds`, `RecordingMaxMinutes`, `RecordingWarnMinutes`, `RecordingMaxEvents`, `RecordingsPerCircle`.
 

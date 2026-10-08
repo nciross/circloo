@@ -74,7 +74,7 @@ The browser's buttons are a convenience. The rule lives in each person's **permi
 - **Rationale**: a modified client cannot speak without the floor, cannot keep a camera on after the animator stopped it, and cannot come back after removal. The server never switches a device on.
 - **Alternatives**: UI-only rules (the founder asked for enforcement); data-channel commands to clients (trusts the client); several floors (a later setting, spec out of scope).
 
-## R23. Production hosting of the call server (founder decision D8)
+## R23. Hosting of the call server (founder decision D8: one small VM, cheap in dev)
 
 LiveKit needs: TCP 443 for the signalling WebSocket (TLS), UDP for media (best), TCP 7881 as the ICE fallback, and TURN over TLS on **443** for networks that allow only web traffic. TURN/TLS and the signalling need **two different host names** on port 443 (LiveKit's own guidance), each with a certificate. A call server should never scale to zero during a call and runs as **one** node (rooms live on one node without Redis).
 
@@ -87,12 +87,25 @@ Approximate pay-as-you-go list prices, France Central, October 2026, rounded. To
 | **C. One small Linux VM (recommended)** | VM with two static public IPs and DNS labels (`lk-<token>` for signalling, `turn-<token>` for TURN/TLS), NSG, cloud-init runs the pinned LiveKit image with host networking and Caddy for TLS (LiveKit's reference deployment). A system-assigned identity reads the LiveKit secret from Key Vault at boot | Yes, best (kernel networking, single UDP port 7882) | **Yes** (second IP and name) | **about $45** (B2als_v2: 2 vCPU burstable, 4 GiB, ~$33; two static IPs ~$7; 32 GB Standard SSD ~$3), or **about $85** with D2as_v5 (2 vCPU steady, 8 GiB, ~$72) if the load test (T929) shows the burst credits run out | A VM to keep patched (unattended upgrades, rebuilt from cloud-init, no public SSH); a self-hosted component (constitution VII prefers managed); single-VM SLA 99.5% on Standard SSD |
 | **D. AKS** | One-node cluster, LiveKit Helm chart with host networking | Yes | Yes (with a second IP) | about $95+ (one D2as_v5 node ~$72, Standard load balancer ~$18, IPs) | Far more moving parts (cluster upgrades, Helm, ingress) for one pod. Not justified at this size |
 
-- **Recommendation**: **C, a single VM**, starting on **B2als_v2 (~$45 a month all in, before egress)**, sized up to D2as_v5 (~$85) only if the load test says so. It is the only option that meets "performance first" on UDP and still reaches people on 443-only networks, and it is LiveKit's documented reference deployment. It stays disposable: defined in Bicep and cloud-init, inside `rg-circloo-<env>`, removed by `scripts/destroy`.
-- **Cost control**: a Bicep parameter `callsEnabled` (default `false`) creates the VM only where wanted (prod). Without it the API has no `LiveKit:Url` and shows "Group calls are not available here" (FR-935). A dev environment can turn it on and use an auto-shutdown schedule.
-- **Second choice**: B (Container Instances) if the founder refuses a VM. It loses TURN/TLS on 443 and survives restarts less well, at about twice the cost of the small VM.
+- **Decision (founder, 2026-10-08)**: **C, a single VM**, starting on **B2als_v2 (~$45 a month all in, before egress)** in production, sized up to D2as_v5 (~$85) only if the load test (T929) says so. It is the only option that meets "performance first" on UDP and still reaches people on 443-only networks, and it is LiveKit's documented reference deployment. It stays disposable: defined in Bicep and cloud-init, inside `rg-circloo-<env>`, removed by `scripts/destroy`.
+- **Cost control**: a Bicep parameter `callsEnabled` (default `false`) creates the VM only where it is asked for. Without it the API has no `LiveKit:Url` and shows "Group calls are not available here" (FR-935).
+- **Profiles per environment** (founder: "in dev must reduce cost"). Parameters with defaults chosen from `environmentName`, as spec 008 T812 does for `webMinReplicas`, each overridable through an azd environment variable:
+
+  | Parameter (azd variable) | `prod` default | Other environments (dev) default | Why |
+  |---|---|---|---|
+  | `callsEnabled` (`CALLS_ENABLED`) | false | false | The VM exists only when someone asks for it |
+  | `callsVmSize` (`CALLS_VM_SIZE`) | `Standard_B2als_v2` (2 vCPU burstable, 4 GiB) | `Standard_B2ats_v2` (2 vCPU burstable, 1 GiB, the smallest current B size) | LiveKit itself needs a few hundred MB; 1 GiB holds a handful of people. T917 checks a 5-person video call on it; if it does not hold, `Standard_B1ms` (1 vCPU, 2 GiB) is the fallback |
+  | `callsDiskSku` (`CALLS_DISK_SKU`) | `StandardSSD_LRS` | `Standard_LRS` (Standard HDD, 32 GiB, the image minimum) | Nothing is stored on the disk; HDD is enough when only the image and logs live there |
+  | `callsTurnTls` (`CALLS_TURN_TLS`) | true (second static IP and name for TURN/TLS on 443) | false (one IP: signalling on 443, TURN over UDP 3478 and ICE/TCP 7881 only) | The second IP costs money while the VM is off; dev rarely tests 443-only networks |
+  | `callsShutdownTime` (`CALLS_SHUTDOWN_TIME`) | empty (never) | `2000`, time zone `Romance Standard Time` (Paris) | A nightly auto-shutdown (`Microsoft.DevTestLab/schedules`) deallocates the VM, which stops the compute bill |
+
+  - **Starting it again**: `scripts/deploy` starts the VM after provisioning when calls are enabled (an `az vm start` step, because a deployment does not start a deallocated VM), and a small `scripts/calls-start.ps1` / `.sh` (`-Environment dev`) starts it without a full deploy. While it is off, starting a call answers `try-again`, and the start script is the fix.
+  - **What still costs money while it is off**: the Standard public IP (Basic IPs, the only kind that could be released when stopped, are retired) and the disk. That is the floor.
+  - **Dev cost estimate**: about **$5 to $10 a month** when used on working days (B2ats_v2 roughly $8 a month if it ran around the clock, so a few dollars with the nightly stop; one static IP about $3.65; a 32 GiB Standard HDD about $1.50), and **zero** while `callsEnabled` is false. To be confirmed in the pricing calculator by `azure-infra`.
+- **Second choice** (not taken): B (Container Instances). It loses TURN/TLS on 443 and survives restarts less well, at about twice the cost of the small VM.
 - **Rejected**: A, because TCP-only media misses the performance goal and needs the environment rebuilt; D, because of the complexity.
-- **Names and certificates**: with no custom domain yet, the two Azure DNS labels (`*.francecentral.cloudapp.azure.com`) get Let's Encrypt certificates through Caddy. If the founder has a product domain, two CNAMEs (`call.` and `turn.`) are nicer and avoid any shared rate limit on `cloudapp.azure.com`. Part of D8.
-- **Constitution**: the app is still one container, and the call server is a separate resource, like the deck converter (spec 006). See D9.
+- **Names and certificates**: with no custom domain yet, the two Azure DNS labels (`*.francecentral.cloudapp.azure.com`) get Let's Encrypt certificates through Caddy. If the founder has a product domain, two CNAMEs (`call.` and `turn.`) are nicer and avoid any shared rate limit on `cloudapp.azure.com`. The founder kept the default: Azure DNS labels for now, a product domain later if one exists.
+- **Constitution**: the app is still one container, and the call server is a separate resource, like the deck converter (spec 006). The founder chose a MINOR constitution amendment (D9, task T930).
 
 ## R24. Webhooks: yes, one purpose (enforcement), plus a live roster
 
@@ -150,7 +163,7 @@ Approximate pay-as-you-go list prices, France Central, October 2026, rounded. To
 - **Call lines in chat are live only**: the shipped `EnableDiscussion`/`DisableDiscussion` write `discussion:on`/`discussion:off` system rows today. They stop doing so; the hub sends a `CallNotice` event instead and the client draws a live line (US5 #3). Activity lines (`start:`, `end:`) are not call events and stay as they are.
 - **In memory only**: animator mutes, camera stops, the removed set, the roster, the animator-away timer. Lost on an API restart (one replica; accepted in Complexity Tracking).
 - **Spec 008 tables used as they are**: `RaisedHand` (a row exists only while a hand is up), `MessageLike`, `Circle.ChatMode`, `Circle.ReactionsOn`.
-- **Audit**: `discussion.on`, `discussion.off`, `call.mode`, `call.removed`, `discussion.refused`, with ids only (D10). No audit for floor, mutes or joins.
+- **Audit (founder decision D10: animator actions only)**: `discussion.on` (call on, or a switch between audio and video), `discussion.off`, `call.mode`, `call.removed`, `discussion.refused`, with ids only. Never joins, speaking, the floor or mutes.
 
 ## R32. Performance targets and how they are measured
 
@@ -162,7 +175,7 @@ Approximate pay-as-you-go list prices, France Central, October 2026, rounded. To
 
 ## R33. Reactions and hands in a call
 
-- **Reactions**: spec 008's `React(kind)` and `Reactions(burst)` (T807, #181) are reused. The only change: they are allowed while a call is on, not only during a presentation. Outside a presentation nothing is counted or stored. During a presentation spec 008's anonymous totals per kind still apply (D11).
+- **Reactions**: spec 008's `React(kind)` and `Reactions(burst)` (T807, #181) are reused. The only change: they are allowed while a call is on, not only during a presentation. Outside a presentation nothing is counted or stored. While a presentation runs, reactions sent from the call count toward that presentation's anonymous totals per kind, like any other reaction (founder decision D11). Nothing says who reacted.
 - **Hands**: spec 008's `RaiseHand`, `LowerHand`, `LowerAllHands`, `GiveFloor` and `Hands` are reused unchanged, with the permission side effects of R22 when a call is on. Lowering the floor holder's hand ends their turn ("take the floor"), so no new method is needed.
 
 ## R34. Animator away
@@ -174,10 +187,12 @@ Approximate pay-as-you-go list prices, France Central, October 2026, rounded. To
 
 Answered on 2026-10-05: D1 to D4 (see the spec's Clarifications; D1, D2 and D4 are superseded, D3 is kept as the video switch). Answered on 2026-10-08: the call engine, the three switches, the speaking modes, persistence, emoji and hands (spec Clarifications). D5 and D7 concerned transcripts and are **obsolete**.
 
-Still open:
+Answered on 2026-10-08 (also in the spec's Clarifications):
 
-- **D6. Animator away ends the call after 5 minutes.** Default in R34. Confirm, or choose another time, or "the call goes on without an animator".
-- **D8. Production hosting of the call server (cost).** Recommendation: one small Linux VM in `rg-circloo-<env>` (R23, option C), about **$45 a month** (up to about $85 if the load test needs a steady-CPU size), plus internet egress above 100 GB a month, created only where `callsEnabled` is true. Alternatives: Container Instances (~$80–90, no TURN on 443), Container Apps TCP-only (cheap but fails performance and needs the environment rebuilt), AKS (~$95+, complex). Also: use two Azure DNS labels, or a product domain with two CNAMEs? **Production calls wait for this decision; development and tests do not.**
-- **D9. Constitution amendment.** Strictly, none is required: the constitution allows deviations through the plan's Complexity Tracking, as was done for the deck converter. But the call server is a lasting part of the stack, the first VM, and a self-hosted component where VII prefers managed ones. Recommended: a **MINOR** amendment through `/speckit-constitution` (in its own PR and issue) that adds "Real-time media: a self-hosted LiveKit SFU, one node" to Technology & Infrastructure Constraints and notes the call server as an accepted exception to "production is one container". Not done in this change.
-- **D10. Audit scope.** The audit keeps call switch changes, speaking-mode changes, removals and refused attempts, with ids only (constitution VIII). It does not record joins, speaking, the floor or mutes. Confirm that this fits "calls are not saved".
-- **D11. Reaction totals during a presentation.** Spec 008 keeps anonymous totals per reaction kind for each presentation. Reactions sent during a call while a presentation runs would count there too. Confirm, or exclude reactions sent from the call view.
+- **D6. Animator away**: the call ends after the animator has been away 5 minutes (R34).
+- **D8. Production hosting**: one small Linux VM (R23, option C), B2als_v2 class in production, sized up only if T929 needs it. In the deployed dev environment, cost is minimised: `Standard_B2ats_v2`, a Standard HDD, one static IP (no TURN/TLS on 443), a nightly shutdown at 20:00 Paris time, started again by `scripts/deploy` or `scripts/calls-start`. `callsEnabled` stays false by default everywhere. Azure DNS labels for now. Local development stays the free container.
+- **D9. Constitution**: a MINOR amendment through `/speckit-constitution` in its own PR and issue (task T930): the call server in Technology & Infrastructure Constraints, and the VM as an accepted exception to "production is one container" and to VII's preference for managed services. Not done in this branch.
+- **D10. Audit scope**: animator actions only: call on and off, speaking-mode changes, removals, refused attempts. Never joins, speaking, the floor or mutes.
+- **D11. Reaction totals**: reactions sent in a call while a presentation runs count toward that presentation's anonymous per-kind totals.
+
+Nothing is open.

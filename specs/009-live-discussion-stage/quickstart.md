@@ -39,7 +39,7 @@ Start Chromium for each person with `--use-fake-device-for-media-stream --use-fa
 13. **Nothing stored.** After the call, check the database: no row about the call except chat messages and the audit rows `discussion.on`, `discussion.off`, `call.mode`, `call.removed` and refusals. No `Recordings` table exists.
 14. **Arabic.** Repeat 1 to 3 in Arabic on a phone-sized window: grid, controls, queue and menus mirror, and mixed-direction names stay readable.
 
-## C. Real devices and the deployed call server (before release, needs D8)
+## C. Real devices and the deployed call server (before release, needs T917)
 
 Two laptops and two phones (an iPhone with Safari and a mid-range Android with Chrome) on different networks (home Wi-Fi, mobile data, and one office network that allows only web traffic), against the deployed environment. Check:
 

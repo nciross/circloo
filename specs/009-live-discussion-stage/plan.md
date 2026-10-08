@@ -12,7 +12,7 @@ While a circle is open, the animator has three switches: **Chat**, **Audio call*
 - **Data**: one migration, `GroupCallsLiveKit`: drop the never-used `Recordings` and `RecordingEvents`, drop `Circle.DiscussionChangedAt/ByMemberId`, add `Circle.DiscussionSpeaking`. `DiscussionOn` and `DiscussionVideo` keep their names (call on, video allowed).
 - **API**: `LiveKitTokens` (HS256 passes, no SDK), `LiveKitRooms` (typed `HttpClient` for Twirp RoomService), `CallRules` (permissions), `CallModeration` (in-memory mutes, removals, roster), `CallAway` (timer), `CallEndpoints` (`POST /api/circles/{id}/call/token`, `POST /api/livekit/webhook`). Hub methods in `CircleHub.Discussion.cs`; side effects on spec 008's floor methods.
 - **Client**: `livekit-client` 2.22.3, lazy-loaded on Join. A call engine (`call.ts`) behind the existing `stage.ts` store, our own grid with pages and an active speaker, phone layout, device fallbacks. The WebRTC mesh shipped in T905 is deleted.
-- **Infra**: LiveKit as a local container in the AppHost (zero cost). Production hosting waits for founder decision **D8**; the recommendation is one small Linux VM in `rg-circloo-<env>` (about $45 a month), behind a `callsEnabled` Bicep switch. An `azure-infra` task adds it, its secret and its env vars.
+- **Infra**: LiveKit as a local container in the AppHost (zero cost). Production hosting (founder decision **D8**): one small Linux VM in `rg-circloo-<env>` (B2als_v2, about $45 a month), behind a `callsEnabled` Bicep switch that stays false by default. The deployed dev environment uses a cheaper profile (B2ats_v2, Standard HDD, one IP, nightly shutdown; about $5 to $10 a month when on). An `azure-infra` task (T917) adds it, its secret and its env vars. A MINOR constitution amendment (D9) is its own task (T930).
 
 ## Technical Context
 
@@ -24,13 +24,13 @@ While a circle is open, the animator has three switches: **Chat**, **Audio call*
 
 **Testing**: xUnit + Testcontainers (hub and endpoint tests with a fake `ILiveKitRooms`; token and RoomService tests against a `LiveKitFixture` container), Vitest (call engine on a fake LiveKit `Room`, store, permissions mapping, grid paging), Playwright with fake media devices against the AppHost's LiveKit (`e2e/call.spec.ts`, en desktop and ar phone, axe), a load and network test (`tests/perf/`), and a manual device session.
 
-**Target Platform**: Azure Container Apps (one `web` replica) plus one call server node (D8). Current Chrome, Edge, Firefox, Safari (iOS 16+). Phones are first-class.
+**Target Platform**: Azure Container Apps (one `web` replica) plus one call server VM (D8). Current Chrome, Edge, Firefox, Safari (iOS 16+). Phones are first-class.
 
 **Project Type**: web application (API + SPA in one production container) plus a separate call server
 
 **Performance Goals**: join to first audio ≤ 2 s median, ≤ 4 s p95 (SC-903); 100 people in an audio call and 25 cameras in a video call on one node under 70% CPU (SC-910, SC-911); at most 9 tiles on a computer and 4 on a phone, never more videos decoded than shown plus one (SC-912); moderation in ≤ 1 s (SC-913); continuous audio at 10% loss (SC-914).
 
-**Constraints**: no media at rest and no recording anywhere; only chat stored; zero-cost dev; WCAG 2.2 AA; four locales with RTL; reduced motion; one API replica; strict CSP; production calls blocked on D8.
+**Constraints**: no media at rest and no recording anywhere; only chat stored; zero-cost dev; WCAG 2.2 AA; four locales with RTL; reduced motion; one API replica; strict CSP; deployed calls wait for T917; dev cloud cost kept minimal (D8).
 
 **Scale/Scope**: one call per circle, up to `Circles:MaxPeople` (100) participants, one call server node.
 
@@ -48,17 +48,17 @@ Merged: T801 to T805 and T809 (foundation, big-circle join, characters, room lay
 | Principle | Status |
 |---|---|
 | I. No issue, no development | Pass. Parent idea #212. Existing task issues #217 to #230 are re-mapped in `tasks.md`; new task issues come from `/speckit-taskstoissues` after this plan. |
-| II. Spec before code | Pass. Founder decisions of 2026-10-08 are recorded as Clarifications. Plan-level interpretations are listed there too, and open founder decisions (D6, D8 to D11) are in research.md. |
+| II. Spec before code | Pass. Founder decisions of 2026-10-08 are recorded as Clarifications. Plan-level interpretations are listed there too, and the founder's answers to D6 and D8 to D11 are recorded in the Clarifications and research.md. |
 | III. Four languages, RTL | Pass. Strings `circles.call.*` (the existing group) in en/fr/ar/es. Every UI task runs an ar phone e2e. |
 | IV. Human-crafted design | Pass with a recorded exception: when Impeccable cannot run (#126), ux-designer reviews by hand (Complexity Tracking). Our own call UI, not a component kit's default look. |
 | V. Private by default | Pass. Calls are for members only; passes are per member and per circle; nothing about a call is stored; no third party sees media or connection checks. Enterprise call policies stay out of scope and would be configuration. |
 | VI. Test what matters | Pass. Hub and endpoint tests for every rule (each animator method refused for participants, guests, non-members, the audience), token tests against a real LiveKit, Playwright per story with fake media against a local LiveKit, a load and network test. |
-| VII. Simple, disposable infrastructure | **Pass with exception.** The call server is a new, self-hosted resource (a VM is recommended) where VII prefers managed services. It stays in `rg-circloo-<env>`, in Bicep, removed by `scripts/destroy`, created only when `callsEnabled` is true. Complexity Tracking; amendment recommended (D9). |
+| VII. Simple, disposable infrastructure | **Pass with exception.** The call server is a new, self-hosted resource (a VM, D8) where VII prefers managed services. It stays in `rg-circloo-<env>`, in Bicep, removed by `scripts/destroy`, created only when `callsEnabled` is true, with a nightly shutdown in dev. Complexity Tracking; the founder chose a MINOR amendment (D9, T930). |
 | VIII. Secure by design | Pass. Threat model below. The LiveKit API secret is a shared key (LiveKit has no managed-identity option): Key Vault in Azure, user-secrets locally, read by the VM through its managed identity. Complexity Tracking. |
 | IX. Zero-cost development | Pass. LiveKit runs as a local container in the AppHost and as a Testcontainers fixture. No paid service in dev or tests. |
-| Tech constraints: "Real time: SignalR + Yjs", "Production is one container" | **Deviation** recorded in Complexity Tracking: a media server beside the app, like the deck converter (spec 006). D9 recommends a MINOR amendment; this plan does not edit the constitution. |
+| Tech constraints: "Real time: SignalR + Yjs", "Production is one container" | **Deviation** recorded in Complexity Tracking: a media server beside the app, like the deck converter (spec 006). The founder chose a MINOR amendment (D9), done by T930 in its own PR; this plan does not edit the constitution. |
 
-**Gate result: PASS** with the Complexity Tracking entries. Production deployment of calls is blocked on D8 (hosting cost), not the implementation. Re-checked after Phase 1 design: unchanged.
+**Gate result: PASS** with the Complexity Tracking entries. All founder decisions are answered. Deployed calls wait for T917 (infra) and, ideally, T930 (amendment) merged first. Re-checked after Phase 1 design: unchanged.
 
 ## Threat model (constitution VIII, FR-923)
 
@@ -81,7 +81,7 @@ Merged: T801 to T805 and T809 (foundation, big-circle join, characters, room lay
 | Clickjacking or a hidden camera prompt | CSP keeps `frame-ancestors 'none'`. `connect-src` gains only the call server's origin. `Permissions-Policy` allows camera and microphone for `self` on the two room routes only, never on the audience screen. |
 | The projector reveals people or plays audio | The audience screen never requests a pass and never receives the roster. It shows the hand count and reactions only. |
 
-Audit events (ids only, never text): `discussion.on`, `discussion.off` (with reason `animator`, `animator-away` or `circle-closed`), `call.mode`, `call.removed`, `discussion.refused`. Not audited, by design (FR-922, D10): joins, leaves, speaking, the floor, mutes, reactions.
+Audit events (ids only, never text): `discussion.on`, `discussion.off` (with reason `animator`, `animator-away` or `circle-closed`), `call.mode`, `call.removed`, `discussion.refused`. Animator actions only (FR-922, founder decision D10). Not audited, by design: joins, leaves, speaking, the floor, mutes, reactions.
 
 ## Project Structure
 
@@ -186,7 +186,7 @@ When Impeccable cannot run (#126), `ux-designer` reviews each UI PR by hand agai
 | Choice | Why needed | Simpler alternative rejected because |
 |---|---|---|
 | A self-hosted LiveKit SFU beside the app (a media server the constitution's "Real time: SignalR + Yjs" does not list, and a second production resource) | Founder decision 2026-10-08: Zoom/Teams-grade calls for the whole circle, performance first, media on our own server and never stored. | The mesh tops out at 8 and cannot enforce the speaking mode. LiveKit Cloud and Azure Communication Services put media on a third party. |
-| A VM for the call server (recommended, D8) where VII prefers managed services | LiveKit needs UDP and TURN/TLS on 443; Container Apps offers neither (HTTP and TCP only, 443 taken). | Container Apps TCP-only fails the performance goal and needs a VNet environment rebuild; Container Instances cannot put TURN on 443 and restarts on host maintenance; AKS adds a cluster for one pod. |
+| A VM for the call server (founder decision D8) where VII prefers managed services, until the D9 amendment (T930) records it | LiveKit needs UDP and TURN/TLS on 443; Container Apps offers neither (HTTP and TCP only, 443 taken). | Container Apps TCP-only fails the performance goal and needs a VNet environment rebuild; Container Instances cannot put TURN on 443 and restarts on host maintenance; AKS adds a cluster for one pod. |
 | A shared API key and secret for LiveKit (not managed identity) | LiveKit authenticates only with HMAC-signed tokens. | No managed-identity option exists. Mitigated: Key Vault, VM managed identity to read it, rotation through multiple keys. |
 | Passes signed by our own code instead of an SDK | No official .NET server SDK; the need is one JWT and five HTTP calls. | A community package adds a single-maintainer supply-chain dependency for about 40 lines. Tested against the real server. |
 | In-memory moderation state, roster and away timer on one replica | They change in milliseconds, follow the live call and must not be stored (FR-930). One replica is already accepted (specs 006 and 008). | Storing them breaks "only chat is saved". A backplane is not needed at this size. A restart loses animator mutes (documented edge case). |
