@@ -25,6 +25,12 @@ public sealed class FakeLiveKitRooms : ILiveKitRooms
     /// <summary>Every permission update that reached someone in a room, in order.</summary>
     public ConcurrentQueue<(string Room, string Identity, CallRights Permission)> Updates { get; } = new();
 
+    /// <summary>Every <c>MutePublishedTrack</c> that reached a published track, in order.</summary>
+    public ConcurrentQueue<(string Room, string Identity, string TrackSid, bool Muted)> TrackMutes { get; } = new();
+
+    /// <summary>Every <c>RemoveParticipant</c> asked for, in order, whether or not the person was in the room.</summary>
+    public ConcurrentQueue<(string Room, string Identity)> Removals { get; } = new();
+
     /// <summary>When true, every call fails like an unreachable call server.</summary>
     public bool Down { get; set; }
 
@@ -48,12 +54,16 @@ public sealed class FakeLiveKitRooms : ILiveKitRooms
     });
 
     /// <summary>Someone connects to a room with a pass carrying <paramref name="permission"/>.</summary>
-    public void Join(string room, Guid memberId, CallRights permission) =>
-        _rooms.GetOrAdd(room, _ => new())[memberId.ToString()] = new CallParticipant(memberId.ToString(), "", "ACTIVE", permission, []);
+    public void Join(string room, Guid memberId, CallRights permission, params CallTrack[] tracks) =>
+        _rooms.GetOrAdd(room, _ => new())[memberId.ToString()] = new CallParticipant(memberId.ToString(), "", "ACTIVE", permission, tracks);
 
     /// <summary>The permission the call server holds for someone now, or null when they are not in the room.</summary>
     public CallRights? PermissionOf(string room, Guid memberId) =>
         _rooms.TryGetValue(room, out var people) && people.TryGetValue(memberId.ToString(), out var p) ? p.Permission : null;
+
+    /// <summary>Someone's published tracks now (empty when they are not in the room).</summary>
+    public IReadOnlyList<CallTrack> TracksOf(string room, Guid memberId) =>
+        _rooms.TryGetValue(room, out var people) && people.TryGetValue(memberId.ToString(), out var p) ? p.Tracks : [];
 
     public IReadOnlyList<(string Identity, CallRights Permission)> UpdatesIn(string room) =>
         [.. Updates.Where(u => u.Room == room).Select(u => (u.Identity, u.Permission))];
@@ -96,19 +106,36 @@ public sealed class FakeLiveKitRooms : ILiveKitRooms
         {
             return Task.FromResult(false);
         }
-        people[identity] = person with { Permission = permission };
+        // Like LiveKit v1.13.7 (pkg/rtc/participant.go, SetPermission): a published track whose source is no longer
+        // allowed is removed at once.
+        var kept = person.Tracks.Where(t => t.Source switch
+        {
+            CallRights.MicrophoneSource => permission.Microphone,
+            CallRights.CameraSource => permission.Camera,
+            _ => false,
+        }).ToList();
+        people[identity] = person with { Permission = permission, Tracks = kept };
         Updates.Enqueue((room, identity, permission));
         return Task.FromResult(true);
     }
 
-    public Task<bool> MutePublishedTrackAsync(string room, string identity, string trackSid, bool muted, CancellationToken ct) => Answer(false);
-
-    public Task<bool> RemoveParticipantAsync(string room, string identity, CancellationToken ct) => Answer(false);
-
-    private Task<bool> Answer(bool value)
+    public Task<bool> MutePublishedTrackAsync(string room, string identity, string trackSid, bool muted, CancellationToken ct)
     {
         ThrowIfDown();
-        return Task.FromResult(value);
+        if (!_rooms.TryGetValue(room, out var people) || !people.TryGetValue(identity, out var person) || person.Tracks.All(t => t.Sid != trackSid))
+        {
+            return Task.FromResult(false);
+        }
+        people[identity] = person with { Tracks = [.. person.Tracks.Select(t => t.Sid == trackSid ? t with { Muted = muted } : t)] };
+        TrackMutes.Enqueue((room, identity, trackSid, muted));
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> RemoveParticipantAsync(string room, string identity, CancellationToken ct)
+    {
+        ThrowIfDown();
+        Removals.Enqueue((room, identity));
+        return Task.FromResult(_rooms.TryGetValue(room, out var people) && people.TryRemove(identity, out _));
     }
 
     private void ThrowIfDown()

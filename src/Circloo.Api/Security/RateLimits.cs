@@ -44,6 +44,12 @@ public static class RateLimits
     /// </summary>
     public const string CallAdmin = "call-admin";
 
+    /// <summary>
+    /// Raising and lowering one's own hand (spec 009 FR-921, contracts/hub.md), 6 per 10 s per member across tabs, with
+    /// or without a call. Counted in the hub with <c>RoomLimits</c> and answered <c>slow-down</c>.
+    /// </summary>
+    public const string Hand = "hand";
+
     public static IServiceCollection AddCirclooRateLimits(this IServiceCollection services, IConfiguration config)
     {
         var opts = config.GetSection(RateLimitOptions.Section).Get<RateLimitOptions>() ?? new RateLimitOptions();

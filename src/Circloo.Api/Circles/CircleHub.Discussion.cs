@@ -3,12 +3,13 @@ using Circloo.Api.Data;
 using Circloo.Api.Discussion;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Circloo.Api.Circles;
 
 /// <summary>
-/// The group call's switches and speaking mode (spec 009 US1, US3, contracts/hub.md). Only the animator, read from the
-/// database on every call, can change them. Audio and video never reach the hub: it holds the settings and puts them
+/// The group call's switches, speaking mode and moderation (spec 009 US1, US3, contracts/hub.md). Only the animator,
+/// read from the database on every call, can change them. Audio and video never reach the hub: it holds the settings and puts them
 /// on the call server. A change the call server does not take is not kept (<c>try-again</c>). Nothing about a call is
 /// written to the chat (FR-930): <c>CallNotice</c> is live only.
 /// </summary>
@@ -136,6 +137,174 @@ public sealed partial class CircleHub
             await everyone.CallNotice(speaking == CallSpeakingModes.Open ? CallNoticeKinds.ModeOpen : CallNoticeKinds.ModeHand, me.Id, null);
         }
     }
+
+    /// <summary>
+    /// Takes <paramref name="source"/> (<c>microphone</c> or <c>camera</c>) away from a participant until
+    /// <see cref="AllowMember"/>: the call server stops the track for everyone, and every new pass leaves it out. They are
+    /// told; nothing is stored or audited (FR-922). Already muted: nothing happens.
+    /// </summary>
+    public async Task MuteMember(Guid memberId, string source)
+    {
+        var (me, target) = await CallSourceActionAsync(nameof(MuteMember), memberId, source);
+        var circle = me.Circle!;
+        if (IsMuted(moderation.Of(circle.Id, target), source))
+        {
+            return;
+        }
+        moderation.Mute(circle.Id, target, source);
+        try
+        {
+            await callPermissions.ApplyAsync(circle, target, CancellationToken.None);
+        }
+        catch (LiveKitException)
+        {
+            moderation.Allow(circle.Id, target, source);
+            throw new HubException("try-again");
+        }
+        var kind = source == CallRights.MicrophoneSource ? CallNoticeKinds.MicMuted : CallNoticeKinds.CameraStopped;
+        await Clients.Group(MemberGroup(target)).CallNotice(kind, me.Id, target);
+    }
+
+    /// <summary>
+    /// Gives a muted source back, as far as the speaking mode and the video switch allow. It never switches a device on
+    /// (FR-908): the person may use it again when they choose. Not muted: nothing happens.
+    /// </summary>
+    public async Task AllowMember(Guid memberId, string source)
+    {
+        var (me, target) = await CallSourceActionAsync(nameof(AllowMember), memberId, source);
+        var circle = me.Circle!;
+        if (!IsMuted(moderation.Of(circle.Id, target), source))
+        {
+            return;
+        }
+        moderation.Allow(circle.Id, target, source);
+        try
+        {
+            await callPermissions.ApplyAsync(circle, target, CancellationToken.None);
+        }
+        catch (LiveKitException)
+        {
+            moderation.Mute(circle.Id, target, source);
+            throw new HubException("try-again");
+        }
+        var kind = source == CallRights.MicrophoneSource ? CallNoticeKinds.MicAllowed : CallNoticeKinds.CameraAllowed;
+        await Clients.Group(MemberGroup(target)).CallNotice(kind, me.Id, target);
+    }
+
+    /// <summary>
+    /// Open mic only: mutes every participant's published microphone. Permissions do not change, so anyone may unmute
+    /// again (a reset, not a lock). In Hand to speak only the floor holder can talk, so it answers <c>mode-invalid</c>.
+    /// </summary>
+    public async Task MuteEveryone()
+    {
+        var me = await CallAdminAsync(nameof(MuteEveryone));
+        var circle = me.Circle!;
+        if (circle.DiscussionSpeaking != CallSpeakingModes.Open)
+        {
+            throw new HubException("mode-invalid");
+        }
+        TakeCallAdmin(me);
+        try
+        {
+            await callPermissions.MuteMicrophonesAsync(circle, CancellationToken.None);
+        }
+        catch (LiveKitException)
+        {
+            throw new HubException("try-again");
+        }
+        await Clients.Group(Group(circle.Id)).CallNotice(CallNoticeKinds.MutedEveryone, me.Id, null);
+    }
+
+    /// <summary>
+    /// Takes a participant out of this call and keeps them out until <see cref="AllowBack"/> or the end of the call:
+    /// no new pass, the call server disconnects them, their hand goes down. They stay in the circle. The one call
+    /// moderation that is audited (<c>call.removed</c>, ids only). Removing again disconnects them again.
+    /// </summary>
+    public async Task RemoveFromCall(Guid memberId)
+    {
+        var me = await CallAdminAsync(nameof(RemoveFromCall));
+        var circle = me.Circle!;
+        TakeCallAdmin(me);
+        var target = await CallTargetAsync(circle.Id, memberId);
+        var first = !moderation.IsRemoved(circle.Id, target);
+        // Kept out first, so a pass asked for at this moment is already refused.
+        moderation.Remove(circle.Id, target);
+        try
+        {
+            await calls.DropAsync(circle.Id, target);
+        }
+        catch (LiveKitException)
+        {
+            if (first)
+            {
+                moderation.AllowBack(circle.Id, target);
+            }
+            throw new HubException("try-again");
+        }
+        if (!first)
+        {
+            return;
+        }
+        await audit.WriteAsync(AuditTypes.CallRemoved, me.UserId, detail: new { circle = circle.Id, member = me.Id, subject = target });
+        await Clients.Group(MemberGroup(target)).CallNotice(CallNoticeKinds.Removed, me.Id, target);
+    }
+
+    /// <summary>Lets a removed participant back into this call (they ask for a new pass). Not removed: nothing happens.</summary>
+    public async Task AllowBack(Guid memberId)
+    {
+        var me = await CallAdminAsync(nameof(AllowBack));
+        var circle = me.Circle!;
+        TakeCallAdmin(me);
+        var target = await CallTargetAsync(circle.Id, memberId);
+        if (!moderation.IsRemoved(circle.Id, target))
+        {
+            return;
+        }
+        moderation.AllowBack(circle.Id, target);
+        await Clients.Group(MemberGroup(target)).CallNotice(CallNoticeKinds.AllowedBack, me.Id, target);
+    }
+
+    /// <summary>The animator gate, then <c>call-off</c>: every moderation method needs a call that is on.</summary>
+    private async Task<CircleMember> CallAdminAsync(string method)
+    {
+        var (_, me) = await DiscussionAnimatorAsync(method);
+        return me.Circle!.DiscussionOn ? me : throw new HubException("call-off");
+    }
+
+    /// <summary>The checks of <see cref="MuteMember"/> and <see cref="AllowMember"/>, in the contract's order.</summary>
+    private async Task<(CircleMember Me, Guid Target)> CallSourceActionAsync(string method, Guid memberId, string source)
+    {
+        var me = await CallAdminAsync(method);
+        if (source is not (CallRights.MicrophoneSource or CallRights.CameraSource))
+        {
+            throw new HubException("source-invalid");
+        }
+        TakeCallAdmin(me);
+        return (me, await CallTargetAsync(me.CircleId, memberId));
+    }
+
+    /// <summary>The <c>call-admin</c> limit: 30 animator call actions per 10 s, across tabs.</summary>
+    private void TakeCallAdmin(CircleMember me)
+    {
+        if (!limits.TryTake(me.Id, RateLimits.CallAdmin, CallAdminPerWindow, CallAdminWindow))
+        {
+            throw new HubException("slow-down");
+        }
+    }
+
+    /// <summary>
+    /// The person an animator acts on: a current member of this circle who is not an animator (an animator may always
+    /// speak and show their camera). Anyone else is <c>member-invalid</c>.
+    /// </summary>
+    private async Task<Guid> CallTargetAsync(Guid circleId, Guid memberId)
+    {
+        var found = await db.CircleMembers.AsNoTracking()
+            .AnyAsync(m => m.Id == memberId && m.CircleId == circleId && m.LeftAt == null && m.Role != Roles.Animator);
+        return found ? memberId : throw new HubException("member-invalid");
+    }
+
+    private static bool IsMuted(MemberModeration state, string source) =>
+        source == CallRights.MicrophoneSource ? state.MicrophoneMuted : state.CameraStopped;
 
     private Task BroadcastDiscussionAsync(Circle circle) =>
         Clients.Group(Group(circle.Id)).Discussion(DiscussionRules.State(circle, livekit.Value));

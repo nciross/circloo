@@ -44,6 +44,16 @@ public static class CallRules
     public static string RoomName(Guid circleId) => $"circle-{circleId:N}";
 
     /// <summary>
+    /// Whether the floor decides who may speak right now: a call is on in Hand to speak. Then giving or taking the
+    /// floor changes a microphone permission on the call server; in Open mic the floor only marks the person.
+    /// </summary>
+    public static bool FloorGivesMicrophone(Circle circle)
+    {
+        ArgumentNullException.ThrowIfNull(circle);
+        return circle.DiscussionOn && circle.DiscussionSpeaking == CallSpeakingModes.Hand;
+    }
+
+    /// <summary>
     /// The permission table of research R22, used for every pass and every live update. Null means "no pass at all":
     /// the call is off or the person was removed from it.
     /// <list type="table">

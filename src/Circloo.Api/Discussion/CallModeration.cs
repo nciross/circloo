@@ -5,8 +5,9 @@ namespace Circloo.Api.Discussion;
 /// <summary>
 /// The animator's decisions about people in the current call of each circle: removals and per-source mutes (spec 009
 /// research R22, R31). In memory only, by design: nothing about a call is stored, and an API restart forgets them
-/// (one replica, accepted in the plan's Complexity Tracking). Every new pass reads it; the hub methods that change it
-/// come with T921, and ending a call clears it.
+/// (one replica, accepted in the plan's Complexity Tracking). Every new pass and every live permission update read it,
+/// the animator's hub methods (<c>MuteMember</c>, <c>AllowMember</c>, <c>RemoveFromCall</c>, <c>AllowBack</c>) change
+/// it, and opening or ending a call clears it.
 /// </summary>
 public sealed class CallModeration
 {

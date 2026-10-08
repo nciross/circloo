@@ -34,6 +34,7 @@ public static class AuditTypes
     public const string DiscussionOff = "discussion.off";
     public const string DiscussionRefused = "discussion.refused";
     public const string CallMode = "call.mode";
+    public const string CallRemoved = "call.removed";
     public const string ChatPaused = "chat.paused";
     public const string ChatSlow = "chat.slow";
     public const string MessageHidden = "message.hidden";
