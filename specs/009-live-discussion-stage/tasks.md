@@ -63,7 +63,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T916 [P] **LiveKit in the AppHost and the test fixture (dev, zero cost).**
+- [x] T916 [P] **LiveKit in the AppHost and the test fixture (dev, zero cost).**
   - `src/Circloo.AppHost/AppHost.cs`: a container `livekit` from `livekit/livekit-server:v1.13.7` (pin noted next to the Gotenberg one), a generated persisted secret parameter `livekit-secret` (at least 32 characters) and a parameter `livekit-node-ip` (default `127.0.0.1`). Configuration in `src/Circloo.AppHost/livekit.dev.yaml`, passed as `LIVEKIT_CONFIG` (YAML body, placeholders filled), and `LIVEKIT_KEYS`, exactly as research R30: ports 7880/7881/7882, `udp_port` mux, `node_ip`, `use_external_ip: false`, `auto_create: false`, `enable_remote_unmute: false`, webhook to the API's endpoint, no TURN, no egress. Endpoints 7880 (http), 7881 (tcp), 7882 (udp) with fixed host ports and `isProxied: false`. The API gets `LiveKit__Url=ws://localhost:7880`, `LiveKit__ApiUrl` (the container endpoint), `LiveKit__ApiKey=circloo-dev`, `LiveKit__ApiSecret` (the parameter). Remove `Discussion__IceUrls__0`.
   - `tests/Circloo.Api.Tests/Infrastructure/LiveKitFixture.cs`: Testcontainers, same image, `--dev --bind 0.0.0.0`, exposing the HTTP port, shared by the LiveKit tests.
   - **Docs**: `docs/architecture/overview.md` local topology already lists `livekit`; re-check ports and the parameter names against the code.
