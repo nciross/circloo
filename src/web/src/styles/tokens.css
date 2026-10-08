@@ -1,12 +1,12 @@
-/* circloo · the orrery. Two grounds (bone by day, the dome by night), ink, brass for instrument
-   marks, one beam of blue for action, violet only for AI, coral only in the face's mouth, and the
+/* circloo · the orrery, in Pure Signal. White by day, off-black by night, hard ink, one cobalt for
+   action and for the instrument marks (the brass tokens carry it), violet only for AI, coral only in the face's mouth, and the
    five skies for the moods. Every text pair is AA or better in both themes (charte graphique, #250).
    The older names (--bg, --surface, --primary, --text…) stay as aliases so every stylesheet keeps
    working while it moves to the new vocabulary. */
 :root {
   color-scheme: light;
 
-  /* Grounds: bone by day (warm, never cream-yellow), paper for what sits on it */
+  /* Grounds: white by day, paper for what sits on it */
   --ground: #ffffff;
   --paper: #ffffff;
   --paper-sunken: #f2f4f7;
@@ -21,7 +21,7 @@
   --ink-faint: #737b86; /* 4.9:1 on paper, 4.6:1 on ground */
   --on-ink: #fafafa;
 
-  /* Brass: the instrument. Tracks, ticks, the running-time rule. */
+  /* The instrument stroke (named brass for history): tracks, ticks, the running-time rule. Cobalt. */
   --brass: #1f4fff; /* 5:1 on paper */
   --brass-faint: #d6dfff;
 
@@ -84,7 +84,7 @@
   --brand-ink: #0f2537;
   --brand-aqua: #22b8cc;
 
-  /* Elevation: offset + soft blur, tinted from the dome */
+  /* Elevation: offset + soft blur, tinted from the ink */
   --shadow-raised: 0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2);
   --shadow-overlay: 0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28);
   --shadow-float: 0 24px 48px -12px rgb(10 10 11 / 0.25), 0 0 1px rgb(10 10 11 / 0.25);
@@ -171,7 +171,7 @@
   --on-ring: var(--on-body);
 }
 
-/* Night: a full theme. Surfaces step up from the dome, beam and violet lighten so text on them
+/* Night: a full theme. Surfaces step up from off-black, beam and violet lighten so text on them
    flips to dark, brass warms. */
 :root[data-theme='dark'] {
   color-scheme: dark;
