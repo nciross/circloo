@@ -146,7 +146,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T920.
 
-- [ ] T922 [US3] **Webhook enforcement, roster and animator away (API).**
+- [x] T922 [US3] **Webhook enforcement, roster and animator away (API).** (#262)
   - `LiveKitWebhook.cs` and `POST /api/livekit/webhook` in `CallEndpoints.cs` per `contracts/rest.md`: signature, `iss`, `sha256`, 64 KB cap, rate limit; `participant_joined` enforcement in the background; roster updates; `CallRoster` coalesced through `LiveThrottle`; `Enter` pushes it.
   - `CallAway.cs`: like `HandsGrace`, on `TimeProvider`. Started in `OnDisconnectedAsync` when the circle's last animator connection closes during a call, cancelled on `Enter` by an animator, fires `DisableDiscussion` logic with reason `animator-away`. `Discussion.away` and `awayEndsAt` broadcast.
   - **Tests** `WebhookTests.cs`: a valid event is accepted; bad signature, wrong `iss`, wrong body hash, expired token and oversized body are refused without detail; a removed member, a former member and a call that is off are removed again; the roster follows joins and leaves and never reaches the audience screen. `CallAwayTests.cs` on `FakeTimeProvider`: an animator back within 5 minutes changes nothing; after 5 minutes the call ends; a second animator tab keeps the call.
