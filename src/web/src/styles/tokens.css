@@ -18,7 +18,7 @@
   /* Ink */
   --ink: #0a0a0a; /* 17:1 on paper */
   --ink-soft: #4d5560; /* 8:1 */
-  --ink-faint: #737b86; /* 4.9:1 on paper, 4.6:1 on ground */
+  --ink-faint: #666e7a; /* 5.1:1 on paper, 4.7:1 on paper-sunken */
   --on-ink: #fafafa;
 
   /* The instrument stroke (named brass for history): tracks, ticks, the running-time rule. Cobalt. */
