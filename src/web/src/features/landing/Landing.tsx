@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Globe, MessageCircle, Pause, Play, Plus, Undo2, Users, type LucideIcon } from 'lucide-react'
+import { Pause, Play, Plus, Undo2 } from 'lucide-react'
 import { SiteHeader } from '../../components/SiteHeader'
 import { LanguageMenu } from '../../components/LanguageMenu'
 import { useDocumentTitle } from '../../app/locale'
@@ -16,6 +16,7 @@ import { Made } from './Made'
 import { Player } from './Player'
 import { Jobs } from './Jobs'
 import { Blobs } from './Blobs'
+import { Scene } from './Scene'
 import { Rounds } from './Rounds'
 import { Samples } from './Samples'
 import { Who } from './Who'
@@ -26,30 +27,10 @@ import '../../styles/landing.css'
 
 const AUTO_DEMO_MS = 1200
 
-/** A small pastel chip with an icon, set inside the headline where the locale string says `<chip/>`. */
-function Chip({ icon: Icon, tone }: { icon: LucideIcon; tone: 'mint' | 'sky' | 'butter' }) {
-  return (
-    <span className={`hchip hchip--${tone}`} aria-hidden="true">
-      <Icon strokeWidth={2.5} />
-    </span>
-  )
-}
-
-/** One headline line: the text around the `<chip/>` placeholder, with the chip in its place. */
-function Line({ text, chip }: { text: string; chip: ReactNode }) {
-  const [before, after] = text.split('<chip/>')
-  return (
-    <span className="hero__line">
-      {before}
-      {after !== undefined ? <>{chip}{after}</> : null}
-    </span>
-  )
-}
-
 /**
- * The landing (issue #247, #250): a white canvas in the language of a people platform. The prompt is the product:
- * one line composes a circle in front of the visitor. A sticky bar with a compact console, a centred headline with
- * pastel chips flanked by character blobs, then the rounds, the four languages, the composition as a join panel,
+ * The landing (issue #247, #250): a white canvas in the language of a people platform. The hero is a short headline
+ * over a live board (friends' cursors, notes, votes, an icebreaker) flanked by character blobs. Right under it the
+ * prompt is the product: one line composes a circle in front of the visitor. Then the rounds, the four languages,
  * who it is for, popular circles, how it works, the story, the three jobs, the questions and the charcoal footer.
  * No scroll animations; every ambient movement has a still path and a pause.
  */
@@ -78,16 +59,12 @@ export function Landing() {
   const { run, start } = useCompose(locale, playing, words)
   const examples = useMemo(() => t('landing.say.list', { returnObjects: true }) as string[], [t])
 
-  const scrollToMade = (block: ScrollLogicalPosition) => {
-    document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block })
-  }
-
   const build = (line: string) => {
     touched.current = true
     if (!line.trim()) return
     start(line)
-    // The composition sits further down the page: bring it into view so the line is seen becoming a circle.
-    scrollToMade('center')
+    // The composition sits under the console: bring it into view (only as far as needed) so the line is seen becoming a circle.
+    document.getElementById('made')?.scrollIntoView({ behavior: playing ? 'smooth' : 'auto', block: 'nearest' })
   }
 
   // Nobody touched the console: the first example composes itself, so the page moves on arrival. Pause stops it.
@@ -114,29 +91,7 @@ export function Landing() {
 
   return (
     <div className={`site${motion.still ? ' is-still' : ''}`} data-motion={lm.on ? 'on' : 'off'}>
-      <SiteHeader
-        tone="site"
-        showLanguages={false}
-        links={(
-          <div className="sitebar__centre">
-            <Say
-              compact
-              text={text}
-              onText={setText}
-              onBuild={build}
-              onTouch={touch}
-              mood={mood}
-              placeholder={t('landing.say.navPlaceholder')}
-              trailing={(
-                <span className="say__lang">
-                  <Globe size={16} strokeWidth={2.25} aria-hidden="true" />
-                  <span>{t(`common.languages.${locale}`)}</span>
-                </span>
-              )}
-            />
-          </div>
-        )}
-      >
+      <SiteHeader tone="site" showLanguages={false}>
         <LanguageMenu />
         <Link to="/signin" className="sitebar__signin" viewTransition>{t('landing.nav.login')}</Link>
         <Link to="/signin" className="btn btn--sm btn--charcoal" viewTransition>{t('landing.cta')}</Link>
@@ -146,21 +101,8 @@ export function Landing() {
         <section id="start" className="hero" aria-labelledby="hero-title">
           <Blobs />
           <div className="hero__copy">
-            <h1 id="hero-title" className="hero__title">
-              <Line text={t('landing.hero.l1')} chip={<Chip icon={Users} tone="mint" />} />
-              <Line text={t('landing.hero.l2')} chip={<Chip icon={MessageCircle} tone="sky" />} />
-              <Line text={t('landing.hero.l3')} chip={<Chip icon={Globe} tone="butter" />} />
-            </h1>
-            <p className="hero__lead">{t('landing.hero.lead')}</p>
-            <Say
-              text={text}
-              onText={setText}
-              onBuild={build}
-              onTouch={touch}
-              mood={mood}
-              idle={playing ? 'idle' : undefined}
-              examples={examples}
-            />
+            <h1 id="hero-title" className="hero__title">{t('landing.hero.scene')}</h1>
+            <Scene />
             <div className="hero__motion">
               {motion.offered ? (
                 <button type="button" className="motion-toggle" aria-pressed={motion.still} onClick={motion.toggle}>
@@ -178,12 +120,24 @@ export function Landing() {
           </div>
         </section>
 
+        <section id="build" className="strip build" aria-labelledby="build-title">
+          <h2 id="build-title" className="section-title section-title--center">{t('landing.hero.build')}</h2>
+          <Say
+            text={text}
+            onText={setText}
+            onBuild={build}
+            onTouch={touch}
+            mood={mood}
+            idle={playing ? 'idle' : undefined}
+            examples={examples}
+          />
+          <div id="made" className="join">
+            <Made run={run} motion={playing} />
+          </div>
+        </section>
+
         <Rounds />
         <Samples />
-
-        <section id="made" className="strip join" aria-label={t('landing.made.preview')}>
-          <Made run={run} motion={playing} />
-        </section>
 
         <Who />
         <Popular />

@@ -53,12 +53,9 @@
       "login": "Iniciar sesión"
     },
     "hero": {
-      "title": "Di qué necesita tu círculo.",
-      "title2": "circloo lo prepara.",
-      "l1": "Di lo que tu <chip/> círculo necesita.",
-      "l2": "circloo lo deja <chip/> listo.",
-      "l3": "En cuatro <chip/> idiomas.",
-      "lead": "Una línea abre un espacio privado para tu gente: un juego, un tablero, un registro diario. Sin contraseña y sin anuncios."
+      "scene": "Tu círculo, juntos y en vivo.",
+      "live": "En vivo",
+      "build": "Di lo que tu círculo necesita. circloo lo deja listo."
     },
     "say": {
       "label": "¿Para qué es?",
@@ -70,8 +67,7 @@
         "Una retro para mi equipo de 6, en francés",
         "Comida del domingo en familia, algo gracioso para los niños",
         "Noche de juegos con 5 amigos: chistes y un «qué prefieres»"
-      ],
-      "navPlaceholder": "¿Para qué es tu círculo?"
+      ]
     },
     "blobs": {
       "a": "domingo en familia",

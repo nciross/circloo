@@ -53,12 +53,9 @@
       "login": "Se connecter"
     },
     "hero": {
-      "title": "Dis ce qu'il faut à ton cercle.",
-      "title2": "circloo le prépare.",
-      "l1": "Dites ce dont votre <chip/> cercle a besoin.",
-      "l2": "circloo le met <chip/> en place.",
-      "l3": "En quatre <chip/> langues.",
-      "lead": "Une ligne ouvre un espace privé pour vos proches : un jeu, un tableau, un point du jour. Sans mot de passe, sans publicité."
+      "scene": "Votre cercle, ensemble, en direct.",
+      "live": "En direct",
+      "build": "Dites ce dont votre cercle a besoin. circloo le met en place."
     },
     "say": {
       "label": "C'est pour quoi ?",
@@ -70,8 +67,7 @@
         "Une rétro pour mon équipe de 6, en français",
         "Déjeuner du dimanche en famille, un truc rigolo pour les enfants",
         "Soirée jeux avec 5 amis : des blagues et un « tu préfères »"
-      ],
-      "navPlaceholder": "À quoi sert votre cercle ?"
+      ]
     },
     "blobs": {
       "a": "dimanche en famille",

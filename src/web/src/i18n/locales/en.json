@@ -53,12 +53,9 @@
       "login": "Log in"
     },
     "hero": {
-      "title": "Say what your circle needs.",
-      "title2": "circloo sets it up.",
-      "l1": "Say what your <chip/> circle needs.",
-      "l2": "circloo sets it <chip/> up.",
-      "l3": "In four <chip/> languages.",
-      "lead": "One line opens a private room for your people: a game, a board, a daily check-in. No password, no ads."
+      "scene": "Your circle, live together.",
+      "live": "Live",
+      "build": "Say what your circle needs. circloo sets it up."
     },
     "say": {
       "label": "What is it for?",
@@ -70,8 +67,7 @@
         "A retro for my team of 6, in French",
         "Sunday lunch with the family, something silly for the kids",
         "Game night with 5 friends: jokes and a would-you-rather"
-      ],
-      "navPlaceholder": "What is your circle for?"
+      ]
     },
     "blobs": {
       "a": "family sunday",
