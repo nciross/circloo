@@ -201,8 +201,8 @@
 .on-field .btn--subtle {
   --btn-fg: var(--on-field);
   --btn-ring: var(--on-field);
-  --btn-bg-hover: rgb(255 255 255 / 0.12);
-  --btn-bg-active: rgb(255 255 255 / 0.18);
+  --btn-bg-hover: var(--field-deep);
+  --btn-bg-active: var(--field-deep);
 }
 @keyframes spin-soft {
   to {
@@ -1228,7 +1228,7 @@
   color: var(--on-field);
 }
 .sitebar--field .brand:hover {
-  background: rgb(255 255 255 / 0.12);
+  background: var(--field-deep);
 }
 .sitebar--field .lang-menu__trigger {
   min-block-size: 2.25rem;
@@ -1242,7 +1242,7 @@
 .sitebar--field .lang-menu__trigger:hover,
 .sitebar--field .lang-menu__trigger[aria-expanded='true'] {
   border-color: var(--on-field);
-  background: rgb(255 255 255 / 0.12);
+  background: var(--field-deep);
 }
 .sitebar--field .lang-menu__trigger .dropdown__chevron {
   color: inherit;

@@ -1,115 +1,137 @@
 ---
 name: circloo
-description: An orrery of people. Pure Signal: white by Day, off-black at Night, ink, cobalt marks that measure, one beam of blue for action, violet only for AI, five skies for the moods, and a face that feels what the circle feels.
+description: A buddy list. A white canvas, near-black ink, exactly one blue, one dark card per view with your people as characters in rows and every count as a ten-segment meter; on the public site, a cobalt field with a yellow sun. Violet only for AI, coral only in the face's mouth, five skies for the moods.
 colors:
   ground: "#ffffff"
   paper: "#ffffff"
-  paper-sunken: "#f2f4f7"
-  paper-hover: "#e9ecf1"
-  paper-pressed: "#dde1e8"
-  hairline: "#e4e7ec"
-  hairline-strong: "#9aa3b0"
-  ink: "#0a0a0a"
-  ink-soft: "#4d5560"
-  ink-faint: "#737b86"
-  on-ink: "#fafafa"
-  cobalt (the `brass` tokens): "#1f4fff"
-  cobalt (the `brass` tokens)-faint: "#d6dfff"
-  beam: "#1f4fff"
-  beam-hover: "#1740d6"
-  beam-pressed: "#1233ad"
-  beam-subtle: "#eaf0ff"
-  beam-text: "#1a44db"
+  paper-sunken: "#f4f4f4"
+  paper-hover: "#ededed"
+  paper-pressed: "#e0e0e0"
+  hairline: "#e6e6e6"
+  hairline-strong: "#c4c4c4"
+  ink: "#111111"
+  ink-soft: "#5b5f66"
+  ink-faint: "#6b6b6b"
+  on-ink: "#ffffff"
+  beam: "#2b6bf3"
+  beam-hover: "#1f5be0"
+  beam-pressed: "#1a4fc7"
+  beam-subtle: "#e8effe"
+  beam-text: "#1d5be3"
   on-beam: "#ffffff"
-  focus: "#3b66ff"
+  focus: "#2b6bf3"
+  card: "#161616"
+  card-line: "#2a2a2a"
+  card-sunken: "#222222"
+  on-card: "#ffffff"
+  on-card-soft: "#cfcfcf"
+  on-card-faint: "#9a9a9a"
+  seg-empty: "#3c3c3c"
+  ok: "#2fd6c3"
+  mid: "#f4623a"
+  low: "#e5484d"
+  field: "#2b5cf0"
+  field-deep: "#1e45c4"
+  field-shade: "#6d28d9"
+  on-field: "#ffffff"
+  sun: "#ffd23f"
+  on-sun: "#111111"
+  note: "#fff3b0"
   ai: "#6a4fd1"
-  ai-hover: "#5a40bd"
   ai-subtle: "#f2efff"
   ai-border: "#d9d0fb"
   ai-text: "#5638c2"
   on-ai: "#ffffff"
   sky-stormy: "#2f3a52"
   sky-foggy: "#aab4c3"
-  sky-cloudy: "#cfd6e2"
+  sky-cloudy: "#d6d6d6"
   sky-bright: "#7fb8ff"
-  sky-sunny: "#ffc53d"
-  on-sky: "#0a0a0a"
+  sky-sunny: "#ffd23f"
+  on-sky: "#111111"
   on-sky-stormy: "#ffffff"
   coral: "#ef4a32"
-  live: "#1c7c52"
-  live-subtle: "#dcf5e8"
-  live-text: "#145c3b"
-  danger: "#c9372c"
-  danger-subtle: "#ffeceb"
-  danger-text: "#ae2a19"
-  warning-subtle: "#fff2cf"
-  warning-text: "#7a4f01"
-  neutral-subtle: "#f2f4f7"
-  neutral-text: "#4d5560"
+  live: "#178a66"
+  live-subtle: "#dcf5ec"
+  live-text: "#126b4f"
+  danger: "#d93a3f"
+  danger-subtle: "#ffecec"
+  danger-text: "#b4262b"
+  warning-subtle: "#fff4cc"
+  warning-text: "#6e4a00"
+  neutral-subtle: "#f4f4f4"
+  neutral-text: "#5b5f66"
   body-1: "#1d4ed8"
   body-2: "#c2410c"
   body-3: "#15803d"
   body-4: "#9d174d"
   body-5: "#0e7490"
-  brand-ink: "#0f2537"
-  night-ground: "#0a0a0b"
-  night-paper: "#111318"
-  night-ink: "#fafafa"
-  night-cobalt (the `brass` tokens): "#6b8cff"
-  night-beam: "#6b8cff"
+  night-ground: "#0f0f10"
+  night-paper: "#161616"
+  night-ink: "#f5f5f5"
+  night-beam: "#6d9bff"
+  night-card: "#f5f5f5"
+  night-on-card: "#111111"
   night-ai: "#9f8fef"
 typography:
-  family: "'Readex Pro Variable', 'Readex Pro', system-ui, sans-serif"
+  family: "'Rubik Variable', 'Rubik', system-ui, sans-serif"
+  hand: "'Caveat Variable', 'Caveat', 'Rubik Variable', system-ui, sans-serif"
   display:
-    fontSize: "clamp(2.25rem, 1.5rem + 3vw, 3.75rem)"
-    fontWeight: 600
+    fontSize: "clamp(2.75rem, 1.5rem + 5vw, 5.5rem)"
+    fontWeight: 900
     lineHeight: 1.05
     letterSpacing: "-0.03em"
-  reading:
-    fontSize: "clamp(2.5rem, 2rem + 2vw, 4.5rem)"
-    fontWeight: "300–700 (var(--reading-weight), set by the mood)"
-    lineHeight: 1
-    letterSpacing: "-0.02em"
-    fontVariation: "'wght' var(--reading-weight)"
-    fontFeature: "tabular-nums"
+  page-title:
+    fontSize: "clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem)"
+    fontWeight: 900
+    lineHeight: 0.95
+    letterSpacing: "-0.035em"
+  lead:
+    fontSize: "1.3125rem"
+    fontWeight: 700
+    color: "{colors.beam-text}"
   section:
-    fontSize: "clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)"
-    fontWeight: 600
+    fontSize: "clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem)"
+    fontWeight: 800
+    letterSpacing: "-0.03em"
+  card-title:
+    fontSize: "1.625rem"
+    fontWeight: 800
     letterSpacing: "-0.02em"
-  title:
-    fontSize: "1.5rem"
-    fontWeight: 600
-    letterSpacing: "-0.02em"
-  headline:
-    fontSize: "1.25rem"
-    fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: "-0.01em"
   panel-title:
-    fontSize: "1.0625rem"
-    fontWeight: 600
+    fontSize: "1.3125rem"
+    fontWeight: 800
+    letterSpacing: "-0.02em"
+  row-name:
+    fontSize: "1.125rem"
+    fontWeight: 700
+    lineHeight: 1.15
   body:
-    fontSize: "0.9375rem"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
   small:
-    fontSize: "0.8125rem"
-  caption:
-    fontSize: "0.75rem"
-    fontWeight: 600
-    letterSpacing: "0.02em"
+    fontSize: "0.875rem"
   label:
     fontSize: "0.6875rem"
     fontWeight: 700
-    letterSpacing: "0.06em"
+    letterSpacing: "0.12em"
     textTransform: uppercase
+  microcopy:
+    fontSize: "0.625rem–0.6875rem"
+    fontWeight: 700
+    letterSpacing: "0.15em"
+    textTransform: uppercase
+  handwritten:
+    fontSize: "1.375rem–1.75rem"
+    fontWeight: 500
+    rotate: "-6deg to 8deg"
 rounded:
-  xs: "3px"
-  sm: "6px"
-  md: "8px"
-  lg: "12px"
-  xl: "20px"
-  ring: "999px"
+  xs: "4px"
+  sm: "10px"
+  md: "16px"
+  lg: "22px"
+  xl: "28px"
+  pill: "999px"
 spacing:
   grid: "4px"
   s-1: "0.25rem"
@@ -122,531 +144,186 @@ spacing:
   s-8: "3rem"
   s-9: "4.5rem"
   s-10: "6rem"
-  gutter: "clamp(1rem, 3vw, 2rem)"
+  gutter: "clamp(1rem, 3vw, 2.5rem)"
 layout:
-  topbar-height: "3.5rem"
-  sidebar-width: "15.5rem"
+  topbar-height: "3.75rem"
   content-max: "76rem"
-  site-max: "74rem"
-  workbar-height: "3.5rem"
-  ring-lg: "15rem"
-  ring-sm: "7.5rem"
-  ring-workbar: "2.25rem"
+  site-max: "78rem"
+  drawer-breakpoint: "62rem"
+  home-grid: "7fr 5fr, one column under 60rem"
+  phone-sheet: "44dvh"
+  character-site: "96px"
+  character-row: "44px"
+  character-stack: "32px"
+  character-strip: "24px"
 components:
-  button-primary: { backgroundColor: "{colors.beam}", textColor: "{colors.on-beam}", rounded: "{rounded.sm}", height: "2.25rem", padding: "0.4rem 0.9rem" }
-  button-primary-hover: { backgroundColor: "{colors.beam-hover}" }
-  button-default: { backgroundColor: "{colors.paper-sunken}", textColor: "{colors.ink}", rounded: "{rounded.sm}", height: "2.25rem" }
-  button-subtle: { backgroundColor: "transparent", textColor: "{colors.ink}", rounded: "{rounded.sm}", height: "2.25rem" }
-  button-ai: { backgroundColor: "{colors.ai}", textColor: "{colors.on-ai}", rounded: "{rounded.sm}", height: "2.25rem" }
-  button-danger: { backgroundColor: "{colors.danger}", textColor: "#ffffff", rounded: "{rounded.sm}", height: "2.25rem" }
-  icon-button: { backgroundColor: "transparent", textColor: "{colors.ink-soft}", rounded: "{rounded.sm}", size: "2.25rem" }
-  chip: { backgroundColor: "{colors.paper}", textColor: "{colors.ink}", rounded: "{rounded.ring}", height: "2rem", padding: "0.3rem 0.75rem" }
-  chip-on: { backgroundColor: "{colors.beam-subtle}", textColor: "{colors.beam-text}" }
-  lozenge: { backgroundColor: "{colors.neutral-subtle}", textColor: "{colors.neutral-text}", rounded: "{rounded.xs}", typography: "{typography.label}", padding: "0 0.35rem" }
-  lozenge-live: { backgroundColor: "{colors.live-subtle}", textColor: "{colors.live-text}" }
-  lozenge-ai: { backgroundColor: "{colors.ai-subtle}", textColor: "{colors.ai-text}" }
-  input: { backgroundColor: "{colors.paper}", textColor: "{colors.ink}", rounded: "{rounded.sm}", height: "2.75rem", padding: "0.5rem 0.85rem" }
-  panel: { backgroundColor: "{colors.paper}", rounded: "{rounded.md}", padding: "1.25rem" }
-  orbit-card: { backgroundColor: "{colors.paper}", textColor: "{colors.ink}", rounded: "{rounded.lg}", padding: "1rem" }
-  nav-item: { backgroundColor: "transparent", textColor: "{colors.ink-soft}", rounded: "{rounded.sm}", height: "2.25rem" }
-  nav-item-active: { backgroundColor: "{colors.paper}", textColor: "{colors.ink}" }
-  ask-bar: { backgroundColor: "{colors.paper-sunken}", textColor: "{colors.ink-faint}", rounded: "{rounded.ring}", height: "2.25rem" }
-  toast: { backgroundColor: "{colors.ink}", textColor: "{colors.on-ink}", rounded: "{rounded.md}", padding: "0.75rem 1rem" }
+  button-primary: { backgroundColor: "{colors.ink}", textColor: "{colors.on-ink}", rounded: "{rounded.pill}", height: "2.75rem", padding: "0.5rem 1.4rem", fontWeight: 700 }
+  button-primary-on-card: { backgroundColor: "{colors.on-card}", textColor: "{colors.card}", rounded: "{rounded.pill}" }
+  button-default: { backgroundColor: "transparent", textColor: "{colors.ink}", border: "2px {colors.ink}", rounded: "{rounded.pill}", height: "2.75rem" }
+  button-subtle: { backgroundColor: "transparent", textColor: "{colors.ink}", rounded: "{rounded.pill}", height: "2.75rem" }
+  button-beam: { backgroundColor: "{colors.beam}", textColor: "{colors.on-beam}", rounded: "{rounded.pill}" }
+  button-sun: { backgroundColor: "{colors.sun}", textColor: "{colors.on-sun}", rounded: "{rounded.pill}" }
+  button-ai: { backgroundColor: "{colors.ai}", textColor: "{colors.on-ai}", rounded: "{rounded.pill}" }
+  button-danger: { backgroundColor: "{colors.danger}", textColor: "{colors.on-danger}", rounded: "{rounded.pill}" }
+  panel: { backgroundColor: "{colors.paper}", border: "2px {colors.hairline}", rounded: "{rounded.lg}", shadow: "none" }
+  panel-dark: { backgroundColor: "{colors.card}", textColor: "{colors.on-card}", rounded: "{rounded.xl}", shadow: "0 40px 80px -30px rgb(0 0 0 / 0.45), 0 18px 36px -24px rgb(0 0 0 / 0.4)" }
+  buddy-row: { columns: "2.75rem minmax(0, 1fr) auto", padding: "0.75rem 0", divider: "1px {colors.card-line}" }
+  meter: { segments: 10, segmentHeight: "12px", gap: "4px", rounded: "3px", empty: "{colors.seg-empty}", fills: "ok | mid | low | ink | beam" }
+  input: { backgroundColor: "{colors.paper}", border: "2px {colors.hairline}", rounded: "{rounded.pill}", height: "2.75rem", focus: "{colors.focus}" }
+  lozenge: { backgroundColor: "{colors.neutral-subtle}", textColor: "{colors.neutral-text}", rounded: "{rounded.pill}", fontSize: "0.6875rem", letterSpacing: "0.12em" }
+  mood-tile: { border: "2px {colors.hairline}", rounded: "18px", pressed: "{colors.ink} fill, {colors.on-ink} text" }
+  navitem: { rounded: "{rounded.pill}", current: "{colors.ink} fill, {colors.on-ink} text" }
 ---
 
 # Design System: circloo
 
 ## Overview
 
-**Creative North Star: "The Orrery"**
+circloo is a buddy list. Your people are characters in rows on one dark card; everything counted (who is here, who checked in today, votes, the time left in a round) is a ten-segment meter; the headline is the loudest thing on every page. The founder picked this language on 2026-10-08 from a mock built on two references he sent, after rejecting two quieter systems. It is warm consumer software, not an enterprise console: white paper, heavy rounded type, playful characters, pills everywhere, and one dark object per view that holds the live thing.
 
-circloo is an orrery of people. A circle is a ring, its members are bodies on that ring, and a round is a
-transit everyone watches together. The world is built from the orrery's materials and nothing else: two
-grounds (a cool off-white by Day, off-black `#0a0a0b` by Night), ink for everything that is read, cobalt (the `brass` tokens) for
-every mark that measures something, one beam of blue for the one thing to do, violet only where AI wrote
-something, and the five mood skies as fills. It refuses the SaaS dashboard (white cards on grey, one accent)
-and the enterprise sidebar-as-identity it replaced (issue #250).
+Two surfaces share the vocabulary:
 
-The chrome is quiet so three things can carry colour: the people (characters and avatars keep their fixed
-colours in both themes), the face (the "oo" of the wordmark, coral mouth), and the content (an icebreaker set
-large on a dealt card, a live canvas, a reveal). Density is medium: 15px body on a 4px grid, panels with one
-hairline, lists that stagger in. Rings, arcs, ticks and hairlines are the only ornament, and each one carries
-data: who is on the ring, how far the round has run, which option is picked, where the time stands.
+- **The app** runs on a white canvas with near-black ink. One blue for links, the lead line and picked things. One dark card per view.
+- **The public hero** is a saturated cobalt field with white type, a yellow sun for its one button, the circle composing itself as an oversized round table, and a handwritten layer of asides, arrows, a sticky note and a notepad. Below the fold the site runs on the white canvas like the app.
 
-Night is a full theme, not an inversion. Some surfaces are pinned to off-black in both themes because a room
-reads best with light content on a dark ground: the public site's first and last bands, the presenter view and
-the audience screen. Those surfaces redeclare the Night tokens as literals so every shared component inside
-follows.
-
-**Key Characteristics:**
-- Two grounds, Day and Night, with every text pair AA or better in both.
-- The ring is the signature: cobalt (the `brass` tokens) track, bodies at equal angles, the circle's sky inside, a cobalt (the `brass` tokens) arc while a round runs, mirrored in RTL.
-- Cobalt (the `brass` tokens) measures, beam acts, violet means AI, coral is the mouth. Nothing else is coloured.
-- One family (Readex Pro, variable) for Latin and Arabic; hierarchy by scale and weight; the instrument numeral's weight follows the mood.
-- Hairline grids: cells share one hairline, cards do not float in a grid.
-- One motion grammar (duration tokens, three springs, exponential ease-out), every animation with a reduced-motion path that keeps the meaning.
-- Four languages, logical properties, Arabic as a first-class mirrored layout.
+Night is a full theme: the canvas goes near-black, the focal card goes light, blue lightens and its text flips to dark. Nothing is hard-coded; every colour is a token in `src/web/src/styles/tokens.css`.
 
 ## Colors
 
-The palette is the orrery's materials: grounds, paper, ink, cobalt (the `brass` tokens), one beam, violet for AI, five skies and one coral.
+### Canvas and ink
+`ground` and `paper` are both white. `paper-sunken` is the only grey well (search fields on the canvas, the sunken option in a toggle). `hairline` draws the 2px outlines of panels and inputs; `hairline-strong` the dot grid of the whiteboard and switch tracks. `ink` carries everything that matters, `ink-soft` leads and secondary text, `ink-faint` hints and placeholders (5.3:1 on paper).
 
-### Primary
-- **Beam** (`beam`, `#1f4fff`; Night `#6b8cff`): the one colour that means "do this". The primary button, the
-  caret in every field, the switch when on, the picked option (`beam-subtle` fill with a `beam` border on
-  character and activity pickers), the "you" outline on a ring body (3px), the hover arrow on an orbit card.
-  `beam-text` is the link colour on ground and paper. Text on beam is `on-beam`, which flips to off-black at Night.
+### The one blue
+`beam` is links, the lead line under every page title (`page-header__lead`, bold), the picked option (`beam-subtle` fill, `beam-text`), the focus ring, Pirikoo's calling ring, and at most one blue button per view (`btn--beam`: the site's Build). Primary buttons are **ink pills**, not blue.
 
-### Secondary
-- **AI violet** (`ai`, `#6a4fd1`; Night `#9f8fef`): "circloo wrote or will write this" and nothing else. The
-  AI button, the `ai-mark` square, Pirikoo's bubbles (`ai-subtle` fill, 1px `ai-border`, a violet caret while
-  words stream), the AI panel head, the Suggested by AI lozenge, the plan step that asks the AI.
+### The dark card
+`card` (#161616) with `on-card` white text, `on-card-soft` for secondary lines (12:1), `on-card-faint` for status lines (5.4:1), `card-line` dividers, `card-sunken` wells. Inside it, and only inside it, live the three status colours: `ok` teal (here, healthy, done), `mid` orange (partial, a second source), `low` red (away, late, empty). They appear as `buddy__value` words at 18px bold and as meter fills, never on the white canvas, never as the only signal.
 
-### Tertiary
-- **Cobalt (the `brass` tokens)** (`cobalt (the `brass` tokens)`, `#1f4fff`; Night `#6b8cff`) and **cobalt (the `brass` tokens) faint** (`cobalt (the `brass` tokens)-faint`): the instrument. The
-  idle ring track is cobalt (the `brass` tokens) faint; the running arc, the top tick, the round's time rule in the work bar, the
-  filled code tile's rule, the selected segment's and nav item's tick, the chosen dropdown item's icon, the
-  table head's rule, upload progress and the Pirikoo launcher's "something to say" ring are cobalt (the `brass` tokens). Cobalt (the `brass` tokens) is
-  never a button and never running text; an orbit card borders in cobalt (the `brass` tokens) on hover.
-- **Coral** (`coral`, `#ef4a32`): the face's mouth. It appears nowhere else.
-- **The five skies** (`sky-stormy` … `sky-sunny`): the moods, as fills. They fill the inside of a ring and
-  the picked mood chip on the landing's demo, and they rank the options in a presentation's reveal (sunny for
-  first, bright, cloudy, foggy, stormy for the rest). Text on `sky-stormy` is `on-sky-stormy`; on every other
-  sky it is `on-sky`. A sky fill always sits beside the mood's icon and word.
+### The field and the sun
+`field` (#2b5cf0) fills the public hero edge to edge; type is `on-field` white, the paragraph `on-field-soft` (90%). `sun` (#ffd23f) is the one accent on the field: the Build button and the hand-drawn underline. `field-shade` purple is the table's cast shadow and never chrome. `note` is the sticky-note paper.
 
-### Neutral
-- **Ground** (`ground`, `#ffffff`; Night off-black `#0a0a0b`): the page and the navigation rail. The two
-  theme swatches in Settings are these two literals.
-- **Paper** (`paper`, `#ffffff`; Night `#111318`): every panel, bar, card, input and ring body. `paper-sunken`
-  is wells, tracks, panel feet, the Ask bar and the default button; `paper-hover` and `paper-pressed` are one and
-  two steps down.
-- **Hairline** (`hairline`, `#e4e7ec`) for every 1px border, row divider and grid gap; `hairline-strong`
-  (`#9aa3b0`) for inputs, chips, dashed drop zones, the switch track and the scrollbar thumb.
-- **Ink** (`ink`, `#0a0a0a`; Night white `#fafafa`) for everything that matters; `ink-soft` for leads and
-  secondary text; `ink-faint` for hints, placeholders, column heads and the idle status dot. `on-ink` is the
-  text on an ink block (the toast).
-- **Status**: `live` for what is happening now (the status dot, the Live lozenge, kept cards, the Connected
-  lozenge), `danger` for destructive buttons and errors, `warning-text` on `warning-subtle` for reconnecting
-  and energizers, `info-subtle`/`info-text` (the beam pair) for notices. `neutral-subtle`/`neutral-text` is
-  the base lozenge.
-- **Bodies** (`body-1` … `body-5`): the ring around a character when two people share it, and the five avatar
-  fills. At least 3:1 on paper in both themes.
-- **Brand ink** (`brand-ink`, `#0f2537`): the cast's outlines and the PWA icon tile, in both themes.
+### AI violet
+`ai`, `ai-subtle`, `ai-border`, `ai-text`, `on-ai`: Pirikoo's bubbles, the Ask panel's "Suggested by AI" lozenge, the "AI" lozenge next to Pirikoo's name. If it is violet, AI made it; if AI made it, it is labelled.
 
-### Named Rules
-**The Violet Rule.** If it is violet, AI made it. If AI made it, it is labelled.
+### The five skies
+`sky-stormy` to `sky-sunny` are the moods, always with the icon and the word. On the canvas the mood tiles are outlined and the picked one is ink; the skies colour chips and day cells.
 
-**The Cobalt (the `brass` tokens) Measures Rule.** Every cobalt (the `brass` tokens) mark carries data (a track, a progress, a tick, a selection, a rule
-under a running time). Cobalt (the `brass` tokens) is never a button, never running text, never decoration.
+### Coral and status
+`coral` is the face's mouth, nowhere else. `live`, `danger`, `warning` and `info` are canvas status colours for lozenges, field messages and the one destructive button.
 
-**The One Beam Rule.** One primary button per view. Beam is spent on the next action and on nothing else.
-
-**The Coral Rule.** Coral is the mouth. No badge, no dot, no accent anywhere else.
-
-**The Sky With a Word Rule.** A sky fill never stands alone: the mood's icon and word sit beside it, so colour is
-never the only signal.
-
-**The Two Grounds Rule.** Night is a full theme defined once in `tokens.css` under `[data-theme='dark']` and
-under `prefers-color-scheme: dark` when the person chose "Match my device". A surface that must stay on off-black
-in both themes (the site's first and last bands, the presenter and audience views) redeclares the Night values
-as literals with the legacy aliases, so every shared component inside follows without a second stylesheet.
+### Named rules
+- One dark card per view. Never two side by side; never a dark card inside another card.
+- `ok`/`mid`/`low` only on `card`.
+- Blue is never a fill behind running text.
+- Night is tokens flipping, never a second stylesheet.
 
 ## Typography
 
-**Display Font:** Readex Pro Variable (self-hosted, Latin and Arabic; falls back to system-ui)
-**Body Font:** Readex Pro Variable (same family)
-**Label/Mono Font:** none; numerals use `font-variant-numeric: tabular-nums` in the same family
-
-**Character:** one warm, round, highly legible family at every size. Hierarchy comes from scale and weight,
-never from a second face. The instrument numeral is the one place the variable weight axis is driven by data.
+One family, **Rubik** (variable, 300–900), for Latin and Arabic. **Caveat** for the handwritten asides on the site; it has no Arabic glyphs, so Arabic asides fall back to Rubik 500 with the same rotation.
 
 ### Hierarchy
-- **Display** (600, `clamp(2.25rem, 1.5rem + 3vw, 3.75rem)`, 1.05, -0.03em): the public site's headline token.
-  The landing's console title runs larger still (`clamp(2.5rem, 2rem + 4vw, 5rem)`, line height 1.02) on off-black.
-- **Reading** (300–700 by mood, `clamp(2.5rem, 2rem + 2vw, 4.5rem)`, 1, -0.02em, tabular): the instrument
-  numeral in a ring's centre. `--reading-weight` defaults to 600 and the ring's sky modifier sets it: 300 stormy,
-  400 foggy, 500 cloudy, 600 bright, 700 sunny; the change tweens over `--dur-focal`. `.reading__of` is the
-  small "of n" at 0.4em, weight 500.
-- **Section** (600, `clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)`, -0.02em to -0.025em): page titles in the page
-  header, site section titles, the six code tiles.
-- **Title** (600, 1.5rem, -0.02em): the auth card's title, the lead orbit's circle name, the bare teaser question.
-- **Headline** (600, 1.25rem, 1.3, -0.01em): the work bar's circle name, the orrery's heading, the teaser question.
-- **Panel title** (600, 1.0625rem): panel, card and dialog titles; an orbit card's name.
-- **Body** (400, 0.9375rem, 1.55): running text, inputs, buttons (500), chat. Leads keep to about 52ch; the
-  canvas hint to 80ch.
-- **Small** (0.8125rem): secondary text, timestamps, chips, the work bar's status and round, the mood chips.
-- **Caption** (600, 0.75rem, 0.02em): table column heads, select labels, nav group names, the kbd cap.
-- **Label** (700, 0.6875rem, 0.06em, uppercase): lozenges. In Arabic: 0.75rem, no tracking, no uppercase.
-- Headings everywhere: weight 600, line height 1.2, -0.01em, `text-wrap: balance`. Arabic headings drop the
-  tracking and open to 1.3–1.5.
-- Numerals in timers, counts, codes, "+n" and the avatar's initials are tabular.
+- **display**: the site's headline, 900, three stacked lines, line-height 1.05.
+- **page-title**: 900, -0.035em, line-height 0.95 ("Hi Nadia.", "Icebreakers").
+- **lead**: the one blue line under a title, 700, 21px.
+- **section** 800 (site sections), **card-title** 800 (the dark card), **panel-title** 800, **row-name** 700.
+- **body** 16px / 1.55; **small** 14px; **label** 11px 700 tracked 0.12em uppercase (lozenges); **microcopy** 10–11px tracked 0.15em uppercase (taglines, eyebrows).
+- Numerals in counts, timers and codes are tabular.
 
-### Named Rules
-**The Weight Axis Rule.** Only the reading numeral drives Readex Pro's weight axis, and only the circle's mood
-drives it. Everywhere else, weights are 400 (body), 500 (controls, chips), 600 (headings, names), 700 (wordmark
-and lozenges).
-
-**The One Family Rule.** No second typeface, no monospace. Codes and times are Readex Pro with tabular numerals.
+### Named rules
+- Arabic headings drop negative tracking and open line-height to 1.25–1.4; uppercase and tracking are off in Arabic.
+- Headlines are short: three lines on the site, one line in the app.
 
 ## Layout
 
-- **App shell:** a sticky 3.5rem top bar on paper with one hairline beneath (wordmark at inline-start, the Ask
-  bar as a sunken pill of up to 30rem, Start a round, the avatar), a 15.5rem navigation rail at inline-start on
-  ground (nav sticky under the bar, the selected item filled beam-subtle in ink 600, a
-  "Coming soon" group that is never a dead link, settings at the foot), and the content column on ground (max
-  76rem, `--gutter` = `clamp(1rem, 3vw, 2rem)` inline, 1.5rem above, room at the end for Pirikoo's corner
-  button). Below 62rem the rail becomes a modal drawer (`min(18rem, 86vw)`, slides in from the inline start over
-  off-black at 50%). Below 40rem the Ask bar fills the bar and "Start a round" keeps only its icon (label clipped).
-- **Home (the orrery):** the greeting with the face (3.75rem, grinning, gaze on), then "your circles" as
-  orbit cards on a grid of `minmax(13rem, 1fr)`: the lead orbit (the newest open circle) spans two columns and
-  carries the large ring (15rem, bodies 2.5rem) with the member count as the reading numeral in its centre; the
-  others carry the small ring (7.5rem, bodies 1.5rem). Each orbit card is paper on a hairline at `r-lg`, the
-  name, a Live/Closed lozenge, role and count, and a round arrow that turns beam on hover. Beside the lead orbit,
-  today's phase: the face, "circloo feels … too", the five moods as one-tap chips (`.moods`/`.mood`, shared with
-  the landing demo) and a note that the phase stays on this device until circle-wide check-ins ship; the pick
-  fills the lead ring's sky, sets the reading's weight and is kept in `localStorage` for the day. Below, a two-column
-  dash (1.6fr / 1fr): today's icebreaker on the wide side, the first-circle tour (before any circle) and the three
-  latest favourites on the side. Under 56rem the dash stacks; under 40rem the orbits go to one column and the
-  lead orbit centres.
-- **Pages** start with a page header: breadcrumbs (24px targets, "/" separators), the section-size title, a
-  one-line lead in ink-soft, actions at the inline end. Narrow pages cap at 52rem.
-- **Panels** are the unit of content: head (3.25rem min, title and actions, hairline under), body (1.25rem
-  padding, 1rem gaps), optional sunken foot for form actions. Panels never nest.
-- **Hairline grids** (integrations, the deck library): cells on paper with a 1px gap on a hairline background,
-  so neighbours share one line. No card grid of floating cards.
-- **The room (workspace):** a sticky 3.5rem work bar under the top bar (Home, the circle's 2.25rem ring with
-  its bodies and the count, the name, the status dot and word, the running round as a paper chip with the
-  starter's character, its title, its tabular time and a 2px cobalt (the `brass` tokens) rule filling along its bottom edge, then
-  Send results and Close circle); from 60rem the centre and the rail fill the app height and scroll inside
-  themselves with a 1rem margin and no width cap; the centre's paper is the whiteboard at `r-xl` (24rem
-  minimum). The work bar is a container: under 56rem it drops "started by", under 40rem it keeps only the time
-  and its rule. Phones keep the page scrolling with a bottom sheet.
-- **Public site:** mobile first, one column; off-black bands (first and last) carry the whiteboard's 24px dot
-  grid; the console box and the composition card are the one light box on off-black and pin the Day tokens
-  inside. From 56rem the site bar shows its anchors; from 60rem the console and the composition sit side by
-  side. Column 74rem; bands 2–3rem on phones, up to 4.5rem.
-- **Auth:** one paper card (`min(26rem, 100%)`, `r-lg`, overlay shadow) centred on ground with the face as a 5%
-  ink watermark at the bottom inline-end corner; the six-digit code sits in two groups of three tiles over cobalt (the `brass` tokens)
-  rules.
-- Spacing is a 4px grid (`s-1` 4px to `s-10` 96px): tight inside a group (s-1, s-2), s-3/s-4 inside panels and
-  rows, s-5/s-6 between panels, s-7+ for bands. Logical properties everywhere; RTL mirrors automatically,
-  including the direction a ring's bodies and progress run, the drawer's side and the switch's knob.
+- **App shell**: a 3.75rem white top bar with the wordmark, the navigation as pills (current = ink), Ask Pirikoo as an outlined pill, "New circle" as an ink pill and the avatar. No rail. Under 62rem the pills fold into a white drawer with big pill rows. Content up to 76rem with `gutter` sides.
+- **Home**: the face and "Hi Nadia." at display size, the blue lead, then a 7/5 grid: the live circle as the dark card (buddy rows, a people meter, a white "Open the room" pill) and the other circles as outlined rows with character stacks; today's mood tiles, the weather line and the icebreaker teaser at the side. One column under 60rem.
+- **Pages** open with breadcrumbs, the display title and the blue lead; actions at the inline end as pills.
+- **Rooms**: the display name with an ink "Live" lozenge and a character stack in the work bar; the whiteboard or board at the centre as a white sheet with a 2px ink outline; the side area as the dark card with People (buddy rows and a meter), Chat (bubbles without tails) and Call. On phones the side is a 44dvh bottom sheet in the same dark card, so the centre of the screen stays free for the canvas tools.
+- **Public site**: the hero is one viewport (min-height 100dvh minus the bar); copy at ~45%, the table at ~55%; one column on phones with the table under the copy and the annotations hidden.
+- Logical properties everywhere; RTL mirrors automatically, including arrows and the direction of meters.
 
 ## Elevation & Depth
 
-A hybrid: flat by default with hairlines doing the separating, and three soft, offset shadows tinted from the
-off-black for the few things that lift. Depth also comes from tonal steps on paper (sunken, hover, pressed) and from
-off-black bands and dialog backdrop (`rgb(10 10 11 / 0.5)`) that sit the content a layer above the night.
+### Shadow vocabulary
+- `shadow-raised`: 0 1px 2px at 6% (almost nothing; panels are outlined, not raised).
+- `shadow-overlay`: menus, toasts, the Pirikoo panel.
+- `shadow-card`: the one large soft shadow under the dark card (and the site's table).
+- Ground shadows: a blurred ellipse under characters on the site and in empty states.
 
-### Shadow Vocabulary
-- **Raised** (`0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2)`): panels and orbit cards on ground,
-  ring bodies, the selected segment and the selected nav item, the switch knob, a plan step's icon.
-- **Overlay** (`0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28)`): dropdown panels, toasts, the
-  skip link, the auth card, the dealt icebreaker, the landing's composition card, the Send status.
-- **Float** (`0 24px 48px -12px rgb(10 10 11 / 0.25), 0 0 1px rgb(10 10 11 / 0.25)`): the drawer, dialogs, the
-  Pirikoo panel, the canvas's selected-note style bar, the room's bottom sheet.
-- At Night the three use black offsets with a 1px white edge (`rgb(250 250 250 / 0.18–0.25)`) so paper still
-  parts from off-black.
-
-### Named Rules
-**The Hairline First Rule.** Separation is a 1px hairline before it is a shadow. A shadow means the thing floats
-above the page (a menu, a card dealt from the deck, a sheet); content at rest gets raised at most.
-
-**The No Glow Rule.** No glows, no blurred colour halos, no glass. The only "ring" around a control is a focus
-ring (2px `focus`, 2px offset) or a cobalt (the `brass` tokens) selection ring.
+### Named rules
+- No glows, no glass, no gradients, no inner highlights.
+- Depth comes from the dark card and the characters, not from stacking panels.
 
 ## Shapes
 
-- **Radii:** `r-xs` 3px for lozenges, kbd caps and focus outlines; `r-sm` 6px for buttons, inputs, selects,
-  chips of the work bar, nav items and plan steps; `r-md` 8px for panels, dropdown panels, toasts, pickers,
-  activity cards and mood chips; `r-lg` 12px for things that float or lead (the auth card, orbit cards, the
-  dealt card, the landing's composition card, Pirikoo's panel); `r-xl` 20px for the whiteboard's sheet, the
-  room's centre and the bottom sheet's top; `r-ring` 999px for rings, bodies, avatars, chips, pills, the Ask
-  bar, the switch and the status dot.
-- **The ring:** an SVG on a 100-unit box, the sky disc at r 38, the track at r 46 (cobalt (the `brass` tokens) faint, 1.6 wide), the
-  running arc on the same radius (cobalt (the `brass` tokens), 2.4 wide, round caps), a tick at the top; closed circles dash the
-  track and sink the sky to paper-sunken. Bodies are paper discs with the raised shadow, placed by
-  `rotate(angle) translateY(-46%) rotate(-angle)` from a custom property so RTL can flip the direction with
-  `--dir: -1`; the SVG mirrors with `scaleY(-1)`.
-- **Hairlines everywhere:** 1px borders, 2px cobalt (the `brass` tokens) rules (the round's time, code tiles, upload progress, the
-  segment tick), 3px for the active nav tick and the "you" outline on a ring body.
-- **Dotted paper:** the whiteboard and off-black bands use a 24px grid of 1px dots (`radial-gradient` of
-  `hairline-strong`), the one place a gradient function appears, and it draws dots, not a wash.
-- **Characters** are drawn on a 64 × 64 grid with the brand-ink outline and the logo's eyes; the face lives in a
-  60 × 50 box (see The face). Nothing is tilted or hand-rotated except canvas notes, which carry a slight
-  per-note tilt by design.
+Pills (`999px`) for every control: buttons, inputs, chips, nav items, tabs, toggles, the language menu. Panels `lg` (22px), the dark card and the whiteboard `xl` (28px), inputs inside panels `sm` (10px), meter segments 3px, mood tiles 18px, thumbnails `sm`.
 
 ## Components
 
-Controls feel like parts of an instrument: paper on a hairline, one beam for the action, cobalt (the `brass` tokens) for the mark
-that says "this one", and a press that scales to 0.98 over 120ms.
-
 ### Buttons
-- **Shape:** gently rounded (6px), 36px tall (32 small, 44 large), 0.4rem × 0.9rem padding, 500 weight, icon
-  and label with an 8px gap.
-- **Primary:** beam fill, `on-beam` text; hover `beam-hover`, pressed `beam-pressed` with `scale(0.98)`.
-- **Default:** paper-sunken fill with an inset 1px hairline, ink text; hover paper-hover.
-- **Subtle:** transparent, ink text; hover paper-hover. **Icon button:** 36px square (28 small), ink-soft, same hovers.
-- **AI:** violet fill, `on-ai` text. **Danger:** danger fill, white text.
-- **States:** focus is the 2px `focus` outline with 2px offset; disabled is 50% opacity with `not-allowed`; busy
-  keeps focus (`aria-disabled`), shows `progress` and spins the icon (900ms linear).
-- **Link button:** underlined beam-text, 500 weight, no box.
+`btn` is a 44px pill, 700, with a 1px lift and 1.02 scale on hover and 0.97 on press. `btn--primary` ink on white; inside `panel--dark` / `card--dark` it flips to a white pill with ink text; on the field (`on-field`) to a white pill with field text. `btn--default` outlined 2px, `btn--subtle` text only, `btn--beam` the one blue, `btn--sun` yellow on the field, `btn--ai` violet, `btn--danger` red. Busy keeps focus and spins the icon.
 
-### Chips
-- **Style:** paper on a 1px `hairline-strong`, full radius, 32px tall, small 500 text; hover darkens the border
-  to ink-faint and the fill to paper-hover.
-- **State:** `aria-pressed="true"` / `.is-on` turns the border beam, the fill beam-subtle and the text beam-text.
-- **Mood chips** (landing demo): paper on hairline at `r-md`, icon over word, 44px min; the pressed one fills
-  with its sky and takes `on-sky` (`on-sky-stormy` for stormy).
+### Panels and the dark card
+`panel`: white, 2px `hairline` outline, 22px corners, no shadow; head (title and actions), body, actions. `panel--dark` / `card--dark`: `card` background, 28px corners, `shadow-card`; the title at 26px 800; rows are buddies; the primary pill is white and full width.
 
-### Cards / Containers
-- **Panel:** paper, 1px hairline, 8px radius, raised shadow; head with a hairline under, body at 1.25rem, an
-  optional sunken foot with a hairline above. `panel--ai` borders in `ai-border` with an `ai-subtle` head.
-- **Orbit card** (Home): paper on hairline at 12px, raised; ring at inline-start, text at inline-end; hover turns
-  the border cobalt (the `brass` tokens) and the arrow beam.
-- **Dealt card** (icebreakers): paper at 12px with the overlay shadow, the rest of the deck as two hairline
-  offsets (6px and 12px) beneath it that tuck up while a card drops in.
-- **Hairline grid cell** (integrations, decks): paper, no radius, `box-shadow: 0 0 0 1px hairline`, 1px gaps.
-- **Toast:** ink block with `on-ink` text, 8px, overlay shadow, rises in; error toasts are danger.
+### Buddy rows
+`buddy`: a 44px character, the name (700) with a status line under it, a value at the inline end (`is-ok`, `is-mid`, `is-low` inside the card), and optionally a meter under spanning the row. Dividers are 1px `hairline` on the canvas and `card-line` on the card.
 
-### Inputs / Fields
-- **Style:** paper on a 1px `hairline-strong`, 6px radius, 44px tall, 0.5rem × 0.85rem padding, body size;
-  the field label is small 600 ink-soft above; help is small ink-faint.
-- **Focus:** the 2px `focus` outline with 2px offset and the border turned `focus`; the caret is beam.
-- **Error:** `aria-invalid` turns the border danger with a 1px inset; the message is small 500 `danger-text`;
-  success messages are `live-text`.
-- **Select:** native, same box at 36px, chevron at the inline end. **Switch:** 44px × 24px track on
-  `hairline-strong`, paper knob with the raised shadow, beam when on, knob travels 1.25rem (mirrored in RTL).
-- **Segmented control:** a sunken track with an inset hairline; the chosen option rises as paper with the raised
-  shadow, 600 weight, and a 2px cobalt (the `brass` tokens) tick at its inline start.
-- **Code field:** six tiles over 2px cobalt (the `brass` tokens)-faint rules in two groups of three; a filled tile's rule turns cobalt (the `brass` tokens)
-  and its digit settles up 6px; the next tile shows the beam (beam-subtle fill, focus-coloured 3px rule).
+### The meter (signature)
+`Meter` (`src/web/src/components/Meter.tsx`): ten segments always, 12px tall (8px for `sm`), 4px gaps. Fill count is the share rounded to tenths (anything above zero lights at least one). Tones `ok`, `mid`, `low`, `ink`, `beam`. The number is said in words beside it; the bar alone is decorative. Fills cross-fade over 600ms.
+
+### Character stacks
+`stack`: 32px characters overlapping by 8px with a paper ring (a card ring inside the dark card).
+
+### Inputs
+Pill inputs with a 2px `hairline` outline and a `focus` outline; inside panels, 10px corners. Selects are pills with the chevron inside. Switches are pill toggles. The six-digit code is six outlined cells in Rubik 800.
+
+### Lozenges
+Tiny tracked pills: neutral, success, info, ai, ink. On the dark card they sit on `card-sunken`.
 
 ### Navigation
-- **Top bar:** paper on one hairline, 3.5rem; the Ask bar is a sunken pill with Pirikoo's bird, a prompt in
-  ink-faint and a kbd cap; the account trigger is the avatar, which gains a hairline-strong ring on hover and a
-  cobalt (the `brass` tokens) ring while its menu is open.
-- **Rail items:** 36px rows, 6px radius, ink-soft 500; hover paper and ink; active is beam-subtle with ink 600
-  (beam-subtle-hover on hover); "soon" items are ink-faint with no pointer.
-- **Dropdowns** (language, account, Send results): paper panel at 8px with the overlay shadow rising 240ms from
-  under the trigger; 40px items; the current item is 600 with a cobalt (the `brass` tokens) icon. Disclosure semantics
-  (`aria-expanded`, arrow keys, Escape and outside press close and return focus).
-- **Breadcrumbs:** small, ink-soft links with 24px targets.
-- **Work bar and rail:** see Circles (live rooms).
+Pills. The current page is an ink pill; others are ink text with a sunken hover. "Daily check-in" is a disabled pill with a tiny "Soon" lozenge, hidden from the bar under 84rem and kept in the drawer.
 
-### The ring (signature)
-`Ring.tsx` + `ring.css`. Props: `size` (lg 15rem / sm 7.5rem; the work bar overrides to 2.25rem), `bodies`
-(up to 12, the rest as a "+n" body in tabular small 600), `people`, `mood` (null leaves the inside on paper),
-`progress` (0–1, draws the cobalt (the `brass` tokens) arc; absent when idle), `closed`, `label` (the whole ring is one `role="img"`),
-`children` (the centre, usually the reading numeral) and `compose` (the focal entrance: the track draws itself
-over 600ms, then bodies hop in with the snappy spring, 40ms apart, capped at 320ms; reduced motion fades them
-in over 160ms). Bodies sit in arrival order from the top, clockwise in LTR and counter-clockwise in RTL. The sky
-fill tweens over `--dur-focal`; the arc settles with the gentle spring. The "you" body wears a 3px beam outline.
-Used on Home (count in the centre, the sky from today's phase), in the work bar (progress of the running round), on Join (the
-host's circle) and in the landing's composition (mood and transit driven by the demo).
+### Mood tiles
+Five outlined tiles (18px corners), the icon over the word; the picked one is ink with white text. The weather line reads the circle in words.
 
-### Avatar and lozenge
-- **Avatar:** initials, 600 tabular, on one of the five body colours picked from the name; 32px (24 small,
-  40 large), full radius.
-- **Lozenge:** label type on `neutral-subtle` at 3px, 1.45rem line; `--success` is live (Live, Connected, kept),
-  `--ai` adds an inset `ai-border`, `--info` the beam pair, `--warning` and `--danger` their pairs. Honest words
-  only: Live, Soon, Example, Suggested by AI, Connected, Not connected, Closed.
-
-## Do's and Don'ts
-
-### Do:
-- **Do** keep the chrome to ground, paper, ink and cobalt (the `brass` tokens), and let people, the face and the content carry colour.
-- **Do** spend beam on exactly one primary action per view; selection is beam-subtle (nav, options) or a cobalt (the `brass` tokens) tick (segmented controls).
-- **Do** keep violet for AI alone and label every AI output (lozenge, name or "Suggested by AI").
-- **Do** put every sky fill beside the mood's icon and word; mood is never colour alone.
-- **Do** separate with a 1px hairline first; shadows are for things that float (menus, dealt cards, sheets).
-- **Do** set every count, time and code in tabular numerals; drive only the reading numeral's weight, and only by mood.
-- **Do** use logical properties and `--dir` style custom properties so rings, drawers and switches mirror in RTL; drop uppercase and tracking under `:lang(ar)`.
-- **Do** give every entrance a reduced-motion path that keeps the meaning (a fade, an instant position, a pop by opacity).
-- **Do** use Lucide icons at 14–20px, stroke 2, with `.flip-rtl` on directional ones.
-
-### Don't:
-- **Don't** add a second typeface, a monospace, or a system display face; Readex Pro at every size.
-- **Don't** paint gradients, glass (`backdrop-filter`), glows or blurred halos. The 24px dot grid of the whiteboard and off-black bands is the one `radial-gradient`, and it draws dots.
-- **Don't** use coral outside the face's mouth, cobalt (the `brass` tokens) as a button or running text, or violet as decoration.
-- **Don't** float cards in a grid; neighbours share a hairline (1px gap on a hairline background).
-- **Don't** use emoji as icons or sparkles for AI; the bird's moods and the violet label are the AI signal.
-- **Don't** hide a control's label with `display: none`; clip it (`.visually-hidden` or the `.btn__label` clip).
-- **Don't** run a loop that is not a live indicator (typing dots, the thinking crest, a conversion spinner, the presence pulse); a count pops once, a status dot pulses once.
-- **Don't** nest panels or put a panel head inside a hairline-grid cell.
+### Avatar
+Initials on one of the five body colours, 36px round in the bar; a person's character where the room knows it.
 
 ## The face (logo)
 
-Geometry lives in `src/web/src/components/Brand.tsx` on a 60 × 50 grid where 50 units = 1em: the eyes
-(radius 11, stroke 4.6, centres at x 15.25 and 43.75, y 23.75) are one x-height tall and sit on the baseline,
-so "circl" + face reads as one word; pupils (radius 3.4) sit half a unit below the centre. Moods map to mouth
-paths with identical commands (1 frown … 5 grin, stroke 4.2, round caps), so browsers that animate `d` morph
-between them over `--dur-enter`. Pupils follow the pointer through `--gx`/`--gy` set from script (CSP-safe,
-180ms ease-out); the face blinks every 5.5s; the brand link grins (mood 5) on hover and focus. Reduced motion
-stops blinking and gaze (the landing can force gaze back on with its "Play animations" opt-in). The mouth is
-always coral; eyes take the current text colour (ink, or `on-ink` on off-black; the auth watermark draws the
-mouth in ink too, at 5% opacity). The wordmark is 700, -0.02em, with the face at 1.3em wide. Static assets
-(`favicon.svg`, `logo-mark.svg`, `icon-maskable.svg`, PNG icons rendered from them) use the same geometry on
-`brand-ink`; the page's theme colours are `#ffffff` (light) and `#0a0a0b` (dark).
+Two ring eyes and a coral mouth, drawn in code (`Brand.tsx`); the wordmark's last "oo" are the eyes. On the field the eyes go white and the mouth stays coral. The face smiles with the circle's mood and sits at 56px beside "Hi Nadia." and in the middle of the site's round table.
 
 ## The cast (characters)
 
-Forty-eight characters (animals, heroes, plants and a few strange friends), plus "anonymous" and a build-your-own
-avatar (`me:` codes for skin, hair and outfit), drawn on a 64 × 64 grid in `src/web/src/components/Character.tsx`.
-Every one wears the logo's eyes (white rings with a pupil) and the brand-ink outline, so the cast reads as one
-family with the face. Their colours are fixed in both themes: a character is a person's identity in a circle, not
-chrome. Sizes: 13px on the work bar's ring, 24px in strips and chat, 40px on the large ring, 48px in the picker,
-7rem in the builder's preview (on a cobalt (the `brass` tokens) track). Participants must pick one to join; taken characters are
-dimmed and labelled; when two people share a character each gets a ring in `body-1` … `body-5` with a numbered
-dot. The picker is a native radio group on paper tiles; the picked tile takes beam-subtle with a beam border and
-the character hops once. Never use a character as an icon, bullet or decoration.
-
-## circloo, the panda
-
-circloo's avatar in group conversations is a single-weight line panda (`Panda.tsx`). While circloo thinks or
-streams, the panda draws itself stroke by stroke and its pupils glance around; the streamed text ends in a violet
-caret. Under reduced motion the panda is simply drawn. It also waits in the empty circles panel and in a room
-between rounds.
+Forty-eight characters plus Pirikoo and the panda, drawn in code with the navy outline. They are the illustration: 96px with ground shadows on the site and in empty states, 72px in the picker tiles, 64px seated on the site's table, 44px in buddy rows, 32px in stacks, 24px in strips and cursors. Never recoloured, never an icon.
 
 ## Pirikoo, the parakeet guide
 
-Pirikoo is circloo's guide, and you talk to it like any assistant. The panda stays circloo's voice in the
-group chat; Pirikoo is personal and private. It's a green parakeet drawn like the rest of the cast, with the
-logo's eyes (`features/pirikoo/Bird.tsx`).
+A 64px white round launcher with a 2px ink outline; a 3px blue ring when Pirikoo has something to say. On desktop the suggestion is a small dark card with the name, an "AI" lozenge and white pills; on phones there is no bubble, the ring calls and the panel opens on the suggested next step. The panel is white with a 2px ink outline and 28px corners; Pirikoo's answers are violet and labelled; the plan is a list of rows with round checks and an ink "Run" pill.
 
-- **Where it lives**: a round paper button (3.75rem, 1.25rem from the bottom inline-end corner) holds the bird;
-  it wears a cobalt (the `brass` tokens) ring when the bird has something to say (an unread answer or a suggestion), never a coral
-  badge. It opens a compact chat above the button (full screen on phones), which grows into a centred modal
-  conversation; the top bar's Ask bar and Ctrl/⌘ K open the same thread. The thread is kept for the tab only
-  (session storage) and forgotten on sign-out.
-- **The bird shows what the AI is doing**, the way a person would: *idle* (still), *listening* (leans in, crest
-  up, blinks now and then while you type), *thinking* (looks up, the crest tilts side to side at 600ms, the one
-  authored loop), *speaking* (the beak chatters while words stream in), *happy* (one hop with both wings up,
-  `--dur-focal`) and *oops* (crest down, one head shake). The corner button, the chat header and the latest
-  answer share the mood; older answers keep a still bird. These moods are the only "AI is working" signal: no
-  sparkles, no violet glow.
-- **Conversation**: your messages are sunken paper at the inline end. Pirikoo answers on `ai-subtle` with a 1px
-  `ai-border`, a small bird, a violet caret while it streams and "Pirikoo is writing" with three dots before the
-  first word. Enter sends, Shift+Enter adds a line, a stop button replaces send while it answers. Errors are kind
-  lines with "Try again". The disclaimer under the field is always there: Pirikoo is AI and can make mistakes.
-- **Plans**: an instruction becomes a numbered plan (sunken steps that pop in 30ms apart, the AI step's icon in
-  violet) the person trims and runs. Nothing runs before "Run the plan". Guests only get language and theme steps.
-- **Suggestions**: one tip at a time, chosen by plain rules from the page, the role and the live room, pops up
-  above the button with its action; the element it is about gets a cobalt (the `brass` tokens) spotlight ring that runs twice
-  (`--dur-orbit`). The Suggestions setting (Off / Suggest) turns tips off, not the chat.
-- **Accessibility**: the log doesn't read streamed words aloud; a polite status line says "Pirikoo is writing"
-  once, then the whole answer. Escape closes and focus goes back to what opened it. Reduced motion freezes the
-  bird in its pose.
+## The site's hero
 
-## Circles (live rooms)
-
-- **Workspace frame (#244, orrery look #250):** the room is a workspace, not a page. A work bar sits under the
-  top bar, then the centre and the rail fill the app height from 60rem, each scrolling inside itself, with a 1rem
-  margin instead of the page gutter and no content width cap. On phones the page scrolls, with the bottom sheet.
-- **Work bar:** one sticky 3.5rem row on paper: Home, the circle's small ring (2.25rem, your body outlined in
-  beam) with the member count (opens People), the circle name (one line, ellipsis, full name in `title`), the
-  status dot with its word (ink-faint idle, live green, warning amber while connecting or reconnecting; the live
-  dot pulses once on going live), the running round as a paper chip with the starter's character, "started by",
-  its tabular time over a 2px cobalt (the `brass` tokens) rule that fills with the round's progress (1s linear steps), then Send
-  results and Close circle (inline confirmation). What was sent appears under the bar, never inside it. On phones
-  the animator's actions fold into a "Circle actions" menu. A polite status line announces round and connection
-  changes; "Skip to the board" appears while a round runs.
-- **Centre:** whatever runs fills it: the whiteboard's dotted paper at `r-xl` takes the full height (24rem at
-  least), boards, chat and presentations fill the same frame. Between rounds the animator sees the dock
-  ("Open the whiteboard" as the one primary button, the other rounds below); participants wait with the panda.
-- **Rail:** on the inline end, like a meeting rail, with People, Chat and Call tabs; collapsed to an icon rail
-  with one 44px button per tab and its count. The choice is remembered per device. It ends above Pirikoo's corner
-  button. Phones keep the bottom sheet (half, full, closed to a pill with counts).
-- **People:** a list with an uppercase caption head (none in Arabic), each row the character at 32px with an
-  online dot at its foot cut out of the ground; away people are faded with a hollow dot and the word.
-- **Conversation:** like a chat with an assistant. circloo's messages are full-width text with the panda, name
-  and the AI lozenge on `ai-subtle`; people's messages are bubbles with their character, yours on the end side in
-  beam-subtle. System lines are centred pills.
-- **Composer:** one rounded box with the send button inside. The animator chooses "circloo" (violet send) or
-  "Everyone" (beam send) and has quick requests as chips.
-- **Activities:** paper cards on a hairline with an icon tile tinted by category (icebreakers beam, energizers
-  warning, retro live, decide danger); the chosen card takes a beam border.
-- **Presenting:** the presenter view and the audience screen are Night in both themes. Slides sit on a
-  cobalt (the `brass` tokens)-ticked rail; the reveal ranks options with sky discs (sunny first) and the cobalt (the `brass` tokens) draws a ring around the
-  winner and the right answer; confetti borrows the skies.
-
-## Live canvas
-
-The canvas activity (#93) puts everyone's notes on one sheet of dotted paper (`r-xl`, 24px dots that scale
-with zoom, pans with the content). Notes are paper squares or circles in six fixed note colours (yellow, pink,
-blue, green, lilac, white; literal values by design, the same in both themes) and three sizes. Each sits at a
-slight hand-placed tilt, has its author's character in the corner and an optional sticker (heart, star, thumbs
-up, laugh, idea) that pops on. Double-click drops a note where you are; drag moves it, live for everyone; the
-selected note gets a floating style bar. The others' cursors glide in one of six fixed cursor colours with their
-character and name; a cursor's presence pulses at `--dur-orbit` while live and fades after a few seconds without
-movement. Pan by dragging the background or scrolling, zoom with Ctrl + scroll or the toolbar (tabular zoom
-readout); "Bring in" pins board notes and chat answers. Keyboard: notes are buttons (arrows move, E edits), N
-adds a note; a list view mirrors the canvas. Reduced motion removes the glide, bob and drop.
-
-## Typing in circles
-
-Like any instant chat, the circle chat shows "Kenji is typing" with the person's character and three rising
-dots under the last message, "Kenji and Lucía are typing" for two people, and "Several people are typing"
-beyond that. It fades about 4 s after the last keystroke signal, and at once when their message lands. It's
-hidden from screen readers because it changes too often to announce, and the dots stop under reduced motion.
+The field, the three-line headline with a hand-drawn `sun` underline under the last phrase, one paragraph, the Say console as a white pill with the bird and a yellow Build pill, three outlined example pills, a translucent dark disclaimer pill, a microcopy row. The circle composes itself as a round table: a flat cream disc with a thick rim that fills with sun as the phases complete, a purple cast shadow, the characters hopping onto the edge, the face in the middle, the count under it; the name on a rotated yellow sticky note; the chips as white pills; Pirikoo's line on a ruled notepad peeking from the inline-start edge. Two or three handwritten asides with curved white arrows. The table floats 6px over 4s and the arrows wiggle only when the visitor allows motion.
 
 ## Motion
 
-One grammar, one library (Motion for React in the app; CSS keyframes where no library is loaded), one set of
-tokens in `tokens.css` mirrored by `src/web/src/lib/motion.ts`.
-
-- **Durations by consequence:** `--dur-press` 120ms (press, hover, dropdown items), `--dur-state` 160ms (a
-  toggle, a selection, a lozenge, the new page of a cross-fade), `--dur-move` 240ms (something moves or
-  resizes in place: the switch knob, a dropdown rising, a digit settling), `--dur-enter` 300ms (an element
-  enters or leaves: toasts, the drawer, the mouth morph, the hop), `--dur-focal` 600ms (the one authored
-  entrance of a surface: the ring's track, the sky fill, the weight tween, Pirikoo's hop), `--dur-orbit` 1200ms
-  (the long beats: the loading face's breath, the presence pulse, the suggestion spotlight, the room's ground
-  change).
-- **Easing:** `--ease-out` `cubic-bezier(0.16, 1, 0.3, 1)` for arrivals (default); `--ease-in-out`
-  `cubic-bezier(0.65, 0, 0.35, 1)` for transits and cross-fades. No bounce, no elastic.
-- **Springs** (`motion.ts`): `snappy` 520/34/1 (a body hopping onto the ring, a vote dot, a chip), `soft`
-  260/28/1 (panels, sheets, the rail, cards rising), `gentle` 160/24/1.2 (a ring settling, the sky fill, the arc).
-- **Focal moments:** Home composes (the lead ring draws its track over 600ms, then bodies hop in 40ms apart,
-  capped at 320ms; orbit cards stagger 60ms); the landing's composition (the bird thinks, the name types, the
-  ring composes with its sky and transit, the activity chips drop, Pirikoo's line streams, the bird hops once and
-  the Create button rises, under three seconds and cancelled by a new line); Pirikoo's moods; someone arriving
-  in a room (they hop onto the ring with hearts and screen readers hear "Mia joined the circle").
-- **Continuity:** page changes are view transitions (the old page leaves in 120ms, the new arrives in 160ms,
-  both ease-out); the rail and its panel swap without animating any size (fade and 8px shift); a round opens
-  with a short clip-path reveal and its chip slides into the work bar from the inline end; the whiteboard's dots
-  settle in as it opens.
-- **Feedback:** press `scale(0.98)` (0.96 on icon buttons, 0.99 on orbit cards); hover one tonal step; lists
-  rise 8px per row 30ms apart, capped at 240ms (`rise-in`, `pop-in`); a count that goes up pops once
-  (1 → 1.12 → 1); the Connected lozenge pops once; the live dot pulses once; the deck's hairline offsets tuck
-  while a card is dealt.
-- **Reduced motion:** `prefers-reduced-motion: reduce` sets every animation and transition to 0.01ms (the
-  landing with `data-motion="on"` is the one opt-in), removes view transitions, stops the blink, the breath,
-  the typing dots and the drawer's slide (it fades instead); Motion variants swap movement for fades and keep
-  the meaning (a count pops by opacity).
-
-## Video
-
-`/video` is a Remotion project that renders the 20-second tour (face, circle, chat, board, send, Pirikoo) per
-language into `src/web/public/video/circloo-tour-{lang}.mp4` with a poster. It reuses the app's character and
-bird SVGs. The player is a 16:9 box on ground at `r-md` with a hairline; the landing plays it muted while on
-screen, pauses it off screen, never autoplays under reduced motion, and describes it in text below. Home shows
-it before the first circle, waiting for play.
+One grammar (`src/web/src/lib/motion.ts`): `spring.snappy` for arrivals and presses, `spring.soft` for cards, `spring.gentle` for ambient; `listVariants`/`rowVariants` stagger rows 60ms apart. Tokens: `dur-press` 120ms, `dur-state` 160ms, `dur-move` 240ms, `dur-enter` 300ms, `dur-focal` 600ms, `dur-orbit` 1200ms; `ease-out` exponential, `ease-settle` cubic-bezier(0.32, 0.72, 0, 1) for pills and page arrival. Pages arrive block by block (`.page > *`), 60ms apart. Meters fill over 600ms. Every animation has a reduced-motion path that keeps the meaning; the landing has its own opt-in.
 
 ## Accessibility
 
-WCAG 2.2 AA is the floor and is tested (axe in Playwright, desktop and phone, English and Arabic). Every token
-pair in `tokens.css` is annotated with its ratio in both themes. Every control has a visible label or an
-accessible name, mood is never colour alone (icon + word), links in running text are underlined, focus rings
-are 2px `focus` with 2px offset on every surface (including off-black bands), breadcrumb and rail targets are at
-least 24px and tap targets 44px on phones, a ring is one labelled image, and every string exists in English,
-French, Arabic (RTL) and Spanish.
+Every text pair is AA in both themes; status colours inside the card are 3:1 at 18px bold and always paired with words. Tap targets are 44px on phones and never under 24px. Focus is a 2px blue outline with offset. Colour is never the only signal (icon and word with every mood, "here"/"away" next to every value). Arabic is a first-class mirrored layout.
 
-## Integrations
+## Do's and Don'ts
 
-A hairline grid of service cells on paper (cells of at least 22rem, 1px gaps), each with the real brand marks on
-white tiles whatever the theme (self-hosted, trademarks of their owners, with a notice on the public site), the
-service name, a one-line purpose and a status lozenge (Connected in live, Not connected, Soon) on the title line;
-Connected pops once when it arrives. Connecting opens the form inside the cell with an info box that says where
-to find each token or webhook. Secret fields are password inputs and are never shown again; only a hint (host,
-project, space) is displayed. In a circle room, the animator's "Send results" dropdown lists the connected
-services and reports back under the work bar with a link to what was created.
+### Do
+- Put the live thing in the one dark card and let the rest of the page be quiet white.
+- Make every count a meter and say the number beside it.
+- Use the cast at scale as the illustration.
+- Keep blue for links, the lead line and one button.
+
+### Don't
+- No gradients, glass, glows, dotted domes, thin hairline cards with shadows, icon tiles, cards inside cards.
+- No second accent on the canvas; no `ok`/`mid`/`low` outside the card.
+- No emoji in chrome, no sparkle for AI, no "John Doe".
+- No rings as chrome: the ring component is retired.

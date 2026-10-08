@@ -1,225 +1,529 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-07T21:51:29Z",
+  "generatedAt": "2026-10-08T06:01:05Z",
   "title": "Design System: circloo",
   "extensions": {
     "colorMeta": {
-      "ground": { "role": "neutral", "displayName": "Day ground", "canonical": "#ffffff", "night": "#0a0a0b", "note": "The page and the navigation rail. Night is the dome." },
-      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#ffffff", "night": "#111318", "note": "Panels, bars, cards, inputs, ring bodies." },
-      "paper-sunken": { "role": "neutral", "displayName": "Sunken paper", "canonical": "#f2f4f7", "night": "#0a0b0f" },
-      "paper-hover": { "role": "neutral", "displayName": "Paper hover", "canonical": "#e9ecf1", "night": "#1a1d24" },
-      "paper-pressed": { "role": "neutral", "displayName": "Paper pressed", "canonical": "#dde1e8", "night": "#23272f" },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e4e7ec", "night": "#24272e", "note": "Every 1px border, divider and grid gap." },
-      "hairline-strong": { "role": "neutral", "displayName": "Strong hairline", "canonical": "#9aa3b0", "night": "#3a3f4a", "note": "Inputs, chips, switch track, scrollbar thumb, dot grid." },
-      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0a0a0a", "night": "#fafafa", "note": "17:1 on paper by day. Night ink is bone." },
-      "ink-soft": { "role": "neutral", "displayName": "Soft ink", "canonical": "#4d5560", "night": "#b3b8c2" },
-      "ink-faint": { "role": "neutral", "displayName": "Faint ink", "canonical": "#737b86", "night": "#858b96", "note": "4.9:1 on paper, 4.6:1 on ground by day." },
-      "on-ink": { "role": "neutral", "displayName": "On ink (bone)", "canonical": "#fafafa", "night": "#0a0a0b" },
-      "brass": { "role": "tertiary", "displayName": "Brass", "canonical": "#1f4fff", "night": "#6b8cff", "note": "Instrument marks only: tracks, ticks, rules, selection marks. Never a button, never running text." },
-      "brass-faint": { "role": "tertiary", "displayName": "Faint brass", "canonical": "#d6dfff", "night": "#2a3566", "note": "Idle ring track, rule tracks, table head rule." },
-      "beam": { "role": "primary", "displayName": "Beam", "canonical": "#1f4fff", "night": "#6b8cff", "note": "The one action colour. White text 5.8:1 by day." },
-      "beam-hover": { "role": "primary", "displayName": "Beam hover", "canonical": "#1740d6", "night": "#87a2ff" },
-      "beam-pressed": { "role": "primary", "displayName": "Beam pressed", "canonical": "#1233ad", "night": "#a3b8ff" },
-      "beam-subtle": { "role": "primary", "displayName": "Beam subtle", "canonical": "#eaf0ff", "night": "#1a2446", "note": "Picked option, your bubble, the next code tile." },
-      "beam-text": { "role": "primary", "displayName": "Beam text", "canonical": "#1a44db", "night": "#9db0ff", "note": "Links, 7:1 by day." },
-      "on-beam": { "role": "primary", "displayName": "On beam", "canonical": "#ffffff", "night": "#0a0a0b" },
-      "focus": { "role": "primary", "displayName": "Focus ring", "canonical": "#3b66ff", "night": "#8fa6ff" },
-      "ai": { "role": "secondary", "displayName": "AI violet", "canonical": "#6a4fd1", "night": "#9f8fef", "note": "Only for AI-made or AI-making things, always labelled." },
-      "ai-hover": { "role": "secondary", "displayName": "AI hover", "canonical": "#5a40bd", "night": "#b3a6f4" },
-      "ai-subtle": { "role": "secondary", "displayName": "AI subtle", "canonical": "#f2efff", "night": "#201b3a" },
-      "ai-border": { "role": "secondary", "displayName": "AI border", "canonical": "#d9d0fb", "night": "#3b3266" },
-      "ai-text": { "role": "secondary", "displayName": "AI text", "canonical": "#5638c2", "night": "#c0b4f8" },
-      "on-ai": { "role": "secondary", "displayName": "On AI", "canonical": "#ffffff", "night": "#0a0a0b" },
-      "sky-stormy": { "role": "tertiary", "displayName": "Stormy sky (mood 1)", "canonical": "#2f3a52", "night": "#2a3450", "note": "Text on it is on-sky-stormy." },
-      "sky-foggy": { "role": "tertiary", "displayName": "Foggy sky (mood 2)", "canonical": "#aab4c3", "night": "#7f8ca6" },
-      "sky-cloudy": { "role": "tertiary", "displayName": "Cloudy sky (mood 3)", "canonical": "#cfd6e2", "night": "#8e9bb2" },
-      "sky-bright": { "role": "tertiary", "displayName": "Bright sky (mood 4)", "canonical": "#7fb8ff", "night": "#3f8ff0" },
-      "sky-sunny": { "role": "tertiary", "displayName": "Sunny sky (mood 5)", "canonical": "#ffc53d", "night": "#e6b534" },
-      "on-sky": { "role": "tertiary", "displayName": "On sky", "canonical": "#0a0a0a", "night": "#0a0a0b" },
-      "on-sky-stormy": { "role": "tertiary", "displayName": "On stormy sky", "canonical": "#ffffff", "night": "#fafafa" },
-      "coral": { "role": "tertiary", "displayName": "Coral", "canonical": "#ef4a32", "night": "#ef4a32", "note": "The face's mouth. Nowhere else." },
-      "live": { "role": "status", "displayName": "Live", "canonical": "#1c7c52", "night": "#4bce97" },
-      "live-subtle": { "role": "status", "displayName": "Live subtle", "canonical": "#dcf5e8", "night": "#12301f" },
-      "live-text": { "role": "status", "displayName": "Live text", "canonical": "#145c3b", "night": "#7ee2b8" },
-      "danger": { "role": "status", "displayName": "Danger", "canonical": "#c9372c", "night": "#ff8f86" },
-      "danger-subtle": { "role": "status", "displayName": "Danger subtle", "canonical": "#ffeceb", "night": "#3a1512" },
-      "danger-text": { "role": "status", "displayName": "Danger text", "canonical": "#ae2a19", "night": "#ffa8a1" },
-      "warning-subtle": { "role": "status", "displayName": "Warning subtle", "canonical": "#fff2cf", "night": "#3a2d0a" },
-      "warning-text": { "role": "status", "displayName": "Warning text", "canonical": "#7a4f01", "night": "#f0c75e" },
-      "neutral-subtle": { "role": "status", "displayName": "Neutral lozenge", "canonical": "#f2f4f7", "night": "#1b2639" },
-      "neutral-text": { "role": "status", "displayName": "Neutral lozenge text", "canonical": "#4d5560", "night": "#b3b8c2" },
-      "body-1": { "role": "neutral", "displayName": "Body 1", "canonical": "#1d4ed8", "night": "#60a5fa", "note": "Shared-character ring and avatar fill, slot 1." },
-      "body-2": { "role": "neutral", "displayName": "Body 2", "canonical": "#c2410c", "night": "#fb923c" },
-      "body-3": { "role": "neutral", "displayName": "Body 3", "canonical": "#15803d", "night": "#4ade80" },
-      "body-4": { "role": "neutral", "displayName": "Body 4", "canonical": "#9d174d", "night": "#f472b6" },
-      "body-5": { "role": "neutral", "displayName": "Body 5", "canonical": "#0e7490", "night": "#22d3ee" },
-      "brand-ink": { "role": "neutral", "displayName": "Brand ink (cast outline, icon tile)", "canonical": "#0f2537", "night": "#fafafa" },
-      "night-ground": { "role": "neutral", "displayName": "The dome", "canonical": "#0a0a0b", "note": "Night ground; also pinned on the site's first and last bands, the presenter and audience views, and the dialog backdrop at 50%." },
-      "night-paper": { "role": "neutral", "displayName": "Night paper", "canonical": "#111318" },
-      "night-ink": { "role": "neutral", "displayName": "Bone", "canonical": "#fafafa" },
-      "night-brass": { "role": "tertiary", "displayName": "Night brass", "canonical": "#6b8cff" },
-      "night-beam": { "role": "primary", "displayName": "Night beam", "canonical": "#6b8cff" },
-      "night-ai": { "role": "secondary", "displayName": "Night AI violet", "canonical": "#9f8fef" }
+      "ground": {
+        "role": "neutral",
+        "displayName": "ground",
+        "canonical": "#ffffff",
+        "night": "#0f0f10",
+        "note": "The canvas: white by day, near-black at night."
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "paper",
+        "canonical": "#ffffff",
+        "night": "#161616"
+      },
+      "paper-sunken": {
+        "role": "neutral",
+        "displayName": "paper-sunken",
+        "canonical": "#f4f4f4",
+        "night": "#1e1e1f"
+      },
+      "paper-hover": {
+        "role": "neutral",
+        "displayName": "paper-hover",
+        "canonical": "#ededed",
+        "night": "#242425"
+      },
+      "paper-pressed": {
+        "role": "neutral",
+        "displayName": "paper-pressed",
+        "canonical": "#e0e0e0",
+        "night": "#2c2c2d"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "hairline",
+        "canonical": "#e6e6e6",
+        "night": "#2a2a2a"
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "hairline-strong",
+        "canonical": "#c4c4c4",
+        "night": "#3f3f41"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "canonical": "#111111",
+        "night": "#f5f5f5"
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "ink-soft",
+        "canonical": "#5b5f66",
+        "night": "#b5b5b8"
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "ink-faint",
+        "canonical": "#6b6b6b",
+        "night": "#9a9a9a"
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "on-ink",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "beam": {
+        "role": "primary",
+        "displayName": "beam",
+        "canonical": "#2b6bf3",
+        "night": "#6d9bff",
+        "note": "The one blue: links, the lead line, the picked option, one button per view."
+      },
+      "beam-hover": {
+        "role": "primary",
+        "displayName": "beam-hover",
+        "canonical": "#1f5be0",
+        "night": "#85acff"
+      },
+      "beam-pressed": {
+        "role": "primary",
+        "displayName": "beam-pressed",
+        "canonical": "#1a4fc7",
+        "night": "#9dbcff"
+      },
+      "beam-subtle": {
+        "role": "primary",
+        "displayName": "beam-subtle",
+        "canonical": "#e8effe",
+        "night": "#1c2a4d"
+      },
+      "beam-subtle-hover": {
+        "role": "tertiary",
+        "displayName": "beam-subtle-hover",
+        "canonical": "#d6e2fd",
+        "night": "#253766"
+      },
+      "beam-text": {
+        "role": "primary",
+        "displayName": "beam-text",
+        "canonical": "#1d5be3",
+        "night": "#8fb0ff"
+      },
+      "on-beam": {
+        "role": "primary",
+        "displayName": "on-beam",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "focus",
+        "canonical": "#2b6bf3",
+        "night": "#8fb0ff"
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "card",
+        "canonical": "#161616",
+        "night": "#f5f5f5",
+        "note": "The one dark card per view; light at night."
+      },
+      "card-line": {
+        "role": "neutral",
+        "displayName": "card-line",
+        "canonical": "#2a2a2a",
+        "night": "#e0e0e0"
+      },
+      "card-sunken": {
+        "role": "neutral",
+        "displayName": "card-sunken",
+        "canonical": "#222222",
+        "night": "#ebebeb"
+      },
+      "card-hover": {
+        "role": "neutral",
+        "displayName": "card-hover",
+        "canonical": "#262626",
+        "night": "#e6e6e6"
+      },
+      "on-card": {
+        "role": "neutral",
+        "displayName": "on-card",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "on-card-soft": {
+        "role": "neutral",
+        "displayName": "on-card-soft",
+        "canonical": "#cfcfcf",
+        "night": "#3a3a3a"
+      },
+      "on-card-faint": {
+        "role": "neutral",
+        "displayName": "on-card-faint",
+        "canonical": "#9a9a9a",
+        "night": "#666666"
+      },
+      "seg-empty": {
+        "role": "neutral",
+        "displayName": "seg-empty",
+        "canonical": "#3c3c3c",
+        "night": "#d4d4d4"
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "ok",
+        "canonical": "#2fd6c3",
+        "night": "#0f9f8e",
+        "note": "Only inside the dark card: here, healthy, done."
+      },
+      "mid": {
+        "role": "tertiary",
+        "displayName": "mid",
+        "canonical": "#f4623a",
+        "night": "#d2491f",
+        "note": "Only inside the dark card: partial, a second source."
+      },
+      "low": {
+        "role": "tertiary",
+        "displayName": "low",
+        "canonical": "#e5484d",
+        "night": "#d1343a",
+        "note": "Only inside the dark card: away, late, empty."
+      },
+      "field": {
+        "role": "tertiary",
+        "displayName": "field",
+        "canonical": "#2b5cf0",
+        "night": "#2b5cf0",
+        "note": "The public hero's cobalt field."
+      },
+      "field-deep": {
+        "role": "tertiary",
+        "displayName": "field-deep",
+        "canonical": "#1e45c4",
+        "night": "#1e45c4"
+      },
+      "on-field": {
+        "role": "tertiary",
+        "displayName": "on-field",
+        "canonical": "#ffffff",
+        "night": "#ffffff"
+      },
+      "field-shade": {
+        "role": "tertiary",
+        "displayName": "field-shade",
+        "canonical": "#6d28d9",
+        "night": "#6d28d9"
+      },
+      "sun": {
+        "role": "tertiary",
+        "displayName": "sun",
+        "canonical": "#ffd23f",
+        "night": "#ffd23f",
+        "note": "The hero's yellow: the Build button and the underline."
+      },
+      "sun-hover": {
+        "role": "tertiary",
+        "displayName": "sun-hover",
+        "canonical": "#f5c62a",
+        "night": "#f5c62a"
+      },
+      "on-sun": {
+        "role": "tertiary",
+        "displayName": "on-sun",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "note": {
+        "role": "tertiary",
+        "displayName": "note",
+        "canonical": "#fff3b0",
+        "night": "#fff3b0"
+      },
+      "note-ink": {
+        "role": "tertiary",
+        "displayName": "note-ink",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "brass": {
+        "role": "tertiary",
+        "displayName": "brass",
+        "canonical": "#111111",
+        "night": "#f5f5f5"
+      },
+      "brass-faint": {
+        "role": "tertiary",
+        "displayName": "brass-faint",
+        "canonical": "#e6e6e6",
+        "night": "#2a2a2a"
+      },
+      "ai": {
+        "role": "secondary",
+        "displayName": "ai",
+        "canonical": "#6a4fd1",
+        "night": "#9f8fef",
+        "note": "Only for AI-made or AI-making things, always labelled."
+      },
+      "ai-hover": {
+        "role": "secondary",
+        "displayName": "ai-hover",
+        "canonical": "#5a40bd",
+        "night": "#b3a6f4"
+      },
+      "ai-subtle": {
+        "role": "secondary",
+        "displayName": "ai-subtle",
+        "canonical": "#f2efff",
+        "night": "#201b3a"
+      },
+      "ai-border": {
+        "role": "secondary",
+        "displayName": "ai-border",
+        "canonical": "#d9d0fb",
+        "night": "#3b3266"
+      },
+      "ai-text": {
+        "role": "secondary",
+        "displayName": "ai-text",
+        "canonical": "#5638c2",
+        "night": "#c0b4f8"
+      },
+      "on-ai": {
+        "role": "secondary",
+        "displayName": "on-ai",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "sky-stormy": {
+        "role": "tertiary",
+        "displayName": "sky-stormy",
+        "canonical": "#2f3a52",
+        "night": "#2a3450"
+      },
+      "sky-foggy": {
+        "role": "tertiary",
+        "displayName": "sky-foggy",
+        "canonical": "#aab4c3",
+        "night": "#7f8ca6"
+      },
+      "sky-cloudy": {
+        "role": "tertiary",
+        "displayName": "sky-cloudy",
+        "canonical": "#d6d6d6",
+        "night": "#8e9bb2"
+      },
+      "sky-bright": {
+        "role": "tertiary",
+        "displayName": "sky-bright",
+        "canonical": "#7fb8ff",
+        "night": "#3f8ff0"
+      },
+      "sky-sunny": {
+        "role": "tertiary",
+        "displayName": "sky-sunny",
+        "canonical": "#ffd23f",
+        "night": "#e6b534"
+      },
+      "on-sky": {
+        "role": "tertiary",
+        "displayName": "on-sky",
+        "canonical": "#111111",
+        "night": "#111111"
+      },
+      "on-sky-stormy": {
+        "role": "tertiary",
+        "displayName": "on-sky-stormy",
+        "canonical": "#ffffff",
+        "night": "#f5f5f5"
+      },
+      "coral": {
+        "role": "tertiary",
+        "displayName": "coral",
+        "canonical": "#ef4a32",
+        "night": "#ef4a32",
+        "note": "The face's mouth. Nowhere else."
+      },
+      "live": {
+        "role": "tertiary",
+        "displayName": "live",
+        "canonical": "#178a66",
+        "night": "#4bce97"
+      },
+      "live-subtle": {
+        "role": "tertiary",
+        "displayName": "live-subtle",
+        "canonical": "#dcf5ec",
+        "night": "#12301f"
+      },
+      "live-text": {
+        "role": "tertiary",
+        "displayName": "live-text",
+        "canonical": "#126b4f",
+        "night": "#7ee2b8"
+      },
+      "on-live": {
+        "role": "tertiary",
+        "displayName": "on-live",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "danger",
+        "canonical": "#d93a3f",
+        "night": "#ff8f86"
+      },
+      "danger-hover": {
+        "role": "tertiary",
+        "displayName": "danger-hover",
+        "canonical": "#c22f34",
+        "night": "#ffa8a1"
+      },
+      "danger-subtle": {
+        "role": "tertiary",
+        "displayName": "danger-subtle",
+        "canonical": "#ffecec",
+        "night": "#3a1512"
+      },
+      "danger-text": {
+        "role": "tertiary",
+        "displayName": "danger-text",
+        "canonical": "#b4262b",
+        "night": "#ffa8a1"
+      },
+      "on-danger": {
+        "role": "tertiary",
+        "displayName": "on-danger",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "warning-subtle": {
+        "role": "tertiary",
+        "displayName": "warning-subtle",
+        "canonical": "#fff4cc",
+        "night": "#3a2d0a"
+      },
+      "warning-text": {
+        "role": "tertiary",
+        "displayName": "warning-text",
+        "canonical": "#6e4a00",
+        "night": "#f0c75e"
+      },
+      "info-subtle": {
+        "role": "tertiary",
+        "displayName": "info-subtle",
+        "canonical": "#e8effe",
+        "night": "#1c2a4d"
+      },
+      "info-text": {
+        "role": "tertiary",
+        "displayName": "info-text",
+        "canonical": "#1d5be3",
+        "night": "#8fb0ff"
+      },
+      "neutral-subtle": {
+        "role": "tertiary",
+        "displayName": "neutral-subtle",
+        "canonical": "#f4f4f4",
+        "night": "#1e1e1f"
+      },
+      "neutral-text": {
+        "role": "tertiary",
+        "displayName": "neutral-text",
+        "canonical": "#5b5f66",
+        "night": "#b5b5b8"
+      },
+      "body-1": {
+        "role": "tertiary",
+        "displayName": "body-1",
+        "canonical": "#1d4ed8",
+        "night": "#60a5fa"
+      },
+      "body-2": {
+        "role": "tertiary",
+        "displayName": "body-2",
+        "canonical": "#c2410c",
+        "night": "#fb923c"
+      },
+      "body-3": {
+        "role": "tertiary",
+        "displayName": "body-3",
+        "canonical": "#15803d",
+        "night": "#4ade80"
+      },
+      "body-4": {
+        "role": "tertiary",
+        "displayName": "body-4",
+        "canonical": "#9d174d",
+        "night": "#f472b6"
+      },
+      "body-5": {
+        "role": "tertiary",
+        "displayName": "body-5",
+        "canonical": "#0e7490",
+        "night": "#22d3ee"
+      },
+      "on-body": {
+        "role": "tertiary",
+        "displayName": "on-body",
+        "canonical": "#ffffff",
+        "night": "#111111"
+      },
+      "brand-ink": {
+        "role": "tertiary",
+        "displayName": "brand-ink",
+        "canonical": "#111111",
+        "night": "#f5f5f5"
+      },
+      "brand-aqua": {
+        "role": "tertiary",
+        "displayName": "brand-aqua",
+        "canonical": "#22b8cc",
+        "night": "#22b8cc"
+      }
     },
     "typographyMeta": {
-      "family": "Readex Pro Variable (Latin + Arabic, self-hosted via @fontsource-variable/readex-pro)",
-      "display": { "displayName": "Display", "purpose": "The public site's headline token (--fs-4xl). The landing console title runs larger: clamp(2.5rem, 2rem + 4vw, 5rem), line height 1.02." },
-      "reading": { "displayName": "Reading (instrument numeral)", "purpose": "A ring's centre. --reading-weight 300 stormy … 700 sunny, default 600; tabular numerals; weight tweens over --dur-focal." },
-      "section": { "displayName": "Section / page title", "purpose": "Page header titles, site section titles, code tiles (--fs-3xl)." },
-      "title": { "displayName": "Title", "purpose": "Auth card title, the lead orbit's name, the bare teaser question (--fs-2xl)." },
-      "headline": { "displayName": "Headline", "purpose": "Work bar circle name, the orrery heading, the teaser question (--fs-xl)." },
-      "panel-title": { "displayName": "Panel title", "purpose": "Panel, card and dialog titles (--fs-lg)." },
-      "body": { "displayName": "Body", "purpose": "Running text, inputs, buttons (500), chat (--fs-md)." },
-      "small": { "displayName": "Small", "purpose": "Secondary text, chips, status, timestamps (--fs-sm)." },
-      "caption": { "displayName": "Caption", "purpose": "Table column heads, nav group names, select labels, kbd (--fs-xs, 600, 0.02em; no tracking in Arabic)." },
-      "label": { "displayName": "Label (lozenge)", "purpose": "Lozenges only: 11px, 700, uppercase, 0.06em. Arabic: 12px, no uppercase, no tracking." }
+      "family": {
+        "display": "'Rubik Variable', 'Rubik', system-ui, sans-serif",
+        "hand": "'Caveat Variable', 'Caveat', system-ui, sans-serif"
+      },
+      "note": "Rubik 800–900 at the top, 700 for names and buttons, 400 body; Caveat for handwritten asides on the site."
     },
-    "shadows": [
-      { "name": "raised", "value": "0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2)", "night": "0 1px 1px rgb(0 0 0 / 0.4), 0 0 1px rgb(250 250 250 / 0.18)", "purpose": "Panels and orbit cards on ground, ring bodies, the selected segment and nav item, the switch knob." },
-      { "name": "overlay", "value": "0 8px 12px rgb(10 10 11 / 0.12), 0 0 1px rgb(10 10 11 / 0.28)", "night": "0 8px 16px rgb(0 0 0 / 0.55), 0 0 1px rgb(250 250 250 / 0.22)", "purpose": "Dropdowns, toasts, the auth card, the dealt card, the landing composition card." },
-      { "name": "float", "value": "0 24px 48px -12px rgb(10 10 11 / 0.25), 0 0 1px rgb(10 10 11 / 0.25)", "night": "0 24px 48px -12px rgb(0 0 0 / 0.7), 0 0 1px rgb(250 250 250 / 0.25)", "purpose": "The drawer, dialogs, Pirikoo's panel, the canvas style bar, the bottom sheet." },
-      { "name": "backdrop", "value": "rgb(10 10 11 / 0.5)", "purpose": "dialog::backdrop and the drawer's backdrop: the dome, half there." }
-    ],
-    "motion": [
-      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Exponential ease-out for arrivals; the default." },
-      { "name": "ease-in-out", "value": "cubic-bezier(0.65, 0, 0.35, 1)", "purpose": "Transits, the sky fill, the weight tween, cross-fades." },
-      { "name": "dur-press", "value": "120ms", "purpose": "Press and hover feedback; the old page of a view transition." },
-      { "name": "dur-state", "value": "160ms", "purpose": "A state change: toggle, selection, lozenge; the new page of a view transition; reduced-motion fades." },
-      { "name": "dur-move", "value": "240ms", "purpose": "Something moves or resizes in place: switch knob, dropdown rise, digit settle." },
-      { "name": "dur-enter", "value": "300ms", "purpose": "An element enters or leaves: toast, drawer, the mouth morph, the hop." },
-      { "name": "dur-focal", "value": "600ms", "purpose": "The one authored entrance of a surface: the ring track, the sky fill, Pirikoo's hop." },
-      { "name": "dur-orbit", "value": "1200ms", "purpose": "Long beats: the loading breath, the presence pulse, the suggestion spotlight (runs twice), the room's ground change." },
-      { "name": "spring-snappy", "value": "stiffness 520, damping 34, mass 1", "purpose": "A body hopping onto the ring, a vote dot, a chip." },
-      { "name": "spring-soft", "value": "stiffness 260, damping 28, mass 1", "purpose": "Panels, sheets, the rail, cards rising." },
-      { "name": "spring-gentle", "value": "stiffness 160, damping 24, mass 1.2", "purpose": "A ring settling, the sky fill changing, the running arc." },
-      { "name": "list-stagger", "value": "30ms per row, capped at 240ms (orbits 60ms)", "purpose": "Lists that appear as lists; rows rise 8px." },
-      { "name": "ring-compose", "value": "track 600ms ease-out, bodies snappy from 200ms + 40ms per body, capped at 320ms", "purpose": "Home's focal entrance and the landing composition." }
-    ],
-    "breakpoints": [
-      { "name": "phone", "value": "40rem", "purpose": "Orbits to one column, the Ask bar fills the top bar, Start a round icon-only; the landing's mood demo goes side by side above it." },
-      { "name": "dash", "value": "56rem", "purpose": "Home's two-column dash stacks below; the site bar's anchors show above; the work bar container drops 'started by' below." },
-      { "name": "workspace", "value": "60rem", "purpose": "The room's centre and rail fill the app height; the landing's console and composition sit side by side." },
-      { "name": "drawer", "value": "62rem", "purpose": "The navigation rail becomes a drawer below." }
-    ]
-  },
-  "components": [
-    {
-      "name": "Primary button",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "The one action per view, in beam.",
-      "html": "<button class=\"ds-btn ds-btn-primary\"><span>Open the whiteboard</span></button>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.4rem 0.9rem; border: 0; border-radius: var(--r-sm, 6px); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.9375rem; font-weight: 500; line-height: 1.2; white-space: nowrap; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary { background: var(--beam, #1f4fff); color: var(--on-beam, #fff); } .ds-btn-primary:hover { background: var(--beam-hover, #1740d6); } .ds-btn-primary:active { background: var(--beam-pressed, #1233ad); transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; }"
+    "shadows": {
+      "raised": "0 1px 2px rgb(0 0 0 / 0.06)",
+      "overlay": "0 12px 28px -12px rgb(0 0 0 / 0.28), 0 0 0 1px rgb(0 0 0 / 0.04)",
+      "card": "0 40px 80px -30px rgb(0 0 0 / 0.45), 0 18px 36px -24px rgb(0 0 0 / 0.4)"
     },
-    {
-      "name": "Default button",
-      "kind": "button",
-      "refersTo": "button-default",
-      "description": "Sunken paper with an inset hairline; every secondary action.",
-      "html": "<button class=\"ds-btn ds-btn-default\"><span>Send results</span></button>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.4rem 0.9rem; border: 0; border-radius: var(--r-sm, 6px); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.9375rem; font-weight: 500; line-height: 1.2; white-space: nowrap; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-default { background: var(--paper-sunken, #f2f4f7); color: var(--ink, #0a0a0a); box-shadow: inset 0 0 0 1px var(--hairline, #e4e7ec); } .ds-btn-default:hover { background: var(--paper-hover, #e9ecf1); } .ds-btn-default:active { background: var(--paper-pressed, #dde1e8); transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; }"
+    "motion": {
+      "dur-press": "120ms",
+      "dur-state": "160ms",
+      "dur-move": "240ms",
+      "dur-enter": "300ms",
+      "dur-focal": "600ms",
+      "dur-orbit": "1200ms",
+      "ease-out": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "ease-in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+      "ease-settle": "cubic-bezier(0.32, 0.72, 0, 1)",
+      "springs": "snappy | soft | gentle (src/web/src/lib/motion.ts)"
     },
-    {
-      "name": "AI button",
-      "kind": "button",
-      "refersTo": "button-ai",
-      "description": "Violet: only an action that asks the AI to write or run something.",
-      "html": "<button class=\"ds-btn ds-btn-ai\"><span>Run the plan</span></button>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.4rem 0.9rem; border: 0; border-radius: var(--r-sm, 6px); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.9375rem; font-weight: 500; line-height: 1.2; white-space: nowrap; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-ai { background: var(--ai, #6a4fd1); color: var(--on-ai, #fff); } .ds-btn-ai:hover { background: var(--ai-hover, #5a40bd); } .ds-btn-ai:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; }"
-    },
-    {
-      "name": "Chip",
-      "kind": "chip",
-      "refersTo": "chip",
-      "description": "A small body: paper on a strong hairline, full radius; pressed turns beam-subtle.",
-      "html": "<button class=\"ds-chip\" aria-pressed=\"false\">Quick questions</button> <button class=\"ds-chip\" aria-pressed=\"true\">Family dinner</button>",
-      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2rem; padding: 0.3rem 0.75rem; margin: 0 0.25rem; border: 1px solid var(--hairline-strong, #9aa3b0); border-radius: 999px; background: var(--paper, #fff); color: var(--ink, #0a0a0a); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16,1,0.3,1), border-color 160ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-chip:hover { border-color: var(--ink-faint, #737b86); background: var(--paper-hover, #e9ecf1); } .ds-chip:active { transform: scale(0.98); } .ds-chip[aria-pressed='true'] { border-color: var(--beam, #1f4fff); background: var(--beam-subtle, #eaf0ff); color: var(--beam-text, #1a44db); } .ds-chip:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; }"
-    },
-    {
-      "name": "Lozenge",
-      "kind": "chip",
-      "refersTo": "lozenge",
-      "description": "Honest status words: Live, Soon, Example, Suggested by AI.",
-      "html": "<span class=\"ds-lozenge\">Soon</span> <span class=\"ds-lozenge ds-lozenge-live\">Live</span> <span class=\"ds-lozenge ds-lozenge-ai\">Suggested by AI</span>",
-      "css": ".ds-lozenge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0 0.35rem; margin: 0 0.15rem; border-radius: 3px; background: var(--neutral-subtle, #f2f4f7); color: var(--neutral-text, #4d5560); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.06em; line-height: 1.45rem; text-transform: uppercase; white-space: nowrap; } .ds-lozenge-live { background: var(--live-subtle, #dcf5e8); color: var(--live-text, #145c3b); } .ds-lozenge-ai { background: var(--ai-subtle, #f2efff); color: var(--ai-text, #5638c2); box-shadow: inset 0 0 0 1px var(--ai-border, #d9d0fb); }"
-    },
-    {
-      "name": "Text field",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Paper on a strong hairline; the beam as caret and focus.",
-      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Circle name</span><input class=\"ds-input\" placeholder=\"Family dinner\" /><span class=\"ds-field-help\">Everyone sees this name.</span></label>",
-      "css": ".ds-field { display: grid; gap: 0.5rem; max-width: 24rem; font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); } .ds-field-label { font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft, #4d5560); } .ds-field-help { font-size: 0.8125rem; color: var(--ink-faint, #737b86); } .ds-input { width: 100%; min-height: 2.75rem; padding: 0.5rem 0.85rem; border: 1px solid var(--hairline-strong, #9aa3b0); border-radius: 6px; background: var(--paper, #fff); color: var(--ink, #0a0a0a); font: inherit; font-size: 0.9375rem; caret-color: var(--beam, #1f4fff); transition: border-color 160ms cubic-bezier(0.16,1,0.3,1); } .ds-input::placeholder { color: var(--ink-faint, #737b86); opacity: 1; } .ds-input:hover { border-color: var(--ink-faint, #737b86); } .ds-input:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; border-color: var(--focus, #3b66ff); }"
-    },
-    {
-      "name": "Rail item",
-      "kind": "nav",
-      "refersTo": "nav-item-active",
-      "description": "The navigation rail on ground: the active item is filled beam-subtle in ink.",
-      "html": "<nav class=\"ds-rail\"><a class=\"ds-navitem is-active\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><path d=\"M9 22V12h6v10\"/></svg>Home</a><a class=\"ds-navitem\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg>Circles</a><a class=\"ds-navitem\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>Icebreakers</a></nav>",
-      "css": ".ds-rail { display: grid; gap: 2px; width: 15.5rem; padding: 1rem 0.75rem; background: var(--ground, #ffffff); border-right: 1px solid var(--hairline, #e4e7ec); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); } .ds-navitem { position: relative; display: flex; align-items: center; gap: 0.75rem; min-height: 2.25rem; padding: 0.3rem 0.75rem; border-radius: 6px; color: var(--ink-soft, #4d5560); font-size: 0.9375rem; font-weight: 500; text-decoration: none; transition: background 160ms cubic-bezier(0.16,1,0.3,1), color 160ms cubic-bezier(0.16,1,0.3,1); } .ds-navitem:hover { background: var(--paper, #fff); color: var(--ink, #0a0a0a); } .ds-navitem.is-active { background: var(--beam-subtle, #eaf0ff); color: var(--ink, #0a0a0a); font-weight: 600; } .ds-navitem:focus-visible { outline: 2px solid var(--focus, #3b66ff); outline-offset: 2px; }"
-    },
-    {
-      "name": "Panel",
-      "kind": "card",
-      "refersTo": "panel",
-      "description": "Paper on one hairline with the raised shadow; head, body, optional sunken foot. Panels never nest.",
-      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><h2 class=\"ds-panel-title\">Today's icebreaker</h2><a class=\"ds-panel-link\" href=\"#\">Open icebreakers</a></div><div class=\"ds-panel-body\"><p>What is the best thing you ate this week?</p></div><div class=\"ds-panel-foot\"><button class=\"ds-btn ds-btn-primary\">Deal another</button></div></section>",
-      "css": ".ds-panel { display: grid; border: 1px solid var(--hairline, #e4e7ec); border-radius: 8px; background: var(--paper, #fff); color: var(--ink, #0a0a0a); box-shadow: var(--shadow-raised, 0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2)); font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); font-size: 0.9375rem; line-height: 1.55; } .ds-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 3.25rem; padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--hairline, #e4e7ec); } .ds-panel-title { margin: 0; font-size: 1.0625rem; font-weight: 600; } .ds-panel-link { font-size: 0.8125rem; font-weight: 500; color: var(--beam-text, #1a44db); text-decoration: none; } .ds-panel-link:hover { text-decoration: underline; } .ds-panel-body { padding: 1.25rem; } .ds-panel-body p { margin: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.35; } .ds-panel-foot { display: flex; justify-content: flex-end; padding: 0.75rem 1.25rem; border-top: 1px solid var(--hairline, #e4e7ec); background: var(--paper-sunken, #f2f4f7); border-radius: 0 0 8px 8px; } .ds-btn { display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0.4rem 0.9rem; border: 0; border-radius: 6px; font: inherit; font-weight: 500; cursor: pointer; } .ds-btn-primary { background: var(--beam, #1f4fff); color: var(--on-beam, #fff); } .ds-btn-primary:hover { background: var(--beam-hover, #1740d6); }"
-    },
-    {
-      "name": "Ring",
-      "kind": "custom",
-      "refersTo": "orbit-card",
-      "description": "The signature: a circle as a ring. Brass track, bodies at equal angles, the circle's sky inside, a brass arc while a round runs, the reading numeral in the centre.",
-      "html": "<div class=\"ds-ring ds-ring-bright\" role=\"img\" aria-label=\"Family dinner: 4 members, bright\"><svg viewBox=\"0 0 100 100\" aria-hidden=\"true\"><circle class=\"ds-ring-sky\" cx=\"50\" cy=\"50\" r=\"38\"/><circle class=\"ds-ring-track\" cx=\"50\" cy=\"50\" r=\"46\"/><circle class=\"ds-ring-run\" cx=\"50\" cy=\"50\" r=\"46\" pathLength=\"100\" stroke-dasharray=\"40 100\"/><line class=\"ds-ring-tick\" x1=\"50\" y1=\"2\" x2=\"50\" y2=\"7\"/></svg><ul class=\"ds-ring-bodies\"><li class=\"ds-ring-body is-me\" style=\"--angle:0deg\">A</li><li class=\"ds-ring-body\" style=\"--angle:90deg\">L</li><li class=\"ds-ring-body\" style=\"--angle:180deg\">T</li><li class=\"ds-ring-body\" style=\"--angle:270deg\">Y</li></ul><div class=\"ds-ring-centre\"><span class=\"ds-reading\">4<span class=\"ds-reading-of\"> of 6</span></span></div></div>",
-      "css": ".ds-ring { --ring-size: 12rem; --body-size: 2rem; --sky: var(--paper, #fff); --on-sky-here: var(--ink, #0a0a0a); --reading-weight: 600; position: relative; width: var(--ring-size); height: var(--ring-size); margin: 1rem; font-family: var(--font, 'Readex Pro Variable', system-ui, sans-serif); } .ds-ring-bright { --sky: var(--sky-bright, #7fb8ff); --on-sky-here: var(--on-sky, #0a0a0a); --reading-weight: 600; } .ds-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; } .ds-ring-sky { fill: var(--sky); transition: fill 600ms cubic-bezier(0.65,0,0.35,1); } .ds-ring-track { fill: none; stroke: var(--brass-faint, #d6dfff); stroke-width: 1.6; } .ds-ring-run { fill: none; stroke: var(--brass, #1f4fff); stroke-width: 2.4; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; } .ds-ring-tick { stroke: var(--brass, #1f4fff); stroke-width: 1.6; stroke-linecap: round; } .ds-ring-bodies { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; } .ds-ring-body { --dir: 1; position: absolute; top: 50%; left: 50%; width: var(--body-size); height: var(--body-size); margin: calc(var(--body-size) / -2); display: grid; place-items: center; border-radius: 999px; background: var(--paper, #fff); color: var(--ink, #0a0a0a); font-size: 0.75rem; font-weight: 600; box-shadow: var(--shadow-raised, 0 1px 1px rgb(10 10 11 / 0.08), 0 0 1px rgb(10 10 11 / 0.2)); transform: rotate(calc(var(--angle) * var(--dir))) translateY(calc(var(--ring-size) * -0.46)) rotate(calc(var(--angle) * var(--dir) * -1)); } .ds-ring-body.is-me { outline: 3px solid var(--beam, #1f4fff); outline-offset: 2px; } .ds-ring-centre { position: absolute; inset: 20%; display: grid; place-content: center; text-align: center; color: var(--on-sky-here); } .ds-reading { font-size: 2.5rem; font-weight: var(--reading-weight); font-variation-settings: 'wght' var(--reading-weight); letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; } .ds-reading-of { font-size: 0.4em; font-weight: 500; font-variation-settings: 'wght' 500; }"
+    "breakpoints": {
+      "phone": "40rem",
+      "drawer": "62rem",
+      "home-one-column": "60rem",
+      "bar-drops-soon-pill": "84rem",
+      "site-two-columns": "60rem"
     }
-  ],
-  "narrative": {
-    "northStar": "The Orrery",
-    "overview": "circloo is an orrery of people. A circle is a ring, its members are bodies on that ring, and a round is a transit everyone watches together. The world is built from the orrery's materials and nothing else: two grounds (a cool off-white by Day, the dome #0a0a0b by Night), ink for everything that is read, brass for every mark that measures something, one beam of blue for the one thing to do, violet only where AI wrote something, and the five mood skies as fills. It refuses the SaaS dashboard (white cards on grey, one accent) and the enterprise sidebar-as-identity it replaced (issue #250).\n\nThe chrome is quiet so three things can carry colour: the people (characters and avatars keep their fixed colours in both themes), the face (the \"oo\" of the wordmark, coral mouth), and the content (an icebreaker set large on a dealt card, a live canvas, a reveal). Density is medium: 15px body on a 4px grid, panels with one hairline, lists that stagger in. Rings, arcs, ticks and hairlines are the only ornament, and each one carries data: who is on the ring, how far the round has run, which option is picked, where the time stands.\n\nNight is a full theme, not an inversion. Some surfaces are pinned to the dome in both themes because a room reads best with light content on a dark ground: the public site's first and last bands, the presenter view and the audience screen. Those surfaces redeclare the Night tokens as literals so every shared component inside follows.",
-    "keyCharacteristics": [
-      "Two grounds, Day and Night, with every text pair AA or better in both.",
-      "The ring is the signature: brass track, bodies at equal angles, the circle's sky inside, a brass arc while a round runs, mirrored in RTL.",
-      "Brass measures, beam acts, violet means AI, coral is the mouth. Nothing else is coloured.",
-      "One family (Readex Pro, variable) for Latin and Arabic; hierarchy by scale and weight; the instrument numeral's weight follows the mood.",
-      "Hairline grids: cells share one hairline, cards do not float in a grid.",
-      "One motion grammar (duration tokens, three springs, exponential ease-out), every animation with a reduced-motion path that keeps the meaning.",
-      "Four languages, logical properties, Arabic as a first-class mirrored layout."
-    ],
-    "rules": [
-      { "name": "The Violet Rule", "body": "If it is violet, AI made it. If AI made it, it is labelled.", "section": "colors" },
-      { "name": "The Brass Measures Rule", "body": "Every brass mark carries data (a track, a progress, a tick, a selection, a rule under a running time). Brass is never a button, never running text, never decoration.", "section": "colors" },
-      { "name": "The One Beam Rule", "body": "One primary button per view. Beam is spent on the next action and on nothing else.", "section": "colors" },
-      { "name": "The Coral Rule", "body": "Coral is the mouth. No badge, no dot, no accent anywhere else.", "section": "colors" },
-      { "name": "The Sky With a Word Rule", "body": "A sky fill never stands alone: the mood's icon and word sit beside it, so colour is never the only signal.", "section": "colors" },
-      { "name": "The Two Grounds Rule", "body": "Night is a full theme defined once in tokens.css under [data-theme='dark'] and under prefers-color-scheme: dark when the person chose \"Match my device\". A surface that must stay on the dome in both themes (the site's first and last bands, the presenter and audience views) redeclares the Night values as literals with the legacy aliases, so every shared component inside follows without a second stylesheet.", "section": "colors" },
-      { "name": "The Weight Axis Rule", "body": "Only the reading numeral drives Readex Pro's weight axis, and only the circle's mood drives it. Everywhere else, weights are 400 (body), 500 (controls, chips), 600 (headings, names), 700 (wordmark and lozenges).", "section": "typography" },
-      { "name": "The One Family Rule", "body": "No second typeface, no monospace. Codes and times are Readex Pro with tabular numerals.", "section": "typography" },
-      { "name": "The Hairline First Rule", "body": "Separation is a 1px hairline before it is a shadow. A shadow means the thing floats above the page (a menu, a card dealt from the deck, a sheet); content at rest gets raised at most.", "section": "elevation" },
-      { "name": "The No Glow Rule", "body": "No glows, no blurred colour halos, no glass. The only \"ring\" around a control is a focus ring (2px focus, 2px offset) or a brass selection ring.", "section": "elevation" }
-    ],
-    "dos": [
-      "Do keep the chrome to ground, paper, ink and brass, and let people, the face and the content carry colour.",
-      "Do spend beam on exactly one primary action per view; selection is beam-subtle (nav, options) or a brass tick (segmented controls).",
-      "Do keep violet for AI alone and label every AI output (lozenge, name or \"Suggested by AI\").",
-      "Do put every sky fill beside the mood's icon and word; mood is never colour alone.",
-      "Do separate with a 1px hairline first; shadows are for things that float (menus, dealt cards, sheets).",
-      "Do set every count, time and code in tabular numerals; drive only the reading numeral's weight, and only by mood.",
-      "Do use logical properties and --dir style custom properties so rings, drawers and switches mirror in RTL; drop uppercase and tracking under :lang(ar).",
-      "Do give every entrance a reduced-motion path that keeps the meaning (a fade, an instant position, a pop by opacity).",
-      "Do use Lucide icons at 14–20px, stroke 2, with .flip-rtl on directional ones."
-    ],
-    "donts": [
-      "Don't add a second typeface, a monospace, or a system display face; Readex Pro at every size.",
-      "Don't paint gradients, glass (backdrop-filter), glows or blurred halos. The 24px dot grid of the whiteboard and the dome bands is the one radial-gradient, and it draws dots.",
-      "Don't use coral outside the face's mouth, brass as a button or running text, or violet as decoration.",
-      "Don't float cards in a grid; neighbours share a hairline (1px gap on a hairline background).",
-      "Don't use emoji as icons or sparkles for AI; the bird's moods and the violet label are the AI signal.",
-      "Don't hide a control's label with display: none; clip it (.visually-hidden or the .btn__label clip).",
-      "Don't run a loop that is not a live indicator (typing dots, the thinking crest, a conversion spinner, the presence pulse); a count pops once, a status dot pulses once.",
-      "Don't nest panels or put a panel head inside a hairline-grid cell."
-    ]
-  }
+  },
+  "components": {
+    "button-primary": "ink pill 44px",
+    "panel": "white, 2px hairline, 22px",
+    "panel-dark": "card, 28px, shadow-card",
+    "buddy": "character 44px, name, status, value, meter",
+    "meter": "10 segments",
+    "stack": "32px characters",
+    "lozenge": "tracked pill",
+    "mood-tile": "outlined 18px, picked = ink"
+  },
+  "narrative": "A buddy list: a white canvas, one blue, one dark card per view with your people as characters in rows and every count as a ten-segment meter; a cobalt field with a yellow sun on the public hero."
 }

@@ -723,7 +723,7 @@
     display: none;
   }
   /* No bubble over a phone's content: the blue ring calls, and the panel opens on the suggested next step. */
-  .pkl__tip {
+  .pkl .pkl__tip {
     display: none;
   }
   .pkc--panel {

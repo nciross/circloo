@@ -434,7 +434,7 @@
   color: var(--on-field);
 }
 .console .say__example:hover {
-  background: rgb(255 255 255 / 0.12);
+  background: var(--field-deep);
 }
 .console .say__hint {
   padding: 0.3rem 0.8rem;
@@ -798,7 +798,7 @@
     transform var(--dur-move) var(--ease-settle);
 }
 .motion-toggle:hover {
-  background: rgb(255 255 255 / 0.12);
+  background: var(--field-deep);
   transform: scale(1.03);
 }
 .motion-toggle[aria-pressed='true'] {

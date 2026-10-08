@@ -10,7 +10,7 @@
  */
 :root {
   /* On :root because the assistant's corner button (outside the room) rises above the open sheet. */
-  --sheet-half: 50dvh;
+  --sheet-half: 44dvh; /* under half: the centre of a phone screen stays free for the canvas tools */
   --sheet-full: 88dvh;
 }
 .room__grid {
