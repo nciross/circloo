@@ -250,6 +250,40 @@ public sealed class ReplyTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_member_cannot_like_a_reply_whose_parent_is_hidden_and_the_animator_still_can()
+    {
+        // Issue #279: a member never sees the replies of a hidden message, so a like sent by id is refused like a like
+        // on the hidden message itself. The animator still sees them, so may still like them.
+        await using var room = await RoomAsync();
+        var guestLikes = new Inbox<(long Id, bool Liked)>(push => room.Guest.On<long, bool>("MyLike", (id, liked) => push((id, liked))));
+        var animatorLikes = new Inbox<(long Id, bool Liked)>(push => room.Animator.On<long, bool>("MyLike", (id, liked) => push((id, liked))));
+        var parent = await SayAsync(room, "Parent");
+        await room.Animator.InvokeAsync("Reply", parent, "From the animator");
+        var animatorReply = (await room.GuestMessages.NextAsync(m => m.Text == "From the animator")).Id;
+        await room.Guest.InvokeAsync("Reply", parent, "From the guest");
+        var guestReply = (await room.AnimatorMessages.NextAsync(m => m.Text == "From the guest")).Id;
+        await room.Guest.InvokeAsync("LikeMessage", animatorReply);
+        Assert.Equal((animatorReply, true), await guestLikes.NextAsync());
+
+        await room.Animator.InvokeAsync("HideMessage", parent, true);
+        await room.GuestHidden.NextAsync(id => id == animatorReply);
+
+        Assert.Contains("message-hidden", await RefusedAsync(() => room.Guest.InvokeAsync("LikeMessage", animatorReply)));
+        Assert.Equal(1, await LikesAsync(animatorReply));
+        await room.Animator.InvokeAsync("LikeMessage", guestReply);
+        Assert.Equal((guestReply, true), await animatorLikes.NextAsync());
+        Assert.Equal(1, await LikesAsync(guestReply));
+
+        // Shown again: the member's like works again (it toggles the one they had).
+        await room.Animator.InvokeAsync("HideMessage", parent, false);
+        await room.Guest.InvokeAsync("LikeMessage", animatorReply);
+        Assert.Equal((animatorReply, false), await guestLikes.NextAsync());
+        Assert.Equal(0, await LikesAsync(animatorReply));
+    }
+
+    private Task<int> LikesAsync(long messageId) => _host.Room.DbAsync(db => db.MessageLikes.CountAsync(l => l.MessageId == messageId));
+
+    [Fact]
     public async Task A_call_start_and_end_write_no_CircleMessages_row()
     {
         await using var room = await RoomAsync();
