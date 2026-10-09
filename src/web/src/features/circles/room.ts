@@ -8,6 +8,7 @@ import { PRESENTATION } from './catalog'
 import { bindReactions, useReactions, type ReactionKind } from './room/reactions'
 import { cleanHands, NO_HANDS } from './room/hands'
 import { patchMessage, upsertMessage } from './room/grouping'
+import { addLines, handsChanges, isLineNotice, type LiveEvent, type LiveLine } from './room/liveLines'
 import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, HandsView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
@@ -40,11 +41,23 @@ interface RoomState {
   settings: RoomSettings
   /** Raised hands, oldest first, and who has the floor (spec 008 US5). Names come from `members`. */
   hands: HandsView
+  /**
+   * Live lines for the conversation (spec 009 US5 #3): call notices and hands, made in this tab from hub events and
+   * never stored, so a reload starts without them.
+   */
+  lines: LiveLine[]
+  /**
+   * The chat mode to come back to when the chat is switched on again from the call's Chat switch, so slow mode is not
+   * lost by pausing; the last open or slow mode this tab saw.
+   */
+  chatResume: 'open' | 'slow'
   status: Status
   error: string | null
   connection: HubConnection | null
   load: (view: CircleView) => void
   say: (text: string) => Promise<void>
+  /** Answers a member message, one level only (spec 009 US5 #2); refusals as for `say`, plus `reply-invalid`. */
+  reply: (parentId: number, text: string) => Promise<void>
   ask: (text: string) => Promise<void>
   /** Toggles your like on someone else's message (spec 008 US3); the hub answers with `MyLike` and the new count. */
   likeMessage: (id: number) => Promise<void>
@@ -143,6 +156,24 @@ const invoke = async (method: string, ...args: unknown[]) => {
   }
 }
 
+let lineSeq = 0
+
+/** Adds live lines after the newest message, in the round that is on. */
+function addLiveLines(events: LiveEvent[]) {
+  if (events.length === 0) return
+  useRoom.setState((s) => ({
+    lines: addLines(s.lines, events, {
+      afterId: s.messages.reduce((max, m) => Math.max(max, m.id), 0),
+      activityId: s.activity,
+      at: Date.now(),
+      seq: () => ++lineSeq,
+    }),
+  }))
+}
+
+const resumeOf = (chat: RoomSettings['chat'] | undefined, fallback: 'open' | 'slow' = 'open'): 'open' | 'slow' =>
+  chat === 'open' || chat === 'slow' ? chat : fallback
+
 /** The member who started the round, from its "start:" system line (the page load does not carry it otherwise). */
 export function starterOf(messages: Message[], activity: string | null): string | null {
   if (!activity) return null
@@ -175,6 +206,8 @@ export const useRoom = create<RoomState>()((set) => ({
   closed: false,
   settings: DEFAULT_SETTINGS,
   hands: NO_HANDS,
+  lines: [],
+  chatResume: 'open',
   status: 'connecting',
   error: null,
   connection: null,
@@ -195,7 +228,9 @@ export const useRoom = create<RoomState>()((set) => ({
       startedBy: starterOf(view.messages, view.currentActivity),
       closed: view.status === 'closed',
       settings: view.settings ?? DEFAULT_SETTINGS,
+      chatResume: resumeOf(view.settings?.chat),
       hands: cleanHands(view.hands),
+      lines: [],
       online: [],
       typing: [],
       thinking: false,
@@ -205,6 +240,10 @@ export const useRoom = create<RoomState>()((set) => ({
   },
   say: async (text) => {
     await invoke('Say', text)
+    lastTyping = 0
+  },
+  reply: async (parentId, text) => {
+    await invoke('Reply', parentId, text)
     lastTyping = 0
   },
   ask: async (text) => {
@@ -273,7 +312,7 @@ async function resync(id: string) {
     activity: view.currentActivity,
     startedBy: starterOf(view.messages, view.currentActivity),
     closed: view.status === 'closed',
-    ...(view.settings ? { settings: view.settings } : {}),
+    ...(view.settings ? { settings: view.settings, chatResume: resumeOf(view.settings.chat, useRoom.getState().chatResume) } : {}),
     ...(view.hands ? { hands: cleanHands(view.hands) } : {}),
   })
   if (view.discussion) useStage.setState({ discussion: view.discussion })
@@ -324,13 +363,22 @@ export function useCircleConnection(view: CircleView | undefined) {
       if (useRoom.getState().connection === connection && !d?.on && useRoom.getState().activity !== PRESENTATION) useReactions.getState().reset()
     })
     connection.on('Hands', (view: unknown) => {
-      if (useRoom.getState().connection === connection) useRoom.setState({ hands: cleanHands(view) })
+      if (useRoom.getState().connection !== connection) return
+      const before = useRoom.getState().hands
+      const after = cleanHands(view)
+      useRoom.setState({ hands: after })
+      addLiveLines(handsChanges(before, after))
+    })
+    // The call's notices to the whole circle also leave a line in the conversation (the stage store shows the notice).
+    connection.on('CallNotice', (kind: unknown, byMemberId?: unknown) => {
+      if (useRoom.getState().connection !== connection || typeof kind !== 'string' || !isLineNotice(kind)) return
+      addLiveLines([{ kind: 'notice', notice: kind, by: typeof byMemberId === 'string' ? byMemberId : null }])
     })
     // The group call (spec 009 T923): the stage store reaches the hub only through this connection.
     configureStage({ circleId: id, deps: { invoke: (method, ...args) => call(method, ...args) } })
     bindStage(connection, () => useRoom.getState().connection === connection)
     connection.on('RoomSettings', (settings: RoomSettings) => {
-      if (useRoom.getState().connection === connection && settings) useRoom.setState({ settings })
+      if (useRoom.getState().connection === connection && settings) useRoom.setState((s) => ({ settings, chatResume: resumeOf(settings.chat, s.chatResume) }))
     })
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))

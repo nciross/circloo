@@ -7,6 +7,7 @@ import { DEFAULT_SETTINGS, useRoom } from '../room'
 import { ChatPanel } from './ChatPanel'
 import { RoomSettings } from './RoomSettings'
 import { CHAT_GATHER } from './grouping'
+import type { LiveLine } from './liveLines'
 
 const nadia: Member = { id: 'n', name: 'Nadia', role: 'animator', character: 'panda', ring: 0 }
 const amina: Member = { id: 'a', name: 'Amina', role: 'participant', character: 'robot', ring: 0 }
@@ -31,6 +32,7 @@ const msg = (memberId: string, text: string, over: Partial<Message> = {}): Messa
 
 const hub = {
   say: vi.fn<(text: string) => Promise<void>>(),
+  reply: vi.fn<(parentId: number, text: string) => Promise<void>>(),
   likeMessage: vi.fn<(id: number) => Promise<void>>(),
   hideMessage: vi.fn<(id: number, hidden: boolean) => Promise<void>>(),
   setRoomSettings: vi.fn<(s: Settings) => Promise<void>>(),
@@ -38,7 +40,7 @@ const hub = {
 const refuse = (code: string) => Promise.reject(new Error(`An unexpected error occurred invoking 'Say' on the server. HubException: ${code}`))
 
 function enter(me: Member, messages: Message[], settings: Settings = DEFAULT_SETTINGS) {
-  useRoom.setState({ circleId: 'c1', me, members, messages, settings, typing: [], thinking: false, draft: '', error: null, ...hub })
+  useRoom.setState({ circleId: 'c1', me, members, messages, settings, lines: [], typing: [], thinking: false, draft: '', error: null, ...hub })
 }
 
 beforeEach(async () => {
@@ -194,6 +196,137 @@ describe('ChatPanel', () => {
       await vi.advanceTimersByTimeAsync(3000)
     })
     expect(say).toHaveTextContent('Kenji: Bravo')
+  })
+})
+
+describe('ChatPanel: replies and live lines (spec 009 US5, T909)', () => {
+  const line = (seq: number, afterId: number, event: LiveLine['event']): LiveLine => ({ seq, afterId, activityId: 'presentation', at: T0, event })
+
+  it('answers a message in a one-level thread: Reply, “Replying to Kenji”, then the reply under it', async () => {
+    const parent = msg('k', 'Who brings the cake?')
+    const answer = msg('n', 'Lucía does', { replyToId: parent.id })
+    enter(amina, [parent, answer])
+    const { container } = render(<ChatPanel activityId="presentation" hideEnd />)
+    // The reply sits in the thread under its message, with its sender named.
+    const thread = container.querySelector(`[data-id="${parent.id}"] .chat__thread`) as HTMLElement
+    expect(thread).toHaveAccessibleName(/^1 reply to .Kenji.$/)
+    expect(within(thread).getByText('Lucía does')).toBeInTheDocument()
+    expect(within(thread).getByText('Nadia')).toBeInTheDocument()
+    // One level: the reply itself cannot be answered.
+    expect(screen.getAllByRole('button', { name: /^Reply to/ })).toHaveLength(1)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to Kenji' }))
+    expect(screen.getByText(/Replying to .*Kenji/)).toBeInTheDocument()
+    expect(screen.getByText('Who brings the cake?', { selector: '.composer__reply-quote' })).toBeInTheDocument()
+    const field = screen.getByRole('textbox', { name: 'Your reply' })
+    expect(field).toHaveFocus()
+    expect(field).toHaveAccessibleDescription(/Replying to .*Kenji/)
+
+    await userEvent.type(field, 'I bring the tea{Enter}')
+    expect(hub.reply).toHaveBeenCalledWith(parent.id, 'I bring the tea')
+    expect(hub.say).not.toHaveBeenCalled()
+    expect(screen.queryByText(/Replying to/)).toBeNull()
+    expect(screen.getByRole('textbox', { name: 'Message to the circle' })).toHaveValue('')
+  })
+
+  it('cancels a reply with Escape or the Cancel button, keeping the text and the focus in the field', async () => {
+    enter(amina, [msg('k', 'Hello'), msg('a', 'Mine')])
+    render(<ChatPanel activityId="presentation" hideEnd />)
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to your message' }))
+    expect(screen.getByText('Replying to your message')).toBeInTheDocument()
+    await userEvent.type(screen.getByRole('textbox'), 'Draft')
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByText('Replying to your message')).toBeNull()
+    expect(screen.getByRole('textbox')).toHaveValue('Draft')
+    expect(screen.getByRole('textbox')).toHaveFocus()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to Kenji' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel the reply' }))
+    expect(screen.queryByText(/Replying to/)).toBeNull()
+    expect(screen.getByRole('textbox')).toHaveFocus()
+  })
+
+  it('makes the animator write to the circle while answering, never to circloo', async () => {
+    enter(nadia, [msg('k', 'Hello')])
+    render(<ChatPanel activityId="presentation" hideEnd />)
+    expect(screen.getByRole('button', { name: 'circloo' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to Kenji' }))
+    expect(screen.getByRole('button', { name: 'Everyone' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.type(screen.getByRole('textbox'), 'Thanks{Enter}')
+    expect(hub.reply).toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Everyone' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('says so when the message goes while you answer, and turns a refused reply into a new message', async () => {
+    const parent = msg('k', 'Hello')
+    enter(amina, [parent])
+    const { rerender } = render(<ChatPanel activityId="presentation" hideEnd />)
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to Kenji' }))
+    // The animator hid it: members lose it, and the answer would go out as a new message.
+    act(() => useRoom.setState({ messages: [] }))
+    rerender(<ChatPanel activityId="presentation" hideEnd />)
+    expect(screen.getByRole('alert')).toHaveTextContent('The message you were answering is gone. Yours will be sent as a new message.')
+    expect(screen.queryByText(/Replying to/)).toBeNull()
+
+    // The hub refuses a reply whose message went just before: the words stay, ready to go as a new message.
+    act(() => useRoom.setState({ messages: [parent] }))
+    rerender(<ChatPanel activityId="presentation" hideEnd />)
+    hub.reply.mockImplementationOnce(() => {
+      useRoom.setState({ error: 'reply-invalid' })
+      return refuse('reply-invalid')
+    })
+    await userEvent.click(screen.getByRole('button', { name: 'Reply to Kenji' }))
+    await userEvent.type(screen.getByRole('textbox'), 'Too late{Enter}')
+    expect(screen.getByText('That message can no longer be answered. Send yours as a new message.')).toBeInTheDocument()
+    expect(screen.queryByText(/Replying to/)).toBeNull()
+    expect(screen.getByRole('textbox')).toHaveValue('Too late')
+  })
+
+  it('offers no Reply while the chat is paused for you, and marks a reply whose message is not loaded', () => {
+    enter(amina, [msg('k', 'Hello'), msg('k', 'About that', { replyToId: 1 })], { ...DEFAULT_SETTINGS, chat: 'paused' })
+    render(<ChatPanel activityId="presentation" hideEnd />)
+    expect(screen.queryByRole('button', { name: /^Reply/ })).toBeNull()
+    expect(screen.getByText('Reply to an earlier message')).toBeInTheDocument()
+  })
+
+  it('leads to a reply that went under an earlier message from where it happened', async () => {
+    const parent = msg('k', 'Plan A?')
+    const between = msg('n', 'Next slide')
+    const answer = msg('a', 'Yes, plan A', { replyToId: parent.id })
+    enter(amina, [parent, between, answer])
+    const { container } = render(<ChatPanel activityId="presentation" hideEnd />)
+    const pointer = screen.getByRole('button', { name: /You.? replied to .Kenji.Show$/ })
+    await userEvent.click(pointer)
+    const target = container.querySelector(`.chat__thread [data-id="${answer.id}"]`)
+    expect(target).toHaveFocus()
+    expect(target).toHaveClass('is-found')
+  })
+
+  it('shows live lines in the conversation, never as new messages and never read out', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true, now: T0 })
+    const first = msg('k', 'Hi')
+    enter(amina, [first])
+    const { container } = render(<ChatPanel activityId="presentation" hideEnd />)
+    const say = container.querySelector('[data-slot="chat-say"]')!
+    act(() =>
+      useRoom.setState({
+        lines: [
+          line(1, first.id, { kind: 'notice', notice: 'call-started', by: 'n' }),
+          line(2, first.id, { kind: 'hand-up', memberId: 'k' }),
+          line(3, first.id, { kind: 'hand-up', memberId: 'n' }),
+          line(4, first.id, { kind: 'hand-up', memberId: 'a' }),
+          // Another round's line stays in that round's conversation.
+          { ...line(5, first.id, { kind: 'floor', memberId: 'k' }), activityId: 'brainstorm' },
+        ],
+      }),
+    )
+    const lines = [...container.querySelectorAll('.chat__live')].map((l) => l.textContent?.replace(/[⁨⁩]/g, ''))
+    expect(lines).toEqual(['Nadia started a call', '3 hands raised'])
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CHAT_GATHER + 50)
+    })
+    expect(say).toHaveTextContent('')
+    expect(screen.queryByRole('button', { name: /new message/ })).toBeNull()
   })
 })
 

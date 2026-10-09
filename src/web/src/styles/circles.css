@@ -757,17 +757,25 @@
   justify-items: inherit;
   min-inline-size: 0;
 }
-/* The actions sit beside a short bubble and wrap under a long one, so a run of messages stays one block. */
+/* A message, then its thread under it. */
 .chat__msg {
+  display: grid;
+  gap: 2px;
+  justify-items: inherit;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+/* The actions sit beside a short bubble and wrap under a long one, so a run of messages stays one block. */
+.chat__body {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 2px var(--s-1);
   min-inline-size: 0;
   max-inline-size: 100%;
-  animation: rise-in var(--dur-move) var(--ease-out);
 }
-.chat__group.is-mine .chat__msg {
+.chat__group.is-mine .chat__msg > .chat__body {
   flex-direction: row-reverse;
 }
 .chat__bubble {
@@ -780,20 +788,21 @@
   border-radius: var(--r-md);
   background: var(--paper);
 }
-.chat__group:not(.is-mine) .chat__msg:not(:first-child) .chat__bubble {
+.chat__group:not(.is-mine) .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
   border-start-start-radius: var(--r-xs);
 }
-.chat__group:not(.is-mine) .chat__msg:not(:last-child) .chat__bubble {
+.chat__group:not(.is-mine) .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
   border-end-start-radius: var(--r-xs);
 }
-.chat__group.is-mine .chat__msg:not(:first-child) .chat__bubble {
+.chat__group.is-mine .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
   border-start-end-radius: var(--r-xs);
 }
-.chat__group.is-mine .chat__msg:not(:last-child) .chat__bubble {
+.chat__group.is-mine .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
   border-end-end-radius: var(--r-xs);
 }
-/* Yours: the light violet of a picked option. */
-.chat__group.is-mine .chat__bubble {
+/* Yours: the light violet of a picked option, in the flow and in a thread. */
+.chat__group.is-mine .chat__msg > .chat__body > .chat__bubble,
+.chat__reply.is-mine > .chat__body > .chat__bubble {
   border-color: transparent;
   background: var(--beam-subtle);
 }
@@ -803,11 +812,13 @@
   overflow-wrap: anywhere;
 }
 /* Hidden (the animator's copy only): a dashed outline and the word, the text kept so it can come back. */
-.chat__msg.is-hidden .chat__bubble {
+.chat__msg.is-hidden > .chat__body > .chat__bubble,
+.chat__reply.is-hidden > .chat__body > .chat__bubble {
   border: 2px dashed var(--hairline-strong);
   background: transparent;
 }
-.chat__hidden-tag {
+.chat__hidden-tag,
+.chat__reply-tag {
   display: inline-flex;
   align-items: center;
   gap: var(--s-1);
@@ -828,6 +839,7 @@
 }
 .chat__like,
 .chat__hide,
+.chat__answer,
 .chat__likes {
   position: relative;
   display: inline-flex;
@@ -846,17 +858,20 @@
   justify-content: center;
 }
 .chat__like,
-.chat__hide {
+.chat__hide,
+.chat__answer {
   cursor: pointer;
   transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
 }
 .chat__like:hover,
-.chat__hide:hover {
+.chat__hide:hover,
+.chat__answer:hover {
   background: var(--paper-hover);
   color: var(--ink);
 }
 .chat__like:focus-visible,
-.chat__hide:focus-visible {
+.chat__hide:focus-visible,
+.chat__answer:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
@@ -881,7 +896,9 @@
 /* On touch the targets reach 44 px without spreading the conversation out. */
 @media (pointer: coarse) {
   .chat__like::after,
-  .chat__hide::after {
+  .chat__hide::after,
+  .chat__answer::after,
+  .chat__replied-btn::after {
     content: '';
     position: absolute;
     inset: -0.5rem -0.2rem;
@@ -896,6 +913,118 @@
   40% {
     transform: scale(1.3);
   }
+}
+
+/*
+ * A thread (spec 009 US5 #2): the replies under their message, set in from the inline start along a quiet rule, each
+ * with a small character and the name once per run. One level only.
+ */
+.chat__thread {
+  display: grid;
+  gap: var(--s-1);
+  justify-items: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  margin-block: var(--s-1) var(--s-2);
+  margin-inline-start: var(--s-3);
+  padding-inline-start: var(--s-3);
+  border-inline-start: 2px solid var(--hairline);
+}
+.chat__reply {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__reply-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+  margin: 0;
+  margin-block-start: var(--s-1);
+}
+.chat__reply-avatar {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+.chat__reply-from .chat__name {
+  font-weight: 800;
+}
+/* Reached from a "replied" line: marked for a moment by the focus colour, never by fading. */
+.chat__msg.is-found > .chat__body > .chat__bubble,
+.chat__reply.is-found > .chat__body > .chat__bubble {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.chat__msg:focus,
+.chat__reply:focus {
+  outline: none;
+}
+
+/*
+ * Live lines (spec 009 US5 #3): the call and the hands, centred like the round's own lines but outlined instead of
+ * filled, because they are a live trace that a reload does not bring back.
+ */
+.chat__live {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  max-inline-size: 100%;
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-ring);
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__live svg {
+  flex: none;
+}
+/* A reply that went under an earlier message, marked where it happened; a tap takes you to it. */
+.chat__replied {
+  align-self: center;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__replied-btn {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1) var(--s-2);
+  max-inline-size: 100%;
+  min-block-size: 1.75rem;
+  padding: 0.15rem 0.7rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
+}
+.chat__replied-btn:hover {
+  background: var(--paper-hover);
+  color: var(--ink);
+}
+.chat__replied-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.chat__replied-btn svg {
+  flex: none;
+}
+.chat__replied-show {
+  color: var(--violet-link);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* The list stays put while you read older messages; this pill takes you down to the new ones. */
@@ -1039,6 +1168,39 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+/* Answering a message: who and its first words above the field, with Cancel at the inline end. */
+.composer__reply {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding-block: var(--s-1);
+  padding-inline: var(--s-3) var(--s-1);
+  border-radius: var(--r-md);
+  background: var(--paper-sunken);
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.composer__reply-icon {
+  flex: none;
+  color: var(--ink-soft);
+}
+.composer__reply-text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+}
+.composer__reply-to {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.composer__reply-quote {
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* Slow mode or a pause, said above the field; the seconds left count down in tabular figures. */
 .composer__mode {
   display: flex;

@@ -8,11 +8,15 @@ import {
   announceDelay,
   batchSay,
   groupMessages,
+  isThreaded,
   patchMessage,
   slowModeSeconds,
+  threadsOf,
   upsertMessage,
   worthSaying,
+  type ChatItem,
 } from './grouping'
+import type { LiveLine } from './liveLines'
 
 const T0 = Date.parse('2026-10-09T10:00:00Z')
 let next = 1
@@ -126,5 +130,77 @@ describe('slow mode', () => {
     expect(slowModeSeconds('slow-mode:99')).toBe(10)
     expect(slowModeSeconds('slow-down')).toBeNull()
     expect(slowModeSeconds('chat-paused')).toBeNull()
+  })
+})
+
+describe('threads and live lines (spec 009 US5)', () => {
+  const line = (seq: number, afterId: number, event: LiveLine['event'], at = 0): LiveLine => ({ seq, afterId, activityId: 'presentation', at, event })
+  const shape = (items: ChatItem[]) =>
+    items.map((i) =>
+      i.kind === 'group' ? `${i.memberId}:${i.messages.map((m) => m.id).join(',')}`
+      : i.kind === 'replied' ? `replied:${i.message.id}`
+      : i.kind === 'live' ? `live:${i.line.kind === 'hands' ? `${i.line.dir}${i.line.memberIds.length}` : i.line.kind}`
+      : i.kind,
+    )
+
+  it('puts a reply under its message, out of the flow, so it splits no one’s run', () => {
+    const a = msg({ at: at(0) })
+    const reply = msg({ memberId: 'kenji', replyToId: a.id, at: at(1) })
+    const b = msg({ at: at(2) })
+    const items = groupMessages([a, reply, b])
+    expect(shape(items)).toEqual([`amina:${a.id},${b.id}`])
+    expect(threadsOf([a, reply, b]).get(a.id)).toEqual([reply])
+    expect(isThreaded(reply, threadsOf([a, reply, b]))).toBe(true)
+  })
+
+  it('marks a reply that lands away from its message where it happened, and that line starts a new run', () => {
+    const a = msg({ at: at(0) })
+    const k = msg({ memberId: 'kenji', at: at(1) })
+    const l = msg({ memberId: 'lucia', at: at(2) })
+    const reply = msg({ memberId: 'kenji', replyToId: a.id, at: at(3) })
+    const second = msg({ memberId: 'lucia', replyToId: a.id, at: at(4) })
+    const l2 = msg({ memberId: 'lucia', at: at(5) })
+    const items = groupMessages([a, k, l, reply, second, l2])
+    // The second reply follows the first one: one pointer for the pair. Lucía's runs are split by the pointer.
+    expect(shape(items)).toEqual([`amina:${a.id}`, `kenji:${k.id}`, `lucia:${l.id}`, `replied:${reply.id}`, `lucia:${l2.id}`])
+    expect(threadsOf([a, k, l, reply, second, l2]).get(a.id)!.map((m) => m.id)).toEqual([reply.id, second.id])
+  })
+
+  it('keeps a reply whose message is not loaded in the flow, as a message of its own', () => {
+    const lone = msg({ memberId: 'kenji', replyToId: 9999, at: at(0) })
+    const after = msg({ memberId: 'kenji', at: at(1) })
+    expect(shape(groupMessages([lone, after]))).toEqual([`kenji:${lone.id},${after.id}`])
+    expect(threadsOf([lone, after]).size).toBe(0)
+  })
+
+  it('never threads under a reply: one level only', () => {
+    const a = msg({ at: at(0) })
+    const r1 = msg({ memberId: 'kenji', replyToId: a.id, at: at(1) })
+    const r2 = msg({ memberId: 'lucia', replyToId: r1.id, at: at(2) })
+    const threads = threadsOf([a, r1, r2])
+    expect([...threads.keys()]).toEqual([a.id])
+    expect(shape(groupMessages([a, r1, r2]))).toEqual([`amina:${a.id}`, `lucia:${r2.id}`])
+  })
+
+  it('places live lines after the message that was newest, splitting a run, and groups a burst of hands', () => {
+    const a = msg({ at: at(0) })
+    const b = msg({ at: at(1) })
+    const lines = [
+      line(1, a.id, { kind: 'notice', notice: 'call-started', by: 'theo' }),
+      line(2, b.id, { kind: 'hand-up', memberId: 'kenji' }),
+      line(3, b.id, { kind: 'hand-up', memberId: 'lucia' }, 10),
+      line(4, b.id, { kind: 'hand-up', memberId: 'sam' }, 20),
+    ]
+    expect(shape(groupMessages([a, b], undefined, lines))).toEqual([`amina:${a.id}`, 'live:notice', `amina:${b.id}`, 'live:up3'])
+    // With no message yet, the lines are the whole conversation.
+    expect(shape(groupMessages([], undefined, lines.slice(0, 1)))).toEqual(['live:notice'])
+  })
+
+  it('keeps the reply link of a message that arrives live', () => {
+    const a = msg()
+    const live = msg({ memberId: 'kenji', replyToId: a.id })
+    expect(upsertMessage([a], live)[1]!.replyToId).toBe(a.id)
+    const { replyToId: _drop, ...bare } = msg({ memberId: 'kenji' })
+    expect(upsertMessage([a], bare as Message)[1]!.replyToId).toBeNull()
   })
 })

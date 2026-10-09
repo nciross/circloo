@@ -3,20 +3,21 @@ import { useTranslation } from 'react-i18next'
 import { ArrowDown, Flag } from 'lucide-react'
 import { Character } from '../../../components/Character'
 import { Panda } from '../../../components/Panda'
-import type { Member } from '../../../api/circles'
+import type { Member, Message } from '../../../api/circles'
 import { useReducedMotion } from '../../../lib/motion'
 import { useRoom } from '../room'
-import { AiMessage, ChatGroup, SystemLine } from './ChatMessage'
-import { ChatComposer } from './ChatComposer'
+import { AiMessage, ChatGroup, LiveLineRow, RepliedLine, SystemLine } from './ChatMessage'
+import { ChatComposer, type ReplyTarget } from './ChatComposer'
 import { RoomSettings } from './RoomSettings'
-import { groupMessages, worthSaying } from './grouping'
+import { groupMessages, threadsOf, worthSaying } from './grouping'
+import { isolate } from './liveLines'
 import { useChatAnnouncement } from './useChatAnnouncement'
 
 /** Closer than this to the end, the reader follows the conversation; further up, they are reading older messages. */
 const AT_END = 48
 
-// Names keep their own direction inside a sentence in any language.
-const isolate = (name: string) => `⁨${name}⁩`
+/** How long a message reached from a "replied" line stays marked. */
+const FOUND_MS = 2000
 
 /** "Kenji is typing…", like any instant chat. Hidden from screen readers: it changes too often to announce. */
 function TypingLine({ people }: { people: Member[] }) {
@@ -44,6 +45,9 @@ function TypingLine({ people }: { people: Member[] }) {
  * canvas or a presentation. Everyone talks; the animator also asks circloo, whose answer streams in.
  * - A sender's consecutive messages are grouped under one name with their character and ring.
  * - Likes on others' messages; the animator hides a message for everyone else, or shows it again.
+ * - Reply (spec 009 US5 #2): the answer sits under the message in a one-level thread; the composer says who you are
+ *   answering until you send or cancel. A reply far from its message also leaves a short line where it happened.
+ * - Live lines (spec 009 US5 #3): the call and hands as small lines, made here and never stored.
  * - The animator sets the chat open, slow or paused here (the presenter view has the same switches, with reactions).
  * - The list follows new messages only while you are at the end: reading older ones, nothing moves, and a
  *   "New messages" button takes you down.
@@ -58,14 +62,32 @@ export function ChatPanel({ activityId, hideEnd = false }: { activityId: string;
   const thinking = useRoom((s) => s.thinking)
   const draft = useRoom((s) => s.draft)
   const typing = useRoom((s) => s.typing)
+  const allLines = useRoom((s) => s.lines)
+  const chatMode = useRoom((s) => s.settings.chat)
   const reduced = useReducedMotion()
   const isAnimator = me?.role === 'animator'
   const meId = me?.id
   const shown = useMemo(() => messages.filter((m) => m.activityId === activityId), [messages, activityId])
-  const items = useMemo(() => groupMessages(shown), [shown])
+  const lines = useMemo(() => allLines.filter((l) => l.activityId === activityId), [allLines, activityId])
+  const items = useMemo(() => groupMessages(shown, undefined, lines), [shown, lines])
+  const threads = useMemo(() => threadsOf(shown), [shown])
+  const byId = useMemo(() => new Map(shown.map((m) => [m.id, m])), [shown])
+  const nameOf = (id: string | null) => members.find((m) => m.id === id)?.name ?? ''
   const typists = typing.map((id) => members.find((m) => m.id === id)).filter((m): m is Member => !!m && m.id !== meId)
   const said = useChatAnnouncement(shown)
   const [actionError, setActionError] = useState<string | null>(null)
+  // The message being answered. Participants cannot answer while the chat is paused for them.
+  const [replyTo, setReplyTo] = useState<ReplyTarget | null>(null)
+  const canWrite = isAnimator || chatMode !== 'paused'
+  const startReply = useCallback((m: Message) => {
+    setReplyTo({ id: m.id, name: members.find((x) => x.id === m.memberId)?.name ?? '', mine: m.memberId === meId, text: m.text })
+  }, [members, meId])
+  // The message went (hidden for the circle) or the chat paused: the answer goes out as a new message, and you are told.
+  const replyGone = replyTo !== null && (!byId.has(replyTo.id) || !!byId.get(replyTo.id)?.hidden || !canWrite)
+  if (replyGone) {
+    setReplyTo(null)
+    if (canWrite) setActionError(t('circles.chat.reply.gone'))
+  }
   // A refused like or hide is said once, then leaves.
   useEffect(() => {
     if (!actionError) return
@@ -127,7 +149,26 @@ export function ChatPanel({ activityId, hideEnd = false }: { activityId: string;
     following.current = true
     setMark(null)
     setActionError(null)
+    setReplyTo(null)
   }
+
+  // A "replied" line takes you to the reply in its thread, marked for a moment; reading there is reading older messages.
+  const found = useRef<{ el: HTMLElement; timer: number } | null>(null)
+  const showMessage = (id: number) => {
+    const el = logRef.current?.querySelector<HTMLElement>(`[data-id="${id}"]`)
+    if (!el) return
+    if (found.current) {
+      window.clearTimeout(found.current.timer)
+      found.current.el.classList.remove('is-found')
+    }
+    // Focus follows the reader there, so the keyboard goes on from the reply.
+    el.tabIndex = -1
+    el.classList.add('is-found')
+    found.current = { el, timer: window.setTimeout(() => el.classList.remove('is-found'), FOUND_MS) }
+    el.scrollIntoView?.({ block: 'center', behavior: reduced ? 'auto' : 'smooth' })
+    el.focus({ preventScroll: true })
+  }
+  useEffect(() => () => window.clearTimeout(found.current?.timer), [])
 
   const title = t(`activities.${activityId}.title`)
   return (
@@ -149,7 +190,13 @@ export function ChatPanel({ activityId, hideEnd = false }: { activityId: string;
             {items.map((item) =>
               item.kind === 'system' ? <SystemLine key={item.key} message={item.message} members={members} />
               : item.kind === 'ai' ? <AiMessage key={item.key} text={item.message.text} />
-              : <ChatGroup key={item.key} item={item} members={members} meId={meId} isAnimator={isAnimator} onError={setActionError} />,
+              : item.kind === 'live' ? <LiveLineRow key={item.key} line={item.line} members={members} meId={meId} />
+              : item.kind === 'replied' ? (
+                <RepliedLine key={item.key} message={item.message} parentName={nameOf(byId.get(item.message.replyToId ?? 0)?.memberId ?? null)}
+                  members={members} meId={meId} onShow={showMessage} />
+              )
+              : <ChatGroup key={item.key} item={item} members={members} meId={meId} isAnimator={isAnimator} onError={setActionError}
+                  onReply={canWrite ? startReply : undefined} threads={threads} />,
             )}
             {thinking ? (
               draft ? <AiMessage text={draft} live /> : (
@@ -173,7 +220,7 @@ export function ChatPanel({ activityId, hideEnd = false }: { activityId: string;
       </div>
 
       {actionError ? <p className="field__error chat__action-error" role="alert">{actionError}</p> : null}
-      <ChatComposer onSent={sent} />
+      <ChatComposer onSent={sent} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
       <p className="visually-hidden" role="status" data-slot="chat-say">{said}</p>
     </section>
   )
