@@ -254,6 +254,46 @@ describe('hub events', () => {
     expect(state().roster).toEqual(['a', 'b'])
   })
 
+  it('drops a tile when the roster stops listing the person, without waiting for the call server (#275)', async () => {
+    const t = setup()
+    const shown = () => state().participants.map((p) => p.id)
+    t.fire('CallRoster', ['me', 'amina', 'theo'])
+    await state().join()
+    room().addRemote('amina')
+    const theo = room().addRemote('theo')
+    expect(shown()).toEqual(['me', 'amina', 'theo'])
+
+    // The animator removed Théo: the hub's roster says so before the call server tells this browser.
+    t.fire('CallRoster', ['me', 'amina'])
+    expect(shown()).toEqual(['me', 'amina'])
+    expect(state().roster).toEqual(['me', 'amina'])
+    // The call server still lists him for a while: he stays off the stage.
+    room().emit(RoomEvent.ActiveSpeakersChanged)
+    expect(shown()).toEqual(['me', 'amina'])
+    // Someone new is shown at once, before the roster lists them.
+    room().addRemote('lucia')
+    expect(shown()).toEqual(['me', 'amina', 'lucia'])
+
+    // The call server lets him go; allowed back, he is shown again as soon as the call server has him.
+    room().remoteParticipants.delete('theo')
+    room().emit(RoomEvent.ParticipantDisconnected, theo)
+    expect(shown()).toEqual(['me', 'amina', 'lucia'])
+    room().addRemote('theo')
+    expect(shown()).toEqual(['me', 'amina', 'lucia', 'theo'])
+  })
+
+  it('never hides you, and a person who left the roster and came back is shown', async () => {
+    const t = setup()
+    const shown = () => state().participants.map((p) => p.id)
+    t.fire('CallRoster', ['me', 'amina'])
+    await state().join()
+    room().addRemote('amina')
+    t.fire('CallRoster', [])
+    expect(shown()).toEqual(['me'])
+    t.fire('CallRoster', ['amina', 'me'])
+    expect(shown()).toEqual(['me', 'amina'])
+  })
+
   it('records notices, drops unknown kinds, and dismisses', () => {
     const t = setup()
     t.fire('CallNotice', 'mic-muted', 'boss', 'me')

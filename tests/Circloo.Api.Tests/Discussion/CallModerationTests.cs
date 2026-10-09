@@ -541,6 +541,51 @@ public sealed class CallModerationTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_removal_takes_the_person_off_everyone_s_roster_at_once_without_waiting_for_the_call_server()
+    {
+        // Issue #275: the other screens drop the tile when the roster stops listing the person; the call server's
+        // "left" may take seconds to reach them, so the hub does not wait for its webhook.
+        var circle = await _host.Room.CircleAsync();
+        var room = CallRules.RoomName(circle.Id);
+        var (animator, _) = await EnterAsync(circle.Cookies, circle.Id);
+        var animatorRoster = new Inbox<Guid[]>(animator, "CallRoster");
+        await animator.InvokeAsync("EnableDiscussion", true, "open");
+        var animatorId = await AnimatorIdAsync(circle.Id);
+        var ana = await GuestAsync(circle.Id, circle.Code, "Ana", "fox");
+        var ben = await GuestAsync(circle.Id, circle.Code, "Ben", "owl");
+        var benRoster = new Inbox<Guid[]>(ben.Hub, "CallRoster");
+        // In the call, as the call server's webhooks would have said.
+        foreach (var id in new[] { animatorId, ana.Id, ben.Id })
+        {
+            _rooms.Join(room, id, Everything);
+            Moderation.Joined(circle.Id, id, $"PA_{id:N}", "RM_current");
+        }
+
+        // The call server is down: nothing happened, so the roster stays as it is.
+        _rooms.Down = true;
+        try
+        {
+            Assert.Contains("try-again", await RefusedAsync(() => animator.InvokeAsync("RemoveFromCall", ana.Id)));
+        }
+        finally
+        {
+            _rooms.Down = false;
+        }
+        Assert.Equal(new[] { animatorId, ana.Id, ben.Id }, Moderation.Roster(circle.Id));
+
+        await animator.InvokeAsync("RemoveFromCall", ana.Id);
+
+        // No webhook was sent: the hub's own roster already went to everyone in the room.
+        Assert.Equal(new[] { animatorId, ben.Id }, Moderation.Roster(circle.Id));
+        Assert.Equal(new[] { animatorId, ben.Id }, await benRoster.NextAsync(r => !r.Contains(ana.Id)));
+        Assert.Equal(new[] { animatorId, ben.Id }, await animatorRoster.NextAsync(r => !r.Contains(ana.Id)));
+        Assert.Equal(CallNoticeKinds.Removed, (await ana.Notices.NextAsync(n => n.Kind == CallNoticeKinds.Removed)).Kind);
+
+        // The call server's late "left" for her connection changes nothing more.
+        Assert.False(Moderation.Left(circle.Id, ana.Id, $"PA_{ana.Id:N}"));
+    }
+
+    [Fact]
     public async Task Ending_the_call_forgets_every_mute_and_removal()
     {
         var circle = await _host.Room.CircleAsync();

@@ -59,7 +59,7 @@ export interface Moderation {
 
 interface StageState {
   discussion: DiscussionState | null
-  /** Member ids in the call, from the call server through the hub (never on the audience screen). */
+  /** Member ids in the call, in join order, from the call server through the hub (never on the audience screen). */
   roster: string[]
   connection: CallConnection
   error: CallError | null
@@ -70,6 +70,7 @@ interface StageState {
   deviceProblem: DeviceProblem | null
   /** The browser blocks the call's sound until a tap calls `startAudio`. */
   audioBlocked: boolean
+  /** The people on the stage: the call server's list without those the roster just let go (see `gone`). */
   participants: CallParticipant[]
   notices: CallNotice[]
   /** The animator's mutes and removals in this call, as far as this tab knows (see `Moderation`). */
@@ -123,6 +124,16 @@ const MAX_NOTICES = 20
 const OFF: MyDevices = { mic: false, camera: false }
 const NOT_IN_CALL = { connection: 'idle' as CallConnection, myPermissions: null, me: OFF, participants: [], audioBlocked: false, deviceProblem: null }
 const NO_MODERATION: Moderation = { microphone: [], camera: [], removed: [] }
+/** The call server's last list of people, before `gone` is taken out. */
+let listed: CallParticipant[] = []
+/**
+ * People the hub's roster stopped listing while the call server still lists them (issue #275). A removal reaches the
+ * hub at once, but the call server can take seconds to tell this browser, so their tile goes now. They stay hidden
+ * until the call server lets them go or the roster lists them again. You are never hidden.
+ */
+const gone = new Set<string>()
+const listedRemote = (id: string) => listed.some((p) => !p.local && p.id === id)
+const onStage = () => (gone.size ? listed.filter((p) => p.local || !gone.has(p.id)) : listed)
 const SERVER_ERRORS = new Set<string>(['calls-unavailable', 'call-off', 'removed-from-call', 'try-again'])
 const NOTICE_KINDS = new Set<string>(CALL_NOTICE_KINDS)
 
@@ -141,6 +152,8 @@ async function endCall(state: Partial<StageState> = {}) {
   generation++
   const e = engine
   engine = null
+  listed = []
+  gone.clear()
   useStage.setState({ ...NOT_IN_CALL, ...state })
   await e?.leave().catch(() => undefined)
 }
@@ -158,7 +171,12 @@ function listenerFor(gen: number): CallListener {
       if (reason === 'lost') void endCall({ connection: 'failed', error: 'lost' })
       else void endCall({ error: reason === 'elsewhere' ? 'joined-elsewhere' : null })
     },
-    onParticipants: (participants) => set({ participants }),
+    onParticipants: (participants) => {
+      if (!live()) return
+      listed = participants
+      for (const id of gone) if (!listedRemote(id)) gone.delete(id)
+      useStage.setState({ participants: onStage() })
+    },
     onRights: (myPermissions) => set({ myPermissions }),
     onDevices: (me) => set({ me }),
     onDeviceProblem: (kind, p) => set({ deviceProblem: problem(kind, p) }),
@@ -289,7 +307,10 @@ export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () =
   })
   connection.on('CallRoster', (ids: unknown) => {
     if (!isCurrent() || !Array.isArray(ids)) return
-    useStage.setState({ roster: ids.filter((x): x is string => typeof x === 'string') })
+    const roster = ids.filter((x): x is string => typeof x === 'string')
+    for (const id of useStage.getState().roster) if (!roster.includes(id) && listedRemote(id)) gone.add(id)
+    for (const id of roster) gone.delete(id)
+    useStage.setState({ roster, participants: onStage() })
   })
   connection.on('CallNotice', (kind: unknown, byMemberId?: unknown, subjectMemberId?: unknown) => {
     if (!isCurrent() || typeof kind !== 'string' || !NOTICE_KINDS.has(kind)) return
