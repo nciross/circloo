@@ -62,6 +62,7 @@ builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 8 * 1024);
 builder.Services.AddSingleton<CirclePresence>();
 builder.Services.AddSingleton<RoomLimits>();
 builder.Services.AddSingleton<HandsGrace>();
+builder.Services.AddSingleton<ReactionBuffer>();
 builder.Services.AddSingleton<JoinLimiter>();
 // Outbound calls to Teams, Atlassian and Notion: no redirects (a redirect could aim at an internal host), short timeout.
 builder.Services.AddHttpClient(IntegrationSender.ClientName, c => c.Timeout = TimeSpan.FromSeconds(15))

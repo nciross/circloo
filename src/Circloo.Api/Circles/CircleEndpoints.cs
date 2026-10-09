@@ -26,7 +26,9 @@ public sealed record CircleBody(Guid Id, string Name, string Character, int Ring
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
     MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide,
-    RoomSettings Settings, HandsView Hands, DiscussionState Discussion, RecordingState? Recording);
+    RoomSettings Settings, HandsView Hands, DiscussionState Discussion, RecordingState? Recording,
+    // Reactions per kind in the circle's latest presentation, for its results; null before any (spec 008 FR-818).
+    ReactionBurst? ReactionTotals = null);
 /// <param name="Taken">Characters with no free ring left (kept for the current join screen).</param>
 /// <param name="Characters">Every character with its use count and free rings (spec 008, contracts/rest.md).</param>
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn,
@@ -149,13 +151,17 @@ public static class CircleEndpoints
                 .OrderBy(n => n.Id).Take(ActivityCatalog.MaxCanvasNotes).ToListAsync(ct);
             var poll = await polls.ForMemberAsync(c.Id, me, ct);
             var questions = await qa.ForMemberAsync(c, me, ct);
+            // The latest presentation's reactions, running or ended: counts only, never who.
+            var totals = await db.PresentationSessions.AsNoTracking().Where(s => s.CircleId == id)
+                .OrderByDescending(s => s.StartedAt).ThenByDescending(s => s.Id).Select(s => s.ReactionTotals).FirstOrDefaultAsync(ct);
             return Results.Ok(new CircleView(
                 c.Id, c.Name, me.Role == Roles.Animator ? JoinCodes.Display(c.JoinCode) : null, c.Activities, c.CurrentActivity,
                 CircleAccess.Status(c, clock.GetUtcNow()), c.Locale, MemberDto.From(me), members,
                 [.. messages.OrderBy(m => m.Id).Select(m => likes.TryGetValue(m.Id, out var l) ? MessageDto.From(m, l.Count, l.Mine) : MessageDto.From(m))], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
                 // Forms are filled in by their task (spec 007 T707).
                 DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished, Qa = questions },
-                RoomSettings.Of(c), Hands.View(hands), DiscussionRules.State(c, discussion.Value), null));
+                RoomSettings.Of(c), Hands.View(hands), DiscussionRules.State(c, discussion.Value), null,
+                totals is null ? null : ReactionKinds.Totals(totals)));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,

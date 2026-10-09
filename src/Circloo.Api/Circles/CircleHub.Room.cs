@@ -7,8 +7,9 @@ using Npgsql;
 namespace Circloo.Api.Circles;
 
 /// <summary>
-/// The live room (spec 008, contracts/hub.md): chat controls (US3: likes, hiding, room settings) and raised hands
-/// (US5: a queue ordered by <c>RaisedAt</c> then <c>Id</c>, at most one person with the floor). Every method goes
+/// The live room (spec 008, contracts/hub.md): chat controls (US3: likes, hiding, room settings), emoji reactions (US4:
+/// grouped bursts, no names) and raised hands (US5: a queue ordered by <c>RaisedAt</c> then <c>Id</c>, at most one
+/// person with the floor). Every method goes
 /// through <see cref="RoomMemberAsync"/>: the role is read from the database on every call and the audience screen only
 /// reads. A hidden message only ever reaches the animator's connections.
 /// </summary>
@@ -174,6 +175,42 @@ public sealed partial class CircleHub
             .SetProperty(c => c.PirikooQuiet, defaults.PirikooQuiet));
         await Clients.Group(Group(circleId)).RoomSettings(defaults);
     }
+
+    #endregion
+
+    #region Reactions (T807)
+
+    /// <summary>Everyone, the animator included, sends at most this many reactions per <see cref="ReactionWindow"/> (FR-817).</summary>
+    private const int ReactionsPerWindow = 5;
+
+    private static readonly TimeSpan ReactionWindow = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// One emoji reaction. Only an unknown kind is refused: when reactions can't be sent now, or the caller is over the
+    /// limit, it is dropped without a word (FR-817). Counted in the circle's <see cref="ReactionBuffer"/>, never with the
+    /// sender: the burst carries counts only.
+    /// </summary>
+    public async Task React(string kind)
+    {
+        var (circleId, me) = await RoomMemberAsync();
+        if (!ReactionKinds.IsValid(kind))
+        {
+            throw new HubException("reaction-invalid");
+        }
+        if (!await ReactionAllowedAsync(circleId, me) || !limits.TryTake(me.Id, "reaction", ReactionsPerWindow, ReactionWindow))
+        {
+            return;
+        }
+        reactions.Add(circleId, kind);
+    }
+
+    /// <summary>
+    /// The one rule for whether a reaction goes out now: the room has reactions on and a presentation is running
+    /// (FR-815). Keep every condition here, so a new place to react (a call, spec 009) only changes this rule. Where the
+    /// counts are kept is the flush's business: only a running presentation stores totals (FR-818).
+    /// </summary>
+    private async Task<bool> ReactionAllowedAsync(Guid circleId, CircleMember me) =>
+        me.Circle!.ReactionsOn && await db.PresentationSessions.AnyAsync(s => s.CircleId == circleId && s.EndedAt == null);
 
     #endregion
 

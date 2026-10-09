@@ -176,15 +176,61 @@ public sealed record HandsView(IReadOnlyList<HandView> Queue, Guid? Floor)
     public static readonly HandsView Empty = new([], null);
 }
 
-/// <summary>A grouped burst of reactions, by kind, never who sent them (spec 008, contracts/hub.md ReactionBurst).</summary>
-public sealed record ReactionBurst(IReadOnlyDictionary<string, int> Counts);
+/// <summary>
+/// A grouped burst of reactions: how many of each kind, never who sent them (spec 008, contracts/hub.md
+/// <c>ReactionBurst</c>). Sent as a plain <c>{ "clap": 12, "heart": 3 }</c> object; kinds with no reaction are left out.
+/// </summary>
+public sealed class ReactionBurst : Dictionary<string, int>
+{
+    public ReactionBurst() : base(StringComparer.Ordinal) { }
+}
 
-/// <summary>The emoji reactions a room can send (spec 008 FR-815).</summary>
+/// <summary>The emoji reactions a room can send (spec 008 FR-815), and their per-presentation totals (FR-818).</summary>
 public static class ReactionKinds
 {
     public static readonly string[] All = ["clap", "heart", "laugh", "wow", "like", "party"];
 
+    /// <summary>The emoji of each kind, in <see cref="All"/>'s order, for reports. The web draws its own.</summary>
+    public static readonly string[] Emoji = ["👏", "❤️", "😂", "😮", "👍", "🎉"];
+
     public static bool IsValid(string? kind) => kind is not null && All.Contains(kind);
+
+    /// <summary>
+    /// A session's stored totals (<c>PresentationSession.ReactionTotals</c>), known kinds only, in <see cref="All"/>'s
+    /// order, without zeros. A broken value reads as no reactions.
+    /// </summary>
+    public static ReactionBurst Totals(string? json)
+    {
+        var totals = new ReactionBurst();
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return totals;
+        }
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object)
+            {
+                return totals;
+            }
+            foreach (var kind in All)
+            {
+                if (doc.RootElement.TryGetProperty(kind, out var n) && n.ValueKind == System.Text.Json.JsonValueKind.Number && n.TryGetInt32(out var count) && count > 0)
+                {
+                    totals[kind] = count;
+                }
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+        }
+        return totals;
+    }
+
+    /// <summary>"👏 42 · ❤️ 18 · 😂 9": the counts in <see cref="All"/>'s order; empty when there are none.</summary>
+    public static string Line(IReadOnlyDictionary<string, int> totals) =>
+        string.Join(" · ", All.Select((kind, i) => (Emoji: Emoji[i], Count: totals.GetValueOrDefault(kind)))
+            .Where(k => k.Count > 0).Select(k => $"{k.Emoji} {k.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
 }
 
 public sealed record CanvasNoteDto(long Id, string ActivityId, string Text, double X, double Y, string Color, string Size, string Shape, string? Sticker, Guid AuthorId)
