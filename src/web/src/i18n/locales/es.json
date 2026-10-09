@@ -915,7 +915,10 @@
         "animator-only": "Solo quien anima puede hacer esto.",
         "animator-cannot-raise": "Quien anima da la palabra y no levanta la mano.",
         "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",
-        "failed": "No ha funcionado. Inténtalo de nuevo en un momento."
+        "failed": "No ha funcionado. Inténtalo de nuevo en un momento.",
+        "not-a-member": "Ya no estás en este círculo.",
+        "not-entered": "La sala todavía se está conectando. Vuelve a intentarlo en un momento.",
+        "audience-read-only": "La pantalla del público solo muestra la sala. Levanta la mano desde tu dispositivo."
       }
     },
     "missing": {
@@ -1093,7 +1096,10 @@
         "unreachable": "No puedes unirte a la llamada desde esta red. El chat y las manos levantadas siguen funcionando.",
         "unsupported": "Este navegador no puede unirse a la llamada. Puedes seguir escribiendo en el chat y levantar la mano.",
         "lost": "Se ha perdido la conexión con la llamada. Vuelve a unirte cuando quieras.",
-        "joined-elsewhere": "Te has unido a la llamada desde otra pestaña u otro dispositivo."
+        "joined-elsewhere": "Te has unido a la llamada desde otra pestaña u otro dispositivo.",
+        "not-a-member": "Ya no estás en este círculo.",
+        "not-entered": "La sala todavía se está conectando. Vuelve a intentarlo en un momento.",
+        "audience-read-only": "La pantalla del público solo muestra la sala. Únete a la llamada desde tu dispositivo."
       },
       "device": {
         "primer": "Tu cámara y tu micrófono llegan a las personas de esta llamada a través del servidor de llamadas de circloo. No se graba ni se guarda nada.",
@@ -1256,7 +1262,8 @@
         "message-hidden": "El animador ocultó este mensaje.",
         "settings-invalid": "Ese ajuste no está disponible.",
         "reply-invalid": "Ya no se puede responder a ese mensaje. Envía el tuyo como un mensaje nuevo.",
-        "audience-read-only": "La pantalla del público solo muestra la sala. Escribe desde tu dispositivo."
+        "audience-read-only": "La pantalla del público solo muestra la sala. Escribe desde tu dispositivo.",
+        "not-entered": "La sala todavía se está conectando. Vuelve a intentarlo en un momento."
       },
       "reply": {
         "actionFor": "Responder a {{name}}",

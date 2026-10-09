@@ -918,7 +918,10 @@
         "animator-only": "Only the animator can do this.",
         "animator-cannot-raise": "The animator gives the floor and does not raise a hand.",
         "offline": "You are offline. It will work again once the room reconnects.",
-        "failed": "That did not work. Try again in a moment."
+        "failed": "That did not work. Try again in a moment.",
+        "not-a-member": "You are not in this circle anymore.",
+        "not-entered": "The room is still connecting. Try again in a moment.",
+        "audience-read-only": "The audience screen only shows the room. Raise your hand from your own device."
       }
     },
     "missing": {
@@ -1095,7 +1098,10 @@
         "unreachable": "You can’t join the call from this network. Chat and hands still work.",
         "unsupported": "This browser cannot join the call. You can still chat and raise your hand.",
         "lost": "The connection to the call was lost. Join again when you are ready.",
-        "joined-elsewhere": "You joined the call from another tab or device."
+        "joined-elsewhere": "You joined the call from another tab or device.",
+        "not-a-member": "You are not in this circle anymore.",
+        "not-entered": "The room is still connecting. Try again in a moment.",
+        "audience-read-only": "The audience screen only shows the room. Join the call from your own device."
       },
       "device": {
         "primer": "Your camera and microphone go to the people in this call through circloo's call server. Nothing is recorded or kept.",
@@ -1256,7 +1262,8 @@
         "message-hidden": "The animator hid this message.",
         "settings-invalid": "That setting is not available.",
         "reply-invalid": "That message can no longer be answered. Send yours as a new message.",
-        "audience-read-only": "The audience screen only shows the room. Write from your own device."
+        "audience-read-only": "The audience screen only shows the room. Write from your own device.",
+        "not-entered": "The room is still connecting. Try again in a moment."
       },
       "reply": {
         "actionFor": "Reply to {{name}}",

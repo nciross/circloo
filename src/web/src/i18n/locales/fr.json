@@ -916,7 +916,10 @@
         "animator-only": "Seul l’animateur peut faire ça.",
         "animator-cannot-raise": "L’animateur donne la parole, il ne lève pas la main.",
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
-        "failed": "Ça n’a pas marché. Réessaie dans un instant."
+        "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+        "not-a-member": "Tu ne fais plus partie de ce cercle.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant.",
+        "audience-read-only": "L’écran public montre seulement la salle. Lève la main depuis ton appareil."
       }
     },
     "missing": {
@@ -1094,7 +1097,10 @@
         "unreachable": "Impossible de rejoindre l’appel depuis ce réseau. Le chat et les mains levées marchent toujours.",
         "unsupported": "Ce navigateur ne peut pas rejoindre l’appel. Tu peux toujours écrire dans le chat et lever la main.",
         "lost": "La connexion à l’appel a été perdue. Rejoins-le quand tu es prêt.",
-        "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil."
+        "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil.",
+        "not-a-member": "Tu ne fais plus partie de ce cercle.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant.",
+        "audience-read-only": "L’écran public montre seulement la salle. Rejoins l’appel depuis ton appareil."
       },
       "device": {
         "primer": "Ta caméra et ton micro vont aux personnes de cet appel en passant par le serveur d’appel de circloo. Rien n’est enregistré ni gardé.",
@@ -1257,7 +1263,8 @@
         "message-hidden": "L’animateur a masqué ce message.",
         "settings-invalid": "Ce réglage n’est pas disponible.",
         "reply-invalid": "On ne peut plus répondre à ce message. Envoie le tien comme un nouveau message.",
-        "audience-read-only": "L’écran public montre seulement la salle. Écris depuis ton appareil."
+        "audience-read-only": "L’écran public montre seulement la salle. Écris depuis ton appareil.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant."
       },
       "reply": {
         "actionFor": "Répondre à {{name}}",
