@@ -4,7 +4,7 @@ import { chromium, expect, type Locator, type Page, type TestInfo } from '@playw
 import { localeOf, signIn } from './helpers'
 import {
   CALL_PEERS, FAKE_MEDIA, UDP_BLOCKED, audioPackets, axe, closeHubCalls, concealedAudio, createCircle, dbChanges, dbSnapshot, decodedVideos, decoding,
-  devicesNotYetAllowed, effectTimes, guest, hubCall, joinAndHear, noWebRtc, openCallTab, percentile, quietPirikoo, receivingAudio, scriptedDevices, test,
+  circleRows, devicesNotYetAllowed, effectTimes, focused, guest, hubCall, joinAndHear, keys, noWebRtc, openCallTab, percentile, quietPirikoo, receivingAudio, scriptedDevices, test,
   trackPeerConnections, transportProtocols, watchCsp, type Peers, type Snapshot,
 } from './call-helpers'
 
@@ -176,8 +176,12 @@ function words(locale: 'en' | 'ar') {
   const all = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8')) as {
     circles: {
       call: {
+        isOff: string
         audioOn: string
         videoOn: string
+        speaking: string
+        reconnecting: string
+        away: string
         mode: Record<string, string>
         notices: Record<string, string>
         errors: Record<string, string>
@@ -190,6 +194,15 @@ function words(locale: 'en' | 'ar') {
     }
   }
   return all.circles.call
+}
+
+/** The chat's own words in a language, and the projector's count of hands. */
+function chatWords(locale: 'en' | 'ar') {
+  const all = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8')) as {
+    circles: { chat: { pausedTitle: string }; hands: Record<string, string> }
+  }
+  const hands = all.circles.hands
+  return { ...all.circles.chat, handsTwo: hands.up_two ?? hands.up_other!.replace('{{count}}', '2') }
 }
 
 const LIVEKIT_UMD = fileURLToPath(new URL('../node_modules/livekit-client/dist/livekit-client.umd.js', import.meta.url))
@@ -772,53 +785,9 @@ test.describe('keyboard and screen reader', () => {
     await animatorSide.locator('.call__join').click()
     await expect(page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
 
-    // From here on Amina uses the keyboard only.
-    const side = a.locator('[data-slot="room-side"]')
+    // From here on Amina uses the keyboard only (call-helpers `keys`).
     const say = a.locator('[data-slot="room-say"]')
-    const focused = (p: Page) => p.evaluate(() => {
-      const el = document.activeElement as HTMLElement | null
-      return el && el !== document.body ? `${el.tagName.toLowerCase()}.${el.className}` : 'body'
-    })
-    /** Tab (or Shift+Tab) until the target has the focus; every stop on the way shows where the focus is. */
-    const tabTo = async (target: Locator, back = false, max = 70) => {
-      for (let i = 0; i < max; i++) {
-        if (await target.evaluate((el) => el === document.activeElement).catch(() => false)) return
-        await a.keyboard.press(back ? 'Shift+Tab' : 'Tab')
-        const ring = await a.evaluate(() => {
-          const el = document.activeElement as HTMLElement | null
-          if (!el || el === document.body || el.closest('.canvas, .pkl, .topbar, .guest-bar, header')) return 'skip'
-          const s = getComputedStyle(el)
-          const outline = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0
-          return outline || s.boxShadow !== 'none' ? 'ok' : `${el.tagName}.${el.className}`
-        })
-        if (ring !== 'ok' && ring !== 'skip') throw new Error(`No visible focus on ${ring}`)
-      }
-      throw new Error(`Never reached ${target} (focus on ${await focused(a)})`)
-    }
-    const next = ar ? 'ArrowLeft' : 'ArrowRight'
-    const prev = ar ? 'ArrowRight' : 'ArrowLeft'
-    const tab = (id: string) => side.locator(`.room-side__tab[aria-controls$="-panel-${id}"]`)
-    /** Into the side's tabs: the phone's pill opens the sheet on its open tab; then the arrows, in reading order. */
-    const toTab = async (id: string) => {
-      const pill = side.locator('.room-side__handle:not(.room-side__rail-btn)')
-      if (await pill.isVisible()) {
-        await tabTo(pill)
-        await a.keyboard.press('Enter')
-      } else {
-        await tabTo(side.locator('.room-side__tab[aria-selected="true"]'))
-      }
-      const ids = ['people', 'chat', 'hands', 'call']
-      for (let i = 0; i < 6 && (await tab(id).getAttribute('aria-selected')) !== 'true'; i++) {
-        const at = ids.indexOf((await a.evaluate(() => document.activeElement?.getAttribute('aria-controls') ?? '')).replace(/.*-panel-/, ''))
-        await a.keyboard.press(at < ids.indexOf(id) ? next : prev)
-      }
-      await expect(tab(id)).toBeFocused()
-      // The open tab is in view in the strip that scrolls sideways on a phone.
-      const strip = (await side.locator('[role="tablist"]').boundingBox())!
-      const box = (await tab(id).boundingBox())!
-      expect(box.x).toBeGreaterThanOrEqual(strip.x - 1)
-      expect(box.x + box.width).toBeLessThanOrEqual(strip.x + strip.width + 1)
-    }
+    const { side, tab, tabTo, toTab } = keys(a, ar)
     await a.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 
     // The Call tab, Join call: the focus moves on to the bar, where Raise hand takes the microphone's place.
@@ -936,6 +905,371 @@ test.describe('keyboard and screen reader', () => {
 
     expect(csp).toEqual([])
     await a.context().close()
+  })
+})
+
+/** The journey's loose bound on a delay (5 s): it proves the effect arrives; "measurements" holds the targets. */
+const SLOW = 5000
+
+test.describe('journey', () => {
+  // A step that cannot happen fails within seconds instead of holding the 10-minute journey.
+  test.use({ actionTimeout: 20_000 })
+  // T915: quickstart B from the first switch to the end of the call, in one circle: an animator and three guests,
+  // Amina, Youssef and Lucía. Lucía reads the room in Arabic and asks for reduced motion; in the "ar" project everyone is
+  // on a phone in Arabic (quickstart B 14). Fake devices stand in for cameras and microphones; scripted ones fail on
+  // demand. Step 10 (pages of 12) is the "call: pages" test, and the UDP-blocked join of step 7 is in "devices" and
+  // "measurements": both need more browsers than this journey.
+  test('journey: quickstart B from the switches to the end of the call, with one guest in Arabic (spec 009 T915)', async ({ page, browser }, info) => {
+    test.setTimeout(600_000)
+    const locale = localeOf(info)
+    const ar = locale === 'ar'
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const w = words(locale)
+    const wl = words('ar')
+    const chatW = chatWords(locale)
+    const csp: string[] = []
+    const shot = async (p: Page, name: string) => {
+      if (process.env.E2E_SHOTS) await p.screenshot({ path: `${process.env.E2E_SHOTS}/journey-${locale}-${name}.png` })
+    }
+    watchCsp(page, csp)
+    await quietPirikoo(page)
+    await page.context().addInitScript(trackPeerConnections)
+    await signIn(page, locale, 'e2e-journey')
+    const circle = await createCircle(page, locale)
+    const amina = await guest(browser, circle.code, 0, locale, phone, csp, { init: [scriptedDevices] })
+    const youssef = await guest(browser, circle.code, 3, locale, phone, csp, { init: [scriptedDevices] })
+    const lucia = await guest(browser, circle.code, 2, 'ar', phone, csp, { init: [scriptedDevices] })
+    await lucia.page.emulateMedia({ reducedMotion: 'reduce' })
+    const guests = [amina, youssef, lucia]
+    const wordsOf = (p: Page) => (p === lucia.page ? wl : w)
+    await page.goto(`/app/circles/${circle.id}`)
+    await expect(page.locator('.people__row.is-online')).toHaveCount(4)
+    // A whiteboard runs, so the chat sits in everyone's side card next to the call.
+    await page.locator('.dock__open').click()
+    await expect(page.locator('.canvas__viewport')).toBeVisible({ timeout: 15_000 })
+
+    const side = page.locator('[data-slot="room-side"]')
+    const sw = (kind: string) => side.locator(`[data-switch="${kind}"]`)
+    const tile = (p: Page, id: string) => p.locator(`.call-stage .call-tile[data-member="${id}"]`)
+    const hand = (p: Page) => p.locator('.call-bar .call-bar__hand')
+    const mic = (p: Page) => p.locator('.call-bar__device[data-device="audio"]')
+    const cam = (p: Page) => p.locator('.call-bar__device[data-device="video"]')
+    const notice = (p: Page) => p.locator('.call-notice__text')
+    const menu = page.locator('.person-menu')
+    const act = (trigger: Locator, action: string) => async () => {
+      await trigger.click()
+      await menu.locator(`[data-action="${action}"]`).click()
+      await expect(menu).toHaveCount(0)
+    }
+    const onTile = (id: string) => tile(page, id).locator('.person-menu__trigger')
+    const inList = (id: string) => side.locator(`.call__people [data-member-menu="${id}"]`)
+    const openChat = async (p: Page) => {
+      const s = await openCallTab(p)
+      await s.locator('.room-side__tab[aria-controls$="-panel-chat"]').click()
+      return s.locator('.chat')
+    }
+
+    // 1. Switches (US1). Calls are off: guests have no call control at all; the animator has Chat, Audio call and Video call.
+    for (const g of guests) {
+      const s = await openCallTab(g.page)
+      await expect(s.locator('.call__state')).toHaveText(wordsOf(g.page).isOff)
+      await expect(s.locator('[data-switch], .call__join, .call__mode-seg')).toHaveCount(0)
+    }
+    await openCallTab(page)
+    for (const kind of ['chat', 'audio', 'video']) await expect(sw(kind)).toBeVisible()
+    await expect(sw('chat')).toHaveAttribute('aria-checked', 'true')
+    await expect(sw('audio')).toHaveAttribute('aria-checked', 'false')
+    await axe(page)
+    // A video call in Hand to speak, the default: Join call reaches every guest. The journey checks each effect and logs
+    // how long it took, within a loose bound (SLOW); the targets themselves (SC-903, SC-913) are held by the serial
+    // "measurements" describe, where nothing else loads the machine.
+    const started = await effectTimes(page, () => sw('video').click(), guests.map((g) => ({ page: g.page, selector: '.call__join' })))
+    console.log(`video call on to Join call, per guest (ms): ${started.join(', ')}`)
+    expect(Math.max(...started)).toBeLessThanOrEqual(SLOW)
+    await expect(side.locator('.call__mode-seg .seg__opt').first()).toHaveAttribute('aria-pressed', 'true')
+    for (const g of guests) {
+      await expect(g.page.locator('.call__mode')).toHaveText(wordsOf(g.page).mode.handWords!)
+      // No permission was asked of anyone's devices.
+      expect(await gumCalls(g.page)).toBe(0)
+    }
+    // A guest's own request to end it is refused: only the animator may.
+    expect(await hubCall(amina.page, circle.id, 'DisableDiscussion')).toContain('animator-only')
+
+    // 2. Join (US2). The animator joins and speaks; each guest joins with everything off and hears her.
+    await side.locator('.call__join').click()
+    await expect(page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    await mic(page).click()
+    await expect(mic(page)).toHaveAttribute('aria-pressed', 'true')
+    const heard: number[] = []
+    for (const g of guests) heard.push(await joinAndHear(g.page))
+    console.log(`join to first audio, per guest (ms): ${heard.join(', ')}`)
+    expect(Math.max(...heard)).toBeLessThanOrEqual(SLOW)
+    for (const g of guests) {
+      expect(await gumCalls(g.page)).toBe(0)
+      await expect(cam(g.page)).toHaveAttribute('aria-pressed', 'false')
+      const speaker = tile(g.page, circle.me)
+      await expect(speaker).toHaveClass(/is-speaking/, { timeout: 10_000 })
+      await expect(speaker.locator('.call-tile__speaking')).toHaveText(wordsOf(g.page).speaking)
+    }
+    // Lucía asked for reduced motion: the word stays, the sound bars are still.
+    expect(await tile(lucia.page, circle.me).locator('.call-tile__bars i').first().evaluate((i) => getComputedStyle(i).animationName)).toBe('none')
+    // Everyone is on the animator's screen: four tiles, the characters standing in for cameras that are off.
+    await expect(page.locator('.call-stage .call-tile')).toHaveCount(4)
+    await expect(page.locator('.call-stage .call-tile__char')).toHaveCount(4)
+    await shot(page, 'joined')
+
+    // 3. Hand to speak (US3). Raise hand stands where the microphone would be. Amina raises hers with a tap, Youssef
+    // from the keyboard (the focus waits on the call bar after Join call).
+    for (const g of guests) {
+      await expect(mic(g.page)).toHaveCount(0)
+      await expect(hand(g.page)).toHaveAttribute('data-hand', 'none')
+    }
+    await hand(amina.page).click()
+    await expect(hand(amina.page)).toHaveAttribute('data-hand', 'queue')
+    await keys(youssef.page, ar).tabTo(hand(youssef.page))
+    await youssef.page.keyboard.press('Enter')
+    await expect(hand(youssef.page)).toHaveAttribute('data-hand', 'queue')
+    await expect(hand(youssef.page).locator('.hand-btn__place')).toHaveText('2')
+
+    // 12. The projector, meanwhile: the number of hands, no names, no sound, no video and no call pass (FR-934).
+    const passes: string[] = []
+    const audience = await page.context().newPage()
+    watchCsp(audience, csp)
+    audience.on('request', (r) => {
+      if (r.url().includes('/call/token')) passes.push(r.url())
+    })
+    await audience.goto(`/app/circles/${circle.id}/audience`)
+    await expect(audience.locator('.audience__hands-n')).toHaveText(chatW.handsTwo)
+    await expect(audience.locator('audio, video')).toHaveCount(0)
+    expect(await audience.evaluate(() => (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs.length)).toBe(0)
+    const projected = await audience.locator('body').innerText()
+    for (const g of guests) expect(projected).not.toContain(g.name)
+    expect(passes).toEqual([])
+    await audience.close()
+
+    // The floor goes to the first hand, from the Call tab. Nothing switches on for Amina: she switches her microphone
+    // on herself and is heard.
+    let rows = (await openCallTab(page)).locator('.call__hands .hands__row')
+    await expect(rows).toHaveCount(2)
+    await expect(rows.first()).toContainText(amina.name)
+    await rows.first().locator('.hands__give').click()
+    await expect(mic(amina.page)).toBeVisible({ timeout: 5_000 })
+    await expect(mic(amina.page)).toHaveAttribute('aria-pressed', 'false')
+    await expect(notice(amina.page)).toHaveText(w.notices['floor-given']!)
+    expect(await gumCalls(amina.page)).toBe(0)
+    await axe(amina.page)
+    await mic(amina.page).click()
+    await expect(mic(amina.page)).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    await expect(tile(page, amina.id)).toHaveClass(/is-speaking/, { timeout: 10_000 })
+    // Then to Youssef: Amina's microphone goes off and she is told kindly.
+    rows = (await openCallTab(page)).locator('.call__hands .hands__row')
+    await expect(rows).toHaveCount(1)
+    await rows.first().locator('.hands__give').click()
+    await expect(mic(amina.page)).toHaveCount(0)
+    await expect(notice(amina.page)).toHaveText(w.notices['floor-taken']!)
+    await expect(mic(youssef.page)).toBeVisible({ timeout: 5_000 })
+    await expect(tile(lucia.page, youssef.id).locator('.call-tile__floor')).toBeVisible()
+
+    // 4. Open mic (US3): everyone may switch the microphone on. Mute everyone switches them off once and locks nothing.
+    await openCallTab(page)
+    const open = side.locator('.call__mode-seg .seg__opt').nth(1)
+    await open.click()
+    await expect(open).toHaveAttribute('aria-pressed', 'true')
+    for (const g of guests) {
+      await expect(mic(g.page)).toBeVisible()
+      await expect(mic(g.page)).not.toHaveAttribute('aria-disabled', 'true')
+    }
+    await expect(notice(lucia.page)).toHaveText(wl.notices['mode-open']!)
+    for (const g of [amina, youssef]) {
+      if ((await mic(g.page).getAttribute('aria-pressed')) !== 'true') await mic(g.page).click()
+      await expect(mic(g.page)).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    }
+    await openCallTab(page)
+    await side.locator('.call__mute-all').click()
+    for (const g of [amina, youssef]) {
+      await expect(mic(g.page)).toHaveAttribute('aria-pressed', 'false')
+      await expect(mic(g.page)).not.toHaveAttribute('aria-disabled', 'true')
+    }
+    await expect(notice(amina.page)).toHaveText(w.notices['muted-everyone']!)
+    await mic(amina.page).click()
+    await expect(mic(amina.page)).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+
+    // 5. Moderation (US3). Lucía's camera, stopped from her tile: gone from every screen, and she cannot switch it on
+    // again until the animator allows it.
+    await cam(lucia.page).click()
+    await expect(cam(lucia.page)).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    const watching = [page, amina.page, youssef.page]
+    for (const p of watching) await expect(tile(p, lucia.id).locator('video')).toBeVisible({ timeout: 20_000 })
+    const stopped = await effectTimes(page, act(onTile(lucia.id), 'stop-camera'), [
+      { page: lucia.page, selector: '.call-bar__device[data-device="video"][aria-disabled="true"]' },
+      ...watching.map((p) => ({ page: p, selector: `.call-tile[data-member="${lucia.id}"] video`, present: false })),
+    ])
+    console.log(`camera stopped, per page (ms): ${stopped.join(', ')}`)
+    expect(Math.max(...stopped)).toBeLessThanOrEqual(SLOW)
+    await expect(notice(lucia.page)).toHaveText(wl.notices['camera-stopped']!)
+    // Her locked button does nothing (it is aria-disabled, so the tap is forced).
+    await expect(cam(lucia.page)).toHaveAttribute('aria-disabled', 'true')
+    await cam(lucia.page).click({ force: true })
+    await expect(cam(lucia.page)).toHaveAttribute('aria-pressed', 'false')
+    await expect(tile(page, lucia.id).locator('video')).toHaveCount(0)
+    await act(onTile(lucia.id), 'allow-camera')()
+    await expect(cam(lucia.page)).not.toHaveAttribute('aria-disabled', 'true')
+
+    // Youssef removed, from the people list: out of the call, still in the chat. Join call says why, also from his
+    // old tab reloaded; once let back in, he joins.
+    await openCallTab(page)
+    await inList(youssef.id).click()
+    await menu.locator('[data-action="remove"]').click()
+    await expect(menu.locator('[data-cancel]')).toBeFocused()
+    await menu.locator('[data-confirm]').click()
+    await expect(youssef.page.locator('.call-bar')).toHaveCount(0, { timeout: 2_000 })
+    await expect(notice(youssef.page)).toHaveText(w.notices.removed!)
+    await expect(tile(amina.page, youssef.id)).toHaveCount(0, { timeout: 2_000 })
+    const still = ar ? 'ما زلت أتابع الدردشة' : 'Still here in the chat'
+    await say(youssef.page, still)
+    await expect((await openChat(amina.page)).locator('.chat__msg', { hasText: still })).toHaveCount(1)
+    for (const reload of [false, true]) {
+      if (reload) await youssef.page.reload()
+      const s = await openCallTab(youssef.page)
+      await s.locator('.call__join').click()
+      await expect(s.locator('.call__now .field__error')).toHaveText(w.errors['removed-from-call']!)
+    }
+    await axe(youssef.page)
+    await openCallTab(page)
+    await expect(side.locator('.call__removed')).toContainText(youssef.name)
+    await side.locator('.call__allow-back').click()
+    await expect(notice(youssef.page)).toHaveText(w.notices['allowed-back']!)
+    await joinCall(youssef.page)
+
+    // 7. Devices (US4). Lucía's browser blocks the microphone: she reads how to allow it again and still hears the
+    // call. Then her camera is gone: the others see her character and her name, isolated in its own direction.
+    const problem = lucia.page.locator('.device-problem')
+    await gum(lucia.page, 'audio', 'NotAllowedError')
+    await mic(lucia.page).click()
+    await expect(problem).toHaveAttribute('data-problem', 'denied')
+    await expect(problem.locator('.device-problem__what')).toHaveText(wl.device.denied.audio)
+    await expect(problem.locator('.device-problem__how')).not.toBeEmpty()
+    await expect(mic(lucia.page)).toHaveAttribute('aria-pressed', 'false')
+    expect(await receivingAudio(lucia.page, 2000)).toBe(true)
+    await axe(lucia.page)
+    await gum(lucia.page, 'video', 'NotFoundError')
+    await cam(lucia.page).click()
+    await expect(problem).toHaveAttribute('data-problem', 'no-device')
+    await expect(problem.locator('.device-problem__what')).toHaveText(wl.device['no-device'].video)
+    await expect(tile(page, lucia.id).locator('.call-tile__char')).toBeVisible()
+    await expect(tile(page, lucia.id).locator('video')).toHaveCount(0)
+    await expect(tile(page, lucia.id).locator('.call-tile__name bdi')).toHaveText(lucia.name)
+    await shot(lucia.page, 'lucia-devices')
+
+    // 6. Video off (US1): every camera stops, and the call goes on with voices.
+    await cam(amina.page).click()
+    await expect(cam(amina.page)).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    const viewers = [page, youssef.page, lucia.page]
+    for (const p of viewers) await expect(tile(p, amina.id).locator('video')).toBeVisible({ timeout: 20_000 })
+    await openCallTab(page)
+    const videoOff = await effectTimes(page, () => sw('video').click(), [
+      { page: amina.page, selector: '.call-bar__device[data-device="video"]', present: false },
+      ...viewers.map((p) => ({ page: p, selector: `.call-tile[data-member="${amina.id}"] video`, present: false })),
+    ])
+    console.log(`video off to cameras stopped, per page (ms): ${videoOff.join(', ')}`)
+    expect(Math.max(...videoOff)).toBeLessThanOrEqual(SLOW)
+    await expect(sw('audio')).toHaveAttribute('aria-checked', 'true')
+    await expect(notice(lucia.page)).toHaveText(wl.notices['video-off']!)
+    expect(await receivingAudio(lucia.page)).toBe(true)
+
+    // 7. A short outage: Amina's network drops; she reads "Reconnecting…" and comes back by herself, heard again.
+    await amina.page.context().setOffline(true)
+    await expect(amina.page.locator('.call-bar__note', { hasText: w.reconnecting })).toBeVisible({ timeout: 20_000 })
+    await amina.page.waitForTimeout(3000)
+    await amina.page.context().setOffline(false)
+    await expect(amina.page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 30_000 })
+    // With video off the centre shows the whiteboard again: the Call tab's people list says who speaks.
+    await openCallTab(page)
+    await expect(side.locator('.call__person', { hasText: amina.name })).toHaveClass(/is-speaking/, { timeout: 15_000 })
+
+    // 9. Reactions (US8): the three guests clap; every screen shows one grouped burst of three. Lucía's is still.
+    for (const g of guests) {
+      if (phone) {
+        const toggle = g.page.locator('.call-bar__react-toggle')
+        await toggle.click()
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      }
+      await g.page.locator(`.call-bar__${phone ? 'tray' : 'reactions'} .reaction-bar__btn[data-kind="clap"]`).click()
+    }
+    for (const p of [page, ...guests.map((g) => g.page)]) {
+      const chips = p.locator('[data-slot="call-reactions"] .reaction-tally__chip')
+      await expect(chips).toHaveCount(1)
+      await expect(chips).toHaveAttribute('data-count', '3', { timeout: 5_000 })
+    }
+    await expect(lucia.page.locator('[data-slot="call-reactions"] .reaction-tally')).toHaveClass(/is-still/)
+    await expect(lucia.page.locator('[data-slot="call-reactions"] .reaction-layer')).toHaveCount(0)
+    await shot(page, 'reactions')
+    await shot(lucia.page, 'lucia-reactions')
+    await axe(amina.page)
+
+    // 14. Arabic: Lucía's room is right to left, and her call bar mirrors (Leave at the inline end, on the left).
+    expect(await lucia.page.evaluate(() => document.documentElement.dir)).toBe('rtl')
+    const leaveBox = (await lucia.page.locator('.call-bar__leave').boundingBox())!
+    const devicesBox = (await lucia.page.locator('.call-bar__devices').boundingBox())!
+    expect(leaveBox.x).toBeLessThan(devicesBox.x)
+
+    // 8. Chat (US1, US5). Paused: Lucía reads it in Arabic. Open again: Amina asks, the animator answers in a thread.
+    // The call's live lines are there; a reload brings back the messages but not the lines.
+    await openCallTab(page)
+    await sw('chat').click()
+    await expect(sw('chat')).toHaveAttribute('aria-checked', 'false')
+    const luciaChat = await openChat(lucia.page)
+    await expect(luciaChat.locator('.composer__paused')).toContainText(chatWords('ar').pausedTitle)
+    await axe(lucia.page)
+    await openCallTab(page)
+    await sw('chat').click()
+    await expect(sw('chat')).toHaveAttribute('aria-checked', 'true')
+    const question = ar ? 'من يكتب الملخص؟' : 'Who writes the summary?'
+    const answer = ar ? 'لوسيا، شكرًا لها' : 'Lucía, thank you'
+    await say(amina.page, question)
+    const animatorChat = await openChat(page)
+    await animatorChat.locator('.chat__msg', { hasText: question }).locator('.chat__answer').first().click()
+    await expect(page.locator('#composer-input')).toBeFocused()
+    await page.keyboard.type(answer)
+    await page.keyboard.press('Enter')
+    const luciaNow = await openChat(lucia.page)
+    await expect(luciaNow.locator('.chat__msg', { hasText: question }).locator('.chat__thread .chat__reply')).toContainText(answer)
+    for (const line of ['call-started', 'floor', 'video-off']) await expect(luciaNow.locator(`.chat__live[data-line="${line}"]`).first()).toBeAttached()
+    await shot(lucia.page, 'lucia-chat')
+    await lucia.page.reload()
+    const again = await openChat(lucia.page)
+    await expect(again.locator('.chat__msg', { hasText: question }).locator('.chat__thread .chat__reply')).toContainText(answer)
+    await expect(again.locator('.chat__live')).toHaveCount(0)
+    await axe(lucia.page)
+
+    // 11. Away (edge): the animator's tab closes; everyone reads the countdown, and the call ends when it runs out.
+    // E2E_AWAY_SECONDS is the API's Discussion__AwayEndSeconds (300 by default); set both short to see the end here.
+    await page.close()
+    const away = amina.page.locator('.call-bar .call__away')
+    await expect(away).toContainText(w.away, { timeout: 10_000 })
+    await expect(away.locator('.call__away-clock')).toHaveText(/^\d+:\d\d$/)
+    const awaySeconds = Number(process.env.E2E_AWAY_SECONDS ?? 300)
+    const ended = awaySeconds <= 120
+    if (ended) {
+      await expect(notice(amina.page)).toHaveText(w.notices['call-ended-away']!, { timeout: (awaySeconds + 15) * 1000 })
+      await expect(amina.page.locator('.call-bar')).toHaveCount(0)
+    }
+
+    // 13. Nothing stored (SC-906, FR-930): this circle kept its chat and the audit rows of the switches, the mode, the
+    // removal and the refusal; no table holds calls, speakers or recordings. Needs E2E_DATABASE_URL.
+    const kept = await circleRows(circle.id)
+    if (kept) {
+      console.log(`what the circle kept: ${JSON.stringify(kept)}`)
+      expect(kept.tables).toEqual([])
+      expect(kept.messages.filter((m) => m.kind === 'member').map((m) => m.text).sort()).toEqual([still, question, answer].sort())
+      // The other lines are the whiteboard's own (its start and circloo's welcome), none about the call.
+      expect(kept.messages.filter((m) => m.kind !== 'member').map((m) => m.kind).sort()).toEqual(['ai', 'system'])
+      const callAudits = ['call.mode', 'call.removed', 'discussion.off', 'discussion.on', 'discussion.refused']
+      expect(kept.audits.filter((a) => /^(call|discussion)\./.test(a))).toEqual(callAudits.filter((a) => ended || a !== 'discussion.off'))
+    }
+
+    expect(csp).toEqual([])
+    for (const g of guests) await g.page.context().close()
   })
 })
 
