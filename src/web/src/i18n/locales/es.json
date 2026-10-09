@@ -1268,6 +1268,7 @@
         "thread_many": "{{count}} respuestas a {{name}}",
         "thread_other": "{{count}} respuestas a {{name}}",
         "replied": "{{name}} respondió a {{parent}}",
+        "replied_you": "Respondiste a {{parent}}",
         "show": "Ver",
         "gone": "El mensaje al que respondías ya no está. El tuyo se enviará como un mensaje nuevo."
       }

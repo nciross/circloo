@@ -113,13 +113,25 @@ export function ChatPanel({ activityId, hideEnd = false }: { activityId: string;
     else el.scrollTop = el.scrollHeight
   }, [])
 
+  // Only the reader leaves the end, by scrolling up. Content or room arriving in the same frame (a live line and the
+  // call's notice bar together) can make a scroll event see the end out of reach for a moment: that is not leaving it.
+  const lastTop = useRef(0)
   const onScroll = () => {
     const el = logRef.current
     if (!el) return
     const atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < AT_END
-    if (atEnd === following.current) return
-    following.current = atEnd
-    setMark(atEnd ? null : lastIdRef.current)
+    const up = el.scrollTop < lastTop.current - 1
+    lastTop.current = el.scrollTop
+    if (atEnd) {
+      if (following.current) return
+      following.current = true
+      setMark(null)
+    } else if (following.current && up) {
+      following.current = false
+      setMark(lastIdRef.current)
+    } else if (following.current) {
+      toEnd()
+    }
   }
 
   // New content: follow it only at the end. Reading older messages, the list stays where it is.

@@ -223,12 +223,13 @@ export function RepliedLine({ message: m, parentName, members, meId, onShow }: {
   onShow: (id: number) => void
 }) {
   const { t } = useTranslation()
-  const who = m.memberId === meId ? t('circles.chat.you') : (members.find((x) => x.id === m.memberId)?.name ?? '…')
+  const mine = !!meId && m.memberId === meId
+  const who = members.find((x) => x.id === m.memberId)?.name ?? '…'
   return (
     <li className="chat__replied">
       <button type="button" className="chat__replied-btn" onClick={() => onShow(m.id)}>
         <CornerDownRight size={14} aria-hidden="true" className="flip-rtl" />
-        <span>{t('circles.chat.reply.replied', { name: isolate(who), parent: isolate(parentName || '…') })}</span>
+        <span>{t('circles.chat.reply.replied', { name: isolate(who), parent: isolate(parentName || '…'), context: mine ? 'you' : undefined })}</span>
         <span className="chat__replied-show">{t('circles.chat.reply.show')}</span>
       </button>
     </li>

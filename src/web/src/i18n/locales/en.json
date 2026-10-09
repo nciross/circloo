@@ -1267,6 +1267,7 @@
         "thread_one": "{{count}} reply to {{name}}",
         "thread_other": "{{count}} replies to {{name}}",
         "replied": "{{name}} replied to {{parent}}",
+        "replied_you": "You replied to {{parent}}",
         "show": "Show",
         "gone": "The message you were answering is gone. Yours will be sent as a new message."
       }

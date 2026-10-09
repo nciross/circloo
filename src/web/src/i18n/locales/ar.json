@@ -1395,6 +1395,7 @@
         "thread_many": "{{count}} ردًا على {{name}}",
         "thread_other": "{{count}} رد على {{name}}",
         "replied": "ردّ {{name}} على {{parent}}",
+        "replied_you": "رددتَ على {{parent}}",
         "show": "عرض",
         "gone": "الرسالة التي كنت ترد عليها لم تعد هنا. ستُرسل رسالتك كرسالة جديدة."
       }

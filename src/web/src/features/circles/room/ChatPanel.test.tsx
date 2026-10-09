@@ -163,6 +163,9 @@ describe('ChatPanel', () => {
     const log = screen.getByRole('region', { name: 'Conversation' })
     Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 1000 })
     Object.defineProperty(log, 'clientHeight', { configurable: true, value: 300 })
+    log.scrollTop = 700
+    fireEvent.scroll(log)
+    // The reader scrolls up.
     log.scrollTop = 200
     fireEvent.scroll(log)
 
@@ -172,6 +175,23 @@ describe('ChatPanel', () => {
     await userEvent.click(jump)
     expect(log.scrollTop).toBe(1000)
     expect(screen.queryByRole('button', { name: /new messages/ })).toBeNull()
+  })
+
+  it('keeps following the end when the end moves away without the reader scrolling up', () => {
+    enter(amina, [msg('k', 'One')])
+    render(<ChatPanel activityId="presentation" hideEnd />)
+    const log = screen.getByRole('region', { name: 'Conversation' })
+    let height = 1000
+    Object.defineProperty(log, 'scrollHeight', { configurable: true, get: () => height })
+    Object.defineProperty(log, 'clientHeight', { configurable: true, value: 300 })
+    log.scrollTop = 700
+    fireEvent.scroll(log)
+    // A line and the call's notice bar arrive together: the scroll event sees the end 60 px away for a moment.
+    height = 1060
+    fireEvent.scroll(log)
+    expect(log.scrollTop).toBe(1060)
+    act(() => useRoom.setState((s) => ({ messages: [...s.messages, msg('k', 'Two')] })))
+    expect(screen.queryByRole('button', { name: /new message/ })).toBeNull()
   })
 
   it('announces new messages politely in one batch, never the history', async () => {
@@ -295,7 +315,7 @@ describe('ChatPanel: replies and live lines (spec 009 US5, T909)', () => {
     const answer = msg('a', 'Yes, plan A', { replyToId: parent.id })
     enter(amina, [parent, between, answer])
     const { container } = render(<ChatPanel activityId="presentation" hideEnd />)
-    const pointer = screen.getByRole('button', { name: /You.? replied to .Kenji.Show$/ })
+    const pointer = screen.getByRole('button', { name: /^You replied to .Kenji.Show$/ })
     await userEvent.click(pointer)
     const target = container.querySelector(`.chat__thread [data-id="${answer.id}"]`)
     expect(target).toHaveFocus()
