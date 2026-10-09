@@ -28,7 +28,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
   unread?: number
   hands?: number
   announce?: string
-  /** Other live regions (the hands announcer): kept outside the body, so they speak while it is collapsed. */
+  /** Other live regions (the room's announcer for hands and the call): kept outside the body, so they speak while it is collapsed. */
   live?: ReactNode
 }) {
   const { t } = useTranslation()

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import i18n from '../../../i18n'
 import type { Member, Message } from '../../../api/circles'
 import {
   CHAT_EVERY,
@@ -10,6 +11,7 @@ import {
   groupMessages,
   isThreaded,
   patchMessage,
+  sayText,
   slowModeSeconds,
   threadsOf,
   upsertMessage,
@@ -110,6 +112,21 @@ describe('announcements', () => {
     expect(batchSay([msg({ memberId: 'kenji', text: 'Bravo  👏\nso good' })], people)).toEqual({ kind: 'one', name: 'Kenji', text: 'Bravo 👏 so good' })
     expect(batchSay([msg(), msg(), msg()], people)).toEqual({ kind: 'many', count: 3 })
     expect(batchSay([msg({ kind: 'ai', memberId: null })], people)).toMatchObject({ kind: 'one', name: 'circloo' })
+  })
+
+  it('reads a reply with whom it answers: a member, you, or a message no longer here', () => {
+    const people = [member('kenji', 'Kenji'), member('amina', 'Amina')]
+    const parent = msg({ id: 40, memberId: 'amina', text: 'Who brings the cake?' })
+    const reply = msg({ id: 41, memberId: 'kenji', text: 'Me!', replyToId: 40 })
+    expect(batchSay([reply], people, [parent, reply], 'lucia')).toEqual({ kind: 'one', name: 'Kenji', text: 'Me!', reply: { name: 'Amina', mine: false } })
+    expect(batchSay([reply], people, [parent, reply], 'amina')).toMatchObject({ reply: { name: 'Amina', mine: true } })
+    expect(batchSay([reply], people, [reply], 'lucia')).toMatchObject({ reply: 'earlier' })
+    const t = i18n.getFixedT('en')
+    expect(sayText(t, batchSay([reply], people, [parent, reply], 'lucia'))).toBe('Kenji, replying to Amina: Me!')
+    expect(sayText(t, batchSay([reply], people, [parent, reply], 'amina'))).toBe('Kenji, replying to you: Me!')
+    expect(sayText(t, batchSay([reply], people, [reply], 'lucia'))).toBe('Kenji, replying to an earlier message: Me!')
+    expect(sayText(t, batchSay([msg({ memberId: 'kenji', text: 'Hi' })], people))).toBe('Kenji: Hi')
+    expect(sayText(i18n.getFixedT('ar'), batchSay([reply], people, [parent, reply], 'lucia'))).toBe('Kenji، ردًّا على Amina: Me!')
   })
 
   it('cuts a long message', () => {

@@ -1223,7 +1223,10 @@
       "say": {
         "one": "{{name}} : {{text}}",
         "many_one": "{{count}} nouveau message",
-        "many_other": "{{count}} nouveaux messages"
+        "many_other": "{{count}} nouveaux messages",
+        "reply": "{{name}}, en réponse à {{parent}} : {{text}}",
+        "replyYou": "{{name}}, en réponse à ton message : {{text}}",
+        "replyEarlier": "{{name}}, en réponse à un message plus ancien : {{text}}"
       },
       "pausedTitle": "L’animateur a mis le chat en pause",
       "pausedBody": "Tu peux toujours lire les messages.",

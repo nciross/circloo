@@ -8,7 +8,7 @@ import { PRESENTATION } from '../catalog'
 import { useRoom } from '../room'
 import { PeopleList } from './PeopleList'
 import { HandsQueue } from './HandsQueue'
-import { HandsAnnouncer } from './HandsAnnouncer'
+import { CallAnnouncer } from '../stage/CallAnnouncer'
 import { CallPanel } from '../stage/CallPanel'
 import { useStage } from '../stage/stage'
 import { RoomSidebar, type SideTab } from './RoomSidebar'
@@ -18,8 +18,8 @@ import { unreadCount } from './sidebar'
 /**
  * The room's side area: People, Chat when the current activity is not itself a chat, Hands (the raised hands queue,
  * spec 008 US5) and Call (the switch, Join call and the people in the call, with their number on the tab while a call
- * is on). The Hands tab and the phone's closed pill count the hands waiting; the hands announcer stays mounted whatever
- * tab is open.
+ * is on). The Hands tab and the phone's closed pill count the hands waiting; the room's announcer (hands and the call,
+ * `stage/announce.ts`) stays mounted whatever tab is open.
  * The side state lives in the room, so the work bar can open a tab too.
  */
 export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite }: {
@@ -96,7 +96,7 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
       unread={chatShown ? 0 : unread}
       hands={waiting}
       announce={announcement ? t('circles.room.joined', { name: announcement }) : ''}
-      live={<HandsAnnouncer />}
+      live={<CallAnnouncer />}
     />
   )
 }

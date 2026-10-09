@@ -6,7 +6,7 @@ import type { HandsView, Member } from '../../../api/circles'
 import { useRoom } from '../room'
 import { HandsQueue } from './HandsQueue'
 import { HandButton } from './HandButton'
-import { HandsAnnouncer } from './HandsAnnouncer'
+import { CallAnnouncer } from '../stage/CallAnnouncer'
 import { PeopleList } from './PeopleList'
 import { NO_HANDS } from './hands'
 
@@ -155,11 +155,11 @@ describe('HandButton', () => {
   })
 })
 
-describe('HandsAnnouncer', () => {
+describe('CallAnnouncer, the hands of spec 008 without a call', () => {
   it('tells the animator about each hand, grouped when several go up together', () => {
     vi.useFakeTimers()
     enter(nadia, raised(['a']))
-    render(<HandsAnnouncer />)
+    render(<CallAnnouncer />)
     const line = screen.getByRole('status')
     // Hands already up when the room opens are not read out.
     act(() => vi.advanceTimersByTime(2000))
@@ -183,7 +183,7 @@ describe('HandsAnnouncer', () => {
   it('tells a participant their own place when it changes, and when their hand is down', () => {
     vi.useFakeTimers()
     enter(lucia, raised(['a', 'k', 'l']))
-    render(<HandsAnnouncer />)
+    render(<CallAnnouncer />)
     const line = screen.getByRole('status')
     act(() => vi.advanceTimersByTime(2000))
     expect(line).toHaveTextContent('')

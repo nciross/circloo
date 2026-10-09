@@ -87,7 +87,7 @@ test('hands: three hands in order, the floor, lower all, and only a count on the
   await expect(side(lucia).locator('.hands__place')).toHaveText(ar ? 'ترتيبك في الدور: 3' : 'You are 3rd')
   await expect(tab(page, 'hands')).toContainText('3')
   // The animator hears the hand that just went up, and sees how long each has waited.
-  await expect(page.locator('[data-slot="hands-say"]')).toContainText(l, { timeout: 6_000 })
+  await expect(page.locator('[data-slot="room-say"]')).toContainText(l, { timeout: 6_000 })
   await expect(rows(page).first().locator('.hands__waited')).not.toBeEmpty()
   // Arabic reads from the right: the first hand's character sits at the inline start, on the right.
   if (ar) {

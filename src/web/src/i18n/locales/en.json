@@ -1222,7 +1222,10 @@
       "say": {
         "one": "{{name}}: {{text}}",
         "many_one": "{{count}} new message",
-        "many_other": "{{count}} new messages"
+        "many_other": "{{count}} new messages",
+        "reply": "{{name}}, replying to {{parent}}: {{text}}",
+        "replyYou": "{{name}}, replying to you: {{text}}",
+        "replyEarlier": "{{name}}, replying to an earlier message: {{text}}"
       },
       "pausedTitle": "The animator paused the chat",
       "pausedBody": "You can still read the messages.",

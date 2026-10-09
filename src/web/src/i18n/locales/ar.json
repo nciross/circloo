@@ -1334,7 +1334,10 @@
         "many_two": "رسالتان جديدتان",
         "many_few": "{{count}} رسائل جديدة",
         "many_many": "{{count}} رسالة جديدة",
-        "many_other": "{{count}} رسالة جديدة"
+        "many_other": "{{count}} رسالة جديدة",
+        "reply": "{{name}}، ردًّا على {{parent}}: {{text}}",
+        "replyYou": "{{name}}، ردًّا على رسالتك: {{text}}",
+        "replyEarlier": "{{name}}، ردًّا على رسالة سابقة: {{text}}"
       },
       "pausedTitle": "أوقف المنشّط الدردشة مؤقتًا",
       "pausedBody": "ما زال بإمكانك قراءة الرسائل.",
