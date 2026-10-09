@@ -266,20 +266,22 @@
 .room-side .chat__bubble .chat__name {
   color: var(--on-card-faint);
 }
-.room-side .chat__group.is-mine .chat__bubble {
+/* Yours, in the flow and in a thread (the selectors match circles.css, so the card's colours win). */
+.room-side .chat__group.is-mine .chat__msg > .chat__body > .chat__bubble,
+.room-side .chat__reply.is-mine > .chat__body > .chat__bubble {
   background: var(--on-card);
   color: var(--card);
 }
-.room-side .chat__group:not(.is-mine) .chat__msg:not(:first-child) .chat__bubble {
+.room-side .chat__group:not(.is-mine) .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
   border-start-start-radius: var(--r-xs);
 }
-.room-side .chat__group:not(.is-mine) .chat__msg:not(:last-child) .chat__bubble {
+.room-side .chat__group:not(.is-mine) .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
   border-end-start-radius: var(--r-xs);
 }
-.room-side .chat__group.is-mine .chat__msg:not(:first-child) .chat__bubble {
+.room-side .chat__group.is-mine .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
   border-start-end-radius: var(--r-xs);
 }
-.room-side .chat__group.is-mine .chat__msg:not(:last-child) .chat__bubble {
+.room-side .chat__group.is-mine .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
   border-end-end-radius: var(--r-xs);
 }
 .room-side .chat__from {
@@ -289,21 +291,51 @@
   background: var(--card-sunken);
   color: var(--on-card-soft);
 }
-.room-side .chat__msg.is-hidden .chat__bubble {
+.room-side .chat__msg.is-hidden > .chat__body > .chat__bubble,
+.room-side .chat__reply.is-hidden > .chat__body > .chat__bubble {
   border: 2px dashed var(--on-card-faint);
   background: transparent;
   color: var(--on-card);
 }
-.room-side .chat__hidden-tag {
+.room-side .chat__hidden-tag,
+.room-side .chat__reply-tag {
+  color: var(--on-card-soft);
+}
+/* Threads, live lines, the "replied" line and the reply state, in the card's own colours. */
+.room-side .chat__thread {
+  border-inline-start-color: var(--card-line);
+}
+.room-side .chat__reply-from {
+  color: var(--on-card);
+}
+.room-side .chat__live {
+  border-color: var(--card-line);
+  color: var(--on-card-soft);
+}
+.room-side .chat__replied-btn {
+  color: var(--on-card-soft);
+}
+.room-side .chat__replied-btn:hover {
+  background: var(--card-hover);
+  color: var(--on-card);
+}
+.room-side .composer__reply {
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.room-side .composer__reply-icon,
+.room-side .composer__reply-quote {
   color: var(--on-card-soft);
 }
 .room-side .chat__like,
 .room-side .chat__hide,
+.room-side .chat__answer,
 .room-side .chat__likes {
   color: var(--on-card-soft);
 }
 .room-side .chat__like:hover,
-.room-side .chat__hide:hover {
+.room-side .chat__hide:hover,
+.room-side .chat__answer:hover {
   background: var(--card-hover);
   color: var(--on-card);
 }
