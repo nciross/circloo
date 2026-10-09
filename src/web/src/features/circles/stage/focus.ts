@@ -14,8 +14,21 @@ export function focusAfterLeave() {
   })
 }
 
-/** Joining removes Join call: the focus moves on to the call's bar rather than falling to the page. */
-export function focusLost(): boolean {
+let joinPressed = false
+
+/** Join call was pressed: once the call's bar is there, the focus moves on to it (see `focusOnBar`). */
+export function markJoin() {
+  joinPressed = true
+}
+
+/**
+ * Joining removes Join call, and on a phone the call folds the sheet that held it, which hands the focus to the sheet's
+ * pill: either way the focus moves on to the call's bar once it is there, unless the person went somewhere else since.
+ */
+export function focusOnBar(): boolean {
+  const pressed = joinPressed
+  joinPressed = false
   const now = document.activeElement
-  return !now || now === document.body
+  if (!now || now === document.body) return true
+  return pressed && now.matches('.call__join, .room-side__handle')
 }

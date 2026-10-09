@@ -49,9 +49,13 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
   const was = useRef(open)
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  // Closing from inside the sidebar would drop focus; the rail (or the phone pill) that replaces it takes it.
+  // Closing from inside the sidebar would drop focus; the rail (or the phone pill) that replaces it takes it. A focus
+  // already elsewhere stays there: the call's bar after Join call folded the phone's sheet, for one (T914).
+  const bodyRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (was.current && !open) handle.current?.focus()
+    const now = document.activeElement
+    const fromInside = !now || now === document.body || !!bodyRef.current?.contains(now)
+    if (was.current && !open && fromInside) handle.current?.focus()
     was.current = open
   }, [open])
 
@@ -153,7 +157,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
         </button>
       )}
 
-      <div className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
+      <div ref={bodyRef} className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
         <div className="room-side__bar">
           {wide ? null : <span className="room-side__grip" aria-hidden="true" />}
           <div className="room-side__tabs" role="tablist" aria-label={t('circles.room.sideLabel')} onKeyDown={onTabKey}>

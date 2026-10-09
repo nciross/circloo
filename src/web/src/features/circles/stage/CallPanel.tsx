@@ -10,7 +10,7 @@ import { DiscussionSwitch } from './DiscussionSwitch'
 import { PersonMenu } from './PersonMenu'
 import { useAwayLeft } from './away'
 import { AwayLine } from './AwayLine'
-import { focusAfterLeave } from './focus'
+import { focusAfterLeave, markJoin } from './focus'
 
 /**
  * The Call tab of the room's focal card (spec 009 US1, US2 and US3, T925 and T926). The animator has the switches (chat,
@@ -39,6 +39,10 @@ export function CallPanel({ isAnimator, members = [] }: { isAnimator: boolean; m
   const available = discussion?.available ?? true
   const byId = (id: string) => members.find((m) => m.id === id)
   const inCall = connection === 'connected' || connection === 'reconnecting'
+  const joinCall = () => {
+    markJoin()
+    void join()
+  }
 
   // In the call, the call server's list is the freshest; otherwise the roster the hub sends.
   const live = new Map(participants.map((p) => [p.id, p]))
@@ -80,7 +84,7 @@ export function CallPanel({ isAnimator, members = [] }: { isAnimator: boolean; m
               // Nothing to try again: this browser has no live audio or video, and the room works without it (US4 #6).
               <p className="call__unsupported">{t('circles.call.errors.unsupported')}</p>
             ) : connection === 'idle' ? (
-              <button type="button" className="btn btn--primary call__join" onClick={() => void join()}>
+              <button type="button" className="btn btn--primary call__join" onClick={joinCall}>
                 <Phone size={18} aria-hidden="true" />
                 {t('circles.call.join')}
               </button>
@@ -91,7 +95,7 @@ export function CallPanel({ isAnimator, members = [] }: { isAnimator: boolean; m
             ) : connection === 'failed' ? (
               <>
                 <p className="field__error" role="alert">{t(`circles.call.errors.${error ?? 'failed'}`, { defaultValue: t('circles.call.errors.failed') })}</p>
-                <button type="button" className="btn btn--primary call__join" onClick={() => void join()}>
+                <button type="button" className="btn btn--primary call__join" onClick={joinCall}>
                   <Phone size={18} aria-hidden="true" />
                   {t('circles.call.joinAgain')}
                 </button>

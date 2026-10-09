@@ -11,7 +11,7 @@ import { AwayLine } from './AwayLine'
 import { CallReactions } from './CallReactions'
 import { useCompact } from './compact'
 import { DeviceProblem } from './DeviceProblem'
-import { focusAfterLeave, focusLost } from './focus'
+import { focusAfterLeave, focusOnBar } from './focus'
 import { useJoinsAnnouncement } from './joins'
 import type { MediaKind } from './media'
 import { PermissionPrimer } from './PermissionPrimer'
@@ -152,7 +152,7 @@ function InCall({ members, reactions }: { members: Member[]; reactions: boolean 
   const speakFocus = useRef(false)
   // Joined from the Call tab: Join call went away under the focus, which moves on to the bar's first control.
   useEffect(() => {
-    if (focusLost()) devicesRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    if (focusOnBar()) devicesRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
   }, [])
   useEffect(() => {
     const lost = !document.activeElement || document.activeElement === document.body
