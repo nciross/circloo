@@ -8,13 +8,14 @@ import { PRESENTATION } from '../catalog'
 import { useRoom } from '../room'
 import { PeopleList } from './PeopleList'
 import { CallPanel } from '../stage/CallPanel'
+import { useStage } from '../stage/stage'
 import { RoomSidebar, type SideTab } from './RoomSidebar'
 import { activeTab, type SideState } from './useSide'
 import { unreadCount } from './sidebar'
 
 /**
  * The room's side area with what exists today: People, Chat when the current activity is not itself a chat, and Call
- * (the Live discussion switch and the stage to come). The hands queue (#184) joins as another tab with its count passed as `hands`.
+ * (the switch, Join call and the people in the call, with their number on the tab while a call is on). The hands queue (#184) joins as another tab with its count passed as `hands`.
  * The side state lives in the room, so the work bar can open a tab too.
  */
 export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite, hands }: {
@@ -33,6 +34,8 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
 }) {
   const { t } = useTranslation()
   const messages = useRoom((s) => s.messages)
+  const callOn = useStage((s) => s.discussion?.on ?? false)
+  const inCall = useStage((s) => s.roster.length)
   const mine = messages.filter((m) => m.activityId === chatActivity)
   const [seenRaw, setSeen] = useState({ of: chatActivity, n: 0 })
   // What was read belongs to one activity's conversation; another activity starts with nothing unread.
@@ -67,6 +70,8 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
     id: 'call',
     label: t('circles.room.callTab'),
     icon: <Phone size={15} />,
+    badge: callOn ? inCall : 0,
+    badgeLabel: t('circles.call.inCall', { count: inCall }),
     panel: <CallPanel isAnimator={isAnimator} members={members} hands={hands} />,
   })
   const chatShown = !!chatActivity && side.open && activeTab(tabs, side.tab) === 'chat'

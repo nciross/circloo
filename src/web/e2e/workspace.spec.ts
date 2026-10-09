@@ -99,17 +99,18 @@ test('workspace: work bar, whiteboard at the centre, rail and Call tab (#244)', 
     await tabs.last().click()
   }
 
-  // Call tab: the real Live discussion switch, off by default; the stage is marked Soon.
+  // Call tab: the real Live discussion switch, off by default; no call yet, so nobody can join.
   const toggle = side.getByRole('switch')
   await expect(toggle).toHaveAttribute('aria-checked', 'false')
-  await expect(side.locator('.call__stage .lozenge')).toBeVisible()
+  await expect(side.locator('.call__join')).toHaveCount(0)
   await axe(page)
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-checked', 'true')
   const theoSide = theo.locator('[data-slot="room-side"]')
   // Participants see whether it is on, never the switch.
   await theoSide.getByRole('tab').last().click()
-  await expect(theoSide.locator('.call__state')).toHaveText(ar ? 'النقاش المباشر مفعّل.' : 'Live discussion is on.')
+  await expect(theoSide.locator('.call__state')).toHaveText(ar ? 'مكالمة فيديو جارية.' : 'A video call is on.')
+  await expect(theoSide.locator('.call__join')).toBeVisible()
   await expect(theoSide.getByRole('switch')).toHaveCount(0)
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-checked', 'false')

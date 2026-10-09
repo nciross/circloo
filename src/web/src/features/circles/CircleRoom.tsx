@@ -15,11 +15,15 @@ import { PresenterView } from './present/PresenterView'
 import { ParticipantView } from './present/ParticipantView'
 import { PresentationPicker } from './present/PresentationPicker'
 import { useCircleConnection, useRoom } from './room'
+import { CallControls, type CentreView } from './stage/CallControls'
+import { CallStage } from './stage/CallStage'
+import { useStage } from './stage/stage'
 import { RoomPanels } from './room/RoomPanels'
 import { roundStartedAt } from './room/sidebar'
 import { useSideState } from './room/useSide'
 import { WorkBar } from './room/WorkBar'
 import { WorkspaceDock } from './room/WorkspaceDock'
+import '../../styles/call.css'
 import '../../styles/circles.css'
 import '../../styles/integrations.css'
 import '../../styles/present.css'
@@ -46,6 +50,12 @@ export default function CircleRoom() {
   // Lifted here so the work bar's people strip can open the People tab, like the rail does.
   const side = useSideState()
   const roomRef = useRef<HTMLDivElement>(null)
+  // While you are in a call the centre shows the call or the round; null follows the default below.
+  const connection = useStage((s) => s.connection)
+  const videoCall = useStage((s) => s.discussion?.videoAllowed ?? false)
+  const [picked, setPicked] = useState<CentreView | null>(null)
+  const inCall = connection === 'joining' || connection === 'connected' || connection === 'reconnecting'
+  if (!inCall && picked !== null) setPicked(null)
   useDocumentTitle('circles.room.title')
 
   useEffect(() => {
@@ -62,6 +72,11 @@ export default function CircleRoom() {
   useEffect(() => {
     if (boardOpen && !sideWide) setSheet('closed')
   }, [boardOpen, sideWide, setSheet])
+  // The same for the call's grid: it folds the sheet once when it opens on a phone.
+  const stageOpen = inCall && picked !== 'round' && (picked === 'call' || videoCall)
+  useEffect(() => {
+    if (stageOpen && !sideWide) setSheet('closed')
+  }, [stageOpen, sideWide, setSheet])
   useLayoutEffect(() => {
     const root = roomRef.current
     const centre = root?.querySelector<HTMLElement>('.room__centre')
@@ -117,6 +132,11 @@ export default function CircleRoom() {
   const members = ready ? room.members : view.members
   const centreLabel = activity && activityById(activity) ? t(`activities.${activity}.title`) : t('circles.room.centre')
   const presenting = activity === PRESENTATION
+  // The call takes the centre by default in a video call, or when the centre would only say "wait"; otherwise the round
+  // stays and the call is one tap away. The round stays mounted under the call (hidden), so nothing it holds is lost.
+  const hasRound = !!activity || isAnimator
+  const centreView: CentreView = !inCall ? 'round' : (picked ?? (videoCall || !hasRound ? 'call' : 'round'))
+  const roundLabel = activity && activityById(activity) ? t(`activities.${activity}.title`) : isAnimator ? t('circles.room.centre') : undefined
 
   return (
     <div ref={roomRef} className="page room">
@@ -154,7 +174,8 @@ export default function CircleRoom() {
         </div>
       ) : (
         <div className={['room__grid', presenting && isAnimator && live ? 'is-presenting' : '', presenting && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
-          <section id={CENTRE_ID} className="room__main room__centre" aria-label={centreLabel} tabIndex={-1}>
+          <section id={CENTRE_ID} className={`room__main room__centre${centreView === 'call' ? ' is-call' : ''}`} aria-label={centreView === 'call' ? t('circles.call.stageTitle') : centreLabel} tabIndex={-1}>
+            {centreView === 'call' ? <CallStage members={members} floor={view.hands?.floor ?? null} /> : null}
             {presenting ? (
               <div className="room__reveal">
                 {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
@@ -182,6 +203,7 @@ export default function CircleRoom() {
                 </div>
               </section>
             )}
+            <CallControls members={members} view={centreView} onView={hasRound ? setPicked : undefined} roundLabel={roundLabel} />
           </section>
           <RoomPanels
             side={side}
