@@ -166,7 +166,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: 40 phones tap 👏 within 2 s. Every screen shows a short burst ending in "👏 ×40" with at most 12 moving emoji. The results show "Reactions: 👏 40".
 
-- [ ] T807 [P] [US4] **Reactions hub.** (#181)
+- [x] T807 [P] [US4] **Reactions hub.** (#181)
   - `React(kind)` in `src/Circloo.Api/Circles/CircleHub.Room.cs`:
     - kinds "`clap heart laugh wow like party`" (`reaction-invalid` otherwise);
     - silently dropped when reactions are off or the member is over 5 per 10 s (`RoomLimits`).
