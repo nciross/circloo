@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Hand, MessageCircle, Phone, Users } from 'lucide-react'
 import type { Member } from '../../../api/circles'
-import { Chat } from '../Chat'
+import { ChatPanel } from './ChatPanel'
 import { InviteCard } from '../parts'
 import { PRESENTATION } from '../catalog'
 import { useRoom } from '../room'
@@ -67,7 +67,7 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
       icon: <MessageCircle size={15} />,
       badge: unread,
       badgeLabel: t('circles.room.unread', { count: unread }),
-      panel: <Chat activityId={chatActivity} hideEnd={chatActivity === PRESENTATION} />,
+      panel: <ChatPanel activityId={chatActivity} hideEnd={chatActivity === PRESENTATION} />,
     })
   }
   tabs.push({

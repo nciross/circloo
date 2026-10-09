@@ -1164,6 +1164,54 @@
         "party_one": "{{count}} fiesta",
         "party_other": "{{count}} fiestas"
       }
+    },
+    "chat": {
+      "you": "Tú",
+      "like": "Me gusta",
+      "liked": "Te gusta",
+      "likeHint": "Dar me gusta al mensaje de {{name}}",
+      "unlikeHint": "Quitar tu me gusta",
+      "likes_one": "{{count}} me gusta",
+      "likes_other": "{{count}} me gusta",
+      "hide": "Ocultar el mensaje de {{name}} para todos",
+      "unhide": "Mostrar de nuevo",
+      "hiddenTag": "Oculto para el círculo",
+      "newMessages_one": "{{count}} mensaje nuevo",
+      "newMessages_other": "{{count}} mensajes nuevos",
+      "say": {
+        "one": "{{name}}: {{text}}",
+        "many_one": "{{count}} mensaje nuevo",
+        "many_other": "{{count}} mensajes nuevos"
+      },
+      "pausedTitle": "El animador pausó el chat",
+      "pausedBody": "Aún puedes leer los mensajes.",
+      "pausedAnimator": "En pausa para los participantes. Tú puedes seguir escribiendo.",
+      "slowRule_one": "Modo lento: un mensaje por segundo.",
+      "slowRule_other": "Modo lento: un mensaje cada {{count}} segundos.",
+      "slowWait_one": "Modo lento: podrás escribir en {{count}} segundo.",
+      "slowWait_other": "Modo lento: podrás escribir en {{count}} segundos.",
+      "slowAnimator_one": "Modo lento para los participantes: un mensaje por segundo. Tú no tienes límite.",
+      "slowAnimator_other": "Modo lento para los participantes: un mensaje cada {{count}} segundos. Tú no tienes límite.",
+      "settings": {
+        "title": "Chat y reacciones",
+        "chatTitle": "Chat",
+        "chat": "Chat",
+        "open": "Abierto",
+        "slow": "Lento",
+        "paused": "En pausa",
+        "openHelp": "Todos pueden escribir.",
+        "slowHelp": "Cada participante puede enviar un mensaje cada 10 segundos.",
+        "pausedHelp": "Los participantes leen pero no escriben. Tú sí puedes.",
+        "reactions": "Reacciones",
+        "reactionsOn": "Todos pueden reaccionar sobre la diapositiva.",
+        "reactionsOff": "La barra de reacciones está oculta para todos."
+      },
+      "errors": {
+        "chat-paused": "El animador pausó el chat.",
+        "own-message": "No puedes dar me gusta a tu propio mensaje.",
+        "message-hidden": "El animador ocultó este mensaje.",
+        "settings-invalid": "Ese ajuste no está disponible."
+      }
     }
   },
   "boards": {

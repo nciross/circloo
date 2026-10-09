@@ -7,6 +7,7 @@ import { bindStage, configureStage, resetStage, useStage } from './stage/stage'
 import { PRESENTATION } from './catalog'
 import { bindReactions, useReactions, type ReactionKind } from './room/reactions'
 import { cleanHands, NO_HANDS } from './room/hands'
+import { patchMessage, upsertMessage } from './room/grouping'
 import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, HandsView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
@@ -45,6 +46,10 @@ interface RoomState {
   load: (view: CircleView) => void
   say: (text: string) => Promise<void>
   ask: (text: string) => Promise<void>
+  /** Toggles your like on someone else's message (spec 008 US3); the hub answers with `MyLike` and the new count. */
+  likeMessage: (id: number) => Promise<void>
+  /** Animator only: hides a message from everyone else, or shows it again. */
+  hideMessage: (id: number, hidden: boolean) => Promise<void>
   start: (activityId: string) => Promise<void>
   end: () => Promise<void>
   addNote: (column: string, text: string, color: NoteColor) => Promise<void>
@@ -206,6 +211,9 @@ export const useRoom = create<RoomState>()((set) => ({
     await invoke('AskCircloo', text)
     lastTyping = 0
   },
+  // Not through `invoke`: a refused like or hide is said beside the chat, the composer's error line stays for sending.
+  likeMessage: (id) => call('LikeMessage', id),
+  hideMessage: (id, hidden) => call('HideMessage', id, hidden),
   start: (activityId) => invoke('StartActivity', activityId),
   end: () => invoke('EndActivity'),
   addNote: (column, text, color) => invoke('AddNote', column, text, color),
@@ -286,7 +294,8 @@ export function useCircleConnection(view: CircleView | undefined) {
     const add = (m: Message) => {
       // A message from someone ends their "typing…" at once.
       if (m.memberId) stopTyping(m.memberId)
-      useRoom.setState((s) => (s.messages.some((x) => x.id === m.id) ? s : { messages: [...s.messages, m], draft: m.kind === 'ai' ? '' : s.draft }))
+      // An upsert by id in id order: a message shown again, hidden (the animator's copy) or with new likes replaces the old one.
+      useRoom.setState((s) => ({ messages: upsertMessage(s.messages, m), draft: m.kind === 'ai' ? '' : s.draft }))
     }
 
     // Presence updates are grouped on the server (spec 008): one that arrives before Enter returns is the fresher list.
@@ -343,6 +352,15 @@ export function useCircleConnection(view: CircleView | undefined) {
       window.clearTimeout(typingTimers.get(memberId))
       typingTimers.set(memberId, window.setTimeout(() => stopTyping(memberId), TYPING_TTL))
     })
+    // The chat's moderation and likes (spec 008 US3). The animator keeps a hidden message, marked: their copy comes as `Message`.
+    connection.on('MessageHidden', (messageId: number) => {
+      if (useRoom.getState().me?.role === 'animator') return
+      useRoom.setState((s) => ({ messages: s.messages.filter((x) => x.id !== messageId) }))
+    })
+    connection.on('MessageLikes', (messageId: number, count: number) =>
+      useRoom.setState((s) => ({ messages: patchMessage(s.messages, messageId, { likes: count }) })))
+    connection.on('MyLike', (messageId: number, liked: boolean) =>
+      useRoom.setState((s) => ({ messages: patchMessage(s.messages, messageId, { liked }) })))
     connection.onreconnecting(() => useRoom.setState({ status: 'reconnecting' }))
     connection.onreconnected(async () => {
       useRoom.setState({ status: 'live' })

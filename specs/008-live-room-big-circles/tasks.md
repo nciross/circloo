@@ -143,7 +143,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - settings reset on activity change and when a presentation ends.
 
   Depends on T801.
-- [ ] T806 [US3] **Chat UI.** (#180)
+- [x] T806 [US3] **Chat UI.** (#180)
   - `src/web/src/features/circles/room/ChatPanel.tsx` wraps `Chat`:
     - groups a sender's consecutive messages under one name with character and ring;
     - like button with count and "you liked" by icon and label;
