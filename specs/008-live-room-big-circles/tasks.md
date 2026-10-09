@@ -182,7 +182,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - a connection that is not a member of the circle is refused (FR-830).
 
   Depends on T801.
-- [ ] T808 [US4] **Reactions UI.** (#182)
+- [x] T808 [US4] **Reactions UI.** (#182)
   - `src/web/src/features/circles/room/ReactionBar.tsx` under the slide for participants and the animator: 6 buttons ≥ 44 px, labelled, hidden when reactions are off.
   - `src/web/src/features/circles/room/ReactionLayer.tsx` over the slide stage:
     - floats from the bottom edge, fades in about 2 s;
