@@ -1075,6 +1075,12 @@ test.describe('journey', () => {
     const open = side.locator('.call__mode-seg .seg__opt').nth(1)
     await open.click()
     await expect(open).toHaveAttribute('aria-pressed', 'true')
+    // The chosen mode's icon stays visible on its dark pill: it takes the label's colour, not the page's ink.
+    // Polled: the colours ease in.
+    await expect.poll(() => open.evaluate((o) => {
+      const icon = o.querySelector('.seg__icon')
+      return icon ? getComputedStyle(icon).color === getComputedStyle(o).color && getComputedStyle(o).color !== getComputedStyle(o).backgroundColor : false
+    })).toBe(true)
     for (const g of guests) {
       await expect(mic(g.page)).toBeVisible()
       await expect(mic(g.page)).not.toHaveAttribute('aria-disabled', 'true')
