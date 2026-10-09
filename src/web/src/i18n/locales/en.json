@@ -1003,6 +1003,54 @@
         "party_one": "{{count}} celebration",
         "party_other": "{{count}} celebrations"
       }
+    },
+    "chat": {
+      "you": "You",
+      "like": "Like",
+      "liked": "Liked",
+      "likeHint": "Like {{name}}’s message",
+      "unlikeHint": "Take your like back",
+      "likes_one": "{{count}} like",
+      "likes_other": "{{count}} likes",
+      "hide": "Hide {{name}}’s message from everyone",
+      "unhide": "Show again",
+      "hiddenTag": "Hidden from the circle",
+      "newMessages_one": "{{count}} new message",
+      "newMessages_other": "{{count}} new messages",
+      "say": {
+        "one": "{{name}}: {{text}}",
+        "many_one": "{{count}} new message",
+        "many_other": "{{count}} new messages"
+      },
+      "pausedTitle": "The animator paused the chat",
+      "pausedBody": "You can still read the messages.",
+      "pausedAnimator": "Paused for participants. You can still write.",
+      "slowRule_one": "Slow mode: one message every second.",
+      "slowRule_other": "Slow mode: one message every {{count}} seconds.",
+      "slowWait_one": "Slow mode: you can write again in {{count}} second.",
+      "slowWait_other": "Slow mode: you can write again in {{count}} seconds.",
+      "slowAnimator_one": "Slow mode for participants: one message every second. You are not limited.",
+      "slowAnimator_other": "Slow mode for participants: one message every {{count}} seconds. You are not limited.",
+      "settings": {
+        "title": "Chat and reactions",
+        "chatTitle": "Chat",
+        "chat": "Chat",
+        "open": "Open",
+        "slow": "Slow",
+        "paused": "Paused",
+        "openHelp": "Everyone can write.",
+        "slowHelp": "Each participant can send one message every 10 seconds.",
+        "pausedHelp": "Participants can read but not write. You still can.",
+        "reactions": "Reactions",
+        "reactionsOn": "Everyone can react over the slide.",
+        "reactionsOff": "The reaction bar is hidden for everyone."
+      },
+      "errors": {
+        "chat-paused": "The animator paused the chat.",
+        "own-message": "You cannot like your own message.",
+        "message-hidden": "The animator hid this message.",
+        "settings-invalid": "That setting is not available."
+      }
     }
   },
   "boards": {

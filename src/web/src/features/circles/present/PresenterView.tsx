@@ -11,6 +11,7 @@ import { AnswerProgress } from './AnswerProgress'
 import { ReactionBar } from '../room/ReactionBar'
 import { ReactionLayer } from '../room/ReactionLayer'
 import { ReactionTally } from '../room/ReactionTally'
+import { RoomSettings } from '../room/RoomSettings'
 import { useReactions } from '../room/reactions'
 
 /** Opens and closes answering on a question slide, then reveals its results (spec 006 US4, US5); a quiz shows its countdown while open. */
@@ -66,6 +67,7 @@ function QuestionControls({ state }: { state: PresentationState }) {
  * n/N and how many follow, and the controls. Notes and the next slide reach only the animator's own connections.
  * Keyboard shortcuts work while focus is inside this view (WCAG 2.1.4), which takes focus when it opens.
  * The room's reactions float over the slide and group beside it, under the controls; the animator may react too.
+ * The chat's mode (open, slow, paused) and the reactions switch sit beside the notes (RoomSettings, spec 008 T806).
  */
 export function PresenterView({ state, circleId }: { state: PresentationState; circleId: string }) {
   const { t, i18n } = useTranslation()
@@ -180,6 +182,7 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
       <aside className="presenter__side" aria-busy={!notesReady || undefined}>
         <p className="presenter__followers" data-count={followers}><Users size={16} aria-hidden="true" /> {t('present.following', { count: followers })}</p>
         <AnswerProgress state={state} members={members} />
+        <RoomSettings className="presenter__settings" />
         <section className="presenter__next-slide" aria-labelledby="present-next">
           <h3 id="present-next" className="presenter__label">{t('present.upNext')}</h3>
           {!notesReady ? null : upcoming ? (

@@ -6,7 +6,7 @@ import { useDocumentTitle } from '../../app/locale'
 import { PageHeader } from '../../components/PageHeader'
 import { Loading } from '../../components/Loading'
 import { Panda } from '../../components/Panda'
-import { Chat } from './Chat'
+import { ChatPanel } from './room/ChatPanel'
 import { Board } from './Board'
 import { Canvas } from './Canvas'
 import { BOARD_COLUMNS, CANVAS, PRESENTATION, activityById } from './catalog'
@@ -169,7 +169,7 @@ export default function CircleRoom() {
               </div>
             ) : activity ? (
               <div key={activity} className="room__reveal">
-                <Chat activityId={activity} />
+                <ChatPanel activityId={activity} />
               </div>
             ) : isAnimator ? (
               <WorkspaceDock activities={view.activities} onStart={(a) => void start(a)} starting={starting} error={room.error} />

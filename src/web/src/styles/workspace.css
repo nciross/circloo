@@ -69,6 +69,12 @@
     block-size: auto;
     min-block-size: 26rem;
   }
+  /* A chat round fills the frame and scrolls inside its own list, so new messages never move the page (spec 008 US3). */
+  .room__centre > .room__reveal:has(> .chat) {
+    flex: 1 1 0;
+    grid-template-rows: minmax(0, 1fr);
+    min-block-size: 26rem;
+  }
   /* The sheet grew with the centre; its help line keeps a readable measure. */
   .room__centre .canvas__hint {
     max-inline-size: 80ch;

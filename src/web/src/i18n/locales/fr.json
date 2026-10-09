@@ -1001,6 +1001,54 @@
         "party_one": "{{count}} fête",
         "party_other": "{{count}} fêtes"
       }
+    },
+    "chat": {
+      "you": "Toi",
+      "like": "J’aime",
+      "liked": "Aimé",
+      "likeHint": "Aimer le message de {{name}}",
+      "unlikeHint": "Retirer ton j’aime",
+      "likes_one": "{{count}} j’aime",
+      "likes_other": "{{count}} j’aime",
+      "hide": "Masquer le message de {{name}} pour tout le monde",
+      "unhide": "Afficher à nouveau",
+      "hiddenTag": "Masqué pour le cercle",
+      "newMessages_one": "{{count}} nouveau message",
+      "newMessages_other": "{{count}} nouveaux messages",
+      "say": {
+        "one": "{{name}} : {{text}}",
+        "many_one": "{{count}} nouveau message",
+        "many_other": "{{count}} nouveaux messages"
+      },
+      "pausedTitle": "L’animateur a mis le chat en pause",
+      "pausedBody": "Tu peux toujours lire les messages.",
+      "pausedAnimator": "En pause pour les participants. Toi, tu peux écrire.",
+      "slowRule_one": "Mode lent : un message par seconde.",
+      "slowRule_other": "Mode lent : un message toutes les {{count}} secondes.",
+      "slowWait_one": "Mode lent : tu pourras écrire dans {{count}} seconde.",
+      "slowWait_other": "Mode lent : tu pourras écrire dans {{count}} secondes.",
+      "slowAnimator_one": "Mode lent pour les participants : un message par seconde. Toi, tu n’es pas limité.",
+      "slowAnimator_other": "Mode lent pour les participants : un message toutes les {{count}} secondes. Toi, tu n’es pas limité.",
+      "settings": {
+        "title": "Chat et réactions",
+        "chatTitle": "Chat",
+        "chat": "Chat",
+        "open": "Ouvert",
+        "slow": "Lent",
+        "paused": "En pause",
+        "openHelp": "Tout le monde peut écrire.",
+        "slowHelp": "Chaque participant peut envoyer un message toutes les 10 secondes.",
+        "pausedHelp": "Les participants lisent mais n’écrivent plus. Toi, tu peux toujours écrire.",
+        "reactions": "Réactions",
+        "reactionsOn": "Tout le monde peut réagir sur la diapo.",
+        "reactionsOff": "La barre de réactions est masquée pour tout le monde."
+      },
+      "errors": {
+        "chat-paused": "L’animateur a mis le chat en pause.",
+        "own-message": "Tu ne peux pas aimer ton propre message.",
+        "message-hidden": "L’animateur a masqué ce message.",
+        "settings-invalid": "Ce réglage n’est pas disponible."
+      }
     }
   },
   "boards": {
