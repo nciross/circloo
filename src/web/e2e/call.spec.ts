@@ -70,7 +70,7 @@ test.describe('call', () => {
     for (const g of guests) {
       const tile = g.page.locator(`.call-tile[data-member="${circle.me}"]`)
       await expect(tile).toHaveClass(/is-speaking/, { timeout: 10_000 })
-      await expect(tile.locator('.call-tile__speaking')).toHaveText(ar ? 'يتحدث' : 'Speaking')
+      await expect(tile.locator('.call-tile__speaking')).toHaveText(ar ? 'قيد الحديث' : 'Speaking')
     }
 
     // Cameras off: characters and names, never an empty box; a camera switched on shows its video.
@@ -890,7 +890,7 @@ test.describe('conversation', () => {
     }
     // Words, not codes: the animator reads her own action as "You", the others her name; the burst names both hands.
     await expect(live(page).first()).toHaveText(ar ? 'بدأت مكالمة' : 'You started a call')
-    await expect(live(amina.page).first()).toHaveText(ar ? /^بدأ .?نادية.? مكالمة$/ : /^.?Nadia.? started a call$/)
+    await expect(live(amina.page).first()).toHaveText(ar ? /^مكالمة جديدة بدعوة من .?نادية.?$/ : /^.?Nadia.? started a call$/)
     for (const name of [theo.name, amina.name]) await expect(live(page).nth(1)).toContainText(name)
     await expect(live(amina.page).nth(2)).toContainText(theo.name)
     await axe(amina.page)

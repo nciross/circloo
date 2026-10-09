@@ -119,7 +119,7 @@ describe('liveLineText', () => {
     await i18n.changeLanguage('ar')
     try {
       expect(say({ kind: 'hands', dir: 'up', memberIds: ['a', 'l', 't'] }, 'k', 'ar')).toBe('رُفعت 3 أيادٍ')
-      expect(say({ kind: 'notice', notice: 'call-started', by: 't' }, 'k', 'ar')).toBe('بدأ Théo مكالمة')
+      expect(say({ kind: 'notice', notice: 'call-started', by: 't' }, 'k', 'ar')).toBe('مكالمة جديدة بدعوة من Théo')
     } finally {
       await i18n.changeLanguage('en')
     }

@@ -90,7 +90,7 @@ describe('HandsQueue for a participant', () => {
     enter(kenji, raised(['a', 'k']))
     render(<HandsQueue />)
     expect(screen.getByText('ترتيبك في الدور: 2')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'أنزل يدك' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'إنزال اليد' })).toBeInTheDocument()
   })
 })
 
