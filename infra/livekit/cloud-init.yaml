@@ -1,0 +1,75 @@
+#cloud-config
+# The call server VM, first boot (spec 009 T917, research R23). Passed as the VM's customData by
+# infra/modules/livekit.bicep.
+#
+# Azure cannot change a VM's customData once the VM exists, so this file holds nothing that depends on a deployment
+# and should rarely change (a change here needs the VM deleted and provisioned again). Everything else (the LiveKit
+# and Caddy configuration, image pins, names, addresses) is in infra/livekit/boot.sh, which livekit.bicep fills in
+# and stores as the VM's userData. A deployment can update userData; circloo-calls.service reads it from the instance
+# metadata service (IMDS) and runs it at every boot, so a change is applied at the next start or restart.
+#
+# Nothing listens for SSH: the NSG has no SSH rule and sshd is masked below. Use Run Command
+# (az vm run-command invoke) to look inside, and rebuild the VM rather than repair it.
+package_update: true
+package_upgrade: true
+packages:
+  - docker.io
+  - jq
+  - unattended-upgrades
+write_files:
+  # Automatic OS security updates, with a reboot at night when a kernel update needs one.
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  - path: /etc/apt/apt.conf.d/52circloo-reboot
+    content: |
+      Unattended-Upgrade::Automatic-Reboot "true";
+      Unattended-Upgrade::Automatic-Reboot-Time "03:00";
+  # Logs stay 3 days on the VM and are not shipped anywhere (research R26). The containers log to journald.
+  - path: /etc/systemd/journald.conf.d/50-circloo.conf
+    content: |
+      [Journal]
+      MaxRetentionSec=3day
+      SystemMaxUse=500M
+  - path: /usr/local/sbin/circloo-calls-boot
+    permissions: '0700'
+    content: |
+      #!/bin/bash
+      # Runs this VM's userData (infra/livekit/boot.sh as filled in by livekit.bicep), read from IMDS. Every boot.
+      set -euo pipefail
+      umask 077
+      for attempt in $(seq 1 30); do
+        if curl -sf --noproxy '*' -H Metadata:true -o /run/circloo-boot.b64 \
+          'http://169.254.169.254/metadata/instance/compute/userData?api-version=2021-01-01&format=text'; then
+          break
+        fi
+        echo "circloo-calls: waiting for the instance metadata service ($attempt)"
+        sleep 5
+      done
+      base64 -d /run/circloo-boot.b64 > /run/circloo-boot.sh
+      exec /bin/bash /run/circloo-boot.sh
+  - path: /etc/systemd/system/circloo-calls.service
+    content: |
+      [Unit]
+      Description=circloo call server (LiveKit behind Caddy)
+      Wants=network-online.target docker.service
+      After=network-online.target docker.service
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      TimeoutStartSec=30min
+      # Tried again every minute until it works (for example while the Key Vault role assignment propagates).
+      Restart=on-failure
+      RestartSec=60
+      ExecStart=/usr/local/sbin/circloo-calls-boot
+      [Install]
+      WantedBy=multi-user.target
+runcmd:
+  - systemctl restart systemd-journald
+  - systemctl disable --now ssh.socket ssh.service || true
+  - systemctl mask ssh.socket ssh.service || true
+  - systemctl enable --now docker
+  - systemctl daemon-reload
+  - systemctl enable circloo-calls.service
+  - systemctl start --no-block circloo-calls.service
