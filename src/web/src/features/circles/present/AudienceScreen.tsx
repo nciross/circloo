@@ -3,7 +3,7 @@ import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 import QRCode from 'qrcode'
-import { Maximize, Minimize } from 'lucide-react'
+import { Hand, Maximize, Minimize } from 'lucide-react'
 import { useCircle } from '../../../api/circles'
 import { useDocumentTitle } from '../../../app/locale'
 import { Panda } from '../../../components/Panda'
@@ -14,6 +14,7 @@ import { AnswerProgress } from './AnswerProgress'
 import { ReactionLayer } from '../room/ReactionLayer'
 import { ReactionTally } from '../room/ReactionTally'
 import { bindReactions, useReactions } from '../room/reactions'
+import { cleanHands } from '../room/hands'
 import '../../../styles/circles.css'
 import '../../../styles/present.css'
 
@@ -49,7 +50,8 @@ const showJoin = (state: PresentationState | null) => !state || state.phase !== 
 /**
  * The audience screen for a projector or TV (spec 006 US3 #7): the animator opens it in another window. It follows
  * the presentation with no controls, notes or next slide, and it does not count as someone in the room. The room's
- * reactions float over the slide and group in the starting corner (spec 008 US4), with no names.
+ * reactions float over the slide and group in the starting corner (spec 008 US4), with no names. Raised hands show as
+ * "n hands up" in the ending corner, never who raised them (spec 008 US5, FR-820).
  */
 export default function AudienceScreen() {
   const { t } = useTranslation()
@@ -62,6 +64,8 @@ export default function AudienceScreen() {
   const [status, setStatus] = useState<Status>('connecting')
   const [full, setFull] = useState(false)
   const [idle, setIdle] = useState(false)
+  // The hub sends the queue with member ids; the projector keeps the count only.
+  const [handsUp, setHandsUp] = useState(0)
   const root = useRef<HTMLElement>(null)
   useDocumentTitle('present.audienceTitle')
 
@@ -70,6 +74,7 @@ export default function AudienceScreen() {
     const connection = new HubConnectionBuilder().withUrl('/hubs/circle').withAutomaticReconnect().configureLogging(LogLevel.Error).build()
     bindPresentation(connection)
     bindReactions(connection)
+    connection.on('Hands', (view: unknown) => setHandsUp(cleanHands(view).queue.length))
     const enter = async () => {
       try {
         receive(await connection.invoke<PresentationState | null>('EnterAudience', id))
@@ -156,6 +161,13 @@ export default function AudienceScreen() {
       {join ? <JoinCard code={code} /> : null}
       {/* The room's reactions, grouped, in the projector's palette; the display itself announces nothing. */}
       {state && status !== 'refused' ? <ReactionTally waves={waves} totals={totals} announce={false} className="audience__reactions" /> : null}
+      {status !== 'refused' && handsUp > 0 ? (
+        <p className="audience__hands">
+          <Hand className="audience__hands-icon" aria-hidden="true" />
+          {/* Keyed by the count: each change replays the pop. */}
+          <span key={handsUp} className="audience__hands-n">{t('circles.hands.up', { count: handsUp })}</span>
+        </p>
+      ) : null}
       {status === 'reconnecting' || status === 'offline' ? (
         <p className="audience__status" role="status">{t(status === 'offline' ? 'present.offline' : 'present.reconnecting')}</p>
       ) : null}

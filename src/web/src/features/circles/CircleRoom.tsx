@@ -193,7 +193,6 @@ export default function CircleRoom() {
             announcement={room.announcement}
             chatActivity={chatActivity}
             invite={isAnimator && view.joinCode ? { code: view.joinCode, fresh } : undefined}
-            hands={view.hands}
           />
         </div>
       )}

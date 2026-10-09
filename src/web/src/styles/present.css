@@ -454,6 +454,51 @@
   box-shadow: var(--shadow-overlay);
 }
 
+/* Raised hands on the projector: the count in the ending corner, never a name (spec 008 US5, FR-820). */
+.audience__hands {
+  position: fixed;
+  inset-block-end: clamp(var(--s-3), 2.5vmin, var(--s-7));
+  inset-inline-end: clamp(var(--s-3), 2.5vmin, var(--s-7));
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0;
+  min-block-size: 2.25em;
+  padding-block: 0.2em;
+  padding-inline: 0.6em 0.9em;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: clamp(1rem, 2.8vmin, 2.25rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-overlay);
+  pointer-events: none;
+}
+.audience__hands-icon {
+  inline-size: 1.1em;
+  block-size: 1.1em;
+  flex: none;
+}
+.audience__hands-n {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .audience__hands-n {
+    animation: hands-count-pop var(--dur-move) var(--ease-out);
+  }
+}
+@keyframes hands-count-pop {
+  from {
+    transform: scale(0.85);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 /* ---------- Picker: rows on hairlines, Present as the ink pill ---------- */
 .picker .panel__head {
   display: flex;

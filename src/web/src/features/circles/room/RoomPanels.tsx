@@ -1,23 +1,26 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MessageCircle, Phone, Users } from 'lucide-react'
-import type { HandsView, Member } from '../../../api/circles'
+import { Hand, MessageCircle, Phone, Users } from 'lucide-react'
+import type { Member } from '../../../api/circles'
 import { Chat } from '../Chat'
 import { InviteCard } from '../parts'
 import { PRESENTATION } from '../catalog'
 import { useRoom } from '../room'
 import { PeopleList } from './PeopleList'
+import { HandsQueue } from './HandsQueue'
+import { HandsAnnouncer } from './HandsAnnouncer'
 import { CallPanel } from '../stage/CallPanel'
 import { RoomSidebar, type SideTab } from './RoomSidebar'
 import { activeTab, type SideState } from './useSide'
 import { unreadCount } from './sidebar'
 
 /**
- * The room's side area with what exists today: People, Chat when the current activity is not itself a chat, and Call
- * (the Live discussion switch and the stage to come). The hands queue (#184) joins as another tab with its count passed as `hands`.
+ * The room's side area: People, Chat when the current activity is not itself a chat, Hands (the raised hands queue,
+ * spec 008 US5) and Call (the Live discussion switch and the stage to come). The Hands tab and the phone's closed pill
+ * count the hands waiting; the hands announcer stays mounted whatever tab is open.
  * The side state lives in the room, so the work bar can open a tab too.
  */
-export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite, hands }: {
+export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, announcement, chatActivity, invite }: {
   side: SideState
   isAnimator: boolean
   members: Member[]
@@ -28,11 +31,11 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
   /** The activity whose conversation goes in the sidebar; null when the main area already is the chat, or nothing runs. */
   chatActivity: string | null
   invite?: { code: string; fresh: boolean }
-  /** The raised hands and the floor, for the Call tab's stage. */
-  hands?: HandsView
 }) {
   const { t } = useTranslation()
   const messages = useRoom((s) => s.messages)
+  const hands = useRoom((s) => s.hands)
+  const waiting = hands.queue.length
   const mine = messages.filter((m) => m.activityId === chatActivity)
   const [seenRaw, setSeen] = useState({ of: chatActivity, n: 0 })
   // What was read belongs to one activity's conversation; another activity starts with nothing unread.
@@ -46,7 +49,7 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
       badgeLabel: t('circles.people', { count: members.length }),
       panel: (
         <>
-          <PeopleList members={members} online={online} meId={meId} arrivals={arrivals} />
+          <PeopleList members={members} online={online} meId={meId} arrivals={arrivals} hands={hands} />
           {invite ? <InviteCard code={invite.code} fresh={invite.fresh} /> : null}
         </>
       ),
@@ -64,6 +67,14 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
     })
   }
   tabs.push({
+    id: 'hands',
+    label: t('circles.hands.tab'),
+    icon: <Hand size={15} />,
+    badge: waiting,
+    badgeLabel: t('circles.room.hands', { count: waiting }),
+    panel: <HandsQueue />,
+  })
+  tabs.push({
     id: 'call',
     label: t('circles.room.callTab'),
     icon: <Phone size={15} />,
@@ -72,5 +83,14 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
   const chatShown = !!chatActivity && side.open && activeTab(tabs, side.tab) === 'chat'
   if (chatShown && (seenRaw.of !== chatActivity || seenRaw.n !== mine.length)) setSeen({ of: chatActivity, n: mine.length })
 
-  return <RoomSidebar tabs={tabs} side={side} unread={chatShown ? 0 : unread} announce={announcement ? t('circles.room.joined', { name: announcement }) : ''} />
+  return (
+    <RoomSidebar
+      tabs={tabs}
+      side={side}
+      unread={chatShown ? 0 : unread}
+      hands={waiting}
+      announce={announcement ? t('circles.room.joined', { name: announcement }) : ''}
+      live={<HandsAnnouncer />}
+    />
+  )
 }

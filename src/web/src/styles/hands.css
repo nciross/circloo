@@ -1,0 +1,205 @@
+/*
+ * Raised hands (spec 008 US5, T810), in the buddy-list language of the room's card (#250): the participant's one pill
+ * and their place on top, a sunken line for who is speaking and who is next, then the queue as buddy rows (the
+ * character at 44 px, the name, the waiting time for the animator, the place or the animator's actions at the end).
+ * The block sizes itself by its own width (a container), so the call bar can host it too (spec 009 T927): narrow, the
+ * animator's actions go under the name. Card tokens only, so night and the projector-free room both follow; logical
+ * properties only, so Arabic mirrors by itself. Rows rise into place by transform; nothing fades.
+ */
+.hands {
+  container: hands / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-inline-size: 0;
+}
+
+/* ---------- You: your place, then the one pill ---------- */
+.hands__me {
+  display: grid;
+  gap: var(--s-3);
+}
+.hands__place {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--on-card);
+}
+.hands__btn {
+  inline-size: 100%;
+}
+
+/* ---------- Now: who is speaking, who is next ---------- */
+.hands__now {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--s-3);
+  row-gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.hands__now.has-floor {
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+}
+/* The animator's End turn: beside the line when there is room, under it when narrow (below). */
+.hands__end {
+  justify-self: end;
+}
+.hands__now-char {
+  display: block;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+}
+.hands__now-char > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.hands__now-text {
+  margin: 0;
+  min-inline-size: 0;
+  font-size: var(--fs-md);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.hands__speaking {
+  font-weight: 800;
+}
+.hands__next {
+  color: var(--on-card-soft);
+  font-weight: 600;
+}
+.hands__dot {
+  color: var(--on-card-faint);
+}
+
+/* ---------- The line: an eyebrow (with the animator's Lower all), then buddy rows in the order hands went up ---------- */
+.hands__line {
+  display: grid;
+  gap: var(--s-1);
+}
+.hands__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-1) var(--s-2);
+  min-block-size: 2.25rem;
+}
+.hands__title {
+  margin: 0;
+  padding-inline: var(--s-1);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-card-faint);
+}
+:lang(ar) .hands__title {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.hands__empty {
+  margin: 0;
+  padding: var(--s-2) var(--s-1);
+}
+.hands__queue {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hands__row {
+  padding-inline: var(--s-1);
+}
+/* One line per person: the character does not span the buddy's second row. */
+.hands__row > .buddy__char {
+  grid-row: auto;
+}
+.hands__char > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.hands__row.is-me {
+  border-radius: var(--r-sm);
+  background: var(--card-hover);
+}
+.hands__text {
+  display: grid;
+  min-inline-size: 0;
+}
+.hands__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--on-card);
+}
+.hands__you {
+  font-weight: 400;
+  color: var(--on-card-faint);
+}
+.hands__pos {
+  color: var(--on-card);
+}
+.hands__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+.hands .btn:focus-visible,
+.hands__title:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* A text pill at the eyebrow's end, without the card's outline: present, never louder than Give the floor. */
+.hands .hands__all {
+  --btn-ring: transparent;
+  margin-inline-end: calc(var(--s-2) * -1);
+  padding-inline: var(--s-3);
+}
+.hands__error {
+  margin: 0;
+}
+
+/* Narrow (the room's card on a laptop, a phone in French): the animator's actions go under the name. */
+@container hands (max-width: 25rem) {
+  /* Who speaks and who is next on two lines, End turn under them. */
+  .hands__speaking,
+  .hands__next {
+    display: block;
+  }
+  .hands__dot {
+    display: none;
+  }
+  .hands__now.has-floor {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+  }
+  .hands__now.has-floor > .hands__now-char {
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+  .hands__now > .hands__end {
+    grid-column: -2;
+    justify-self: start;
+  }
+  .hands__row.has-actions {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+  }
+  .hands__row.has-actions > .buddy__char {
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+  .hands__row.has-actions > .hands__actions {
+    grid-column: 2;
+  }
+}
+
+/* Phones: every control 44 px. */
+@media (max-width: 59.99rem) {
+  .hands .btn--sm {
+    min-block-size: 2.75rem;
+  }
+}
