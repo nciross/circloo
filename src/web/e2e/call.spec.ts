@@ -8,8 +8,8 @@ import {
   trackPeerConnections, transportProtocols, watchCsp, type Peers, type Snapshot,
 } from './call-helpers'
 
-// Spec 009 T925, T926, T907 and T927: the call on every screen, the animator's controls, the devices, and hands and
-// reactions, against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for
+// Spec 009 T925, T926, T907, T927 and T909: the call on every screen, the animator's controls, the devices, hands and
+// reactions, and the conversation with its replies and live lines, against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for
 // the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic.
 // E2E_CALL_PEERS sets how many pages fill the paging test (12 by default), how many pages clap together in the
 // reactions test (20 by default) and how many pages the measurements use (4 by default, T928); lower it on a machine
@@ -801,6 +801,131 @@ async function endCall(page: Page) {
 }
 
 let baseline: Snapshot | null = null
+
+test.describe('conversation', () => {
+  // T909 (spec 009 US5): the circle chat is the conversation, with one-level replies and live lines for the call and the
+  // hands that are never stored. Nobody needs to join the call: the lines come from the hub's notices.
+  test('conversation: post, reply in a thread, order, hide, live lines that a reload does not bring back (spec 009 US5)', async ({ page, browser }, info) => {
+    test.setTimeout(240_000)
+    const locale = localeOf(info)
+    const ar = locale === 'ar'
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    watchCsp(page, csp)
+    await quietPirikoo(page)
+    await signIn(page, locale, 'e2e-conversation')
+    const circle = await createCircle(page, locale)
+    const amina = await guest(browser, circle.code, 0, locale, phone, csp)
+    const theo = await guest(browser, circle.code, 1, locale, phone, csp)
+    await page.goto(`/app/circles/${circle.id}`)
+    await expect(page.locator('.people__row.is-online')).toHaveCount(3)
+
+    // A chat round in the centre for everyone.
+    expect(await hubCall(page, circle.id, 'StartActivity', ['quick-question'])).toBeNull()
+    const chat = (p: Page) => p.locator('.room__centre .chat')
+    const input = (p: Page) => chat(p).locator('#composer-input')
+    const top = (p: Page, text: string) => chat(p).locator('.chat__list > .chat__group .chat__msg', { hasText: text })
+    for (const p of [page, amina.page, theo.page]) await expect(input(p)).toBeVisible()
+    const say = async (p: Page, text: string) => {
+      await input(p).fill(text)
+      await input(p).press('Enter')
+      await expect(top(p, text)).toHaveCount(1)
+    }
+
+    // Post: Amina asks, Théo says something else.
+    const [question, other, answer] = ar ? ['من سيحضر الكعكة؟', 'سأتأخر قليلًا', 'لوسيا ستحضرها'] : ['Who brings the cake?', 'I will be a bit late', 'Lucía does']
+    await say(amina.page, question)
+    await say(theo.page, other)
+    const parentId = Number(await top(page, question).getAttribute('data-id'))
+
+    // Reply: "Replying to Amina" with its first words; Escape cancels, keeping the focus in the field.
+    const replyTo = top(page, question).locator('> .chat__body .chat__answer')
+    await replyTo.click()
+    const replying = chat(page).locator('.composer__reply')
+    await expect(replying.locator('.composer__reply-to')).toContainText(amina.name)
+    await expect(replying.locator('.composer__reply-quote')).toHaveText(question)
+    await expect(input(page)).toBeFocused()
+    await axe(page)
+    await input(page).press('Escape')
+    await expect(replying).toHaveCount(0)
+    await expect(input(page)).toBeFocused()
+    await replyTo.click()
+    await input(page).fill(answer)
+    await input(page).press('Enter')
+    await expect(replying).toHaveCount(0)
+
+    // Order: on Amina's screen the answer sits in the thread under her message, one level deep (no Reply on a reply),
+    // and a short line where it happened, after Théo's message, leads to it.
+    const thread = top(amina.page, question).locator('.chat__thread')
+    await expect(thread.locator('.chat__reply')).toHaveCount(1)
+    await expect(thread.locator('.chat__reply')).toContainText(answer)
+    await expect(thread.locator('.chat__answer')).toHaveCount(0)
+    const replyId = Number(await thread.locator('.chat__reply').getAttribute('data-id'))
+    // The round's own lines (its start, circloo's question) come first; the order of the conversation after them counts.
+    const order = (p: Page) =>
+      chat(p).locator('.chat__list > :is(.chat__group, .chat__replied, .chat__live)').evaluateAll((items) =>
+        items.map((li) =>
+          li.classList.contains('chat__group') ? `msg:${li.querySelector('.chat__msg')?.getAttribute('data-id')}`
+          : li.classList.contains('chat__replied') ? 'replied'
+          : li.classList.contains('chat__live') ? `live:${li.getAttribute('data-line')}`
+          : li.className,
+        ),
+      )
+    const otherId = await top(amina.page, other).getAttribute('data-id')
+    expect(await order(amina.page)).toEqual([`msg:${parentId}`, `msg:${otherId}`, 'replied'])
+    await chat(amina.page).locator('.chat__replied-btn').click()
+    await expect(thread.locator('.chat__reply')).toBeFocused()
+
+    // Live lines: the call starts, two hands go up together, the floor is given, video, the call ends.
+    expect(await hubCall(page, circle.id, 'EnableDiscussion', [false, 'hand'])).toBeNull()
+    expect(await hubCall(theo.page, circle.id, 'RaiseHand', [], true)).toBeNull()
+    expect(await hubCall(amina.page, circle.id, 'RaiseHand', [], true)).toBeNull()
+    expect(await hubCall(page, circle.id, 'GiveFloor', [theo.id])).toBeNull()
+    expect(await hubCall(page, circle.id, 'EnableDiscussion', [true, 'hand'])).toBeNull()
+    const live = (p: Page) => chat(p).locator('.chat__live')
+    const expected = ['live:call-started', 'live:hands-up', 'live:floor', 'live:video-on']
+    for (const p of [page, amina.page, theo.page]) {
+      await expect(live(p)).toHaveCount(expected.length)
+      expect((await order(p)).slice(-expected.length)).toEqual(expected)
+    }
+    // Words, not codes: the animator reads her own action as "You", the others her name; the burst names both hands.
+    await expect(live(page).first()).toHaveText(ar ? 'بدأت مكالمة' : 'You started a call')
+    await expect(live(amina.page).first()).toHaveText(ar ? /^بدأ .?نادية.? مكالمة$/ : /^.?Nadia.? started a call$/)
+    for (const name of [theo.name, amina.name]) await expect(live(page).nth(1)).toContainText(name)
+    await expect(live(amina.page).nth(2)).toContainText(theo.name)
+    await axe(amina.page)
+    await closeHubCalls(theo.page)
+    await closeHubCalls(amina.page)
+    expect(await hubCall(page, circle.id, 'DisableDiscussion')).toBeNull()
+    await expect(chat(theo.page).locator('.chat__live[data-line="call-ended"]')).toHaveCount(1)
+
+    // Never stored: after a reload the messages and the thread are back, the live lines are not.
+    await amina.page.reload()
+    await expect(top(amina.page, question)).toHaveCount(1)
+    await expect(top(amina.page, question).locator('.chat__thread .chat__reply')).toHaveCount(1)
+    await expect(live(amina.page)).toHaveCount(0)
+    expect(await order(amina.page)).toEqual([`msg:${parentId}`, `msg:${otherId}`, 'replied'])
+
+    // Hide: the animator hides Amina's message; for members it goes with its replies and the line that led to them.
+    await top(page, question).locator('> .chat__body .chat__hide').click()
+    await expect(top(page, question)).toHaveClass(/is-hidden/)
+    await expect(chat(page).locator(`.chat__reply[data-id="${replyId}"]`)).toHaveCount(1)
+    for (const p of [amina.page, theo.page]) {
+      await expect(chat(p).locator(`[data-id="${parentId}"], [data-id="${replyId}"]`)).toHaveCount(0)
+      await expect(chat(p).locator('.chat__replied')).toHaveCount(0)
+      await expect(top(p, other)).toHaveCount(1)
+    }
+    // A hidden message cannot be answered, even by a crafted request.
+    expect(await hubCall(theo.page, circle.id, 'Reply', [parentId, 'Still there?'])).toContain('reply-invalid')
+    await theo.page.reload()
+    await expect(top(theo.page, other)).toHaveCount(1)
+    await expect(chat(theo.page).locator(`[data-id="${parentId}"], [data-id="${replyId}"]`)).toHaveCount(0)
+    await axe(theo.page)
+
+    expect(csp).toEqual([])
+    for (const g of [amina, theo]) await g.page.context().close()
+  })
+})
 
 test.describe('measurements', () => {
   // One page set at a time, one after the other: parallel runs would measure this machine's load, not the call.
