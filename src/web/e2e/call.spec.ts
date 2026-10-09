@@ -1,17 +1,21 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { expect, test, type Page } from '@playwright/test'
+import { chromium, expect, test, type Page } from '@playwright/test'
 import { localeOf, signIn } from './helpers'
 import {
-  VOICE, axe, closeHubCalls, createCircle, decodedVideos, guest, hubCall, joinAndHear, openCallTab, quietPirikoo, trackPeerConnections, watchCsp,
+  VOICE, audioPackets, axe, closeHubCalls, createCircle, decodedVideos, devicesNotYetAllowed, guest, hubCall, joinAndHear, noWebRtc, openCallTab,
+  quietPirikoo, scriptedDevices, trackPeerConnections, watchCsp,
 } from './call-helpers'
 
-// Spec 009 T925 and T926: the call on every screen and the animator's controls, against the local LiveKit of the AppHost. Chromium's fake devices (a test
-// pattern and a beep) stand in for the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar"
-// a Pixel 7 in Arabic. E2E_CALL_PEERS sets how many pages fill the paging test (12 by default).
+// Spec 009 T925, T926 and T907: the call on every screen, the animator's controls and the devices, against the local
+// LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for the camera and the microphone
+// (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic. E2E_CALL_PEERS sets how many pages fill
+// the paging test (12 by default).
+
+const FAKE_DEVICES = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`]
 
 test.use({
-  launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`] },
+  launchOptions: { args: FAKE_DEVICES },
   permissions: ['camera', 'microphone'],
 })
 
@@ -167,7 +171,20 @@ test.describe('call', () => {
 /** The app's own words in the test's language, so notices are checked as people read them. */
 function words(locale: 'en' | 'ar') {
   const all = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8')) as {
-    circles: { call: { audioOn: string; videoOn: string; mode: Record<string, string>; notices: Record<string, string>; errors: Record<string, string> } }
+    circles: {
+      call: {
+        audioOn: string
+        videoOn: string
+        mode: Record<string, string>
+        notices: Record<string, string>
+        errors: Record<string, string>
+        device: {
+          primer: string
+          what: Record<'audio' | 'video', string>
+          allow: Record<string, string>
+        } & Record<'denied' | 'no-device' | 'busy', Record<'audio' | 'video', string>>
+      }
+    }
   }
   return all.circles.call
 }
@@ -393,5 +410,217 @@ test.describe('controls', () => {
     await expect(page.locator(`.call-tile[data-member="${rogue.id}"]`)).toBeVisible({ timeout: 10_000 })
     await expect(page.locator(`.call-tile[data-member="${rogue.id}"] .call-tile__mic`)).toBeVisible()
     await rogue.page.context().close()
+  })
+})
+
+/**
+ * The animator's side of the devices tests: the whiteboard runs (so the room has a chat), an open-mic video call is on,
+ * and the animator is in it with the microphone on, so the others have someone to hear.
+ */
+async function deviceRoom(page: Page, locale: 'en' | 'ar', prefix: string, csp: string[]) {
+  watchCsp(page, csp)
+  await quietPirikoo(page)
+  await page.context().addInitScript(trackPeerConnections)
+  await signIn(page, locale, prefix)
+  const circle = await createCircle(page, locale)
+  await page.goto(`/app/circles/${circle.id}`)
+  await page.locator('.dock__open').click()
+  await expect(page.locator('.canvas__viewport')).toBeVisible({ timeout: 15_000 })
+  const side = await openCallTab(page)
+  await side.locator('[data-switch="video"]').click()
+  await expect(side.locator('[data-switch="video"]')).toHaveAttribute('aria-checked', 'true')
+  const open = side.locator('.call__mode-seg .seg__opt').nth(1)
+  await open.click()
+  await expect(open).toHaveAttribute('aria-pressed', 'true')
+  await side.locator('.call__join').click()
+  const mic = page.locator('.call-bar__device[data-device="audio"]')
+  await mic.click()
+  await expect(mic).toHaveAttribute('aria-pressed', 'true')
+  return circle
+}
+
+async function joinCall(page: Page) {
+  await (await openCallTab(page)).locator('.call__join').click()
+  await expect(page.locator('.call-bar__device')).toHaveCount(2)
+}
+
+/** Sends a chat line from the room's sidebar and returns once the composer took it. */
+async function say(page: Page, text: string) {
+  const side = await openCallTab(page)
+  await side.locator('.room-side__tab[aria-controls$="-panel-chat"]').click()
+  const composer = page.locator('#composer-input')
+  await composer.fill(text)
+  await composer.press('Enter')
+  await expect(composer).toHaveValue('')
+}
+
+/** What a scripted device does next (see `scriptedDevices`). */
+const gum = (page: Page, kind: 'audio' | 'video', error: string) =>
+  page.evaluate(([k, v]) => {
+    ;(window as unknown as { __gum: Record<string, string> }).__gum[k] = v
+  }, [kind, error] as const)
+const gumCalls = (page: Page) => page.evaluate(() => (window as unknown as { __gumCalls: number }).__gumCalls)
+
+test.describe('devices', () => {
+  test('devices: the primer before the browser asks, audio only and heard, no camera (spec 009 US4 #1, #3)', async ({ page, browser }, info) => {
+    test.setTimeout(180_000)
+    const locale = localeOf(info)
+    const w = words(locale)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    const circle = await deviceRoom(page, locale, 'e2e-devices-primer', csp)
+    const amina = await guest(browser, circle.code, 0, locale, phone, csp, { init: [scriptedDevices, devicesNotYetAllowed] })
+    await gum(amina.page, 'video', 'NotFoundError')
+    await joinCall(amina.page)
+
+    // She hears the animator at once, and nothing has been asked of her devices (FR-904).
+    await expect.poll(() => audioPackets(amina.page), { timeout: 10_000 }).toBeGreaterThan(0)
+    expect(await gumCalls(amina.page)).toBe(0)
+
+    // The microphone: the one sentence first, in the bar, and the browser is asked only after Continue (FR-910).
+    const mic = amina.page.locator('.call-bar__device[data-device="audio"]')
+    const camera = amina.page.locator('.call-bar__device[data-device="video"]')
+    const primer = amina.page.locator('.call-primer')
+    await mic.click()
+    await expect(primer).toHaveAttribute('data-kind', 'audio')
+    await expect(primer.locator('.call-primer__text')).toHaveText(w.device.primer)
+    await expect(primer.locator('.btn--primary')).toBeFocused()
+    expect(await gumCalls(amina.page)).toBe(0)
+    await axe(amina.page)
+    await primer.locator('.btn--primary').click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+    await expect(primer).toHaveCount(0)
+    // Heard: her voice lights her tile on the animator's screen.
+    await expect(page.locator(`.call-tile[data-member="${amina.id}"]`)).toHaveClass(/is-speaking/, { timeout: 10_000 })
+
+    // No camera: its own primer, then the reason; she stays in with her voice and her character.
+    await camera.click()
+    await expect(primer).toHaveAttribute('data-kind', 'video')
+    await primer.locator('.btn--primary').click()
+    const problem = amina.page.locator('.device-problem')
+    await expect(problem).toHaveAttribute('data-problem', 'no-device')
+    await expect(problem.locator('.device-problem__what')).toHaveText(w.device['no-device'].video)
+    await expect(camera).toHaveAttribute('aria-pressed', 'false')
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator(`.call-tile[data-member="${amina.id}"] .call-tile__char`)).toBeVisible()
+    await expect(page.locator(`.call-tile[data-member="${amina.id}"] video`)).toHaveCount(0)
+    await axe(amina.page)
+
+    // Once per kind: the microphone off and on again asks nothing first.
+    await mic.click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'false')
+    await mic.click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+    await expect(primer).toHaveCount(0)
+    expect(csp).toEqual([])
+    await amina.page.context().close()
+  })
+
+  test('devices: denied, no microphone, busy then Try again, while listening, chatting and a raised hand go on (spec 009 US4 #2, #4, #5, SC-907)', async ({ page, browser }, info) => {
+    test.setTimeout(180_000)
+    const locale = localeOf(info)
+    const w = words(locale)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    const circle = await deviceRoom(page, locale, 'e2e-devices-fail', csp)
+    // The context allows both devices, so no primer: the browser's own answer comes straight back.
+    const theo = await guest(browser, circle.code, 1, locale, phone, csp, { init: [scriptedDevices] })
+    await joinCall(theo.page)
+    const mic = theo.page.locator('.call-bar__device[data-device="audio"]')
+    const problem = theo.page.locator('.device-problem')
+
+    // Denied: what happened, how to allow it again in this browser, and Try again.
+    await gum(theo.page, 'audio', 'NotAllowedError')
+    const refused = Date.now()
+    await mic.click()
+    await expect(problem).toHaveAttribute('data-problem', 'denied')
+    await expect(problem.locator('.device-problem__what')).toHaveText(w.device.denied.audio)
+    const family = /Android/.test(await theo.page.evaluate(() => navigator.userAgent)) ? 'android' : 'chromium'
+    await expect(problem.locator('.device-problem__how')).toHaveText(w.device.allow[family]!.replace('{{device}}', w.device.what.audio))
+    await expect(mic).toHaveAttribute('aria-pressed', 'false')
+    await expect(theo.page.locator('.call-primer')).toHaveCount(0)
+
+    // Chat and a raised hand are within reach in under 5 s (SC-907), and the call keeps playing.
+    await say(theo.page, locale === 'ar' ? 'أسمعكم جيدًا' : 'I can hear you all')
+    expect(await hubCall(theo.page, circle.id, 'RaiseHand', [], true)).toBeNull()
+    const reached = Date.now() - refused
+    console.log(`denied to chat and hand: ${reached} ms`)
+    expect(reached).toBeLessThan(5000)
+    const heard = await audioPackets(theo.page)
+    await expect.poll(() => audioPackets(theo.page), { timeout: 10_000 }).toBeGreaterThan(heard)
+    await expect(theo.page.locator('.call-bar')).toBeVisible()
+    await axe(theo.page)
+
+    // No microphone at all: said plainly, still in the call.
+    await gum(theo.page, 'audio', 'NotFoundError')
+    await problem.locator('.device-problem__retry').click()
+    await expect(problem).toHaveAttribute('data-problem', 'no-device')
+    await expect(problem.locator('.device-problem__what')).toHaveText(w.device['no-device'].audio)
+
+    // Busy: another app holds it; Try again says so again until it is free, then the microphone is on and heard.
+    await gum(theo.page, 'audio', 'NotReadableError')
+    await problem.locator('.device-problem__retry').click()
+    await expect(problem).toHaveAttribute('data-problem', 'busy')
+    await expect(problem.locator('.device-problem__what')).toHaveText(w.device.busy.audio)
+    await problem.locator('.device-problem__retry').click()
+    await expect(problem).toHaveAttribute('data-problem', 'busy')
+    await gum(theo.page, 'audio', 'ok')
+    await problem.locator('.device-problem__retry').click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+    await expect(problem).toHaveCount(0)
+    await expect(page.locator(`.call-tile[data-member="${theo.id}"]`)).toHaveClass(/is-speaking/, { timeout: 10_000 })
+
+    await closeHubCalls(theo.page)
+    expect(csp).toEqual([])
+    await theo.page.context().close()
+  })
+
+  test('devices: a browser without live audio or video reads why, and still chats (spec 009 US4 #6)', async ({ page, browser }, info) => {
+    test.setTimeout(120_000)
+    const locale = localeOf(info)
+    const w = words(locale)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    const circle = await deviceRoom(page, locale, 'e2e-devices-nortc', csp)
+    const lucia = await guest(browser, circle.code, 2, locale, phone, csp, { init: [noWebRtc] })
+    const side = await openCallTab(lucia.page)
+    await expect(side.locator('.call__unsupported')).toHaveText(w.errors.unsupported!)
+    await expect(side.locator('.call__join')).toHaveCount(0)
+    await axe(lucia.page)
+    await say(lucia.page, locale === 'ar' ? 'سأتابع من الدردشة' : 'I will follow in the chat')
+    expect(await hubCall(lucia.page, circle.id, 'RaiseHand')).toBeNull()
+    expect(csp).toEqual([])
+    await lucia.page.context().close()
+  })
+
+  test('devices: with UDP blocked, a guest joins over TCP and hears within 6 s (spec 009 US4 #7, SC-916)', async ({ page }, info) => {
+    test.setTimeout(120_000)
+    const locale = localeOf(info)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    const circle = await deviceRoom(page, locale, 'e2e-devices-tcp', csp)
+    // His browser sends no UDP that is not proxied: the call must come over ICE/TCP (research R28; TURN/TLS on 443 is T915's).
+    const strict = await chromium.launch({ args: [...FAKE_DEVICES, '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'] })
+    const youssef = await guest(strict, circle.code, 3, locale, phone, csp)
+    const took = await joinAndHear(youssef.page)
+    console.log(`UDP blocked, join to first audio: ${took} ms`)
+    expect(took).toBeLessThanOrEqual(6000)
+    const protocols = await youssef.page.evaluate(async () => {
+      const out = new Set<string>()
+      for (const pc of (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs) {
+        if (pc.connectionState === 'closed') continue
+        const stats = await pc.getStats()
+        stats.forEach((s: { type: string; selectedCandidatePairId?: string }) => {
+          if (s.type !== 'transport' || !s.selectedCandidatePairId) return
+          const pair = stats.get(s.selectedCandidatePairId) as { localCandidateId?: string } | undefined
+          const local = pair?.localCandidateId ? (stats.get(pair.localCandidateId) as { protocol?: string } | undefined) : undefined
+          if (local?.protocol) out.add(local.protocol)
+        })
+      }
+      return [...out]
+    })
+    expect(protocols).toEqual(['tcp'])
+    expect(csp).toEqual([])
+    await strict.close()
   })
 })

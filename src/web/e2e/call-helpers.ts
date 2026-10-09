@@ -68,6 +68,41 @@ export function trackPeerConnections() {
   }
 }
 
+/**
+ * Devices the test scripts (spec 009 T907): each kind fails with the error name set in `window.__gum`, or goes to
+ * Chromium's fake device with 'ok'. `window.__gumCalls` counts what the page asked for, so a test can see that nothing
+ * was asked before the person pressed a device button and the primer's Continue.
+ */
+export function scriptedDevices() {
+  const devices = navigator.mediaDevices
+  if (!devices?.getUserMedia) return
+  const real = devices.getUserMedia.bind(devices)
+  const w = window as unknown as { __gum: Record<'audio' | 'video', string>; __gumCalls: number }
+  w.__gum = { audio: 'ok', video: 'ok' }
+  w.__gumCalls = 0
+  devices.getUserMedia = async (c?: MediaStreamConstraints) => {
+    w.__gumCalls++
+    for (const kind of ['audio', 'video'] as const) {
+      if (c?.[kind] && w.__gum[kind] !== 'ok') throw new DOMException('scripted', w.__gum[kind])
+    }
+    return real(c)
+  }
+}
+
+/** A browser that will still ask for the camera and the microphone (the context grants them, so it would not). */
+export function devicesNotYetAllowed() {
+  const query = navigator.permissions.query.bind(navigator.permissions)
+  navigator.permissions.query = (d: PermissionDescriptor) =>
+    d.name === ('camera' as PermissionName) || d.name === ('microphone' as PermissionName)
+      ? Promise.resolve(Object.assign(new EventTarget(), { name: d.name, state: 'prompt', onchange: null }) as unknown as PermissionStatus)
+      : query(d)
+}
+
+/** A browser without live audio or video. */
+export function noWebRtc() {
+  Object.defineProperty(window, 'RTCPeerConnection', { configurable: true, writable: true, value: undefined })
+}
+
 export async function axe(page: Page) {
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
   expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([])
@@ -103,7 +138,10 @@ export async function createCircle(page: Page, locale: 'en' | 'ar') {
   }, locale)
 }
 
-export async function guest(browser: Browser, code: string, i: number, locale: 'en' | 'ar', phone: boolean, csp: string[], options: { bypassCSP?: boolean } = {}) {
+export async function guest(
+  browser: Browser, code: string, i: number, locale: 'en' | 'ar', phone: boolean, csp: string[],
+  options: { bypassCSP?: boolean; init?: (() => void)[] } = {},
+) {
   const g = GUESTS[i % GUESTS.length]!
   const ctx = await browser.newContext({
     locale: locale === 'ar' ? 'ar-MA' : 'en-GB',
@@ -113,6 +151,7 @@ export async function guest(browser: Browser, code: string, i: number, locale: '
     ...(phone ? { viewport: { width: 412, height: 839 }, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 720 } }),
   })
   await ctx.addInitScript(trackPeerConnections)
+  for (const script of options.init ?? []) await ctx.addInitScript(script)
   const page = await ctx.newPage()
   watchCsp(page, csp)
   await quietPirikoo(page)
@@ -137,9 +176,13 @@ export async function openCallTab(page: Page) {
   const side = page.locator('[data-slot="room-side"]')
   const rail = side.locator('.room-side__rail-btn[data-tab="call"]')
   const pill = side.locator('.room-side__handle:not(.room-side__rail-btn)')
-  if (await rail.isVisible()) await rail.click()
-  else if (await pill.isVisible()) await pill.click()
-  await side.locator('.room-side__tab[aria-controls$="-panel-call"]').click()
+  const tab = side.locator('.room-side__tab[aria-controls$="-panel-call"]')
+  // A phone's sheet may open and close by itself while a round starts: try again until the tab is there.
+  await expect(async () => {
+    if (await rail.isVisible()) await rail.click()
+    else if (await pill.isVisible()) await pill.click()
+    await tab.click({ timeout: 2_000 })
+  }).toPass({ timeout: 20_000 })
   return side
 }
 

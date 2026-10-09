@@ -167,9 +167,23 @@ describe('devices', () => {
     expect(state()).toMatchObject({ connection: 'connected', deviceProblem: { kind: 'audio', problem: 'denied' }, me: { mic: false } })
     deviceFailures.set('camera', domError('NotFoundError'))
     await state().setCamera(true)
-    expect(state().deviceProblem).toEqual({ kind: 'video', problem: 'no-device' })
+    expect(state().deviceProblem).toMatchObject({ kind: 'video', problem: 'no-device' })
     await state().setMic(true)
     expect(state()).toMatchObject({ deviceProblem: null, me: { mic: true } })
+  })
+
+  it('tells the same failure twice, and forgets it on Dismiss', async () => {
+    setup()
+    await state().join()
+    deviceFailures.set('microphone', domError('NotAllowedError'))
+    await state().setMic(true)
+    const first = state().deviceProblem!
+    deviceFailures.set('microphone', domError('NotAllowedError'))
+    await state().setMic(true)
+    expect(state().deviceProblem).toMatchObject({ kind: 'audio', problem: 'denied' })
+    expect(state().deviceProblem!.id).not.toBe(first.id)
+    state().dismissDeviceProblem()
+    expect(state()).toMatchObject({ connection: 'connected', deviceProblem: null })
   })
 
   it('reports a browser that cannot use devices', async () => {
@@ -179,7 +193,7 @@ describe('devices', () => {
     Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined })
     await state().setMic(true)
     Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: devices })
-    expect(state().deviceProblem).toEqual({ kind: 'audio', problem: 'unsupported' })
+    expect(state().deviceProblem).toMatchObject({ kind: 'audio', problem: 'unsupported' })
     expect(room().localParticipant.requests).toEqual([])
   })
 })

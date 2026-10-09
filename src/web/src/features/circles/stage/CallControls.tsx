@@ -1,19 +1,25 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LayoutGrid, Mic, MicOff, PhoneOff, PanelsTopLeft, Video, VideoOff, Volume2 } from 'lucide-react'
 import type { Member } from '../../../api/circles'
 import { Segmented } from '../../../components/Segmented'
 import { useAwayLeft } from './away'
 import { AwayLine } from './AwayLine'
+import { DeviceProblem } from './DeviceProblem'
 import { useJoinsAnnouncement } from './joins'
+import type { MediaKind } from './media'
+import { PermissionPrimer } from './PermissionPrimer'
+import { markPrimed, needsPrimer } from './primer'
 import { useStage } from './stage'
 
 export type CentreView = 'call' | 'round'
 
 /**
- * The call's bottom bar (spec 009 US2 #5 and #7, US4 #8 and #9): microphone, camera (video calls only) and Leave under the
+ * The call's bottom bar (spec 009 US2 #5 and #7, US4): microphone, camera (video calls only) and Leave under the
  * thumb, "Tap to hear the call" when the browser held the sound back, Reconnecting and Weak connection in words, and the
- * switch between the call and the round when one runs. When the call failed it says why and offers Join again.
+ * switch between the call and the round when one runs. When the call failed it says why and offers Join again, unless
+ * this browser cannot join at all. Switching a device on goes through the permission primer, and a device that does not
+ * start says why in the status area (T907).
  * It sits in the page's flow at the bottom of the centre, so it never covers the chat composer of the sheet.
  */
 export function CallControls({ members, view, onView, roundLabel }: {
@@ -35,7 +41,9 @@ export function CallControls({ members, view, onView, roundLabel }: {
       <section className="call-bar is-failed" aria-label={t('circles.call.controls')}>
         <p className="call-bar__problem" role="alert">{t(`circles.call.errors.${error ?? 'failed'}`, { defaultValue: t('circles.call.errors.failed') })}</p>
         <div className="call-bar__end">
-          <button type="button" className="btn btn--primary" onClick={() => void join()}>{t('circles.call.joinAgain')}</button>
+          {error === 'unsupported' ? null : (
+            <button type="button" className="btn btn--primary" onClick={() => void join()}>{t('circles.call.joinAgain')}</button>
+          )}
           <button type="button" className="btn btn--subtle" onClick={() => void leave()}>{t('common.close')}</button>
         </div>
       </section>
@@ -84,7 +92,12 @@ function InCall({ members }: { members: Member[] }) {
   const setMic = useStage((s) => s.setMic)
   const setCamera = useStage((s) => s.setCamera)
   const startAudio = useStage((s) => s.startAudio)
+  const problem = useStage((s) => s.deviceProblem)
+  const dismissProblem = useStage((s) => s.dismissDeviceProblem)
   const [busy, setBusy] = useState<'mic' | 'camera' | null>(null)
+  const [primer, setPrimer] = useState<MediaKind | null>(null)
+  const micButton = useRef<HTMLButtonElement>(null)
+  const cameraButton = useRef<HTMLButtonElement>(null)
   const awayLeft = useAwayLeft()
 
   const self = participants.find((p) => p.local)
@@ -109,9 +122,49 @@ function InCall({ members }: { members: Member[] }) {
     }
   }
 
+  const allowed = (kind: MediaKind) => (kind === 'audio' ? canSpeak : canVideo && videoAllowed)
+  const isOn = (kind: MediaKind) => (kind === 'audio' ? me.mic : me.camera)
+  const focusDevice = (kind: MediaKind) => (kind === 'audio' ? micButton : cameraButton).current?.focus()
+  const turnOn = (kind: MediaKind) => (kind === 'audio' ? setMic(true) : setCamera(true))
+  // The browser asks only after the primer's Continue, the first time a kind is switched on in this session.
+  const switchOn = (kind: MediaKind) =>
+    run(kind === 'audio' ? 'mic' : 'camera', async () => {
+      if (await needsPrimer(kind)) setPrimer(kind)
+      else await turnOn(kind)
+    })
+  const proceed = (kind: MediaKind) => {
+    markPrimed(kind)
+    setPrimer(null)
+    focusDevice(kind)
+    void run(kind === 'audio' ? 'mic' : 'camera', () => turnOn(kind))
+  }
+  const cancel = (kind: MediaKind) => {
+    setPrimer(null)
+    focusDevice(kind)
+  }
+  // A device taken away (the floor moved on, video switched off) takes its primer and its problem with it.
+  const shownPrimer = primer && allowed(primer) && !isOn(primer) ? primer : null
+  const shownProblem = problem && (problem.kind === 'audio' || videoAllowed) ? problem : null
+
   return (
     <>
       <div className="call-bar__state">
+        {shownPrimer ? <PermissionPrimer kind={shownPrimer} onContinue={() => proceed(shownPrimer)} onCancel={() => cancel(shownPrimer)} /> : null}
+        {shownProblem ? (
+          <DeviceProblem
+            key={shownProblem.id}
+            problem={shownProblem}
+            onRetry={() => {
+              // The problem goes while the device is tried again: the focus waits on the device, not on the page.
+              focusDevice(shownProblem.kind)
+              void switchOn(shownProblem.kind)
+            }}
+            onDismiss={() => {
+              dismissProblem()
+              focusDevice(shownProblem.kind)
+            }}
+          />
+        ) : null}
         {connection === 'reconnecting' ? <p className="call-bar__note is-warn" role="status">{t('circles.call.reconnecting')}</p> : null}
         {connection === 'connected' && weak ? <p className="call-bar__note is-warn" role="status">{t('circles.call.weakMine')}</p> : null}
         {awayLeft !== null ? <AwayLine left={awayLeft} announce className="call-bar__note is-warn" /> : null}
@@ -124,7 +177,9 @@ function InCall({ members }: { members: Member[] }) {
       </div>
       <div className="call-bar__devices">
         <button
+          ref={micButton}
           type="button"
+          data-device="audio"
           className={`call-bar__device${me.mic ? ' is-on' : ''}`}
           aria-pressed={me.mic}
           aria-disabled={!canSpeak || undefined}
@@ -132,7 +187,7 @@ function InCall({ members }: { members: Member[] }) {
           aria-label={t('circles.call.mic')}
           aria-describedby={canSpeak ? undefined : 'call-mic-locked'}
           title={canSpeak ? t('circles.call.mic') : t('circles.call.micLocked')}
-          onClick={() => canSpeak && void run('mic', () => setMic(!me.mic))}
+          onClick={() => canSpeak && void (me.mic ? run('mic', () => setMic(false)) : switchOn('audio'))}
         >
           {me.mic ? <Mic size={20} aria-hidden="true" /> : <MicOff size={20} aria-hidden="true" />}
         </button>
@@ -140,7 +195,9 @@ function InCall({ members }: { members: Member[] }) {
         {videoAllowed ? (
           <>
             <button
+              ref={cameraButton}
               type="button"
+              data-device="video"
               className={`call-bar__device${me.camera ? ' is-on' : ''}`}
               aria-pressed={me.camera}
               aria-disabled={!canVideo || undefined}
@@ -148,7 +205,7 @@ function InCall({ members }: { members: Member[] }) {
               aria-label={t('circles.call.camera')}
               aria-describedby={canVideo ? undefined : 'call-camera-locked'}
               title={canVideo ? t('circles.call.camera') : t('circles.call.cameraLocked')}
-              onClick={() => canVideo && void run('camera', () => setCamera(!me.camera))}
+              onClick={() => canVideo && void (me.camera ? run('camera', () => setCamera(false)) : switchOn('video'))}
             >
               {me.camera ? <Video size={20} aria-hidden="true" /> : <VideoOff size={20} aria-hidden="true" />}
             </button>
