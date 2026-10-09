@@ -64,9 +64,13 @@ export class FakeTrack extends Emitter {
   }
 }
 
+export const VideoQuality = { LOW: 0, MEDIUM: 1, HIGH: 2 } as const
+
 export class FakePublication {
   isMuted = false
   enabled = true
+  /** The highest quality asked with `setVideoQuality`; undefined while adaptive stream alone decides. */
+  quality: number | undefined
   readonly source: string
   track: FakeTrack | undefined
   constructor(source: string, track: FakeTrack | undefined) {
@@ -75,6 +79,12 @@ export class FakePublication {
   }
   setEnabled(on: boolean) {
     this.enabled = on
+  }
+  setVideoQuality(quality: number) {
+    this.quality = quality
+  }
+  get isSubscribed() {
+    return !!this.track
   }
 }
 
@@ -222,6 +232,7 @@ export const fakeLiveKit = {
   Room: FakeRoom,
   RoomEvent,
   DisconnectReason,
+  VideoQuality,
   Track: { Kind: { Audio: 'audio', Video: 'video' }, Source: { Camera: 'camera', Microphone: 'microphone' } },
   TrackEvent: { Ended: 'ended' },
   VideoPresets: { h180: preset(180, 160_000), h360: preset(360, 450_000), h540: preset(540, 800_000), h720: preset(720, 1_700_000) },

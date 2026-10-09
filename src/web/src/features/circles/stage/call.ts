@@ -6,11 +6,13 @@
  * What it promises:
  * - nothing is asked of the camera or the microphone until the person switches one on, and one kind at a time;
  * - the call server's permissions win: a revoked source goes off here too, and nothing is ever switched on by itself;
- * - on a phone, a camera stopped by locking the screen or switching apps stays off until the person switches it on.
+ * - on a phone, a camera stopped by locking the screen or switching apps stays off until the person switches it on;
+ * - on a phone-sized screen, no camera is received above its 360p layer (SC-912, issue #278).
  */
 import type * as LK from 'livekit-client'
 import type { CallPass } from '../../../api/discussion'
 import { classifyMediaError, type MediaKind, type MediaProblem } from './media'
+import { COMPACT } from './compact'
 
 export type LiveKitModule = typeof LK
 
@@ -71,10 +73,19 @@ export interface CallEngine {
   leave(): Promise<void>
 }
 
+/** The part of `matchMedia(COMPACT)` the engine watches. */
+export interface ScreenSize {
+  readonly matches: boolean
+  addEventListener(type: 'change', listener: () => void): void
+  removeEventListener(type: 'change', listener: () => void): void
+}
+
 export interface EngineOptions {
   load?: () => Promise<LiveKitModule>
   /** Phones capture 540p and stop the camera when the page is hidden. Detected from the browser by default. */
   phone?: boolean
+  /** A phone-sized screen (`COMPACT`, four tiles a page) receives cameras at 360p at most. `matchMedia` by default. */
+  screen?: ScreenSize | null
 }
 
 let loading: Promise<LiveKitModule> | null = null
@@ -98,11 +109,15 @@ export function isPhone(): boolean {
  * Research R25: adaptive stream and dynacast (nobody receives or sends a quality nobody watches), two simulcast layers
  * under a 720p capture (540p on phones), VP8 for the widest support, Opus with DTX and RED and the speech preset. Audio
  * goes out at high priority so a weak network loses video quality first, then video, and keeps the voices.
+ *
+ * On a phone-sized screen (`compact`), adaptive stream counts one pixel per CSS pixel (issue #278). Its default of 2 on
+ * dense screens made a quarter-screen tile, about 180 by 250, ask for 360 by 500: smaller than the 360p layer by area,
+ * which is how livekit-client compares, but taller than it, which is how the call server picks, so it sent 540p.
  */
-export function roomOptions(lk: LiveKitModule, phone: boolean): LK.RoomOptions {
+export function roomOptions(lk: LiveKitModule, phone: boolean, compact = false): LK.RoomOptions {
   const capture = phone ? lk.VideoPresets.h540 : lk.VideoPresets.h720
   return {
-    adaptiveStream: true,
+    adaptiveStream: compact ? { pixelDensity: 1 } : true,
     dynacast: true,
     disconnectOnPageLeave: true,
     stopLocalTrackOnUnpublish: true,
@@ -132,9 +147,11 @@ export function rightsOf(permission: { canPublish: boolean; canPublishSources?: 
   return { canSpeak: sources.includes(SOURCE_MICROPHONE), canVideo: sources.includes(SOURCE_CAMERA) }
 }
 
+const compactScreen = (): ScreenSize | null => (typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia(COMPACT) : null)
+
 export async function createCallEngine(listener: CallListener, options: EngineOptions = {}): Promise<CallEngine> {
   const lk = await (options.load ?? loadLiveKit)()
-  return new LiveKitCall(lk, listener, options.phone ?? isPhone())
+  return new LiveKitCall(lk, listener, options.phone ?? isPhone(), options.screen === undefined ? compactScreen() : options.screen)
 }
 
 const QUALITIES = new Set<string>(['excellent', 'good', 'poor', 'lost', 'unknown'])
@@ -149,12 +166,14 @@ class LiveKitCall implements CallEngine {
   private readonly lk: LiveKitModule
   private readonly listener: CallListener
   private readonly phone: boolean
+  private readonly screen: ScreenSize | null
 
-  constructor(lk: LiveKitModule, listener: CallListener, phone: boolean) {
+  constructor(lk: LiveKitModule, listener: CallListener, phone: boolean, screen: ScreenSize | null) {
     this.lk = lk
     this.listener = listener
     this.phone = phone
-    this.room = new lk.Room(roomOptions(lk, phone))
+    this.screen = screen
+    this.room = new lk.Room(roomOptions(lk, phone, !!screen?.matches))
     this.wire()
   }
 
@@ -162,6 +181,7 @@ class LiveKitCall implements CallEngine {
     void this.startAudio()
     await this.room.connect(pass.url, pass.token, { autoSubscribe: true })
     document.addEventListener('visibilitychange', this.onVisibility)
+    this.screen?.addEventListener('change', this.onScreen)
     this.watching = true
     this.listener.onRights(this.room.localParticipant.permissions ? rightsOf(this.room.localParticipant.permissions) : { canSpeak: pass.canSpeak, canVideo: pass.canVideo })
     this.emitDevices()
@@ -228,8 +248,9 @@ class LiveKitCall implements CallEngine {
       .on(E.ConnectionQualityChanged, refresh)
       .on(E.ParticipantConnected, refresh)
       .on(E.ParticipantDisconnected, refresh)
-      .on(E.TrackSubscribed, (track) => {
+      .on(E.TrackSubscribed, (track, pub) => {
         if (track.kind === this.lk.Track.Kind.Audio) this.play(track)
+        else if (this.screen?.matches) pub.setVideoQuality(this.lk.VideoQuality.MEDIUM)
         refresh()
       })
       .on(E.TrackUnsubscribed, (track) => {
@@ -285,6 +306,20 @@ class LiveKitCall implements CallEngine {
     void this.device('video', false)
   }
 
+  /**
+   * Four tiles a page do not need more than 360p: on a phone-sized screen every camera is capped at its middle layer,
+   * 360p under a 540p or a 720p capture (issue #278). It covers tiles larger than that layer; smaller ones are sized by
+   * adaptive stream at one pixel per CSS pixel (`roomOptions`), which asks for less. A screen that grows lifts the cap.
+   * Computers never set it.
+   */
+  private onScreen = () => {
+    const quality = this.screen?.matches ? this.lk.VideoQuality.MEDIUM : this.lk.VideoQuality.HIGH
+    for (const p of this.room.remoteParticipants.values()) {
+      const cam = p.getTrackPublication(this.lk.Track.Source.Camera)
+      if (cam?.isSubscribed) cam.setVideoQuality(quality)
+    }
+  }
+
   /** Phones stop the camera when the screen locks or another app opens; switch it off first so it never restarts alone. */
   private onVisibility = () => {
     if (document.visibilityState === 'hidden' && this.phone && this.room.localParticipant.isCameraEnabled) this.onCameraLost()
@@ -308,6 +343,7 @@ class LiveKitCall implements CallEngine {
   private unwatch() {
     if (!this.watching) return
     document.removeEventListener('visibilitychange', this.onVisibility)
+    this.screen?.removeEventListener('change', this.onScreen)
     this.watching = false
   }
 

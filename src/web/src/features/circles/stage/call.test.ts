@@ -1,6 +1,6 @@
 import type { CallPass } from '../../../api/discussion'
 import { createCallEngine, loadLiveKit, rightsOf, roomOptions, type CallListener } from './call'
-import { DisconnectReason, FakePublication, FakeRoom, FakeTrack, RoomEvent, deviceFailures, fakeLiveKit, resetFakeLiveKit } from './livekit.fake'
+import { DisconnectReason, FakePublication, FakeRoom, FakeTrack, RoomEvent, VideoQuality, deviceFailures, fakeLiveKit, resetFakeLiveKit } from './livekit.fake'
 
 const loads = vi.hoisted(() => ({ count: 0 }))
 vi.mock('livekit-client', async () => {
@@ -22,9 +22,26 @@ function listener() {
   } satisfies CallListener
 }
 
-async function connected(phone = false) {
+/** A screen size the engine can watch, like `matchMedia(COMPACT)`; `set` resizes it. */
+function screenOf(compact: boolean) {
+  const listeners = new Set<() => void>()
+  return {
+    matches: compact,
+    addEventListener: (_: 'change', cb: () => void) => void listeners.add(cb),
+    removeEventListener: (_: 'change', cb: () => void) => void listeners.delete(cb),
+    set(next: boolean) {
+      this.matches = next
+      for (const cb of listeners) cb()
+    },
+    get watched() {
+      return listeners.size
+    },
+  }
+}
+
+async function connected(phone = false, screen: ReturnType<typeof screenOf> | null = null) {
   const l = listener()
-  const engine = await createCallEngine(l, { load: () => Promise.resolve(fakeLiveKit), phone })
+  const engine = await createCallEngine(l, { load: () => Promise.resolve(fakeLiveKit), phone, screen })
   await engine.connect(pass)
   const room = FakeRoom.last!
   return { l, engine, room, local: room.localParticipant }
@@ -69,6 +86,19 @@ describe('room options (research R25)', () => {
 
   it('captures 540p on a phone', () => {
     expect(roomOptions(fakeLiveKit, true).videoCaptureDefaults?.resolution?.height).toBe(540)
+  })
+
+  it('sizes received videos at one pixel per CSS pixel on a phone-sized screen, so a tile never asks for 540p (#278)', () => {
+    expect(roomOptions(fakeLiveKit, true, true).adaptiveStream).toEqual({ pixelDensity: 1 })
+    // A computer keeps adaptive stream's own density, whatever the device.
+    expect(roomOptions(fakeLiveKit, true, false).adaptiveStream).toBe(true)
+  })
+
+  it('joins with the screen size of the moment', async () => {
+    await connected(true, screenOf(true))
+    expect((FakeRoom.last!.options as { adaptiveStream: unknown }).adaptiveStream).toEqual({ pixelDensity: 1 })
+    await connected(false, screenOf(false))
+    expect((FakeRoom.last!.options as { adaptiveStream: unknown }).adaptiveStream).toBe(true)
   })
 })
 
@@ -134,6 +164,47 @@ describe('connecting', () => {
     amina.isSpeaking = false
     room.emit(RoomEvent.TrackUnmuted, mic, amina)
     expect(lastOf(l.onParticipants).find((p: { id: string }) => p.id === 'amina')).toMatchObject({ speaking: false, mic: true })
+  })
+})
+
+describe('videos received (#278)', () => {
+  const camera = (room: FakeRoom, id: string) => {
+    const person = room.addRemote(id)
+    const pub = new FakePublication('camera', new FakeTrack('video'))
+    person.trackPublications.set('camera', pub)
+    room.emit(RoomEvent.TrackSubscribed, pub.track, pub, person)
+    return pub
+  }
+
+  it('caps every camera at the 360p layer on a phone-sized screen, and lifts the cap when the screen grows', async () => {
+    const screen = screenOf(true)
+    const { room } = await connected(true, screen)
+    const amina = camera(room, 'amina')
+    expect(amina.quality).toBe(VideoQuality.MEDIUM)
+    // Turned on its side, a large tablet or a window made wider: the tiles may be large, so the cap goes.
+    screen.set(false)
+    expect(amina.quality).toBe(VideoQuality.HIGH)
+    const theo = camera(room, 'theo')
+    expect(theo.quality).toBeUndefined()
+    screen.set(true)
+    expect([amina.quality, theo.quality]).toEqual([VideoQuality.MEDIUM, VideoQuality.MEDIUM])
+  })
+
+  it('leaves a computer screen to adaptive stream alone, and an audio track is never capped', async () => {
+    const { room } = await connected(false, screenOf(false))
+    const amina = camera(room, 'amina')
+    const voice = new FakePublication('microphone', new FakeTrack('audio'))
+    room.emit(RoomEvent.TrackSubscribed, voice.track, voice, room.remoteParticipants.get('amina'))
+    expect(amina.quality).toBeUndefined()
+    expect(voice.quality).toBeUndefined()
+  })
+
+  it('stops watching the screen when the call ends', async () => {
+    const screen = screenOf(true)
+    const { engine } = await connected(true, screen)
+    expect(screen.watched).toBe(1)
+    await engine.leave()
+    expect(screen.watched).toBe(0)
   })
 })
 
