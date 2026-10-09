@@ -1,6 +1,6 @@
 import type { CallPass } from '../../../api/discussion'
 import { createCallEngine, loadLiveKit, rightsOf, roomOptions, type CallListener } from './call'
-import { DisconnectReason, FakeRoom, FakeTrack, RoomEvent, deviceFailures, fakeLiveKit, resetFakeLiveKit } from './livekit.fake'
+import { DisconnectReason, FakePublication, FakeRoom, FakeTrack, RoomEvent, deviceFailures, fakeLiveKit, resetFakeLiveKit } from './livekit.fake'
 
 const loads = vi.hoisted(() => ({ count: 0 }))
 vi.mock('livekit-client', async () => {
@@ -104,6 +104,7 @@ describe('connecting', () => {
   it('plays remote voices in a hidden element and describes the people', async () => {
     const { l, room } = await connected()
     const amina = room.addRemote('amina', 'Amina')
+    amina.trackPublications.set('microphone', new FakePublication('microphone', new FakeTrack('audio')))
     room.emit(RoomEvent.TrackSubscribed, new FakeTrack('audio'), {}, amina)
     expect(document.querySelector('[data-call="audio"] audio')).not.toBeNull()
     amina.isSpeaking = true
@@ -113,6 +114,26 @@ describe('connecting', () => {
       expect.objectContaining({ id: 'me', local: true, speaking: false, video: null }),
       expect.objectContaining({ id: 'amina', name: 'Amina', local: false, speaking: true, quality: 'poor' }),
     ])
+  })
+
+  it('stops showing someone as speaking as soon as their microphone is muted, before the next speaker update (#276)', async () => {
+    const { l, room } = await connected()
+    const amina = room.addRemote('amina', 'Amina')
+    const mic = new FakePublication('microphone', new FakeTrack('audio'))
+    amina.trackPublications.set('microphone', mic)
+    amina.isSpeaking = true
+    room.emit(RoomEvent.ActiveSpeakersChanged, [amina])
+    expect(lastOf(l.onParticipants).find((p: { id: string }) => p.id === 'amina')).toMatchObject({ speaking: true, mic: true })
+    // The call server says the microphone is muted; its audio levels still call her a speaker for a while.
+    mic.isMuted = true
+    room.emit(RoomEvent.TrackMuted, mic, amina)
+    expect(amina.isSpeaking).toBe(true)
+    expect(lastOf(l.onParticipants).find((p: { id: string }) => p.id === 'amina')).toMatchObject({ speaking: false, mic: false })
+    // Unmuted, she is a speaker again only when the call server hears her.
+    mic.isMuted = false
+    amina.isSpeaking = false
+    room.emit(RoomEvent.TrackUnmuted, mic, amina)
+    expect(lastOf(l.onParticipants).find((p: { id: string }) => p.id === 'amina')).toMatchObject({ speaking: false, mic: true })
   })
 })
 

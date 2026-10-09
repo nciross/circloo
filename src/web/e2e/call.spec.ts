@@ -1273,6 +1273,10 @@ test.describe('measurements', () => {
     for (let i = 0; i < 3; i++) {
       off.push(...await effectTimes(amina.page, () => aminaMic.click(), everyone.map((p) => ({ page: p, selector: speaking, present: false }))))
       await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+      // The mute ends the highlight at once (#276), but the call server keeps her an active speaker until its levels
+      // fall (up to 2 windows of 400 ms and one update). Let them fall, so "on" measures her voice being detected
+      // again rather than an unmute while she is still listed as speaking.
+      await amina.page.waitForTimeout(1500)
       on.push(...await effectTimes(amina.page, () => aminaMic.click(), everyone.map((p) => ({ page: p, selector: speaking }))))
       await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
     }

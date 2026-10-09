@@ -17,6 +17,13 @@ room:
   auto_create: false
   # The server can mute a microphone but never switch one on (FR-908).
   enable_remote_unmute: false
+# Speaker detection (issue #276): LiveKit's v1.13.7 defaults, written out so the Azure VM config (T917) keeps them.
+# Shorter windows were measured to drop the speaking highlight on ordinary 200-250 ms gaps between words (4 spoken
+# sentences: 400 ms gave no drop outside a 700 ms pause, 300 ms gave 9 drops, 200 ms 17, 200 ms with 5 intervals still
+# 16), so they are not shortened. A muted microphone ends the highlight on the client as soon as the mute arrives.
+audio:
+  update_interval: 400
+  smooth_intervals: 2
 webhook:
   api_key: circloo-dev
   urls:

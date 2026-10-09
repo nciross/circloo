@@ -124,6 +124,15 @@ Approximate pay-as-you-go list prices, France Central, October 2026, rounded. To
 - **Grid**: pages of at most 9 tiles on a computer and 4 on a phone; a speaker view (one large tile and a strip) on demand. Order: active speaker, animator, floor holder, cameras on, then join order. Videos on other pages are switched off for this receiver (`setEnabled(false)`), so the call server stops sending them. All audio tracks play (silent ones cost nothing thanks to DTX). `room.startAudio()` runs inside the Join tap, so autoplay rules never block audio.
 - **Signals**: `ActiveSpeakersChanged` (speaking label), `ConnectionQualityChanged` (Weak connection), `Reconnecting` / `Reconnected` / `Disconnected` (US4 #9), `ParticipantPermissionsChanged` (microphone button follows the speaking mode), `MediaDevicesError` mapped through the kept `classifyMediaError` in `media.ts`.
 - **Device rule**: microphone and camera are requested one kind at a time, never together (R14 kept).
+- **Speaking highlight** (issue #276, SC-913): a tile shows "Speaking" while the call server lists the person as an active speaker **and** their microphone is on. The mute reaches every browser in about 0.1 s, while LiveKit keeps a muted speaker active until its audio levels go stale (two 400 ms windows plus one update, 0.8 to 1.4 s measured), so the client ends the highlight on the mute itself. LiveKit's speaker detection stays at its v1.13.7 defaults, written out in `livekit.dev.yaml` and required of every config by `CallServerConfigTests`: `audio.update_interval: 400` and `audio.smooth_intervals: 2`. **The Azure VM's `infra/livekit/livekit.yaml` (T917, #257) must carry the same `audio` section.** Shorter windows were measured against a spoken loop with 120 to 250 ms gaps between words and one 700 ms pause, 4 sentences per run:
+  | `update_interval` / `smooth_intervals` | highlight off after the voice stops | drops while speaking |
+  |---|---|---|
+  | 400 / 2 (kept) | 308 to 756 ms | 4, all in the 700 ms pause |
+  | 300 / 2 | 49 to 308 ms | 9 |
+  | 200 / 2 | 22 to 24 ms | 17, on word gaps |
+  | 200 / 5 | 21 to 80 ms | 16, on word gaps |
+
+  More smoothing does not help: a window with too little voice in it drops the level at once. So shorter windows make the highlight flicker on ordinary speech, and 400 ms already turns it off within 1 s of the voice stopping.
 
 ## R26. What the call server can see, and end-to-end encryption
 

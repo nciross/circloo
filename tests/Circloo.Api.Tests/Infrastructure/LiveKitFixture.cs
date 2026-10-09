@@ -62,7 +62,9 @@ public sealed class LiveKitFixture : IAsyncLifetime
         Container = new ContainerBuilder(Image)
             .WithNetwork(_network)
             .WithCommand("--dev", "--bind", "0.0.0.0", "--keys", $"{ApiKey}: {ApiSecret}")
-            .WithEnvironment("LIVEKIT_CONFIG", $"webhook:\n  api_key: {ApiKey}\n  urls:\n    - http://{HooksAlias}:8080/api/livekit/webhook\n")
+            // With the speaker detection of livekit.dev.yaml (issue #276), so the test server behaves like the dev one.
+            .WithEnvironment("LIVEKIT_CONFIG",
+                $"webhook:\n  api_key: {ApiKey}\n  urls:\n    - http://{HooksAlias}:8080/api/livekit/webhook\naudio:\n  update_interval: 400\n  smooth_intervals: 2\n")
             .WithPortBinding(HttpPort, assignRandomHostPort: true)
             .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(HttpPort).ForPath("/")))
             .Build();

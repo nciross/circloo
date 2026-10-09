@@ -32,6 +32,7 @@ export interface CallParticipant {
   id: string
   name: string
   local: boolean
+  /** The call server hears them, and their microphone is on (a muted microphone ends it at once, issue #276). */
   speaking: boolean
   quality: CallQuality
   mic: boolean
@@ -327,7 +328,9 @@ class LiveKitCall implements CallEngine {
       id: p.identity,
       name: p.name ?? '',
       local: p.isLocal,
-      speaking: p.isSpeaking,
+      // The call server's speaker updates follow its audio levels, which take up to a second to fall after a mute; the
+      // mute itself arrives at once, so a muted microphone is never shown speaking.
+      speaking: p.isSpeaking && p.isMicrophoneEnabled,
       quality: (QUALITIES.has(quality) ? quality : 'unknown') as CallQuality,
       mic: p.isMicrophoneEnabled,
       camera: p.isCameraEnabled,

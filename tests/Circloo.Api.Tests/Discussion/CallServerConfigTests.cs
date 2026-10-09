@@ -34,6 +34,18 @@ public sealed class CallServerConfigTests
         Assert.Equal("false", settings.GetValueOrDefault("room.enable_remote_unmute"));
     }
 
+    [Theory]
+    [MemberData(nameof(Files))]
+    public void Speaker_detection_keeps_400_ms_windows_so_the_highlight_does_not_flicker(string file)
+    {
+        var settings = Read(file);
+
+        // Issue #276: shorter windows drop the speaking highlight between words. The values are written out so a
+        // config copied for the call server's VM keeps them.
+        Assert.Equal("400", settings.GetValueOrDefault("audio.update_interval"));
+        Assert.Equal("2", settings.GetValueOrDefault("audio.smooth_intervals"));
+    }
+
     [Fact]
     public void The_dev_file_holds_no_keys_because_the_secret_lives_in_user_secrets()
     {
