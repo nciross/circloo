@@ -222,7 +222,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - only the animator lowers others.
 
   Depends on T801.
-- [ ] T810 [US5] **Hands UI.** (#184)
+- [x] T810 [US5] **Hands UI.** (#184)
   - `src/web/src/features/circles/room/HandsQueue.tsx`:
     - "Raise hand" / "Lower hand" for participants, with their place shown ("You are 3rd");
     - the full queue in order with character, ring and name for everyone (clarification 2);
