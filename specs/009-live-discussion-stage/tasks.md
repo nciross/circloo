@@ -190,7 +190,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T925, T921, T922.
 
-- [ ] T907 [US4] [UI] **Camera and microphone permission UX and fallbacks** *(changed 2026-10-08, #222)*. `/impeccable shape device-permissions` first (or manual), then in `src/web/src/features/circles/stage/`:
+- [x] T907 [US4] [UI] **Camera and microphone permission UX and fallbacks** *(changed 2026-10-08, #222)*. `/impeccable shape device-permissions` first (or manual), then in `src/web/src/features/circles/stage/`:
   - `PermissionPrimer.tsx`: before the first browser prompt in the session, one sentence: "Your camera and microphone go to the people in this call through circloo's call server. Nothing is recorded or kept." with Continue. Nothing is requested before a device button is pressed (FR-904, FR-910).
   - `DeviceProblem.tsx`: `denied` (how to allow it again, per browser, with retry), `no-device` (audio only or listen), `busy` (Try again), `blocked`, unsupported browser, "You can't join the call from this network. Chat and hands still work." after the TCP and TLS fallbacks fail.
   - Strings `circles.call.device.*` in all four locales.
