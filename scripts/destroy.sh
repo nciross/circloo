@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Destroy a circloo environment: deletes the whole resource group rg-circloo-<env> and purges Key Vault.
+# That includes the group call server (VM, disk, public IPs, network, auto-shutdown schedule) when calls were enabled.
 # Usage: ./scripts/destroy.sh [env=dev] [--yes]
 set -euo pipefail
 cd "$(dirname "$0")/.."
