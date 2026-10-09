@@ -11,7 +11,7 @@ import { create } from 'zustand'
 import type { HubConnection } from '@microsoft/signalr'
 import { ApiError } from '../../../api/client'
 import { CALL_NOTICE_KINDS, fetchCallPass, type CallNoticeKind, type CallPass } from '../../../api/discussion'
-import type { DiscussionState } from '../../../api/circles'
+import type { DiscussionState, HandsView } from '../../../api/circles'
 import { mediaSupported, type MediaKind, type MediaProblem } from './media'
 import { createCallEngine, type CallConnection, type CallEngine, type CallListener, type CallParticipant, type CallRights } from './call'
 
@@ -39,6 +39,17 @@ export interface MyDevices {
 
 export type Source = 'microphone' | 'camera'
 
+/**
+ * What the animator changed for people in this call, kept from the animator's own successful calls. The hub never sends
+ * it back (contracts/hub.md: the notices go to the person), so another animator tab or a reload starts from empty; the
+ * server still holds the truth and applies it to every pass.
+ */
+export interface Moderation {
+  microphone: string[]
+  camera: string[]
+  removed: string[]
+}
+
 interface StageState {
   discussion: DiscussionState | null
   /** Member ids in the call, from the call server through the hub (never on the audience screen). */
@@ -54,6 +65,10 @@ interface StageState {
   audioBlocked: boolean
   participants: CallParticipant[]
   notices: CallNotice[]
+  /** Raised hands and the floor (spec 008 `Hands`), live from the hub; null until the room loads them. */
+  hands: HandsView | null
+  /** The animator's mutes and removals in this call, as far as this tab knows (see `Moderation`). */
+  moderation: Moderation
   /** Joins the call. Call it from the Join tap: it starts the sound there. */
   join: () => Promise<void>
   leave: () => Promise<void>
@@ -99,6 +114,7 @@ let noticeId = 0
 const MAX_NOTICES = 20
 const OFF: MyDevices = { mic: false, camera: false }
 const NOT_IN_CALL = { connection: 'idle' as CallConnection, myPermissions: null, me: OFF, participants: [], audioBlocked: false, deviceProblem: null }
+const NO_MODERATION: Moderation = { microphone: [], camera: [], removed: [] }
 const SERVER_ERRORS = new Set<string>(['calls-unavailable', 'call-off', 'removed-from-call', 'try-again'])
 const NOTICE_KINDS = new Set<string>(CALL_NOTICE_KINDS)
 
@@ -153,6 +169,13 @@ function announce(kind: CallNoticeKind, byMemberId: string | null, subjectMember
 }
 
 const call = (method: string, ...args: unknown[]) => deps.invoke(method, ...args)
+const withId = (list: string[], id: string) => (list.includes(id) ? list : [...list, id])
+const withoutId = (list: string[], id: string) => list.filter((x) => x !== id)
+/** Records an animator action in `moderation` once the hub accepted it; a refusal changes nothing. */
+async function moderate(method: string, args: unknown[], change: (m: Moderation) => Moderation) {
+  await call(method, ...args)
+  useStage.setState((s) => ({ moderation: change(s.moderation) }))
+}
 const inCall = (c: CallConnection) => c === 'connected' || c === 'reconnecting'
 
 export const useStage = create<StageState>()((set, get) => ({
@@ -160,6 +183,8 @@ export const useStage = create<StageState>()((set, get) => ({
   roster: [],
   error: null,
   notices: [],
+  hands: null,
+  moderation: NO_MODERATION,
   ...NOT_IN_CALL,
   join: async () => {
     const { connection, discussion } = get()
@@ -232,11 +257,11 @@ export const useStage = create<StageState>()((set, get) => ({
   setSpeakingMode: (mode) => call('SetSpeakingMode', mode),
   giveFloor: (memberId) => call('GiveFloor', memberId),
   takeFloor: (memberId) => call('LowerHand', memberId),
-  muteMember: (memberId, source) => call('MuteMember', memberId, source),
-  allowMember: (memberId, source) => call('AllowMember', memberId, source),
+  muteMember: (memberId, source) => moderate('MuteMember', [memberId, source], (m) => ({ ...m, [source]: withId(m[source], memberId) })),
+  allowMember: (memberId, source) => moderate('AllowMember', [memberId, source], (m) => ({ ...m, [source]: withoutId(m[source], memberId) })),
   muteEveryone: () => call('MuteEveryone'),
-  removeFromCall: (memberId) => call('RemoveFromCall', memberId),
-  allowBack: (memberId) => call('AllowBack', memberId),
+  removeFromCall: (memberId) => moderate('RemoveFromCall', [memberId], (m) => ({ ...m, removed: withId(m.removed, memberId) })),
+  allowBack: (memberId) => moderate('AllowBack', [memberId], (m) => ({ ...m, removed: withoutId(m.removed, memberId) })),
 }))
 
 /** Notices that end your call at once, whatever the call server says next. */
@@ -249,13 +274,18 @@ export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () =
     if (!isCurrent()) return
     useStage.setState({ discussion: d })
     if (!d.on) {
-      useStage.setState({ roster: [] })
+      // Ending the call clears the animator's mutes and removals on the server (FR-902): here too.
+      useStage.setState({ roster: [], moderation: NO_MODERATION })
       if (useStage.getState().connection !== 'idle') void endCall({ error: null })
     }
   })
   connection.on('CallRoster', (ids: unknown) => {
     if (!isCurrent() || !Array.isArray(ids)) return
     useStage.setState({ roster: ids.filter((x): x is string => typeof x === 'string') })
+  })
+  connection.on('Hands', (view: HandsView) => {
+    if (!isCurrent() || !view || !Array.isArray(view.queue)) return
+    useStage.setState({ hands: { queue: view.queue, floor: view.floor ?? null } })
   })
   connection.on('CallNotice', (kind: unknown, byMemberId?: unknown, subjectMemberId?: unknown) => {
     if (!isCurrent() || typeof kind !== 'string' || !NOTICE_KINDS.has(kind)) return
@@ -269,5 +299,5 @@ export function resetStage() {
   void endCall({ error: null })
   circleId = null
   deps = defaults
-  useStage.setState({ discussion: null, roster: [], notices: [] })
+  useStage.setState({ discussion: null, roster: [], notices: [], hands: null, moderation: NO_MODERATION })
 }

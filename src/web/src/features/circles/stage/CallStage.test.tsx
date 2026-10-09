@@ -117,4 +117,23 @@ describe('CallStage', () => {
     expect(screen.getByText('You are the only one here for now. People appear as they join.')).toBeInTheDocument()
     expect(tiles()[0]).toHaveTextContent('Weak connection')
   })
+
+  it('gives the animator a menu on each participant tile, never on their own or another animator', () => {
+    inCall({}, 4)
+    const { rerender } = render(<CallStage members={members} floor={null} />)
+    expect(screen.queryByRole('button', { name: /Options for/ })).toBeNull()
+    rerender(<CallStage members={members} floor={null} isAnimator />)
+    // m0 (Nadia) is an animator and m3 (Lucía) is you.
+    const menus = screen.getAllByRole('button', { name: /Options for/ })
+    expect(menus.map((b) => b.getAttribute('aria-label'))).toEqual(['Options for Amina', 'Options for Théo'])
+    expect(menus[0]!.closest('.call-tile')).toHaveAttribute('data-member', 'm1')
+    expect(menus[0]!.closest('.call-tile')).toHaveClass('has-menu')
+  })
+
+  it('follows the live floor from the hub over the page load', () => {
+    inCall({}, 4)
+    useStage.setState({ hands: { queue: [], floor: 'm2' } })
+    render(<CallStage members={members} floor="m1" />)
+    expect(screen.getByText('Has the floor').closest('.call-tile')).toHaveAttribute('data-member', 'm2')
+  })
 })

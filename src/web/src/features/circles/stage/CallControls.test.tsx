@@ -29,6 +29,15 @@ afterEach(() => {
 })
 
 describe('CallControls', () => {
+  it('shows the animator-away countdown in the bar, said once', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] })
+    vi.setSystemTime(Date.parse('2026-10-09T10:00:00Z'))
+    connected({ discussion: state({ away: 'away', awayEndsAt: '2026-10-09T10:04:30Z' }) })
+    render(<CallControls members={members} view="call" />)
+    expect(screen.getByText('The animator is away.')).toHaveAttribute('role', 'status')
+    expect(screen.getByRole('timer')).toHaveTextContent('4:30')
+  })
+
   it('shows nothing outside a call', () => {
     const { container } = render(<CallControls members={members} view="round" />)
     expect(container).toBeEmptyDOMElement()

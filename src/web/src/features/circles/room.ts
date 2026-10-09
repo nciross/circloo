@@ -5,7 +5,7 @@ import { api } from '../../api/client'
 import { bindPresentation, useLive } from './present/presentation'
 import { bindStage, configureStage, resetStage, useStage } from './stage/stage'
 import { PRESENTATION } from './catalog'
-import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
+import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
@@ -33,6 +33,8 @@ interface RoomState {
   thinking: boolean
   draft: string
   closed: boolean
+  /** The room's switches (spec 008): the chat (paused is "Chat off"), reactions, Pirikoo quiet. */
+  settings: RoomSettings
   status: Status
   error: string | null
   connection: HubConnection | null
@@ -65,8 +67,13 @@ interface RoomState {
   revealResults: () => Promise<void>
   /** A participant answers the current question (spec 006 US4); the server confirms with MyAnswer. */
   answer: (slideId: string, options: string[]) => Promise<void>
+  /** Animator only: changes the room's switches; the hub sends `RoomSettings` to everyone, this tab included. */
+  setRoomSettings: (settings: RoomSettings) => Promise<void>
   clearError: () => void
 }
+
+/** Spec 008's defaults, until the circle view says otherwise. */
+const DEFAULT_SETTINGS: RoomSettings = { chat: 'open', reactions: true, pirikooQuiet: false }
 
 /** Send "typing" at most this often while someone writes; the server drops anything faster. */
 const TYPING_EVERY = 2500
@@ -140,12 +147,13 @@ export const useRoom = create<RoomState>()((set) => ({
   thinking: false,
   draft: '',
   closed: false,
+  settings: DEFAULT_SETTINGS,
   status: 'connecting',
   error: null,
   connection: null,
   load: (view) => {
-    // The circle view carries the live discussion setting; the stage store keeps it from here on (spec 009).
-    useStage.setState({ discussion: view.discussion ?? null })
+    // The circle view carries the live discussion setting and the hands; the stage store keeps them from here on (spec 009).
+    useStage.setState({ discussion: view.discussion ?? null, hands: view.hands ?? null })
     set({
       circleId: view.id,
       joinCode: view.joinCode,
@@ -159,6 +167,7 @@ export const useRoom = create<RoomState>()((set) => ({
       activity: view.currentActivity,
       startedBy: starterOf(view.messages, view.currentActivity),
       closed: view.status === 'closed',
+      settings: view.settings ?? DEFAULT_SETTINGS,
       online: [],
       typing: [],
       thinking: false,
@@ -208,6 +217,8 @@ export const useRoom = create<RoomState>()((set) => ({
   lockQuestion: () => invoke('LockQuestion'),
   revealResults: () => invoke('RevealResults'),
   answer: (slideId, options) => invoke('Answer', slideId, options),
+  // Not through `invoke`: the switch shows its own refusal, the room's error line stays for the rounds.
+  setRoomSettings: (settings) => call('SetRoomSettings', settings),
   clearError: () => set({ error: null }),
 }))
 
@@ -222,8 +233,10 @@ async function resync(id: string) {
     activity: view.currentActivity,
     startedBy: starterOf(view.messages, view.currentActivity),
     closed: view.status === 'closed',
+    ...(view.settings ? { settings: view.settings } : {}),
   })
   if (view.discussion) useStage.setState({ discussion: view.discussion })
+  if (view.hands) useStage.setState({ hands: view.hands })
 }
 
 /** Opens the room's real-time connection for as long as the component lives. */
@@ -263,6 +276,9 @@ export function useCircleConnection(view: CircleView | undefined) {
     // The group call (spec 009 T923): the stage store reaches the hub only through this connection.
     configureStage({ circleId: id, deps: { invoke: (method, ...args) => call(method, ...args) } })
     bindStage(connection, () => useRoom.getState().connection === connection)
+    connection.on('RoomSettings', (settings: RoomSettings) => {
+      if (useRoom.getState().connection === connection && settings) useRoom.setState({ settings })
+    })
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))
     connection.on('AiDelta', (d: { text: string }) => useRoom.setState((s) => ({ draft: s.draft + d.text })))
