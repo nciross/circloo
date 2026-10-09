@@ -784,6 +784,25 @@
   }
 }
 
+/* Pirikoo's suggestion bubble rises from the corner over the bottom of the open side card, where the chat's field and
+   send button are (WCAG 2.4.11): in the room the cerise ring calls instead, as on phones, and the panel opens on the
+   suggestion (T914). */
+body:has(.room-side.is-open) .pkl .pkl__tip {
+  display: none;
+}
+@media (max-width: 40rem) {
+  /* On a phone with the sheet folded, the corner button shares the bottom row with the sheet's pill, at the pill's
+     height, so it no longer covers the send button of a chat round's field just above (T914). */
+  body:has(.room) .pkl__button {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+  }
+  body:has(.room) .pkl__bird {
+    inline-size: 1.9rem;
+    block-size: 2.1rem;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .people__row {
     transition: background-color var(--dur-orbit) var(--ease-in-out);

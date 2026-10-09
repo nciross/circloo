@@ -697,7 +697,8 @@
 }
 .call-reactions__tally {
   position: absolute;
-  inset-block-end: var(--s-2);
+  /* A call notice right above the bar lifts the chips over it (set by CallReactions). */
+  inset-block-end: calc(var(--s-2) + var(--notice-lift, 0px));
   inset-inline-end: var(--s-2);
   justify-content: flex-end;
   max-inline-size: calc(100% - 2 * var(--s-2));

@@ -8,6 +8,7 @@ import { NO_HANDS } from '../room/hands'
 import { useReactions } from '../room/reactions'
 import type { CallParticipant } from './call'
 import { CallControls } from './CallControls'
+import { CallNotices } from './CallNotices'
 import { resetStage, useStage } from './stage'
 
 // Spec 009 T927: the raised hand and the reactions in the call's bar, and the reactions over the call.
@@ -149,6 +150,33 @@ describe('CallControls: reactions (T927)', () => {
     act(() => vi.advanceTimersByTime(1100))
     expect(within(over as HTMLElement).getByRole('status')).toHaveTextContent('20 applause')
     vi.useRealTimers()
+  })
+
+  it('lifts the chips above a call notice shown right above the bar, and back down when it goes (T914)', () => {
+    inCall('amina')
+    const real = HTMLElement.prototype.getBoundingClientRect
+    const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 800, width: 800, height, x: 0, y: top, toJSON: () => ({}) }) as DOMRect
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+      if (this.classList.contains('call-bar')) return box(636, 64)
+      if (this.classList.contains('call-notice')) return box(564, 56)
+      return real.call(this)
+    }
+    try {
+      const { container } = render(
+        <div className="room__centre">
+          <CallNotices meId="amina" />
+          <CallControls members={members} view="call" />
+        </div>,
+      )
+      const over = () => (container.querySelector('[data-slot="call-reactions"]') as HTMLElement).style.getPropertyValue('--notice-lift')
+      expect(over()).toBe('0px')
+      act(() => useStage.setState({ notices: [{ id: 1, kind: 'mode-open', byMemberId: 'nadia', subjectMemberId: null }] }))
+      expect(over()).toBe('72px')
+      act(() => useStage.setState({ notices: [] }))
+      expect(over()).toBe('0px')
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = real
+    }
   })
 
   it('is a still counter under reduced motion', () => {
