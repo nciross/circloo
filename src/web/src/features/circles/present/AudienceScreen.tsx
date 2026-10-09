@@ -11,6 +11,9 @@ import { bindPresentation, isRevealed, receive, useLive, type PresentationState 
 import { SlideStage } from './SlideStage'
 import { Countdown } from './Countdown'
 import { AnswerProgress } from './AnswerProgress'
+import { ReactionLayer } from '../room/ReactionLayer'
+import { ReactionTally } from '../room/ReactionTally'
+import { bindReactions, useReactions } from '../room/reactions'
 import '../../../styles/circles.css'
 import '../../../styles/present.css'
 
@@ -45,13 +48,17 @@ const showJoin = (state: PresentationState | null) => !state || state.phase !== 
 
 /**
  * The audience screen for a projector or TV (spec 006 US3 #7): the animator opens it in another window. It follows
- * the presentation with no controls, notes or next slide, and it does not count as someone in the room.
+ * the presentation with no controls, notes or next slide, and it does not count as someone in the room. The room's
+ * reactions float over the slide and group in the starting corner (spec 008 US4), with no names.
  */
 export default function AudienceScreen() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
   const circle = useCircle(id)
   const state = useLive((s) => s.state)
+  const bursts = useReactions((s) => s.bursts)
+  const waves = useReactions((s) => s.waves)
+  const totals = useReactions((s) => s.totals)
   const [status, setStatus] = useState<Status>('connecting')
   const [full, setFull] = useState(false)
   const [idle, setIdle] = useState(false)
@@ -62,6 +69,7 @@ export default function AudienceScreen() {
     if (!id) return
     const connection = new HubConnectionBuilder().withUrl('/hubs/circle').withAutomaticReconnect().configureLogging(LogLevel.Error).build()
     bindPresentation(connection)
+    bindReactions(connection)
     const enter = async () => {
       try {
         receive(await connection.invoke<PresentationState | null>('EnterAudience', id))
@@ -82,6 +90,7 @@ export default function AudienceScreen() {
     return () => {
       cancelled = true
       useLive.getState().reset()
+      useReactions.getState().reset()
       void connection.stop()
     }
   }, [id])
@@ -125,7 +134,9 @@ export default function AudienceScreen() {
           <div className="audience__wait"><p>{t('present.audienceRefused')}</p></div>
         ) : state ? (
           <>
-            <SlideStage state={state} className="audience__stage" />
+            <SlideStage state={state} className="audience__stage">
+              <ReactionLayer bursts={bursts} />
+            </SlideStage>
             {state.slide.kind !== 'deck' && !state.blank && !isRevealed(state) ? (
               <div className="audience__answers">
                 {state.slide.kind === 'quiz' && state.phase === 'answering' && state.deadline ? (
@@ -143,6 +154,8 @@ export default function AudienceScreen() {
         )}
       </div>
       {join ? <JoinCard code={code} /> : null}
+      {/* The room's reactions, grouped, in the projector's palette; the display itself announces nothing. */}
+      {state && status !== 'refused' ? <ReactionTally waves={waves} totals={totals} announce={false} className="audience__reactions" /> : null}
       {status === 'reconnecting' || status === 'offline' ? (
         <p className="audience__status" role="status">{t(status === 'offline' ? 'present.offline' : 'present.reconnecting')}</p>
       ) : null}

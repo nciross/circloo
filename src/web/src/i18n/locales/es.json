@@ -930,6 +930,32 @@
       "label": "{{name}}: {{count}} personas",
       "labelMood": "{{name}}: {{count}} personas, casi todo {{mood}}",
       "running": "hay una actividad en marcha"
+    },
+    "reactions": {
+      "bar": "Enviar una reacción",
+      "kinds": {
+        "clap": "Aplausos",
+        "heart": "Corazón",
+        "laugh": "Risa",
+        "wow": "Asombro",
+        "like": "Me gusta",
+        "party": "Fiesta"
+      },
+      "rest": "Cinco reacciones es el máximo por ahora. Las siguientes vuelven a contar en unos segundos.",
+      "say": {
+        "clap_one": "{{count}} aplauso",
+        "clap_other": "{{count}} aplausos",
+        "heart_one": "{{count}} corazón",
+        "heart_other": "{{count}} corazones",
+        "laugh_one": "{{count}} risa",
+        "laugh_other": "{{count}} risas",
+        "wow_one": "{{count}} asombro",
+        "wow_other": "{{count}} asombros",
+        "like_one": "{{count}} me gusta",
+        "like_other": "{{count}} me gusta",
+        "party_one": "{{count}} fiesta",
+        "party_other": "{{count}} fiestas"
+      }
     }
   },
   "boards": {

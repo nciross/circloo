@@ -115,6 +115,8 @@
   color: var(--ink);
   /* Text inside the stage scales with the stage, not with the window. */
   container-type: inline-size;
+  /* Reactions float above the slide, never above the controls laid over or after the stage. */
+  isolation: isolate;
 }
 /* The cross-fade wrapper: one per slide, fills the stage like the slide itself did. */
 .stage-slide__slide {
@@ -387,11 +389,69 @@
 }
 .follow__count {
   margin: 0;
+  margin-inline-start: auto;
   font-size: var(--fs-sm);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--ink-faint);
   text-align: end;
+}
+/* Under the slide: the reaction bar, the grouped reactions, then n/N at the end. Floats keep clear of the full-screen
+   button in the slide's corner. */
+.follow {
+  --reaction-lane-end: 3.75rem;
+}
+.follow__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+}
+/* Phones: the bar has its own row, right under the slide where the thumb is; the grouped count and n/N share the next
+   one, which keeps its height while the room is quiet so nothing jumps when a wave arrives. */
+.follow__react {
+  flex-basis: 100%;
+}
+.follow__tally {
+  flex: 1 1 0;
+  min-block-size: 2.25rem;
+  font-size: var(--fs-sm);
+}
+@media (min-width: 48rem) {
+  .follow__react {
+    flex-basis: auto;
+  }
+  .follow__tally {
+    font-size: var(--fs-md);
+  }
+}
+
+/* ---------- Reactions on the presenter and the projector (spec 008 US4) ---------- */
+.presenter__reactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-2) var(--s-3);
+}
+.presenter__react {
+  margin-inline-start: auto;
+}
+/* The projector: the same chips in its dark tokens, sized for the back of the room, low in the starting corner. */
+.audience .reaction-layer {
+  font-size: clamp(2.5rem, 6cqi, 6rem);
+}
+.audience__reactions {
+  position: fixed;
+  inset-block-end: clamp(var(--s-3), 2.5vmin, var(--s-7));
+  inset-inline-start: clamp(var(--s-3), 2.5vmin, var(--s-7));
+  z-index: 3;
+  max-inline-size: 60vw;
+  font-size: clamp(1rem, 2.8vmin, 2.25rem);
+  pointer-events: none;
+}
+.audience__reactions .reaction-tally__chip {
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-overlay);
 }
 
 /* ---------- Picker: rows on hairlines, Present as the ink pill ---------- */

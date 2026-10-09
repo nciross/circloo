@@ -930,6 +930,32 @@
       "label": "{{name}}: {{count}} people",
       "labelMood": "{{name}}: {{count}} people, mostly {{mood}}",
       "running": "a round is running"
+    },
+    "reactions": {
+      "bar": "Send a reaction",
+      "kinds": {
+        "clap": "Applause",
+        "heart": "Love",
+        "laugh": "Laughter",
+        "wow": "Wow",
+        "like": "Thumbs up",
+        "party": "Celebrate"
+      },
+      "rest": "Five reactions is the limit for now. Your next ones count again in a few seconds.",
+      "say": {
+        "clap_one": "{{count}} applause",
+        "clap_other": "{{count}} applause",
+        "heart_one": "{{count}} heart",
+        "heart_other": "{{count}} hearts",
+        "laugh_one": "{{count}} laugh",
+        "laugh_other": "{{count}} laughs",
+        "wow_one": "{{count}} wow",
+        "wow_other": "{{count}} wows",
+        "like_one": "{{count}} thumbs up",
+        "like_other": "{{count}} thumbs up",
+        "party_one": "{{count}} celebration",
+        "party_other": "{{count}} celebrations"
+      }
     }
   },
   "boards": {

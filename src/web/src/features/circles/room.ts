@@ -5,7 +5,8 @@ import { api } from '../../api/client'
 import { bindPresentation, useLive } from './present/presentation'
 import { bindStage, configureStage, resetStage, useStage } from './stage/stage'
 import { PRESENTATION } from './catalog'
-import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor } from '../../api/circles'
+import { bindReactions, useReactions, type ReactionKind } from './room/reactions'
+import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
@@ -33,6 +34,8 @@ interface RoomState {
   thinking: boolean
   draft: string
   closed: boolean
+  /** The animator's switches for the live room (spec 008): chat mode, reactions, Pirikoo quiet. */
+  settings: RoomSettings
   status: Status
   error: string | null
   connection: HubConnection | null
@@ -65,8 +68,16 @@ interface RoomState {
   revealResults: () => Promise<void>
   /** A participant answers the current question (spec 006 US4); the server confirms with MyAnswer. */
   answer: (slideId: string, options: string[]) => Promise<void>
+  /**
+   * One emoji reaction (spec 008 US4). Never an error: the hub drops it silently when reactions are off, nothing is
+   * presented or you are over the limit, so the bar gives its own feedback.
+   */
+  react: (kind: ReactionKind) => void
   clearError: () => void
 }
+
+/** What a room starts with until the hub says otherwise (contracts/hub.md defaults). */
+export const DEFAULT_SETTINGS: RoomSettings = { chat: 'open', reactions: true, pirikooQuiet: false }
 
 /** Send "typing" at most this often while someone writes; the server drops anything faster. */
 const TYPING_EVERY = 2500
@@ -140,6 +151,7 @@ export const useRoom = create<RoomState>()((set) => ({
   thinking: false,
   draft: '',
   closed: false,
+  settings: DEFAULT_SETTINGS,
   status: 'connecting',
   error: null,
   connection: null,
@@ -159,6 +171,7 @@ export const useRoom = create<RoomState>()((set) => ({
       activity: view.currentActivity,
       startedBy: starterOf(view.messages, view.currentActivity),
       closed: view.status === 'closed',
+      settings: view.settings ?? DEFAULT_SETTINGS,
       online: [],
       typing: [],
       thinking: false,
@@ -208,6 +221,11 @@ export const useRoom = create<RoomState>()((set) => ({
   lockQuestion: () => invoke('LockQuestion'),
   revealResults: () => invoke('RevealResults'),
   answer: (slideId, options) => invoke('Answer', slideId, options),
+  react: (kind) => {
+    const { connection } = useRoom.getState()
+    if (!connection || connection.state !== HubConnectionState.Connected) return
+    connection.invoke('React', kind).catch(() => undefined)
+  },
   clearError: () => set({ error: null }),
 }))
 
@@ -222,6 +240,7 @@ async function resync(id: string) {
     activity: view.currentActivity,
     startedBy: starterOf(view.messages, view.currentActivity),
     closed: view.status === 'closed',
+    ...(view.settings ? { settings: view.settings } : {}),
   })
   if (view.discussion) useStage.setState({ discussion: view.discussion })
 }
@@ -257,9 +276,16 @@ export function useCircleConnection(view: CircleView | undefined) {
     })
     connection.on('Activity', (a: { activityId: string | null; startedBy?: string | null }) => {
       useRoom.setState({ activity: a.activityId, startedBy: a.activityId ? (a.startedBy ?? null) : null })
-      if (a.activityId !== PRESENTATION) useLive.getState().reset()
+      if (a.activityId !== PRESENTATION) {
+        useLive.getState().reset()
+        useReactions.getState().reset()
+      }
     })
     bindPresentation(connection, () => useRoom.getState().connection === connection)
+    bindReactions(connection, () => useRoom.getState().connection === connection)
+    connection.on('RoomSettings', (settings: RoomSettings) => {
+      if (useRoom.getState().connection === connection) useRoom.setState({ settings })
+    })
     // The live discussion (spec 009 T905/T906): the stage store reaches the hub only through this connection.
     configureStage({ circleId: id, selfId, deps: { invoke: (method, ...args) => call(method, ...args) } })
     bindStage(connection, () => useRoom.getState().connection === connection)
@@ -312,6 +338,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       cancelled = true
       clearTyping()
       useLive.getState().reset()
+      useReactions.getState().reset()
       resetStage()
       useRoom.setState({ connection: null, status: 'connecting' })
       void connection.stop()
