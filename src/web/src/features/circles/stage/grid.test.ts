@@ -87,6 +87,21 @@ describe('pages', () => {
     expect(others).toHaveLength(10)
   })
 
+  it('pages follow the join order of the roster, the same on every screen, whatever order the call server lists people in (#277)', () => {
+    // Ids that sort the other way round from the join order, listed by the call server in yet another order.
+    const roster = ['z5', 'y4', 'x3', 'w2', 'v1']
+    const listed = ['x3', 'v1', 'z5', 'w2', 'y4']
+    for (const mine of roster) {
+      const people = listed.map((id) => person(id, { local: id === mine }))
+      const first = pageOf(people, ctx({ joined: roster }), null, PAGE_SIZE.compact, 0)
+      const all = Array.from({ length: first.pages }, (_, i) => ids(pageOf(people, ctx({ joined: roster }), null, PAGE_SIZE.compact, i).tiles))
+        .flat().filter((id) => id !== mine)
+      expect(all).toEqual(roster.filter((id) => id !== mine))
+      // The first to join is on the first page for everyone else.
+      if (mine !== 'z5') expect(ids(first.tiles)[0]).toBe('z5')
+    }
+  })
+
   it('clamps a page that no longer exists and shows you alone', () => {
     const { people, joined } = call(3)
     expect(pageOf(people, ctx({ joined }), null, PAGE_SIZE.wide, 5)).toMatchObject({ page: 0, pages: 1 })

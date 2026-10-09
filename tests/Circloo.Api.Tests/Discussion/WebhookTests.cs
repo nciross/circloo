@@ -359,6 +359,55 @@ public sealed class WebhookTests(PostgresFixture pg) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task The_roster_keeps_join_order_for_everyone_through_leaves_rejoins_and_replaced_connections()
+    {
+        // Issue #277: the grid's "join order" comes from this list, so it must be the order people joined, the same for
+        // everyone. Six people make a hash order that happens to match very unlikely.
+        var circle = await _host.Room.CircleAsync();
+        var (animator, roster) = await EnterAsync(circle.Cookies, circle.Id);
+        Assert.Empty(await roster.NextAsync());
+        await animator.InvokeAsync("EnableDiscussion", true, "open");
+        var names = new[] { ("Ana", "fox"), ("Ben", "owl"), ("Cleo", "cat"), ("Dan", "bear"), ("Eva", "frog"), ("Fred", "bunny") };
+        var people = new List<Guid>();
+        foreach (var (name, character) in names)
+        {
+            people.Add(await GuestAsync(circle.Id, circle.Code, name, character));
+        }
+        var (_, otherCookies, _) = await _host.SignedInParticipantAsync(circle.Code, "robot");
+        var (_, other) = await EnterAsync(otherCookies, circle.Id);
+        Assert.Empty(await other.NextAsync());
+
+        foreach (var id in people)
+        {
+            await SendAsync(circle.Id, Event("participant_joined", circle.Id, id.ToString(), $"PA_{id:N}_1"));
+        }
+        Assert.Equal(people, Moderation.Roster(circle.Id));
+        Assert.Equal(people, await roster.NextAsync(r => r.Length == people.Count));
+        Assert.Equal(people, await other.NextAsync(r => r.Length == people.Count));
+
+        // Cleo leaves: the others keep their order. A second connection of Dan replaces the first and keeps his place.
+        await SendAsync(circle.Id, Event("participant_left", circle.Id, people[2].ToString(), $"PA_{people[2]:N}_1"));
+        await SendAsync(circle.Id, Event("participant_joined", circle.Id, people[3].ToString(), $"PA_{people[3]:N}_2"));
+        var afterLeave = people.Where((_, i) => i != 2).ToArray();
+        Assert.Equal(afterLeave, Moderation.Roster(circle.Id));
+        Assert.Equal(afterLeave, await roster.NextAsync(r => r.Length == afterLeave.Length));
+        Assert.Equal(afterLeave, await other.NextAsync(r => r.Length == afterLeave.Length));
+
+        // Cleo comes back: she joined last now, so she comes last, and asking again gives the same list.
+        await SendAsync(circle.Id, Event("participant_joined", circle.Id, people[2].ToString(), $"PA_{people[2]:N}_2"));
+        var rejoined = afterLeave.Append(people[2]).ToArray();
+        Assert.Equal(rejoined, Moderation.Roster(circle.Id));
+        Assert.Equal(rejoined, Moderation.Roster(circle.Id));
+        Assert.Equal(rejoined, await roster.NextAsync(r => r.Length == rejoined.Length));
+        Assert.Equal(rejoined, await other.NextAsync(r => r.Length == rejoined.Length));
+
+        // Someone who enters the room later gets the same order.
+        var (_, laterCookies, _) = await _host.SignedInParticipantAsync(circle.Code, "koala");
+        var (_, later) = await EnterAsync(laterCookies, circle.Id);
+        Assert.Equal(rejoined, await later.NextAsync());
+    }
+
+    [Fact]
     public async Task The_webhook_is_limited_per_source_address_and_a_flood_writes_nothing()
     {
         await using var factory = new ApiFactory(pg.Container.GetConnectionString(),
