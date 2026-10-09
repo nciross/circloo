@@ -132,6 +132,28 @@ describe('PersonMenu', () => {
     expect(screen.getByText('Amina is out of this call.')).toBeInTheDocument()
   })
 
+  it('lets Tab go between Remove and Cancel in the question, and leave past either end (T914)', async () => {
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
+    const h = hub()
+    render(<PersonMenu memberId="amina" name="Amina" />)
+    trigger().focus()
+    await userEvent.keyboard('{Enter}')
+    await userEvent.keyboard('{End}{Enter}')
+    const ask = screen.getByRole('group', { name: /Remove Amina from this call\?/ })
+    const [remove, cancel] = [within(ask).getByRole('button', { name: 'Remove' }), within(ask).getByRole('button', { name: 'Cancel' })]
+    expect(cancel).toHaveFocus()
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}')
+    expect(remove).toHaveFocus()
+    await userEvent.keyboard('{Tab}')
+    expect(cancel).toHaveFocus()
+    // Past the last answer the question closes and the focus is back on the menu's button: no trap.
+    await userEvent.keyboard('{Tab}')
+    expect(screen.queryByRole('group')).toBeNull()
+    expect(trigger()).toHaveFocus()
+    expect(h.sent).toEqual([])
+  })
+
   it('shows a refusal in the menu, translated, and keeps the state as it was', async () => {
     useStage.setState({ discussion: state() })
     useRoom.setState({ hands: hands() })

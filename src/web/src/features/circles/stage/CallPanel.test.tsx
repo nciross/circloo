@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '../../../i18n'
 import type { DiscussionState, Member } from '../../../api/circles'
 import type { CallParticipant } from './call'
 import { useRoom } from '../room'
 import { NO_HANDS } from '../room/hands'
+import { CallControls } from './CallControls'
 import { CallPanel } from './CallPanel'
 import { configureStage, resetStage, useStage } from './stage'
 
@@ -158,6 +159,41 @@ describe('CallPanel', () => {
     expect(startAudio).toHaveBeenCalled()
     await userEvent.click(screen.getByRole('button', { name: 'Leave' }))
     expect(leave).toHaveBeenCalled()
+  })
+
+  it('keeps the focus when Join call and Leave go: on the bar after joining, on Join call after leaving (T914)', async () => {
+    const join = vi.fn(async () => {
+      useStage.setState({ connection: 'connected', participants: [person('amina', { local: true })], myPermissions: { canSpeak: false, canVideo: true } })
+    })
+    const leave = vi.fn(async () => {
+      useStage.setState({ connection: 'idle', participants: [], myPermissions: null })
+    })
+    useStage.setState({ discussion: state({ on: true }), join, leave })
+    useRoom.setState({ me: { id: 'amina', role: 'participant' } as never, members })
+    const frame = () => act(() => new Promise<void>((r) => requestAnimationFrame(() => r())))
+    const { container } = render(
+      <>
+        <CallPanel isAnimator={false} members={members} />
+        <CallControls members={members} view="call" />
+      </>,
+    )
+    screen.getByRole('button', { name: /Join call/ }).focus()
+    await userEvent.keyboard('{Enter}')
+    // Hand to speak without the floor: Raise hand is the bar's first control.
+    expect(container.querySelector('.call-bar__devices .hand-btn')).toHaveFocus()
+
+    ;(container.querySelector('.call-bar__leave') as HTMLElement).focus()
+    await userEvent.keyboard('{Enter}')
+    await frame()
+    expect(screen.getByRole('button', { name: /Join call/ })).toHaveFocus()
+
+    // Leave from the Call tab: Join call takes its place under the focus.
+    await userEvent.keyboard('{Enter}')
+    ;(container.querySelector('.call__leave') as HTMLElement).focus()
+    await userEvent.keyboard('{Enter}')
+    await frame()
+    expect(screen.getByRole('button', { name: /Join call/ })).toHaveFocus()
+    useRoom.setState({ me: null, members: [] })
   })
 
   it('says why joining failed and offers Join again', async () => {

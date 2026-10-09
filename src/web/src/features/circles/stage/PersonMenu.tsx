@@ -18,7 +18,7 @@ const EDGE = 8
  * The animator's menu for one person in the call (spec 009 US3, T926), on their tile and on their row in the Call tab:
  * give or take back the floor, switch their microphone or camera off and allow it again, remove them from the call
  * (asked once more, in place). A menu button (WAI-ARIA APG): arrows, Home and End move, Escape and Tab close and give the
- * focus back. The menu is drawn over the page so a small tile never clips it. The server decides; a refusal shows here.
+ * focus back; in the question, Tab goes between Remove and Cancel and leaves past either end. The menu is drawn over the page so a small tile never clips it. The server decides; a refusal shows here.
  *
  * Mutes and removals are what this tab did (the hub tells only the person), see `Moderation` in stage.ts.
  */
@@ -135,12 +135,17 @@ export function PersonMenu({ memberId, name }: { memberId: string; name: string 
   }
 
   const onPanelKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Escape' || e.key === 'Tab') {
+    // In the question, Tab moves between Remove and Cancel; past either end it leaves, back to the menu's button.
+    const buttons = [...(panelRef.current?.querySelectorAll<HTMLElement>('button') ?? [])]
+    const edge = e.shiftKey ? buttons[0] : buttons[buttons.length - 1]
+    const tabOut = e.key === 'Tab' && (step === 'menu' || document.activeElement === edge)
+    if (e.key === 'Escape' || tabOut) {
       e.preventDefault()
       e.stopPropagation()
       close(true)
       return
     }
+    if (e.key === 'Tab') return
     if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return
     const list = [...(panelRef.current?.querySelectorAll<HTMLElement>('button') ?? [])]
     if (!list.length) return

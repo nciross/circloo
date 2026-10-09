@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, LayoutGrid, RectangleHorizontal } from 'lucide-react'
 import type { Member } from '../../../api/circles'
@@ -18,6 +18,9 @@ type Layout = 'grid' | 'speaker'
  * others in a strip. Pages of 9 tiles on a computer and 4 on a phone, your own preview on each; the active speaker always
  * on screen. Only the videos on the page are received (SC-912). The controls are a separate bar (CallControls). The
  * animator finds each participant's menu on their tile (T926).
+ *
+ * Pages change by keyboard too (T914): Page Up and Page Down anywhere in the call, and on the page buttons the arrows
+ * (mirrored in Arabic, where the next page is to the left), Home and End. The page is said politely.
  */
 export function CallStage({ members, isAnimator = false }: { members: Member[]; isAnimator?: boolean }) {
   const { t } = useTranslation()
@@ -50,9 +53,39 @@ export function CallStage({ members, isAnimator = false }: { members: Member[]; 
   const meMember = me ? byId.get(me.id) : undefined
   const alone = connection !== 'joining' && view.tiles.length === 1 && !!me
   const pageText = t('circles.call.page', { page: view.page + 1, pages: view.pages })
+  const prevRef = useRef<HTMLButtonElement>(null)
+  const nextRef = useRef<HTMLButtonElement>(null)
+
+  /** Moves to another page; a focus that was on a tile of the old page waits on the page button instead of the page. */
+  const turn = (to: number, from: HTMLElement) => {
+    const target = Math.max(0, Math.min(view.pages - 1, to))
+    if (target === view.page) return
+    setPage(target)
+    if (!from.closest('.call-stage__pages')) (target > view.page ? nextRef : prevRef).current?.focus()
+  }
+  const onStageKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (view.pages < 2 || e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return
+    const target = e.target as HTMLElement
+    // Menus (drawn over the page, but still inside this tree) keep their own keys.
+    if (target.closest('[role="menu"], .person-menu, input, textarea')) return
+    const inPager = !!target.closest('.call-stage__pages')
+    const rtl = getComputedStyle(e.currentTarget).direction === 'rtl'
+    const to =
+      e.key === 'PageDown' ? view.page + 1
+      : e.key === 'PageUp' ? view.page - 1
+      : !inPager ? null
+      : e.key === 'ArrowRight' ? view.page + (rtl ? -1 : 1)
+      : e.key === 'ArrowLeft' ? view.page + (rtl ? 1 : -1)
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? view.pages - 1
+      : null
+    if (to === null) return
+    e.preventDefault()
+    turn(to, target)
+  }
 
   return (
-    <div className="call-stage" data-layout={layout}>
+    <div className="call-stage" data-layout={layout} onKeyDown={onStageKey}>
       <h2 className="visually-hidden">{t('circles.call.stageTitle')}</h2>
       {compact && view.pages < 2 ? null : (
         <div className="call-stage__bar">
@@ -72,8 +105,10 @@ export function CallStage({ members, isAnimator = false }: { members: Member[]; 
           {view.pages > 1 ? (
             <nav className="call-stage__pages" aria-label={t('circles.call.pages')}>
               <button
+                ref={prevRef}
                 type="button"
                 className="icon-btn call-stage__page-btn"
+                aria-keyshortcuts="PageUp"
                 aria-label={t('circles.call.prevPage')}
                 title={t('circles.call.prevPage')}
                 aria-disabled={view.page === 0 || undefined}
@@ -83,8 +118,10 @@ export function CallStage({ members, isAnimator = false }: { members: Member[]; 
               </button>
               <span className="call-stage__page" aria-live="polite">{pageText}</span>
               <button
+                ref={nextRef}
                 type="button"
                 className="icon-btn call-stage__page-btn"
+                aria-keyshortcuts="PageDown"
                 aria-label={t('circles.call.nextPage')}
                 title={t('circles.call.nextPage')}
                 aria-disabled={view.page === view.pages - 1 || undefined}

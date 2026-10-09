@@ -4,6 +4,16 @@ import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Hand, MessageCircl
 import { activeTab, type SideState } from './useSide'
 import { Count } from './Count'
 
+/** Scrolls the tab strip, never the page, until the tab is in view, in either direction of writing. */
+function revealTab(tab: HTMLElement) {
+  const strip = tab.parentElement
+  if (!strip) return
+  const t = tab.getBoundingClientRect()
+  const s = strip.getBoundingClientRect()
+  if (t.left < s.left) strip.scrollLeft -= s.left - t.left
+  else if (t.right > s.right) strip.scrollLeft += t.right - s.right
+}
+
 /** One tab of the sidebar: People, Chat, Hands and Call. */
 export interface SideTab {
   id: string
@@ -52,6 +62,12 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
     tabRefs.current[active]?.focus()
     focused()
   }, [focusTab, open, active, focused])
+
+  // On a phone the four tabs scroll sideways: the open one is always brought into view, whoever opened it.
+  useEffect(() => {
+    const tab = tabRefs.current[active]
+    if (open && tab) revealTab(tab)
+  }, [open, active])
 
   const onTabKey = (e: KeyboardEvent) => {
     const i = tabs.findIndex((x) => x.id === active)

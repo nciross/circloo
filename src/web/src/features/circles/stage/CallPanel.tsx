@@ -10,6 +10,7 @@ import { DiscussionSwitch } from './DiscussionSwitch'
 import { PersonMenu } from './PersonMenu'
 import { useAwayLeft } from './away'
 import { AwayLine } from './AwayLine'
+import { focusAfterLeave } from './focus'
 
 /**
  * The Call tab of the room's focal card (spec 009 US1, US2 and US3, T925 and T926). The animator has the switches (chat,
@@ -104,7 +105,14 @@ export function CallPanel({ isAnimator, members = [] }: { isAnimator: boolean; m
                     {t('circles.call.hear')}
                   </button>
                 ) : null}
-                <button type="button" className="btn btn--default call__leave" onClick={() => void leave()}>
+                <button
+                  type="button"
+                  className="btn btn--default call__leave"
+                  onClick={() => {
+                    void leave()
+                    focusAfterLeave()
+                  }}
+                >
                   <PhoneOff size={18} aria-hidden="true" />
                   {t('circles.call.leave')}
                 </button>
