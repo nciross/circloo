@@ -250,7 +250,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T928 for the local run and T917 for the Azure numbers.
 
-- [ ] T914 [US7] [UI] **Accessibility and i18n pass** *(changed 2026-10-08, #229)*. `/impeccable audit` over the whole call surface and `/impeccable harden` (or manual), then fix:
+- [x] T914 [US7] [UI] **Accessibility and i18n pass** *(changed 2026-10-08, #229)*. `/impeccable audit` over the whole call surface and `/impeccable harden` (or manual), then fix:
   - `stage/announce.ts` (+ test), reusing spec 008's batching: polite grouped announcements for call start and end, hands, floor, mutes and removal of me; no announcement per active speaker change, the current speaker available as text.
   - Keyboard: every control of T925, T926, T907, T927 and T909 reachable in logical order with visible focus, page changes in the grid by keyboard, arrow keys and focus order mirrored in Arabic, no trap in the primer or menus, targets at least 24 px.
   - Reduced motion: no floating reactions, no pulsing; "speaking" always as text.
