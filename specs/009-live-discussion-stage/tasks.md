@@ -222,7 +222,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T918 and spec 008 T805 (merged). The branch `feat/223-replies-system-lines` is the starting point.
 
-- [ ] T909 [US5] [UI] **Conversation UI: threads and live call lines** *(changed 2026-10-08, #224)*. `/impeccable shape discussion-thread` first (or manual), then:
+- [x] T909 [US5] [UI] **Conversation UI: threads and live call lines** *(changed 2026-10-08, #224)*. `/impeccable shape discussion-thread` first (or manual), then:
   - `ChatPanel.tsx` (spec 008 T806): Reply action, one-level thread, "replying to Amina" composer state and cancel; `Reply` in `room.ts` and `replyToId` handling.
   - Live lines in the chat from `CallNotice` (call started or ended, video on or off, mode, floor) and from `Hands` events (grouped: "3 hands raised"), never stored, gone after a reload (US5 #3).
   - Strings `circles.call.lines.*` and `circles.chat.reply.*` in all four locales.
