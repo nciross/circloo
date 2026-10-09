@@ -1,22 +1,22 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { chromium, expect, test, type Page } from '@playwright/test'
+import { chromium, expect, type Page, type TestInfo } from '@playwright/test'
 import { localeOf, signIn } from './helpers'
 import {
-  VOICE, audioPackets, axe, closeHubCalls, createCircle, decodedVideos, devicesNotYetAllowed, guest, hubCall, joinAndHear, noWebRtc, openCallTab,
-  quietPirikoo, scriptedDevices, trackPeerConnections, watchCsp,
+  CALL_PEERS, FAKE_MEDIA, UDP_BLOCKED, audioPackets, axe, closeHubCalls, concealedAudio, createCircle, dbChanges, dbSnapshot, decodedVideos, decoding,
+  devicesNotYetAllowed, effectTimes, guest, hubCall, joinAndHear, noWebRtc, openCallTab, percentile, quietPirikoo, receivingAudio, scriptedDevices, test,
+  trackPeerConnections, transportProtocols, watchCsp, type Peers, type Snapshot,
 } from './call-helpers'
 
 // Spec 009 T925, T926, T907 and T927: the call on every screen, the animator's controls, the devices, and hands and
 // reactions, against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for
 // the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic.
-// E2E_CALL_PEERS sets how many pages fill the paging test (12 by default) and how many pages clap together in the
-// reactions test (20 by default); lower it on a machine short of memory.
-
-const FAKE_DEVICES = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`]
+// E2E_CALL_PEERS sets how many pages fill the paging test (12 by default), how many pages clap together in the
+// reactions test (20 by default) and how many pages the measurements use (4 by default, T928); lower it on a machine
+// short of memory.
 
 test.use({
-  launchOptions: { args: FAKE_DEVICES },
+  launchOptions: { args: FAKE_MEDIA },
   permissions: ['camera', 'microphone'],
 })
 
@@ -611,25 +611,12 @@ test.describe('devices', () => {
     const csp: string[] = []
     const circle = await deviceRoom(page, locale, 'e2e-devices-tcp', csp)
     // His browser sends no UDP that is not proxied: the call must come over ICE/TCP (research R28; TURN/TLS on 443 is T915's).
-    const strict = await chromium.launch({ args: [...FAKE_DEVICES, '--force-webrtc-ip-handling-policy=disable_non_proxied_udp'] })
+    const strict = await chromium.launch({ args: UDP_BLOCKED })
     const youssef = await guest(strict, circle.code, 3, locale, phone, csp)
     const took = await joinAndHear(youssef.page)
     console.log(`UDP blocked, join to first audio: ${took} ms`)
     expect(took).toBeLessThanOrEqual(6000)
-    const protocols = await youssef.page.evaluate(async () => {
-      const out = new Set<string>()
-      for (const pc of (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs) {
-        if (pc.connectionState === 'closed') continue
-        const stats = await pc.getStats()
-        stats.forEach((s: { type: string; selectedCandidatePairId?: string }) => {
-          if (s.type !== 'transport' || !s.selectedCandidatePairId) return
-          const pair = stats.get(s.selectedCandidatePairId) as { localCandidateId?: string } | undefined
-          const local = pair?.localCandidateId ? (stats.get(pair.localCandidateId) as { protocol?: string } | undefined) : undefined
-          if (local?.protocol) out.add(local.protocol)
-        })
-      }
-      return [...out]
-    })
+    const protocols = await transportProtocols(youssef.page)
     expect(protocols).toEqual(['tcp'])
     expect(csp).toEqual([])
     await strict.close()
@@ -748,5 +735,372 @@ test.describe('hands and reactions', () => {
 
     expect(csp).toEqual([])
     for (const g of guests) await g.page.context().close()
+  })
+})
+
+/**
+ * One line of the measurements table: what was measured, the target, the measured value and whether it was met. The
+ * numbers come from the browser's own statistics and clocks, never from expectations. A missed target fails the last
+ * test of the run ("every target met") rather than the one that measured it, so a serial run still measures everything.
+ */
+type Measure = { criterion: string; what: string; target: string; measured: string; met: boolean }
+const measures: Measure[] = []
+
+function measure(info: TestInfo, m: Measure) {
+  measures.push(m)
+  info.annotations.push({ type: `${m.criterion}: ${m.what}`, description: `${m.measured} (target ${m.target}${m.met ? '' : ', MISSED'})` })
+}
+
+const ms = (n: number) => `${Math.round(n)} ms`
+
+function median(values: number[]) {
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = sorted.length / 2
+  return sorted.length % 2 ? sorted[Math.floor(mid)]! : (sorted[mid - 1]! + sorted[mid]!) / 2
+}
+
+/**
+ * The animator's side of a measured call: a fresh circle with E2E_CALL_PEERS pages in it (phones in the ar project),
+ * an audio or a video call in Hand to speak, and the animator in it. No activity runs, so the circle's chat and
+ * activity rows stay out of the SC-906 comparison.
+ */
+async function measuredRoom(page: Page, peers: Peers, info: TestInfo, prefix: string, kind: 'audio' | 'video', count = CALL_PEERS - 1) {
+  const locale: 'en' | 'ar' = localeOf(info)
+  const phone = (page.viewportSize()?.width ?? 1280) < 960
+  const csp: string[] = []
+  watchCsp(page, csp)
+  await quietPirikoo(page)
+  await page.context().addInitScript(trackPeerConnections)
+  await signIn(page, locale, prefix)
+  const circle = await createCircle(page, locale)
+  const guests = await peers.open(circle.code, count, { locale, phone, csp })
+  await page.goto(`/app/circles/${circle.id}`)
+  await expect(page.locator('.people__row.is-online')).toHaveCount(count + 1, { timeout: 20_000 })
+  const side = await openCallTab(page)
+  const on = side.locator(`[data-switch="${kind}"]`)
+  await on.click()
+  await expect(on).toHaveAttribute('aria-checked', 'true')
+  await side.locator('.call__join').click()
+  await expect(page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+  return { locale, phone, csp, circle, guests, side }
+}
+
+/** Ends the call with its switches, so nothing of it (hands, the switch) outlives the test (SC-906). */
+async function endCall(page: Page) {
+  const side = await openCallTab(page)
+  const audio = side.locator('[data-switch="audio"]')
+  const video = side.locator('[data-switch="video"]')
+  // Video off leaves an audio call; the Audio call switch ends it.
+  if ((await video.getAttribute('aria-checked')) === 'true') {
+    await video.click()
+    await expect(audio).toHaveAttribute('aria-checked', 'true')
+  }
+  if ((await audio.getAttribute('aria-checked')) === 'true') await audio.click()
+  await expect(audio).toHaveAttribute('aria-checked', 'false')
+  await expect(video).toHaveAttribute('aria-checked', 'false')
+}
+
+let baseline: Snapshot | null = null
+
+test.describe('measurements', () => {
+  // One page set at a time, one after the other: parallel runs would measure this machine's load, not the call.
+  test.describe.configure({ mode: 'serial' })
+
+  test.beforeAll(async () => {
+    measures.length = 0
+    baseline = await dbSnapshot()
+  })
+
+  test.afterAll(async ({ browserName }, info) => {
+    if (!measures.length) return
+    const table = [
+      `Call measurements (spec 009 T928), project ${info.project.name} (${browserName}), ${CALL_PEERS} pages, local LiveKit`,
+      '',
+      '| Criterion | Measured | Target | Result | Met |',
+      '|---|---|---|---|---|',
+      ...measures.map((m) => `| ${m.criterion} | ${m.what} | ${m.target} | ${m.measured} | ${m.met ? 'yes' : '**no**'} |`),
+    ].join('\n')
+    console.log(`\n${table}\n`)
+  })
+
+  test('measurements: join to first audio over 20 joins (SC-903)', async ({ page, peers }, info) => {
+    test.setTimeout(300_000)
+    const { csp, guests } = await measuredRoom(page, peers, info, 'e2e-measure-join', 'audio')
+    // The animator is the current speaker: her microphone is on, with the looping voice.
+    const mic = page.locator('.call-bar__device[data-device="audio"]')
+    await mic.click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+
+    // The guests take turns: Join, the first packet of her voice, Leave (every join is a fresh connection).
+    const times: number[] = []
+    let concealed = 0
+    while (times.length < 20) {
+      const g = guests[times.length % guests.length]!
+      times.push(await joinAndHear(g.page))
+      if (times.length === 20) {
+        expect(await receivingAudio(g.page, 2000)).toBe(true)
+        concealed = await concealedAudio(g.page)
+      }
+      await g.page.locator('.call-bar__leave').click()
+      await expect(g.page.locator('.call-bar')).toHaveCount(0)
+      await expect.poll(() => g.page.evaluate(() => (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs.every((pc) => pc.connectionState === 'closed'))).toBe(true)
+    }
+    console.log(`join to first audio (ms), in order: ${times.join(', ')}`)
+    const mid = median(times)
+    const p95 = percentile(times, 95)
+    measure(info, { criterion: 'SC-903', what: 'join to first audio, median of 20', target: '≤ 2000 ms', measured: ms(mid), met: mid <= 2000 })
+    measure(info, { criterion: 'SC-903', what: 'join to first audio, p95 of 20', target: '≤ 4000 ms', measured: `${ms(p95)} (max ${ms(Math.max(...times))})`, met: p95 <= 4000 })
+    measure(info, { criterion: 'R32', what: 'audio concealed, last join', target: 'info', measured: `${(concealed * 100).toFixed(2)} %`, met: true })
+
+    await endCall(page)
+    expect(csp).toEqual([])
+  })
+
+  test('measurements: every page decodes at most the videos it shows plus one (SC-912)', async ({ page, peers }, info) => {
+    test.setTimeout(300_000)
+    const { phone, csp, guests } = await measuredRoom(page, peers, info, 'e2e-measure-decode', 'video')
+    const everyone = [page, ...guests.map((g) => g.page)]
+    // Every camera on, the animator's too.
+    for (const p of guests.map((g) => g.page)) {
+      await (await openCallTab(p)).locator('.call__join').click()
+      await expect(p.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    }
+    for (const p of everyone) {
+      const camera = p.locator('.call-bar__device[data-device="video"]')
+      await camera.click()
+      await expect(camera).toHaveAttribute('aria-pressed', 'true')
+    }
+
+    const size = phone ? 4 : 9
+    const lines: string[] = []
+    let worst = -Infinity
+    let tallest = 0
+    for (const [i, p] of everyone.entries()) {
+      const tiles = p.locator('.call-stage .call-tile')
+      await expect(tiles).toHaveCount(Math.min(size, CALL_PEERS), { timeout: 20_000 })
+      // Every remote tile on the page shows its video before the count.
+      const remote = Math.min(size, CALL_PEERS) - (await p.locator('.call-stage .call-tile.is-self').count())
+      const shown = p.locator('.call-stage .call-tile:not(.is-self) video')
+      await expect(shown).toHaveCount(remote, { timeout: 20_000 })
+      const d = await decoding(p)
+      lines.push(`page ${i + 1}: ${remote} shown, ${d.videos} decoded, ${d.tallest}p`)
+      worst = Math.max(worst, d.videos - remote)
+      tallest = Math.max(tallest, d.tallest)
+    }
+    console.log(`${phone ? 'phone' : 'computer'} pages of ${size}: ${lines.join('; ')}`)
+    measure(info, {
+      criterion: 'SC-912',
+      what: `videos decoded on ${everyone.length} ${phone ? 'phones' : 'computers'} (pages of ${size})`,
+      target: '≤ shown + 1',
+      measured: `at most shown ${worst >= 0 ? '+' : '−'} ${Math.abs(worst)}`,
+      met: worst <= 1,
+    })
+    measure(info, { criterion: 'SC-912', what: 'tallest frame received', target: phone ? '≈ 360p on a phone' : 'info', measured: `${tallest}p`, met: !phone || tallest <= 360 })
+
+    await endCall(page)
+    expect(csp).toEqual([])
+  })
+
+  test('measurements: speaking highlight and moderation reach every page within 1 s (SC-913)', async ({ page, peers }, info) => {
+    test.setTimeout(360_000)
+    // Every page must show the tiles it watches: at most one page of tiles (4 on a phone), whatever E2E_CALL_PEERS says.
+    const fit = Math.min(CALL_PEERS, (page.viewportSize()?.width ?? 1280) < 960 ? 4 : 9)
+    const { csp, circle, guests, side } = await measuredRoom(page, peers, info, 'e2e-measure-speed', 'video', fit - 1)
+    const everyone = [page, ...guests.map((g) => g.page)]
+    for (const g of guests) {
+      await (await openCallTab(g.page)).locator('.call__join').click()
+      await expect(g.page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    }
+    const [amina, theo, lucia] = [guests[0]!, guests[1]!, guests[2]!]
+    const others = (who: Page) => everyone.filter((p) => p !== who)
+    const tile = (id: string) => `.call-stage .call-tile[data-member="${id}"]`
+    for (const p of everyone) await expect(p.locator(tile(amina.id))).toBeVisible({ timeout: 20_000 })
+    const menu = page.locator('.person-menu')
+    const act = (id: string, action: string) => async () => {
+      await page.locator(`${tile(id)} .person-menu__trigger`).click()
+      await menu.locator(`[data-action="${action}"]`).click()
+      await expect(menu).toHaveCount(0)
+    }
+    const worst = (delays: number[]) => Math.max(...delays)
+    const record = (what: string, delays: number[], target = 1000) => {
+      const w = worst(delays)
+      console.log(`${what}: ${delays.map(ms).join(', ')}`)
+      measure(info, { criterion: 'SC-913', what: `${what}, slowest of ${delays.length} pages`, target: `≤ ${target} ms`, measured: ms(w), met: w <= target })
+    }
+
+    // The floor: Amina raises her hand, the animator gives it from her tile. Her microphone button comes, everyone
+    // else sees "has the floor".
+    const aminaMic = amina.page.locator('.call-bar__device[data-device="audio"]')
+    await amina.page.locator('.call-bar__hand').click()
+    await expect(amina.page.locator('.call-bar__hand')).toHaveAttribute('data-hand', 'queue')
+    record('floor given', await effectTimes(page, act(amina.id, 'give'), [
+      { page: amina.page, selector: '.call-bar__device[data-device="audio"]' },
+      ...others(amina.page).map((p) => ({ page: p, selector: `${tile(amina.id)} .call-tile__floor` })),
+    ]))
+
+    // The speaking highlight follows her voice: on when she unmutes, off when she mutes, on every page (3 times each).
+    const speaking = `${tile(amina.id)}.is-speaking`
+    const first = await effectTimes(amina.page, () => aminaMic.click(), everyone.map((p) => ({ page: p, selector: speaking })))
+    console.log(`first microphone on (starts the device and publishes): ${first.map(ms).join(', ')}`)
+    const on: number[] = []
+    const off: number[] = []
+    for (let i = 0; i < 3; i++) {
+      off.push(...await effectTimes(amina.page, () => aminaMic.click(), everyone.map((p) => ({ page: p, selector: speaking, present: false }))))
+      await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+      on.push(...await effectTimes(amina.page, () => aminaMic.click(), everyone.map((p) => ({ page: p, selector: speaking }))))
+      await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
+    }
+    record('speaking highlight on', on)
+    record('speaking highlight off', off)
+    measure(info, { criterion: 'SC-913', what: 'speaking highlight, first microphone on (info)', target: 'info', measured: ms(worst(first)), met: true })
+
+    // The animator mutes her microphone: off on her screen, shown off everywhere else.
+    record('microphone muted', await effectTimes(page, act(amina.id, 'mute-mic'), [
+      { page: amina.page, selector: '.call-bar__device[data-device="audio"][aria-pressed="true"]', present: false },
+      ...others(amina.page).map((p) => ({ page: p, selector: `${tile(amina.id)} .call-tile__mic` })),
+    ]))
+
+    // The floor taken back: her hand says so, and the mark goes everywhere.
+    record('floor taken', await effectTimes(page, act(amina.id, 'take'), [
+      { page: amina.page, selector: '.call-bar__hand[data-hand="floor"]', present: false },
+      ...others(amina.page).map((p) => ({ page: p, selector: `${tile(amina.id)} .call-tile__floor`, present: false })),
+    ]))
+
+    // Théo's camera, stopped by the animator: his button locks, his video goes from every other screen.
+    const theoCam = theo.page.locator('.call-bar__device[data-device="video"]')
+    await theoCam.click()
+    await expect(theoCam).toHaveAttribute('aria-pressed', 'true')
+    for (const p of others(theo.page)) await expect(p.locator(`${tile(theo.id)} video`)).toBeVisible({ timeout: 20_000 })
+    record('camera stopped', await effectTimes(page, act(theo.id, 'stop-camera'), [
+      { page: theo.page, selector: '.call-bar__device[data-device="video"][aria-disabled="true"]' },
+      ...others(theo.page).map((p) => ({ page: p, selector: `${tile(theo.id)} video`, present: false })),
+    ]))
+
+    // Théo removed: his call ends, his tile goes from every other screen. The tap is the confirmation.
+    await page.locator(`${tile(theo.id)} .person-menu__trigger`).click()
+    await menu.locator('[data-action="remove"]').click()
+    record('removed from the call', await effectTimes(page, () => menu.locator('[data-confirm]').click(), [
+      { page: theo.page, selector: '.call-bar', present: false },
+      ...others(theo.page).map((p) => ({ page: p, selector: tile(theo.id), present: false })),
+    ]))
+    expect(await hubCall(page, circle.id, 'AllowBack', [theo.id])).toBeNull()
+
+    // The Video call switch off: Lucía's camera stops on every screen within 2 s, and her camera button goes.
+    const luciaCam = lucia.page.locator('.call-bar__device[data-device="video"]')
+    await luciaCam.click()
+    await expect(luciaCam).toHaveAttribute('aria-pressed', 'true')
+    const watching = others(lucia.page).filter((p) => p !== theo.page)
+    for (const p of watching) await expect(p.locator(`${tile(lucia.id)} video`)).toBeVisible({ timeout: 20_000 })
+    await openCallTab(page)
+    record('video switched off', await effectTimes(page, () => side.locator('[data-switch="video"]').click(), [
+      { page: lucia.page, selector: '.call-bar__device[data-device="video"]', present: false },
+      ...watching.map((p) => ({ page: p, selector: `${tile(lucia.id)} video`, present: false })),
+    ]), 2000)
+
+    await endCall(page)
+    expect(csp).toEqual([])
+  })
+
+  test('measurements: with UDP blocked, joins over TCP within 6 s (SC-916)', async ({ page, peers }, info) => {
+    test.setTimeout(240_000)
+    const { locale, phone, csp, circle } = await measuredRoom(page, peers, info, 'e2e-measure-tcp', 'audio', 0)
+    // The animator speaks; the guest's browser sends no UDP that is not proxied (research R28).
+    const mic = page.locator('.call-bar__device[data-device="audio"]')
+    await mic.click()
+    await expect(mic).toHaveAttribute('aria-pressed', 'true')
+    const strict = await chromium.launch({ args: UDP_BLOCKED })
+    try {
+      const youssef = await guest(strict, circle.code, 3, locale, phone, csp)
+      const times: number[] = []
+      for (let i = 0; i < 5; i++) {
+        times.push(await joinAndHear(youssef.page, 15_000))
+        expect(await transportProtocols(youssef.page)).toEqual(['tcp'])
+        await youssef.page.locator('.call-bar__leave').click()
+        await expect(youssef.page.locator('.call-bar')).toHaveCount(0)
+      }
+      console.log(`UDP blocked, join to first audio (ms): ${times.join(', ')}`)
+      const slowest = Math.max(...times)
+      measure(info, { criterion: 'SC-916', what: 'UDP blocked, join to first audio over ICE/TCP, slowest of 5', target: '≤ 6000 ms', measured: `${ms(slowest)} (median ${ms(median(times))})`, met: slowest <= 6000 })
+    } finally {
+      await strict.close()
+    }
+    await endCall(page)
+    expect(csp).toEqual([])
+  })
+
+  test('measurements: after the whole run the database holds nothing about the calls but chat (SC-906)', async ({ page, peers }, info) => {
+    test.setTimeout(240_000)
+    test.skip(!baseline, 'E2E_DATABASE_URL is not set: the database cannot be compared')
+    const { locale, csp, circle, guests, side } = await measuredRoom(page, peers, info, 'e2e-measure-store', 'video')
+    const [amina, theo] = [guests[0]!, guests[1]!]
+    for (const g of guests) {
+      await (await openCallTab(g.page)).locator('.call__join').click()
+      await expect(g.page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    }
+    // The mode both ways, a hand and the floor, a crafted refusal, everyone clapping, and one chat line.
+    // A phone's sheet closes once the call is joined: open the Call tab again before each switch.
+    for (const mode of [1, 0]) {
+      await openCallTab(page)
+      const seg = side.locator('.call__mode-seg .seg__opt').nth(mode)
+      await seg.click()
+      await expect(seg).toHaveAttribute('aria-pressed', 'true')
+    }
+    await amina.page.locator('.call-bar__hand').click()
+    await expect(amina.page.locator('.call-bar__hand')).toHaveAttribute('data-hand', 'queue')
+    expect(await hubCall(page, circle.id, 'GiveFloor', [amina.id])).toBeNull()
+    await expect(amina.page.locator('.call-bar__hand')).toHaveAttribute('data-hand', 'floor')
+    expect(await hubCall(theo.page, circle.id, 'RemoveFromCall', [amina.id])).toContain('animator-only')
+    expect(await hubCall(page, circle.id, 'React', ['clap'])).toBeNull()
+    for (const g of guests) expect(await hubCall(g.page, circle.id, 'React', ['clap'])).toBeNull()
+    await expect(amina.page.locator('[data-slot="call-reactions"] .reaction-tally__chip')).toHaveAttribute('data-count', String(CALL_PEERS), { timeout: 5_000 })
+    const line = locale === 'ar' ? 'شكرًا للجميع، إلى الخميس' : 'Thanks all, see you Thursday'
+    // Through the hub, as the composer sends it: with no activity running the room card has no Chat tab.
+    expect(await hubCall(theo.page, circle.id, 'Say', [line])).toBeNull()
+    await endCall(page)
+    // Hands go with the call: wait for the queue to empty everywhere before reading the tables.
+    await expect(amina.page.locator('.call-bar')).toHaveCount(0)
+    await page.waitForTimeout(1000)
+
+    const changes = dbChanges(baseline!, (await dbSnapshot())!)
+    const summary = [...changes].map(([t, c]) => `${t} +${c.added.length}${c.removed.length ? ` −${c.removed.length}` : ''}`).join(', ')
+    console.log(`tables changed during the run: ${summary}`)
+
+    // Signing in, creating circles and joining them write these; none of it is about a call.
+    const accounts = new Set(['Users', 'UserSessions', 'OtpChallenges', 'EmailOutbox', 'DataProtectionKeys', 'Circles', 'CircleMembers'])
+    const accountAudits = new Set(['otp.requested', 'auth.signed_up', 'auth.signed_in', 'profile.updated', 'circle.created', 'circle.joined'])
+    // What a call may write (contracts/hub.md, privacy rules): the switches, the mode, removals and refusals.
+    const callAudits = new Set(['discussion.on', 'discussion.off', 'call.mode', 'call.removed', 'discussion.refused'])
+    // No other table gains a row. Rows may only go from hands (an earlier call's hands going down when it ends).
+    const unexpected = [...changes].filter(([t, c]) => !accounts.has(t) && t !== 'AuditEvents' && t !== 'CircleMessages' && c.added.length).map(([t]) => t)
+    const removedOutsideAccounts = [...changes].filter(([t, c]) => !accounts.has(t) && t !== 'RaisedHands' && c.removed.length).map(([t]) => t)
+    const audits = changes.get('AuditEvents')?.added ?? []
+    const strayAudits = [...new Set(audits.map((a) => String(a.Type)))].filter((t) => !accountAudits.has(t) && !callAudits.has(t))
+    const messages = changes.get('CircleMessages')?.added ?? []
+    const strayMessages = messages.filter((m) => m.Kind !== 'member' || m.Text !== line)
+    const openCircles = (changes.get('Circles')?.added ?? []).filter((c) => c.DiscussionOn !== false)
+    const emoji = [...changes.values()].flatMap((c) => c.added).filter((r) => /👏|clap/.test(JSON.stringify(r)))
+    const kept = [...callAudits].filter((t) => audits.some((a) => a.Type === t))
+    const met = !unexpected.length && !removedOutsideAccounts.length && !strayAudits.length && !strayMessages.length && !openCircles.length && !emoji.length
+      && messages.length === 1
+    measure(info, {
+      criterion: 'SC-906',
+      what: 'rows about the calls after the run, every table compared',
+      target: 'chat and audited changes only',
+      measured: `chat +${messages.length}; audit ${kept.join(', ')}; beyond sign-in and joining, ${unexpected.length ? `also ${unexpected.join(', ')}` : 'no other row'}`,
+      met,
+    })
+    expect(unexpected).toEqual([])
+    expect(removedOutsideAccounts).toEqual([])
+    expect(strayAudits).toEqual([])
+    expect(strayMessages).toEqual([])
+    expect(messages).toHaveLength(1)
+    expect(openCircles).toEqual([])
+    expect(emoji).toEqual([])
+    expect(csp).toEqual([])
+  })
+
+  test('measurements: every target met', async () => {
+    const missed = measures.filter((m) => !m.met).map((m) => `${m.criterion} ${m.what}: ${m.measured} (target ${m.target})`)
+    expect(missed, 'targets missed in this run').toEqual([])
   })
 })

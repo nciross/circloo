@@ -1,10 +1,12 @@
 import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { expect, type Browser, type Page } from '@playwright/test'
+import { expect, test as base, type Browser, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import postgres from 'postgres'
 
-// Shared by the call e2e (spec 009): fake devices, guests, the Call tab, what a page receives, and crafted hub calls.
+// Shared by the call e2e (spec 009): fake devices, guests, the Call tab, what a page receives (getStats), timings taken
+// inside the pages, crafted hub calls, and the database snapshot of SC-906.
 
 /**
  * A voice the call server recognises as speech. Chromium's own fake microphone only beeps briefly once a second, which the
@@ -39,6 +41,15 @@ function voiceWav(): Buffer {
 }
 export const VOICE = join(tmpdir(), 'circloo-e2e-voice.wav')
 writeFileSync(VOICE, voiceWav())
+
+/** Chromium's fake camera (a test pattern) and microphone (VOICE), with no permission prompt (quickstart A). */
+export const FAKE_MEDIA = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`]
+
+/** The same browser with UDP blocked: media can only come over ICE/TCP (research R28, SC-916). */
+export const UDP_BLOCKED = [...FAKE_MEDIA, '--force-webrtc-ip-handling-policy=disable_non_proxied_udp']
+
+/** How many pages the measurements fill, the animator's included (E2E_CALL_PEERS, at least 4). */
+export const CALL_PEERS = Math.max(4, Number(process.env.E2E_CALL_PEERS ?? 4))
 
 export const GUESTS = [
   { en: 'Amina', ar: 'أمينة', character: 'fox' },
@@ -186,13 +197,38 @@ export async function openCallTab(page: Page) {
   return side
 }
 
-/** Taps Join call and returns how long until the first audio packets arrive (SC-903). */
-export async function joinAndHear(page: Page) {
+/**
+ * Taps Join call and returns how long until the first audio packet arrives (SC-903, research R32). Both moments are
+ * taken inside the page: the tap by a capture listener, the packet by reading getStats() every 20 ms from then on, so
+ * Playwright's own round trips are not counted.
+ */
+export async function joinAndHear(page: Page, timeout = 10_000) {
   const side = await openCallTab(page)
-  const started = Date.now()
+  await page.evaluate(() => {
+    const w = window as unknown as { __pcs: RTCPeerConnection[]; __heardAfter?: number }
+    delete w.__heardAfter
+    const onTap = (e: Event) => {
+      if (!(e.target as Element | null)?.closest?.('.call__join')) return
+      document.removeEventListener('click', onTap, true)
+      const tapped = performance.now()
+      const tick = async () => {
+        let packets = 0
+        for (const pc of w.__pcs) {
+          if (pc.connectionState === 'closed') continue
+          ;(await pc.getStats()).forEach((s: { type: string; kind?: string; packetsReceived?: number }) => {
+            if (s.type === 'inbound-rtp' && s.kind === 'audio') packets += s.packetsReceived ?? 0
+          })
+        }
+        if (packets > 0) w.__heardAfter = Math.round(performance.now() - tapped)
+        else if (performance.now() - tapped < 30_000) setTimeout(() => void tick(), 20)
+      }
+      void tick()
+    }
+    document.addEventListener('click', onTap, true)
+  })
   await side.locator('.call__join').click()
-  await expect.poll(() => audioPackets(page), { timeout: 10_000, intervals: [50] }).toBeGreaterThan(0)
-  return Date.now() - started
+  const heard = await page.waitForFunction(() => (window as unknown as { __heardAfter?: number }).__heardAfter, null, { timeout, polling: 50 })
+  return (await heard.jsonValue()) as number
 }
 
 export function audioPackets(page: Page) {
@@ -208,24 +244,159 @@ export function audioPackets(page: Page) {
   })
 }
 
-/** How many videos this page decodes: inbound video whose decoded frames grow over 3 s (research R32). */
-export async function decodedVideos(page: Page) {
+/** Whether audio keeps arriving: the inbound audio packets grow within `ms`. */
+export async function receivingAudio(page: Page, ms = 1000) {
+  const before = await audioPackets(page)
+  await page.waitForTimeout(ms)
+  return (await audioPackets(page)) > before
+}
+
+/** The share of received audio the browser had to conceal (lost or late), from 0 to 1 (research R32, SC-914). */
+export function concealedAudio(page: Page) {
+  return page.evaluate(async () => {
+    let concealed = 0
+    let total = 0
+    for (const pc of (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs) {
+      if (pc.connectionState === 'closed') continue
+      ;(await pc.getStats()).forEach((s: { type: string; kind?: string; concealedSamples?: number; totalSamplesReceived?: number }) => {
+        if (s.type !== 'inbound-rtp' || s.kind !== 'audio') return
+        concealed += s.concealedSamples ?? 0
+        total += s.totalSamplesReceived ?? 0
+      })
+    }
+    return total ? concealed / total : 0
+  })
+}
+
+/**
+ * What this page decodes: the inbound videos whose decoded frames grow over 3 s, and the tallest frame among them
+ * (research R32, SC-912).
+ */
+export async function decoding(page: Page) {
   const frames = () =>
     page.evaluate(async () => {
-      const out: Record<string, number> = {}
+      const out: Record<string, { frames: number; height: number }> = {}
       const pcs = (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs
       for (const [i, pc] of pcs.entries()) {
         if (pc.connectionState === 'closed') continue
-        ;(await pc.getStats()).forEach((s: { type: string; kind?: string; id: string; framesDecoded?: number }) => {
-          if (s.type === 'inbound-rtp' && s.kind === 'video') out[`${i}:${s.id}`] = s.framesDecoded ?? 0
+        ;(await pc.getStats()).forEach((s: { type: string; kind?: string; id: string; framesDecoded?: number; frameHeight?: number }) => {
+          if (s.type === 'inbound-rtp' && s.kind === 'video') out[`${i}:${s.id}`] = { frames: s.framesDecoded ?? 0, height: s.frameHeight ?? 0 }
         })
       }
       return out
     })
   const before = await frames()
   await page.waitForTimeout(3000)
-  const after = await frames()
-  return Object.entries(after).filter(([id, n]) => n > (before[id] ?? 0)).length
+  const growing = Object.entries(await frames()).filter(([id, v]) => v.frames > (before[id]?.frames ?? 0))
+  return { videos: growing.length, tallest: Math.max(0, ...growing.map(([, v]) => v.height)) }
+}
+
+/** How many videos this page decodes (see `decoding`). */
+export async function decodedVideos(page: Page) {
+  return (await decoding(page)).videos
+}
+
+/** Nearest-rank percentile of a list of numbers (0 < p <= 100). */
+export function percentile(values: number[], p: number) {
+  const sorted = [...values].sort((a, b) => a - b)
+  return sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)]!
+}
+
+let watches = 0
+
+/**
+ * How long after a tap something shows on each page (SC-913). Each watch arms a MutationObserver in its page that
+ * stamps the wall clock the moment `selector` starts to match (or stops, with `present: false`); the tap is stamped by
+ * a capture listener in the tapping page. The pages share this machine's clock, so the differences are the delays.
+ * A watch whose condition already holds before the tap fails, so a delay is never reported as 0 by mistake.
+ */
+export async function effectTimes(tapper: Page, tap: () => Promise<void>, watch: { page: Page; selector: string; present?: boolean }[]) {
+  const key = `w${++watches}`
+  await tapper.evaluate(() => {
+    const w = window as unknown as { __tapStamp?: boolean; __tappedAt?: number }
+    delete w.__tappedAt
+    if (w.__tapStamp) return
+    w.__tapStamp = true
+    document.addEventListener('click', () => (w.__tappedAt = Date.now()), true)
+  })
+  await Promise.all(watch.map((w, i) =>
+    w.page.evaluate(({ key, selector, present }) => {
+      const stamps = ((window as unknown as { __stamps?: Record<string, number | null> }).__stamps ??= {})
+      const met = () => (document.querySelector(selector) !== null) === present
+      if (met()) throw new Error(`${selector} is already ${present ? 'there' : 'gone'}`)
+      stamps[key] = null
+      const observer = new MutationObserver(() => {
+        if (!met()) return
+        stamps[key] = Date.now()
+        observer.disconnect()
+      })
+      observer.observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true })
+    }, { key: `${key}-${i}`, selector: w.selector, present: w.present ?? true })))
+  await tap()
+  const tapped = await tapper.evaluate(() => (window as unknown as { __tappedAt?: number }).__tappedAt)
+  if (!tapped) throw new Error('the tap was not seen')
+  return Promise.all(watch.map(async (w, i) => {
+    const at = await w.page
+      .waitForFunction((k) => (window as unknown as { __stamps: Record<string, number | null> }).__stamps[k], `${key}-${i}`, { timeout: 15_000 })
+      .catch((e: Error) => {
+        throw new Error(`watch ${i + 1} (${w.selector} ${w.present === false ? 'gone' : 'there'}): ${e.message}`)
+      })
+    return ((await at.jsonValue()) as number) - tapped
+  }))
+}
+
+/** Every row of every table of the e2e database as JSON text (SC-906). */
+export type Snapshot = Map<string, Set<string>>
+
+/** A snapshot of the e2e database, or null when E2E_DATABASE_URL is not set. The xUnit twin is `TableSnapshot`. */
+export async function dbSnapshot(): Promise<Snapshot | null> {
+  const url = process.env.E2E_DATABASE_URL
+  if (!url) return null
+  const sql = postgres(url, { max: 1, onnotice: () => {} })
+  try {
+    const tables = await sql<{ name: string }[]>`
+      SELECT table_name AS name FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> '__EFMigrationsHistory' ORDER BY 1`
+    const out: Snapshot = new Map()
+    for (const { name } of tables) {
+      const rows = await sql.unsafe<{ row: string }[]>(`SELECT row_to_json(t)::text AS row FROM "${name.replaceAll('"', '""')}" t`)
+      out.set(name, new Set(rows.map((r) => r.row)))
+    }
+    return out
+  } finally {
+    await sql.end()
+  }
+}
+
+/** The rows each table gained and lost between two snapshots, only for the tables that differ (a changed row is both). */
+export function dbChanges(before: Snapshot, after: Snapshot) {
+  const out = new Map<string, { added: Record<string, unknown>[]; removed: Record<string, unknown>[] }>()
+  for (const name of new Set([...before.keys(), ...after.keys()])) {
+    const was = before.get(name) ?? new Set<string>()
+    const now = after.get(name) ?? new Set<string>()
+    const added = [...now].filter((r) => !was.has(r)).map((r) => JSON.parse(r) as Record<string, unknown>)
+    const removed = [...was].filter((r) => !now.has(r)).map((r) => JSON.parse(r) as Record<string, unknown>)
+    if (added.length || removed.length) out.set(name, { added, removed })
+  }
+  return out
+}
+
+/** The transport of each live connection of the page: 'udp' or 'tcp', from the selected candidate pair (SC-916). */
+export function transportProtocols(page: Page) {
+  return page.evaluate(async () => {
+    const out = new Set<string>()
+    for (const pc of (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs) {
+      if (pc.connectionState === 'closed') continue
+      const stats = await pc.getStats()
+      stats.forEach((s: { type: string; selectedCandidatePairId?: string }) => {
+        if (s.type !== 'transport' || !s.selectedCandidatePairId) return
+        const pair = stats.get(s.selectedCandidatePairId) as { localCandidateId?: string } | undefined
+        const local = pair?.localCandidateId ? (stats.get(pair.localCandidateId) as { protocol?: string } | undefined) : undefined
+        if (local?.protocol) out.add(local.protocol)
+      })
+    }
+    return [...out]
+  })
 }
 
 /**
@@ -279,3 +450,30 @@ export function closeHubCalls(page: Page) {
     for (const ws of (window as unknown as { __hubCalls?: WebSocket[] }).__hubCalls ?? []) ws.close()
   })
 }
+
+export type Guest = Awaited<ReturnType<typeof guest>>
+
+/** Opens `count` guests in a circle (see `test`). */
+export type Peers = { open(code: string, count: number, o: { locale: 'en' | 'ar'; phone: boolean; csp: string[]; first?: number }): Promise<Guest[]> }
+
+/**
+ * The multi-page fixture of the call measurements: `peers.open` fills a circle with guests (each its own browser
+ * context, so its own cookies and media), all closed after the test even when it fails.
+ */
+export const test = base.extend<{ peers: Peers }>({
+  peers: async ({ browser }, provide) => {
+    const opened: Guest[] = []
+    await provide({
+      async open(code, count, { locale, phone, csp, first = 0 }) {
+        const out: Guest[] = []
+        for (let i = first; i < first + count; i++) {
+          const g = await guest(browser, code, i, locale, phone, csp)
+          opened.push(g)
+          out.push(g)
+        }
+        return out
+      },
+    })
+    for (const g of opened) await g.page.context().close().catch(() => {})
+  },
+})
