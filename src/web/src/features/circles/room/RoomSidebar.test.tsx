@@ -98,6 +98,47 @@ describe('RoomSidebar', () => {
     }
   })
 
+  it('keeps the open tab in view when it grows, as when a call puts a count on Call (T915)', async () => {
+    window.localStorage.setItem('circloo.room.side', 'closed')
+    const at: Record<string, number> = { People: 0, Chat: 90, Hands: 180, Call: 270 }
+    let callWidth = 80
+    const rect = (left: number, width: number) => ({ left, right: left + width, top: 0, bottom: 40, width, height: 40, x: left, y: 0, toJSON: () => ({}) })
+    const real = HTMLElement.prototype.getBoundingClientRect
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+      if (this.getAttribute('role') === 'tablist') return rect(0, 200) as DOMRect
+      const label = Object.keys(at).find((k) => this.getAttribute('role') === 'tab' && this.textContent?.startsWith(k))
+      return (label ? rect(at[label]! - this.parentElement!.scrollLeft, label === 'Call' ? callWidth : 80) : rect(0, 0)) as DOMRect
+    }
+    const watched: { tab: Element; tell: () => void }[] = []
+    const RealObserver = globalThis.ResizeObserver
+    globalThis.ResizeObserver = class {
+      private readonly tell: () => void
+      constructor(tell: () => void) {
+        this.tell = tell
+      }
+      observe(tab: Element) {
+        watched.push({ tab, tell: this.tell })
+      }
+      unobserve() {}
+      disconnect() {
+        watched.length = 0
+      }
+    } as unknown as typeof ResizeObserver
+    try {
+      render(<Harness />)
+      await userEvent.click(screen.getByRole('button', { name: 'Call' }))
+      const strip = screen.getByRole('tablist')
+      expect(strip.scrollLeft).toBe(150)
+      // The call starts: Call gains a count and is 40 px wider. Its end comes back into view.
+      callWidth = 120
+      for (const w of watched.filter((x) => x.tab.textContent?.startsWith('Call'))) w.tell()
+      expect(strip.scrollLeft).toBe(190)
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = real
+      globalThis.ResizeObserver = RealObserver
+    }
+  })
+
   it('shows "99+" past 99 and reads the exact count', () => {
     window.localStorage.setItem('circloo.room.side', 'closed')
     render(<Harness unread={140} />)
