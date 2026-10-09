@@ -234,7 +234,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 ## Phase 7: Measurements, accessibility and the journey
 
-- [ ] T928 [US2] [US3] [US4] **Call e2e measurements against the local LiveKit.**
+- [x] T928 [US2] [US3] [US4] **Call e2e measurements against the local LiveKit.** (#268)
   - `src/web/e2e/call-helpers.ts`: a multi-page fixture (`E2E_CALL_PEERS`, default 4), fake media flags, `getStats()` helpers (receiving audio, decoded video count, concealed audio ratio, time from Join to the first audio packet).
   - "measurements" describe in `call.spec.ts`: join to first audio over 20 joins, median ≤ 2 s and p95 ≤ 4 s locally (SC-903); decoded videos ≤ visible tiles + 1 on desktop and phone (SC-912); speaking highlight ≤ 1 s and mute, floor, camera stop and removal ≤ 1 s for every page (SC-913); UDP-blocked join ≤ 6 s (SC-916); after the whole run, the database comparison of SC-906 through an API test helper.
   - Results printed as a short table the PR quotes.
