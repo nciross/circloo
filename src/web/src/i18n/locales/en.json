@@ -874,6 +874,53 @@
       "valueAway": "away",
       "peopleHere": "People here"
     },
+    "hands": {
+      "tab": "Hands",
+      "raise": "Raise hand",
+      "lower": "Lower hand",
+      "done": "I’m done",
+      "youHaveFloor": "You have the floor",
+      "place_ordinal_one": "You are {{count}}st",
+      "place_ordinal_two": "You are {{count}}nd",
+      "place_ordinal_few": "You are {{count}}rd",
+      "place_ordinal_other": "You are {{count}}th",
+      "speaking": "<name>{{name}}</name> is speaking",
+      "next": "<name>{{name}}</name> is next",
+      "title_zero": "No hands up",
+      "title_one": "{{count}} waiting",
+      "title_other": "{{count}} waiting",
+      "emptyAnimator": "When someone raises a hand, they line up here in the order they raised it.",
+      "emptyParticipant": "Raise your hand to ask to speak. The animator gives the floor in turn.",
+      "waitedNow": "Just raised",
+      "waited_one": "Waiting {{count}} min",
+      "waited_other": "Waiting {{count}} min",
+      "give": "Give the floor",
+      "giveTo": "Give the floor to {{name}}",
+      "lowerOf": "Lower {{name}}’s hand",
+      "lowerShort": "Lower",
+      "endTurn": "End turn",
+      "lowerAll": "Lower all hands",
+      "handUp": "hand raised",
+      "hasFloor": "has the floor",
+      "up_one": "{{count}} hand up",
+      "up_other": "{{count}} hands up",
+      "say": {
+        "raisedOne": "{{name}} raised a hand",
+        "raisedMany": "{{names}} raised their hands",
+        "raisedCount_one": "{{count}} person raised a hand",
+        "raisedCount_other": "{{count}} people raised a hand",
+        "down": "Your hand is down."
+      },
+      "errors": {
+        "hand-invalid": "That hand is already down.",
+        "slow-down": "Easy there: wait a few seconds before raising your hand again.",
+        "try-again": "The queue just changed. Try again.",
+        "animator-only": "Only the animator can do this.",
+        "animator-cannot-raise": "The animator gives the floor and does not raise a hand.",
+        "offline": "You are offline. It will work again once the room reconnects.",
+        "failed": "That did not work. Try again in a moment."
+      }
+    },
     "missing": {
       "title": "Circle not found",
       "body": "It may have ended, or you are not in it."
@@ -1092,6 +1139,32 @@
       "label": "{{name}}: {{count}} people",
       "labelMood": "{{name}}: {{count}} people, mostly {{mood}}",
       "running": "a round is running"
+    },
+    "reactions": {
+      "bar": "Send a reaction",
+      "kinds": {
+        "clap": "Applause",
+        "heart": "Love",
+        "laugh": "Laughter",
+        "wow": "Wow",
+        "like": "Thumbs up",
+        "party": "Celebrate"
+      },
+      "rest": "Five reactions is the limit for now. Your next ones count again in a few seconds.",
+      "say": {
+        "clap_one": "{{count}} applause",
+        "clap_other": "{{count}} applause",
+        "heart_one": "{{count}} heart",
+        "heart_other": "{{count}} hearts",
+        "laugh_one": "{{count}} laugh",
+        "laugh_other": "{{count}} laughs",
+        "wow_one": "{{count}} wow",
+        "wow_other": "{{count}} wows",
+        "like_one": "{{count}} thumbs up",
+        "like_other": "{{count}} thumbs up",
+        "party_one": "{{count}} celebration",
+        "party_other": "{{count}} celebrations"
+      }
     }
   },
   "boards": {

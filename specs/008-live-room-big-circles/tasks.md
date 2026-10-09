@@ -166,7 +166,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
 
 **Independent Test**: 40 phones tap 👏 within 2 s. Every screen shows a short burst ending in "👏 ×40" with at most 12 moving emoji. The results show "Reactions: 👏 40".
 
-- [ ] T807 [P] [US4] **Reactions hub.** (#181)
+- [x] T807 [P] [US4] **Reactions hub.** (#181)
   - `React(kind)` in `src/Circloo.Api/Circles/CircleHub.Room.cs`:
     - kinds "`clap heart laugh wow like party`" (`reaction-invalid` otherwise);
     - silently dropped when reactions are off or the member is over 5 per 10 s (`RoomLimits`).
@@ -182,7 +182,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - a connection that is not a member of the circle is refused (FR-830).
 
   Depends on T801.
-- [ ] T808 [US4] **Reactions UI.** (#182)
+- [x] T808 [US4] **Reactions UI.** (#182)
   - `src/web/src/features/circles/room/ReactionBar.tsx` under the slide for participants and the animator: 6 buttons ≥ 44 px, labelled, hidden when reactions are off.
   - `src/web/src/features/circles/room/ReactionLayer.tsx` over the slide stage:
     - floats from the bottom edge, fades in about 2 s;
@@ -222,7 +222,7 @@ No setup task. The only new project, the load test, belongs to US7 (T813).
     - only the animator lowers others.
 
   Depends on T801.
-- [ ] T810 [US5] **Hands UI.** (#184)
+- [x] T810 [US5] **Hands UI.** (#184)
   - `src/web/src/features/circles/room/HandsQueue.tsx`:
     - "Raise hand" / "Lower hand" for participants, with their place shown ("You are 3rd");
     - the full queue in order with character, ring and name for everyone (clarification 2);

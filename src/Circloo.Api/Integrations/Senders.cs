@@ -62,6 +62,7 @@ public sealed class IntegrationSender(IHttpClientFactory http)
                 lines.Add($"circloo: {s.Summary}");
             }
         }
+        lines.AddRange(r.ReactionLines);
         using var req = TeamsRequest(c, Card($"{r.Name} · {Date(r)}", lines));
         using var res = await Client().SendAsync(req, ct);
         return new SendResult(res.IsSuccessStatusCode, null, res.IsSuccessStatusCode ? 1 : 0, (int)res.StatusCode);
@@ -104,7 +105,7 @@ public sealed class IntegrationSender(IHttpClientFactory http)
         var actions = r.Actions(MaxJiraIssues).ToList();
         var items = actions.Count > 0
             ? actions.Select(n => (Summary: n.Text, Detail: $"From the circle \"{r.Name}\" on {Date(r)}{Votes(n)}."))
-            : [($"{r.Name} · {Date(r)}", string.Join("\n", r.Sections.Select(s => $"{s.Title}: {s.Summary}")))];
+            : [($"{r.Name} · {Date(r)}", string.Join("\n", r.Sections.Select(s => $"{s.Title}: {s.Summary}").Concat(r.ReactionLines)))];
         string? firstKey = null;
         var created = 0;
         foreach (var (summary, detail) in items)
@@ -167,6 +168,10 @@ public sealed class IntegrationSender(IHttpClientFactory http)
                 html.Append(CultureInfo.InvariantCulture, $"<blockquote><p>{E("circloo: " + s.Summary)}</p></blockquote>");
             }
         }
+        foreach (var line in r.ReactionLines)
+        {
+            html.Append(CultureInfo.InvariantCulture, $"<p>{E(line)}</p>");
+        }
         var page = new JsonObject
         {
             ["spaceId"] = c.SpaceId,
@@ -206,6 +211,10 @@ public sealed class IntegrationSender(IHttpClientFactory http)
             {
                 blocks.Add(Block("quote", "circloo: " + s.Summary));
             }
+        }
+        foreach (var line in r.ReactionLines)
+        {
+            blocks.Add(Block("paragraph", line));
         }
         var page = new JsonObject
         {

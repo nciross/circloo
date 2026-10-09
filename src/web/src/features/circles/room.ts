@@ -5,7 +5,9 @@ import { api } from '../../api/client'
 import { bindPresentation, useLive } from './present/presentation'
 import { bindStage, configureStage, resetStage, useStage } from './stage/stage'
 import { PRESENTATION } from './catalog'
-import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
+import { bindReactions, useReactions, type ReactionKind } from './room/reactions'
+import { cleanHands, NO_HANDS } from './room/hands'
+import type { BoardNote, CanvasColor, CanvasNote, CanvasShape, CanvasSize, CanvasSticker, CircleView, HandsView, Member, Message, NoteColor, RoomSettings } from '../../api/circles'
 
 type Status = 'connecting' | 'live' | 'reconnecting' | 'offline'
 
@@ -35,6 +37,8 @@ interface RoomState {
   closed: boolean
   /** The room's switches (spec 008): the chat (paused is "Chat off"), reactions, Pirikoo quiet. */
   settings: RoomSettings
+  /** Raised hands, oldest first, and who has the floor (spec 008 US5). Names come from `members`. */
+  hands: HandsView
   status: Status
   error: string | null
   connection: HubConnection | null
@@ -69,11 +73,25 @@ interface RoomState {
   answer: (slideId: string, options: string[]) => Promise<void>
   /** Animator only: changes the room's switches; the hub sends `RoomSettings` to everyone, this tab included. */
   setRoomSettings: (settings: RoomSettings) => Promise<void>
+  /**
+   * One emoji reaction (spec 008 US4). Never an error: the hub drops it silently when reactions are off, nothing is
+   * presented or you are over the limit, so the bar gives its own feedback.
+   */
+  react: (kind: ReactionKind) => void
+  /**
+   * Hands (spec 008 US5). They throw the hub's code (`hand-invalid`, `slow-down`…) to the caller, which says it where
+   * the hand was pressed; they never set the room's `error`.
+   */
+  raiseHand: () => Promise<void>
+  /** Your own hand, or (the animator) someone else's; lowering the speaker's hand ends their turn. */
+  lowerHand: (memberId?: string) => Promise<void>
+  lowerAllHands: () => Promise<void>
+  giveFloor: (memberId: string) => Promise<void>
   clearError: () => void
 }
 
-/** Spec 008's defaults, until the circle view says otherwise. */
-const DEFAULT_SETTINGS: RoomSettings = { chat: 'open', reactions: true, pirikooQuiet: false }
+/** What a room starts with until the hub says otherwise (contracts/hub.md defaults). */
+export const DEFAULT_SETTINGS: RoomSettings = { chat: 'open', reactions: true, pirikooQuiet: false }
 
 /** Send "typing" at most this often while someone writes; the server drops anything faster. */
 const TYPING_EVERY = 2500
@@ -148,6 +166,7 @@ export const useRoom = create<RoomState>()((set) => ({
   draft: '',
   closed: false,
   settings: DEFAULT_SETTINGS,
+  hands: NO_HANDS,
   status: 'connecting',
   error: null,
   connection: null,
@@ -168,6 +187,7 @@ export const useRoom = create<RoomState>()((set) => ({
       startedBy: starterOf(view.messages, view.currentActivity),
       closed: view.status === 'closed',
       settings: view.settings ?? DEFAULT_SETTINGS,
+      hands: cleanHands(view.hands),
       online: [],
       typing: [],
       thinking: false,
@@ -219,6 +239,15 @@ export const useRoom = create<RoomState>()((set) => ({
   answer: (slideId, options) => invoke('Answer', slideId, options),
   // Not through `invoke`: the switch shows its own refusal, the room's error line stays for the rounds.
   setRoomSettings: (settings) => call('SetRoomSettings', settings),
+  react: (kind) => {
+    const { connection } = useRoom.getState()
+    if (!connection || connection.state !== HubConnectionState.Connected) return
+    connection.invoke('React', kind).catch(() => undefined)
+  },
+  raiseHand: () => call('RaiseHand'),
+  lowerHand: (memberId) => call('LowerHand', memberId ?? null),
+  lowerAllHands: () => call('LowerAllHands'),
+  giveFloor: (memberId) => call('GiveFloor', memberId),
   clearError: () => set({ error: null }),
 }))
 
@@ -234,6 +263,7 @@ async function resync(id: string) {
     startedBy: starterOf(view.messages, view.currentActivity),
     closed: view.status === 'closed',
     ...(view.settings ? { settings: view.settings } : {}),
+    ...(view.hands ? { hands: cleanHands(view.hands) } : {}),
   })
   if (view.discussion) useStage.setState({ discussion: view.discussion })
   if (view.hands) useStage.setState({ hands: view.hands })
@@ -270,9 +300,16 @@ export function useCircleConnection(view: CircleView | undefined) {
     })
     connection.on('Activity', (a: { activityId: string | null; startedBy?: string | null }) => {
       useRoom.setState({ activity: a.activityId, startedBy: a.activityId ? (a.startedBy ?? null) : null })
-      if (a.activityId !== PRESENTATION) useLive.getState().reset()
+      if (a.activityId !== PRESENTATION) {
+        useLive.getState().reset()
+        useReactions.getState().reset()
+      }
     })
     bindPresentation(connection, () => useRoom.getState().connection === connection)
+    bindReactions(connection, () => useRoom.getState().connection === connection)
+    connection.on('Hands', (view: unknown) => {
+      if (useRoom.getState().connection === connection) useRoom.setState({ hands: cleanHands(view) })
+    })
     // The group call (spec 009 T923): the stage store reaches the hub only through this connection.
     configureStage({ circleId: id, deps: { invoke: (method, ...args) => call(method, ...args) } })
     bindStage(connection, () => useRoom.getState().connection === connection)
@@ -328,6 +365,7 @@ export function useCircleConnection(view: CircleView | undefined) {
       cancelled = true
       clearTyping()
       useLive.getState().reset()
+      useReactions.getState().reset()
       resetStage()
       useRoom.setState({ connection: null, status: 'connecting' })
       void connection.stop()

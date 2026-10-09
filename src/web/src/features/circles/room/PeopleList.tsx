@@ -1,9 +1,9 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Crown, Search } from 'lucide-react'
+import { Crown, Hand, Mic, Search } from 'lucide-react'
 import { Character } from '../../../components/Character'
 import { Meter } from '../../../components/Meter'
-import type { Member } from '../../../api/circles'
+import type { HandsView, Member } from '../../../api/circles'
 import { peopleRows, windowRows } from './sidebar'
 
 /** Used until a row can be measured (and in tests, where nothing has a size). Matches `--people-row` in room.css at 16 px. */
@@ -14,9 +14,10 @@ const ROW_FALLBACK = 68
  * character at 44 px, its name, its role and "here" or "away" as the value at the end; the animator is marked by an icon
  * and a label. A search by name on top, and under the list a meter of the people here with "n here · m away" in words.
  * Past 50 rows only the rows in view are drawn (the list keeps its full height, and each row says its place), so 100
- * people stay cheap.
+ * people stay cheap. A raised hand (spec 008 US5) makes the character wave for a moment and leaves a small hand on it;
+ * under reduced motion only the hand shows. The one with the floor carries a microphone instead.
  */
-export function PeopleList({ members, online, meId, arrivals = [] }: { members: Member[]; online: string[]; meId?: string; arrivals?: string[] }) {
+export function PeopleList({ members, online, meId, arrivals = [], hands }: { members: Member[]; online: string[]; meId?: string; arrivals?: string[]; hands?: HandsView }) {
   const { t, i18n } = useTranslation()
   const [query, setQuery] = useState('')
   const [scroll, setScroll] = useState({ top: 0, height: 0 })
@@ -28,6 +29,8 @@ export function PeopleList({ members, online, meId, arrivals = [] }: { members: 
   const hasRows = rows.length > 0
   const win = windowRows(rows.length, rowHeight, scroll.top, scroll.height)
   const shown = rows.slice(win.start, win.end)
+  const raised = useMemo(() => new Set(hands?.queue.map((h) => h.memberId)), [hands])
+  const floor = hands?.floor ?? null
 
   useLayoutEffect(() => {
     const el = scroller.current
@@ -95,15 +98,23 @@ export function PeopleList({ members, online, meId, arrivals = [] }: { members: 
               ) : (
                 <li
                   key={r.member.id}
-                  className={`people__row buddy${r.here ? ' is-online' : ' is-away'}${arrivals.includes(r.member.id) ? ' is-new' : ''}`}
+                  className={`people__row buddy${r.here ? ' is-online' : ' is-away'}${arrivals.includes(r.member.id) ? ' is-new' : ''}${raised.has(r.member.id) ? ' is-hand' : ''}${floor === r.member.id ? ' is-floor' : ''}`}
                   aria-setsize={found}
                   aria-posinset={r.index + 1}
                 >
                   <span className="people__body buddy__char">
                     <Character id={r.member.character} ring={r.member.ring} tag={false} className="people__char" />
+                    {raised.has(r.member.id) || floor === r.member.id ? (
+                      <span className="people__hand" aria-hidden="true">{floor === r.member.id ? <Mic size={12} /> : <Hand size={12} />}</span>
+                    ) : null}
                   </span>
                   <span className="people__text">
-                    <span className="people__name buddy__name"><bdi>{r.member.name}</bdi>{r.member.id === meId ? <span className="people__you"> ({t('circles.you')})</span> : null}</span>
+                    <span className="people__name buddy__name">
+                      <bdi>{r.member.name}</bdi>
+                      {r.member.id === meId ? <span className="people__you"> ({t('circles.you')})</span> : null}
+                      {floor === r.member.id ? <span className="visually-hidden">, {t('circles.hands.hasFloor')}</span>
+                        : raised.has(r.member.id) ? <span className="visually-hidden">, {t('circles.hands.handUp')}</span> : null}
+                    </span>
                     <span className="people__meta buddy__status">
                       {r.member.role === 'animator' ? (
                         <span className="people__role"><Crown size={12} aria-hidden="true" />{t('circles.roles.animator')}</span>

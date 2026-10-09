@@ -4,7 +4,7 @@ import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Hand, MessageCircl
 import { activeTab, type SideState } from './useSide'
 import { Count } from './Count'
 
-/** One tab of the sidebar: People, Chat and Call today; the hands queue (#184) joins the same list. */
+/** One tab of the sidebar: People, Chat, Hands and Call. */
 export interface SideTab {
   id: string
   label: string
@@ -22,7 +22,15 @@ export interface SideTab {
  * expandable, closable to a pill; the page keeps room below the content for it, so it never covers the answer pad or the
  * presenter controls (FR-807). Tabs are data.
  */
-export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { tabs: SideTab[]; side: SideState; unread?: number; hands?: number; announce?: string }) {
+export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live }: {
+  tabs: SideTab[]
+  side: SideState
+  unread?: number
+  hands?: number
+  announce?: string
+  /** Other live regions (the hands announcer): kept outside the body, so they speak while it is collapsed. */
+  live?: ReactNode
+}) {
   const { t } = useTranslation()
   const { wide, open, setOpen, sheet, setSheet, setTab: setPicked } = side
   const active = activeTab(tabs, side.tab)
@@ -187,6 +195,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce }: { t
       </div>
       {/* Outside the body, so an arrival is still announced while the sidebar is collapsed. */}
       <p className="visually-hidden" aria-live="polite">{announce ?? ''}</p>
+      {live}
     </aside>
   )
 }

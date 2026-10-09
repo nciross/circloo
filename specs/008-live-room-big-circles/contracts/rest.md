@@ -31,4 +31,4 @@ reactionTotals?: Record<string, number>
 
 ## Results
 
-The circle report (`CircleReport`, used by "Send results" to Teams, Jira, Confluence and Notion) gains one line per presentation that received reactions: "Reactions: 👏 42 · ❤️ 18 · 😂 9". It never includes names.
+The circle report (`CircleReport`, used by "Send results" to Teams, Jira, Confluence and Notion) gains one line per presentation that received reactions, oldest first, named after its deck so several presentations stay apart: "Reactions (Kickoff): 👏 42 · ❤️ 18 · 😂 9". It never includes people's names or ids.

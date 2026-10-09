@@ -83,6 +83,8 @@ public interface ICircleClient
     /// never sent to the audience screen.
     /// </summary>
     Task CallRoster(Guid[] memberIds);
+    /// <summary>A grouped burst of reactions, counts by kind and no member ids, at most every 400 ms per circle (spec 008).</summary>
+    Task Reactions(ReactionBurst burst);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -105,7 +107,7 @@ public sealed class CirclePresence
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
     Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace,
-    CallLifecycle calls, CallPermissions callPermissions, CallModeration moderation, CallAway away) : Hub<ICircleClient>
+    CallLifecycle calls, CallPermissions callPermissions, CallModeration moderation, CallAway away, ReactionBuffer reactions) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 

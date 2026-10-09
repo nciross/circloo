@@ -1,0 +1,211 @@
+/* Emoji reactions (spec 008 US4) in the charcoal language (#250): six outlined pills under the slide, emoji rising in
+   a lane along the slide's inline end, and grouped "👏 ×40" chips beside it. Everything moves by transform alone (axe
+   samples text on arrival, so nothing fades), the floats never take a pointer, and the projector's dark tokens
+   (present.css) restyle the same chips. Logical properties only. */
+
+/* ---------- The bar ---------- */
+.reaction-bar {
+  display: grid;
+  gap: var(--s-1);
+  justify-items: start;
+  min-inline-size: 0;
+}
+.reaction-bar__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+.reaction-bar__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  padding: 0;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    border-color var(--dur-state) var(--ease-out),
+    background-color var(--dur-state) var(--ease-out);
+}
+@media (hover: hover) {
+  .reaction-bar__btn:hover {
+    border-color: var(--ink);
+    background: var(--paper-hover);
+  }
+}
+.reaction-bar__btn:active {
+  transform: scale(0.9);
+}
+.reaction-bar__btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* Under reduced motion the tap lights the button instead of making the emoji hop. */
+.reaction-bar__btn.is-sent {
+  border-color: var(--ink);
+  background: var(--paper-pressed);
+}
+/* Resting after five taps: the emoji go grey and the outline dashes; the hint says why, in words. */
+.reaction-bar__btn[aria-disabled='true'] {
+  border-style: dashed;
+  border-color: var(--hairline-strong);
+  background: var(--paper-sunken);
+  cursor: default;
+}
+.reaction-bar__btn[aria-disabled='true'] .reaction-bar__emoji {
+  filter: grayscale(1);
+}
+.reaction-bar__btn[aria-disabled='true']:active {
+  transform: none;
+}
+.reaction-bar__emoji,
+.reaction-bar__pop,
+.reaction-layer__emoji,
+.reaction-tally__emoji {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', var(--font);
+}
+/* Your own tap, at once: the emoji hops off the button and shrinks away. */
+.reaction-bar__pop {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 55%;
+  text-align: center;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  animation: reaction-pop 640ms var(--ease-out) both;
+}
+.reaction-bar__hint {
+  margin: 0;
+  max-inline-size: 36ch;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* ---------- Floating over a surface ---------- */
+.reaction-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  font-size: clamp(1.5rem, 5cqi, 3.5rem);
+  line-height: 1;
+}
+.reaction-layer__float {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: calc(var(--reaction-lane-end, 3%) + var(--x, 0.5) * var(--reaction-lane-width, 20%));
+  display: flex;
+  align-items: flex-end;
+  /* Percentages move by the float's own height, which is the surface's: the rise is the same share on any screen. */
+  animation: reaction-rise var(--dur, 2200ms) cubic-bezier(0.22, 0.61, 0.36, 1) var(--delay, 0ms) both;
+}
+.reaction-layer__emoji {
+  display: block;
+  padding-block-end: 0.15em;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.22));
+  animation: reaction-sway var(--dur, 2200ms) var(--ease-in-out) var(--delay, 0ms) both;
+}
+
+/* ---------- The grouped count ---------- */
+.reaction-tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+  min-inline-size: 0;
+}
+.reaction-tally__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  min-block-size: 2.25em;
+  padding-block: 0.2em;
+  padding-inline: 0.45em 0.7em;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.reaction-tally__emoji {
+  font-size: 1.25em;
+}
+.reaction-tally__n {
+  display: inline-block;
+  animation: reaction-count-pop var(--dur-move) var(--ease-out);
+}
+
+@keyframes reaction-pop {
+  0% {
+    transform: translateY(0) scale(0.6);
+  }
+  45% {
+    transform: translateY(-1.4rem) scale(1.15);
+  }
+  100% {
+    transform: translateY(-2.4rem) scale(0);
+  }
+}
+@keyframes reaction-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-72%);
+  }
+}
+@keyframes reaction-sway {
+  0% {
+    transform: translateX(0) scale(0);
+  }
+  12% {
+    transform: translateX(calc(var(--drift, 0em) * 0.3)) scale(1.15);
+  }
+  24% {
+    transform: translateX(calc(var(--drift, 0em) * 0.5)) scale(1);
+  }
+  55% {
+    transform: translateX(var(--drift, 0em)) scale(1);
+  }
+  80% {
+    transform: translateX(calc(var(--drift, 0em) * 0.4)) scale(0.85);
+  }
+  100% {
+    transform: translateX(0) scale(0);
+  }
+}
+@keyframes reaction-count-pop {
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The components already stop floating and hopping; this keeps any leftover still. */
+  .reaction-layer,
+  .reaction-bar__pop {
+    display: none;
+  }
+  .reaction-tally__n {
+    animation: none;
+  }
+  .reaction-bar__btn {
+    transition: none;
+  }
+  .reaction-bar__btn:active {
+    transform: none;
+  }
+}
