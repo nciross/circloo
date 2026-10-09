@@ -7,10 +7,11 @@ import {
   quietPirikoo, scriptedDevices, trackPeerConnections, watchCsp,
 } from './call-helpers'
 
-// Spec 009 T925, T926 and T907: the call on every screen, the animator's controls and the devices, against the local
-// LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for the camera and the microphone
-// (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic. E2E_CALL_PEERS sets how many pages fill
-// the paging test (12 by default).
+// Spec 009 T925, T926, T907 and T927: the call on every screen, the animator's controls, the devices, and hands and
+// reactions, against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for
+// the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic.
+// E2E_CALL_PEERS sets how many pages fill the paging test (12 by default) and how many pages clap together in the
+// reactions test (20 by default); lower it on a machine short of memory.
 
 const FAKE_DEVICES = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`]
 
@@ -20,6 +21,7 @@ test.use({
 })
 
 const PEERS = Number(process.env.E2E_CALL_PEERS ?? 12)
+const CLAPPERS = Number(process.env.E2E_CALL_PEERS ?? 20)
 
 test.describe('call', () => {
   test('call: join and hear, speaking, characters for cameras off, leave, the audience screen (spec 009 US2)', async ({ page, browser }, info) => {
@@ -76,7 +78,7 @@ test.describe('call', () => {
     await expect(page.locator('.call-stage video')).toHaveCount(0)
     await expect(page.locator('.call-stage .call-tile__char')).toHaveCount(4)
     await expect(page.locator(`.call-tile[data-member="${amina.id}"] .call-tile__name`)).toContainText(amina.name)
-    await amina.page.locator('.call-bar__device').nth(1).click()
+    await amina.page.locator('.call-bar__device[data-device="video"]').click()
     await expect(page.locator(`.call-tile[data-member="${amina.id}"] video`)).toBeVisible({ timeout: 10_000 })
 
     await axe(page)
@@ -132,7 +134,7 @@ test.describe('call', () => {
     for (let i = 0; i < PEERS - 1; i++) {
       const g = await guest(browser, circle.code, i, locale, false, csp)
       await (await openCallTab(g.page)).locator('.call__join').click()
-      const camera = g.page.locator('.call-bar__device').nth(1)
+      const camera = g.page.locator('.call-bar__device[data-device="video"]')
       await camera.click()
       await expect(camera).toHaveAttribute('aria-pressed', 'true')
       guests.push(g)
@@ -242,9 +244,12 @@ test.describe('controls', () => {
 
     await side.locator('.call__join').click()
     await expect(page.locator('.call-bar__device')).toHaveCount(2)
+    // In Hand to speak a participant has the camera, and Raise hand where the microphone would be (T927).
     for (const g of [amina, theo]) {
       await (await openCallTab(g.page)).locator('.call__join').click()
-      await expect(g.page.locator('.call-bar__device')).toHaveCount(2)
+      await expect(g.page.locator('.call-bar__device')).toHaveCount(1)
+      await expect(g.page.locator('.call-bar__device[data-device="video"]')).toBeVisible()
+      await expect(g.page.locator('.call-bar__hand')).toHaveAttribute('data-hand', 'none')
     }
     const tile = (id: string) => page.locator(`.call-tile[data-member="${id}"]`)
     await expect(tile(amina.id)).toBeVisible()
@@ -259,26 +264,32 @@ test.describe('controls', () => {
     }
     const onTile = (id: string) => tile(id).locator('.person-menu__trigger')
 
-    // Hand to speak: no microphone without the floor. The floor goes to a raised hand, from the tile's menu, and back.
-    const aminaMic = amina.page.locator('.call-bar__device').first()
-    await expect(aminaMic).toHaveAttribute('aria-disabled', 'true')
+    // Hand to speak: no microphone without the floor, Raise hand in its place. The floor goes to a raised hand, from
+    // the tile's menu, and back.
+    const aminaMic = amina.page.locator('.call-bar__device[data-device="audio"]')
+    const aminaHand = amina.page.locator('.call-bar__hand')
+    await expect(aminaMic).toHaveCount(0)
     expect(await hubCall(amina.page, circle.id, 'RaiseHand', [], true)).toBeNull()
+    await expect(aminaHand).toHaveAttribute('data-hand', 'queue')
     await act(onTile(amina.id), 'give')
+    await expect(aminaMic).toBeVisible()
     await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaHand).toHaveAttribute('data-hand', 'floor')
     await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
     await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['floor-given']!)
     await expect(tile(amina.id).locator('.call-tile__floor')).toBeVisible()
     await aminaMic.click()
     await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
     await act(onTile(amina.id), 'take')
-    await expect(aminaMic).toHaveAttribute('aria-disabled', 'true')
-    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+    await expect(aminaMic).toHaveCount(0)
+    await expect(aminaHand).toHaveAttribute('data-hand', 'none')
 
     // Open mic: anyone may speak; Mute everyone switches microphones off once and locks nothing.
     await openCallTab(page)
     const open = side.locator('.call__mode-seg .seg__opt').nth(1)
     await open.click()
     await expect(open).toHaveAttribute('aria-pressed', 'true')
+    await expect(aminaMic).toBeVisible()
     await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
     await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['mode-open']!)
     await aminaMic.click()
@@ -303,7 +314,7 @@ test.describe('controls', () => {
     await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
 
     // Her camera, from her tile.
-    const aminaCam = amina.page.locator('.call-bar__device').nth(1)
+    const aminaCam = amina.page.locator('.call-bar__device[data-device="video"]')
     await aminaCam.click()
     await expect(aminaCam).toHaveAttribute('aria-pressed', 'true')
     await expect(tile(amina.id).locator('video')).toBeVisible({ timeout: 10_000 })
@@ -316,7 +327,7 @@ test.describe('controls', () => {
     await expect(aminaCam).toHaveAttribute('aria-pressed', 'false')
 
     // Video off: every camera stops within 2 s and the call goes on with voices.
-    const theoCam = theo.page.locator('.call-bar__device').nth(1)
+    const theoCam = theo.page.locator('.call-bar__device[data-device="video"]')
     await theoCam.click()
     await expect(theoCam).toHaveAttribute('aria-pressed', 'true')
     await expect(theo.page.locator('.call-stage video')).toHaveCount(1, { timeout: 10_000 })
@@ -622,5 +633,120 @@ test.describe('devices', () => {
     expect(protocols).toEqual(['tcp'])
     expect(csp).toEqual([])
     await strict.close()
+  })
+})
+
+test.describe('hands and reactions', () => {
+  test('hands and reactions: raise, the place, the floor from the queue; every page claps and shows one grouped burst (spec 009 US3, US8)', async ({ page, browser }, info) => {
+    test.setTimeout(480_000)
+    const locale = localeOf(info)
+    const ar = locale === 'ar'
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    watchCsp(page, csp)
+    await quietPirikoo(page)
+    await signIn(page, locale, 'e2e-call-hands')
+    const circle = await createCircle(page, locale)
+    // The animator claps too: at least four pages, so one of them can ask for reduced motion.
+    const pages = Math.max(4, CLAPPERS)
+    const guests = []
+    for (let i = 0; i < pages - 1; i++) guests.push(await guest(browser, circle.code, i, locale, phone, csp))
+    // One page asks for reduced motion (read when the page loads).
+    const still = guests[2]!.page
+    await still.emulateMedia({ reducedMotion: 'reduce' })
+    await still.reload()
+    await page.goto(`/app/circles/${circle.id}`)
+    await expect(page.locator('.people__row.is-online')).toHaveCount(pages, { timeout: 20_000 })
+
+    // An audio call in Hand to speak (the default); everyone joins.
+    const side = await openCallTab(page)
+    await side.locator('[data-switch="audio"]').click()
+    await expect(side.locator('[data-switch="audio"]')).toHaveAttribute('aria-checked', 'true')
+    await side.locator('.call__join').click()
+    await expect(page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    for (const g of guests) {
+      await (await openCallTab(g.page)).locator('.call__join').click()
+      await expect(g.page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    }
+
+    // Raise hand takes the microphone's place; the animator gives the floor and has no hand.
+    // The first guest is Amina, the second Théo (call-helpers GUESTS).
+    const [amina, theo] = [guests[0]!, guests[1]!]
+    const hand = (p: Page) => p.locator('.call-bar .call-bar__hand')
+    const mic = (p: Page) => p.locator('.call-bar__device[data-device="audio"]')
+    await expect(mic(amina.page)).toHaveCount(0)
+    await expect(hand(amina.page)).toHaveAttribute('data-hand', 'none')
+    await expect(hand(page)).toHaveCount(0)
+    await expect(mic(page)).toBeVisible()
+
+    // Théo raises his hand, then Amina: she is 2nd, on her hand and in the Call tab.
+    await hand(theo.page).click()
+    await expect(hand(theo.page)).toHaveAttribute('data-hand', 'queue')
+    await hand(amina.page).click()
+    await expect(hand(amina.page)).toHaveAttribute('data-hand', 'queue')
+    await expect(hand(amina.page).locator('.hand-btn__place')).toHaveText('2')
+    const second = ar ? 'ترتيبك في الدور: 2' : 'You are 2nd'
+    await expect(hand(amina.page)).toHaveAttribute('title', second)
+    const aminaSide = await openCallTab(amina.page)
+    await expect(aminaSide.locator('.call__hands .hands__place')).toHaveText(second)
+    await expect(aminaSide.locator('.call__hands .hand-btn')).toHaveCount(0)
+
+    // The animator's Call tab lists both in order and gives the floor to the first.
+    const animatorSide = await openCallTab(page)
+    const rows = animatorSide.locator('.call__hands .hands__row')
+    await expect(rows).toHaveCount(2)
+    await expect(rows.first().locator('.hands__name bdi')).toHaveText(theo.name)
+    await axe(page)
+    await rows.first().locator('.hands__give').click()
+    // Théo can switch his microphone on now (nothing is switched on for him); his hand says he is done.
+    await expect(mic(theo.page)).toBeVisible({ timeout: 5_000 })
+    await expect(mic(theo.page)).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(mic(theo.page)).toHaveAttribute('aria-pressed', 'false')
+    await expect(hand(theo.page)).toHaveAttribute('data-hand', 'floor')
+    await expect(hand(amina.page).locator('.hand-btn__place')).toHaveText('1')
+    await expect(aminaSide.locator('.call__hands .hands__place')).toHaveText(ar ? 'ترتيبك في الدور: 1' : 'You are 1st')
+    await axe(amina.page)
+
+    // Every page taps 👏 at once. On a phone the reactions open as a row above the bar first.
+    const everyone = [page, ...guests.map((g) => g.page)]
+    const claps = []
+    for (const p of everyone) {
+      if (phone) {
+        const toggle = p.locator('.call-bar__react-toggle')
+        await toggle.click()
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      }
+      claps.push(p.locator(`.call-bar__${phone ? 'tray' : 'reactions'} .reaction-bar__btn[data-kind="clap"]`))
+    }
+    await Promise.all(claps.map((c) => c.click()))
+
+    // Every page shows one grouped burst counting every clap, with at most 12 emoji moving; reduced motion, a still count.
+    await Promise.all(everyone.map(async (p) => {
+      const chips = p.locator('[data-slot="call-reactions"] .reaction-tally__chip')
+      await expect(chips).toHaveCount(1)
+      await expect(chips).toHaveAttribute('data-kind', 'clap')
+      await expect(chips).toHaveAttribute('data-count', String(pages), { timeout: 5_000 })
+    }))
+    const moving = Number(await page.locator('[data-slot="call-reactions"] .reaction-layer').getAttribute('data-moving'))
+    expect(moving).toBeGreaterThan(0)
+    expect(moving).toBeLessThanOrEqual(12)
+    await expect(still.locator('[data-slot="call-reactions"] .reaction-layer')).toHaveCount(0)
+    await expect(still.locator('[data-slot="call-reactions"] .reaction-tally')).toHaveClass(/is-still/)
+    // Screen readers hear a summary, never one line per clap.
+    await expect(page.locator('[data-slot="call-reactions"] [role="status"]')).toHaveText(ar ? /تصفيق/ : /\d+ applause/, { timeout: 6_000 })
+    // The chips sit at the inline end: on the left in Arabic.
+    const bar = (await amina.page.locator('.call-bar').boundingBox())!
+    const chip = (await amina.page.locator('[data-slot="call-reactions"] .reaction-tally__chip').boundingBox())!
+    if (ar) expect(chip.x + chip.width / 2).toBeLessThan(bar.x + bar.width / 2)
+    else expect(chip.x + chip.width / 2).toBeGreaterThan(bar.x + bar.width / 2)
+    await axe(amina.page)
+
+    // Reactions off: the bar and the floats go from the call.
+    expect(await hubCall(page, circle.id, 'SetRoomSettings', [{ chat: 'open', reactions: false, pirikooQuiet: false }])).toBeNull()
+    await expect(amina.page.locator('.call-bar__reactions, .call-bar__tray, .call-bar__react-toggle, [data-slot="call-reactions"]')).toHaveCount(0)
+    await expect(hand(amina.page)).toBeVisible()
+
+    expect(csp).toEqual([])
+    for (const g of guests) await g.page.context().close()
   })
 })

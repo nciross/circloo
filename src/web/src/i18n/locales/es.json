@@ -972,6 +972,7 @@
       "micLocked": "Tu micrófono sigue apagado hasta que el animador te dé la palabra.",
       "cameraLocked": "Tu cámara sigue apagada hasta que el animador la permita.",
       "controls": "Controles de la llamada",
+      "react": "Reacciones",
       "reconnecting": "Reconectando…",
       "weak": "Conexión débil",
       "weakMine": "Conexión débil. El vídeo puede pararse; tu voz sigue.",

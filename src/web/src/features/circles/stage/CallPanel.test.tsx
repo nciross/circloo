@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event'
 import '../../../i18n'
 import type { DiscussionState, Member } from '../../../api/circles'
 import type { CallParticipant } from './call'
+import { useRoom } from '../room'
+import { NO_HANDS } from '../room/hands'
 import { CallPanel } from './CallPanel'
 import { configureStage, resetStage, useStage } from './stage'
 
@@ -24,6 +26,7 @@ beforeEach(() => {
 
 afterEach(() => {
   resetStage()
+  useRoom.setState({ hands: NO_HANDS })
   vi.unstubAllGlobals()
 })
 
@@ -49,7 +52,7 @@ describe('CallPanel', () => {
   })
 
   it('tells participants the speaking mode in plain words, and shows them no control', () => {
-    useStage.setState({ discussion: state({ on: true }), roster: ['nadia', 'amina'], hands: { queue: [], floor: null } })
+    useStage.setState({ discussion: state({ on: true }), roster: ['nadia', 'amina'] })
     const { rerender } = render(<CallPanel isAnimator={false} members={members} />)
     expect(screen.getByText('Hand to speak: raise your hand and wait for the floor.')).toBeInTheDocument()
     expect(screen.queryByRole('switch')).toBeNull()
@@ -102,7 +105,8 @@ describe('CallPanel', () => {
   it('offers Join call with the number of people already in it, and the people by name', async () => {
     const join = vi.fn(() => Promise.resolve())
     useStage.setState({ discussion: state({ on: true }), roster: ['nadia', 'amina'], join })
-    render(<CallPanel isAnimator={false} members={members} hands={{ queue: [], floor: 'amina' }} />)
+    useRoom.setState({ hands: { queue: [], floor: 'amina' } })
+    render(<CallPanel isAnimator={false} members={members} />)
     expect(screen.getByRole('status')).toHaveTextContent('A video call is on.')
     expect(screen.getByText('2 people in the call')).toBeInTheDocument()
     const list = screen.getByRole('region', { name: 'In the call' })

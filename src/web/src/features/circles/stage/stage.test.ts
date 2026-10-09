@@ -363,15 +363,9 @@ describe('animator actions', () => {
 })
 
 describe('hands', () => {
-  it('follows the hub: the queue and the floor, and nothing from a replaced connection', () => {
+  it('leaves the hands to the room store, the one place the Hands event lands (T927)', () => {
     const t = setup()
-    const view = { queue: [{ memberId: 'amina', raisedAt: '2026-10-09T10:00:00Z' }], floor: 'theo' }
-    t.fire('Hands', view)
-    expect(state().hands).toEqual(view)
-    t.fire('Hands', { queue: 'nope' })
-    expect(state().hands).toEqual(view)
-    t.stale()
-    t.fire('Hands', { queue: [], floor: null })
-    expect(state().hands).toEqual(view)
+    t.fire('Hands', { queue: [{ memberId: 'amina', raisedAt: '2026-10-09T10:00:00Z' }], floor: 'theo' })
+    expect(state()).not.toHaveProperty('hands')
   })
 })

@@ -176,7 +176,7 @@ export default function CircleRoom() {
       ) : (
         <div className={['room__grid', presenting && isAnimator && live ? 'is-presenting' : '', presenting && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
           <section id={CENTRE_ID} className={`room__main room__centre${centreView === 'call' ? ' is-call' : ''}`} aria-label={centreView === 'call' ? t('circles.call.stageTitle') : centreLabel} tabIndex={-1}>
-            {centreView === 'call' ? <CallStage members={members} floor={view.hands?.floor ?? null} isAnimator={isAnimator} /> : null}
+            {centreView === 'call' ? <CallStage members={members} isAnimator={isAnimator} /> : null}
             {presenting ? (
               <div className="room__reveal">
                 {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
@@ -205,7 +205,9 @@ export default function CircleRoom() {
               </section>
             )}
             <CallNotices meId={view.me.id} />
-            <CallControls members={members} view={centreView} onView={hasRound ? setPicked : undefined} roundLabel={roundLabel} />
+            {/* A presentation in view has its own reaction bar and floats: the call's step aside (T927). */}
+            <CallControls members={members} view={centreView} onView={hasRound ? setPicked : undefined} roundLabel={roundLabel}
+              reactions={!(presenting && centreView === 'round')} />
           </section>
           <RoomPanels
             side={side}

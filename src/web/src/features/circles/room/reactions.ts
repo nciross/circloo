@@ -189,8 +189,9 @@ function scheduleExpiry() {
 }
 
 /**
- * Reactions in the circle you are in or project (spec 008 US4), fed by `Reactions` hub events. Nothing here knows who
- * reacted, and nothing outlives the presentation: it is reset when the presentation ends or the connection closes.
+ * Reactions in the circle you are in or project (spec 008 US4, spec 009 US8), fed by `Reactions` hub events. Nothing
+ * here knows who reacted, and nothing outlives the presentation or the call: it is reset when the last of them ends or
+ * the connection closes.
  */
 export const useReactions = create<ReactionsState>()((set) => ({
   bursts: [],
@@ -209,12 +210,15 @@ export const useReactions = create<ReactionsState>()((set) => ({
   },
 }))
 
-/** Wires a hub connection (the room's or the audience screen's) to the reactions; `isCurrent` drops a stale connection's events. */
-export function bindReactions(connection: HubConnection, isCurrent: () => boolean = () => true) {
+/**
+ * Wires a hub connection (the room's or the audience screen's) to the reactions; `isCurrent` drops a stale connection's
+ * events. `keep` says the reactions still have a place when the presentation ends (a call is on, spec 009 US8).
+ */
+export function bindReactions(connection: HubConnection, isCurrent: () => boolean = () => true, keep: () => boolean = () => false) {
   connection.on('Reactions', (burst: unknown) => {
     if (isCurrent()) useReactions.getState().receive(burst)
   })
   connection.on('PresentationEnded', () => {
-    if (isCurrent()) useReactions.getState().reset()
+    if (isCurrent() && !keep()) useReactions.getState().reset()
   })
 }

@@ -8,6 +8,7 @@ import { CallTile } from './CallTile'
 import { PersonMenu } from './PersonMenu'
 import { useCompact } from './compact'
 import { PAGE_SIZE, nextSpeaker, pageOf, syncVideos } from './grid'
+import { useRoom } from '../room'
 import { useStage } from './stage'
 
 type Layout = 'grid' | 'speaker'
@@ -18,13 +19,12 @@ type Layout = 'grid' | 'speaker'
  * on screen. Only the videos on the page are received (SC-912). The controls are a separate bar (CallControls). The
  * animator finds each participant's menu on their tile (T926).
  */
-export function CallStage({ members, floor: viewFloor, isAnimator = false }: { members: Member[]; floor: string | null; isAnimator?: boolean }) {
+export function CallStage({ members, isAnimator = false }: { members: Member[]; isAnimator?: boolean }) {
   const { t } = useTranslation()
   const participants = useStage((s) => s.participants)
   const roster = useStage((s) => s.roster)
   const connection = useStage((s) => s.connection)
-  const liveHands = useStage((s) => s.hands)
-  const floor = liveHands ? liveHands.floor : viewFloor
+  const floor = useRoom((s) => s.hands.floor)
   const compact = useCompact()
   const [picked, setLayout] = useState<Layout>('grid')
   // Four tiles on a phone are already large: the grid it is, and the switch goes.

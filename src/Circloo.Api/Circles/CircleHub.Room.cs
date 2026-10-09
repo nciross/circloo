@@ -207,12 +207,14 @@ public sealed partial class CircleHub
     }
 
     /// <summary>
-    /// The one rule for whether a reaction goes out now: the room has reactions on and a presentation is running
-    /// (FR-815). Keep every condition here, so a new place to react (a call, spec 009) only changes this rule. Where the
-    /// counts are kept is the flush's business: only a running presentation stores totals (FR-818).
+    /// The one rule for whether a reaction goes out now: the room has reactions on, and a call is on (spec 009 US8) or a
+    /// presentation is running (FR-815). Where the counts are kept is the flush's business: only a running presentation
+    /// stores totals (FR-818), so a call without one stores nothing and a presentation inside a call adds to its
+    /// anonymous totals (spec 009 D11).
     /// </summary>
     private async Task<bool> ReactionAllowedAsync(Guid circleId, CircleMember me) =>
-        me.Circle!.ReactionsOn && await db.PresentationSessions.AnyAsync(s => s.CircleId == circleId && s.EndedAt == null);
+        me.Circle!.ReactionsOn
+        && (me.Circle.DiscussionOn || await db.PresentationSessions.AnyAsync(s => s.CircleId == circleId && s.EndedAt == null));
 
     #endregion
 

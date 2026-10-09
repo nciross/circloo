@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { HubConnection } from '@microsoft/signalr'
 import i18n from '../../../i18n'
 import {
-  MAX_MOVING, SEND_WINDOW, WAVE_MS, cleanBurst, diffCounts, foldWaves, jitter, liveWaves, sendWindow, spawn, summarize, useReactions,
+  MAX_MOVING, SEND_WINDOW, WAVE_MS, bindReactions, cleanBurst, diffCounts, foldWaves, jitter, liveWaves, sendWindow, spawn, summarize, useReactions,
   type ReactionKind,
 } from './reactions'
 
@@ -93,5 +94,33 @@ describe('the reactions store', () => {
     expect(useReactions.getState().waves).toEqual({})
     useReactions.getState().reset()
     expect(useReactions.getState()).toMatchObject({ bursts: [], waves: {}, totals: {} })
+  })
+})
+
+describe('bindReactions', () => {
+  function bind(keep?: () => boolean) {
+    const handlers = new Map<string, (...a: unknown[]) => void>()
+    const connection = { on: (name: string, h: (...a: unknown[]) => void) => void handlers.set(name, h) } as unknown as HubConnection
+    let current = true
+    bindReactions(connection, () => current, keep)
+    return { fire: (name: string, ...a: unknown[]) => handlers.get(name)?.(...a), stale: () => (current = false) }
+  }
+
+  it('keeps the reactions when the presentation ends during a call (spec 009 US8), and resets them otherwise', () => {
+    let callOn = true
+    const hub = bind(() => callOn)
+    hub.fire('Reactions', { clap: 3 })
+    hub.fire('PresentationEnded')
+    expect(useReactions.getState().totals).toEqual({ clap: 3 })
+    callOn = false
+    hub.fire('PresentationEnded')
+    expect(useReactions.getState().totals).toEqual({})
+  })
+
+  it('ignores a replaced connection', () => {
+    const hub = bind()
+    hub.stale()
+    hub.fire('Reactions', { clap: 1 })
+    expect(useReactions.getState().bursts).toEqual([])
   })
 })

@@ -973,6 +973,7 @@
       "micLocked": "Ton micro reste coupé jusqu’à ce que l’animateur te donne la parole.",
       "cameraLocked": "Ta caméra reste coupée jusqu’à ce que l’animateur l’autorise.",
       "controls": "Commandes de l’appel",
+      "react": "Réactions",
       "reconnecting": "Reconnexion…",
       "weak": "Connexion faible",
       "weakMine": "Connexion faible. La vidéo peut se figer ; ta voix continue.",

@@ -1,9 +1,10 @@
-import { useState, type CSSProperties } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Phone, PhoneOff, Volume2 } from 'lucide-react'
-import type { HandsView, Member } from '../../../api/circles'
+import type { Member } from '../../../api/circles'
 import { Character } from '../../../components/Character'
-import { hubCode } from '../room'
+import { hubCode, useRoom } from '../room'
+import { HandsQueue } from '../room/HandsQueue'
 import { callSupported, useStage, type CallParticipant } from './stage'
 import { DiscussionSwitch } from './DiscussionSwitch'
 import { PersonMenu } from './PersonMenu'
@@ -14,13 +15,14 @@ import { AwayLine } from './AwayLine'
  * The Call tab of the room's focal card (spec 009 US1, US2 and US3, T925 and T926). The animator has the switches (chat,
  * audio call, video call, who can speak) and a menu on each person; everyone reads whether a call is on, the speaking
  * mode in plain words, how many are in it, joins with one tap (microphone and camera off, FR-904) and leaves the same
- * way. The people in the call are buddy rows with their state in words (US7 #4). The raised hands queue along an arc
- * above them (spec 008; T927 brings the full queue). While no animator is connected, the countdown to the call's end shows.
+ * way. The people in the call are buddy rows with their state in words (US7 #4). While a call is on, spec 008's raised
+ * hands queue sits above them with "You are 2nd" (T927); in the call, Raise hand is on the call's bar, so the queue
+ * leaves its own button out. While no animator is connected, the countdown to the call's end shows.
  */
-export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAnimator: boolean; members?: Member[]; hands?: HandsView }) {
+export function CallPanel({ isAnimator, members = [] }: { isAnimator: boolean; members?: Member[] }) {
   const { t } = useTranslation()
   const discussion = useStage((s) => s.discussion)
-  const liveHands = useStage((s) => s.hands)
+  const hands = useRoom((s) => s.hands)
   const moderation = useStage((s) => s.moderation)
   const roster = useStage((s) => s.roster)
   const connection = useStage((s) => s.connection)
@@ -32,7 +34,6 @@ export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAn
   const startAudio = useStage((s) => s.startAudio)
   const awayLeft = useAwayLeft()
   const [done, setDone] = useState('')
-  const hands = liveHands ?? viewHands
   const on = discussion?.on ?? false
   const available = discussion?.available ?? true
   const byId = (id: string) => members.find((m) => m.id === id)
@@ -46,10 +47,6 @@ export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAn
     return member ? [{ member, state: live.get(id) }] : []
   })
   const count = inCall ? participants.length : roster.length
-  const queue = (hands?.queue ?? []).flatMap((h) => {
-    const member = byId(h.memberId)
-    return member ? [member] : []
-  })
 
   const stateText = !available ? t('circles.call.errors.calls-unavailable')
     : !on ? t('circles.call.isOff')
@@ -118,16 +115,7 @@ export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAn
       </section>
       {/* What is happening and Join come first; the animator's switches follow, never pushing Join out of reach. */}
       {isAnimator ? <DiscussionSwitch /> : null}
-      {queue.length > 0 ? (
-        <ol className="call__arc" aria-label={t('circles.room.hands', { count: queue.length })} style={{ '--n': queue.length } as CSSProperties}>
-          {queue.map((m, i) => (
-            <li key={m.id} className="call__hand" style={{ '--i': i } as CSSProperties}>
-              <Character id={m.character} ring={m.ring} tag={false} className="call__hand-char" />
-              <span className="visually-hidden">{m.name}</span>
-            </li>
-          ))}
-        </ol>
-      ) : null}
+      {on && available ? <HandsQueue className="call__hands" button={!inCall} /> : null}
       {on && people.length > 0 ? (
         <section className="call__people" aria-labelledby="call-people-title">
           <h2 id="call-people-title" className="call__people-title">{t('circles.call.people')}</h2>
@@ -144,7 +132,7 @@ export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAn
                     </span>
                     <PersonState
                       state={state}
-                      floor={hands?.floor === member.id}
+                      floor={hands.floor === member.id}
                       micMuted={isAnimator && moderation.microphone.includes(member.id)}
                       cameraStopped={isAnimator && moderation.camera.includes(member.id)}
                     />

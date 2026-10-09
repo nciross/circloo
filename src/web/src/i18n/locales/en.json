@@ -974,6 +974,7 @@
       "micLocked": "Your microphone stays off until the animator lets you speak.",
       "cameraLocked": "Your camera stays off until the animator allows it.",
       "controls": "Call controls",
+      "react": "Reactions",
       "reconnecting": "Reconnecting…",
       "weak": "Weak connection",
       "weakMine": "Weak connection. Video may pause; your voice keeps going.",

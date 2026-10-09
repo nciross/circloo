@@ -84,7 +84,7 @@ export function RoomPanels({ side, isAnimator, members, online, meId, arrivals, 
     icon: <Phone size={15} />,
     badge: callOn ? inCall : 0,
     badgeLabel: t('circles.call.inCall', { count: inCall }),
-    panel: <CallPanel isAnimator={isAnimator} members={members} hands={hands} />,
+    panel: <CallPanel isAnimator={isAnimator} members={members} />,
   })
   const chatShown = !!chatActivity && side.open && activeTab(tabs, side.tab) === 'chat'
   if (chatShown && (seenRaw.of !== chatActivity || seenRaw.n !== mine.length)) setSeen({ of: chatActivity, n: mine.length })

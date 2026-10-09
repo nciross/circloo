@@ -118,6 +118,9 @@ function clearTyping() {
 /** Hub errors carry a short code (animator-only, message-unsafe…) after "HubException: ". */
 export const hubCode = (e: unknown) => (e instanceof Error ? (e.message.split('HubException: ')[1] ?? (e.message === 'offline' ? 'offline' : 'failed')) : 'failed')
 
+/** A call is on in this circle (spec 009): reactions are allowed then, presentation or not. */
+const callOn = () => useStage.getState().discussion?.on ?? false
+
 /** Calls the room's hub; the caller decides what to show when it refuses. */
 const call = async (method: string, ...args: unknown[]) => {
   const { connection } = useRoom.getState()
@@ -171,8 +174,8 @@ export const useRoom = create<RoomState>()((set) => ({
   error: null,
   connection: null,
   load: (view) => {
-    // The circle view carries the live discussion setting and the hands; the stage store keeps them from here on (spec 009).
-    useStage.setState({ discussion: view.discussion ?? null, hands: view.hands ?? null })
+    // The circle view carries the call's setting; the stage store keeps it from here on (spec 009). Hands stay here.
+    useStage.setState({ discussion: view.discussion ?? null })
     set({
       circleId: view.id,
       joinCode: view.joinCode,
@@ -266,7 +269,6 @@ async function resync(id: string) {
     ...(view.hands ? { hands: cleanHands(view.hands) } : {}),
   })
   if (view.discussion) useStage.setState({ discussion: view.discussion })
-  if (view.hands) useStage.setState({ hands: view.hands })
 }
 
 /** Opens the room's real-time connection for as long as the component lives. */
@@ -302,11 +304,16 @@ export function useCircleConnection(view: CircleView | undefined) {
       useRoom.setState({ activity: a.activityId, startedBy: a.activityId ? (a.startedBy ?? null) : null })
       if (a.activityId !== PRESENTATION) {
         useLive.getState().reset()
-        useReactions.getState().reset()
+        // A call keeps its reactions whatever the round (spec 009 US8).
+        if (!callOn()) useReactions.getState().reset()
       }
     })
     bindPresentation(connection, () => useRoom.getState().connection === connection)
-    bindReactions(connection, () => useRoom.getState().connection === connection)
+    bindReactions(connection, () => useRoom.getState().connection === connection, callOn)
+    connection.on('Discussion', (d: { on?: boolean } | null) => {
+      // The call ended with nothing presented: its reactions go with it.
+      if (useRoom.getState().connection === connection && !d?.on && useRoom.getState().activity !== PRESENTATION) useReactions.getState().reset()
+    })
     connection.on('Hands', (view: unknown) => {
       if (useRoom.getState().connection === connection) useRoom.setState({ hands: cleanHands(view) })
     })
