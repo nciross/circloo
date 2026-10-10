@@ -94,7 +94,7 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<DiscussionOptions> discussion, HandsGrace grace) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -146,7 +146,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
         }
         grace.Cancel(me.Id);
-        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
+        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, livekit.Value));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
         await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         var online = presence.Online(circleId);

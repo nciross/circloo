@@ -4,7 +4,7 @@ import { asPeer, asTrack, FakePeer, FakeTrack } from './fakes'
 import type { OpenedMedia } from './media'
 import { bindStage, configureStage, resetStage, useStage, type StageDeps } from './stage'
 
-const discussion = (over: Partial<DiscussionState> = {}): DiscussionState => ({ on: true, videoAllowed: true, stageMax: 8, listenersMax: 8, away: 'none', awayEndsAt: null, ...over })
+const discussion = (over: Partial<DiscussionState> = {}): DiscussionState => ({ on: true, videoAllowed: true, speaking: 'hand', available: true, away: 'none', awayEndsAt: null, ...over })
 const seat = (memberId: string, over: Partial<Seat> = {}): Seat => ({ memberId, state: 'onStage', audioOn: false, videoOn: false, mutedByAnimator: false, ...over })
 const view = (...seats: Seat[]): StageView => ({ seats, watching: 2 })
 
@@ -141,11 +141,11 @@ describe('devices', () => {
 describe('hub events', () => {
   it('stores the discussion, the seats and the recording, ignoring a replaced connection', () => {
     const t = setup()
-    t.fire('Discussion', discussion({ stageMax: 4 }))
+    t.fire('Discussion', discussion({ speaking: 'open' }))
     t.fire('Stage', view(seat('a')))
     t.fire('Recording', { id: 'r' })
     t.fire('RecordingWarning', 60)
-    expect(useStage.getState()).toMatchObject({ discussion: { stageMax: 4 }, seats: [{ memberId: 'a' }], watching: 2, recording: { id: 'r' }, recordingWarning: 60 })
+    expect(useStage.getState()).toMatchObject({ discussion: { speaking: 'open' }, seats: [{ memberId: 'a' }], watching: 2, recording: { id: 'r' }, recordingWarning: 60 })
     t.fire('Recording', null)
     expect(useStage.getState().recordingWarning).toBeNull()
     t.stale()

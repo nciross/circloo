@@ -6,7 +6,7 @@ import type { DiscussionState } from '../../../api/circles'
 import { CallPanel } from './CallPanel'
 import { resetStage, useStage } from './stage'
 
-const state = (over: Partial<DiscussionState> = {}): DiscussionState => ({ on: false, videoAllowed: true, stageMax: 8, listenersMax: 8, away: 'none', awayEndsAt: null, ...over })
+const state = (over: Partial<DiscussionState> = {}): DiscussionState => ({ on: false, videoAllowed: true, speaking: 'hand', available: true, away: 'none', awayEndsAt: null, ...over })
 
 afterEach(() => resetStage())
 

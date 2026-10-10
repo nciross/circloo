@@ -8,15 +8,16 @@ using Microsoft.EntityFrameworkCore;
 namespace Circloo.Api.Circles;
 
 /// <summary>
-/// The live discussion switch (spec 009 US1, contracts/hub.md). Only the animator, read from the database on every
-/// call, can switch it on or off. No audio or video ever reaches the server: it only holds the setting.
+/// The group call switch (spec 009 US1, contracts/hub.md). Only the animator, read from the database on every call, can
+/// start or end it. No audio or video ever reaches the hub: it only holds the setting. Nothing about a call is written
+/// to the chat (FR-930): the switch is broadcast live and only the setting is kept.
 /// </summary>
 public sealed partial class CircleHub
 {
     /// <summary>Refused attempts write at most this many audit rows per member per minute.</summary>
     private const int RefusedAuditsPerMinute = 5;
 
-    /// <summary>Switches the discussion on, or changes "allow cameras" while it is on. Calling it again with the same values changes nothing.</summary>
+    /// <summary>Starts the call, or changes "video allowed" while it is on. Calling it again with the same values changes nothing.</summary>
     public async Task EnableDiscussion(bool videoAllowed)
     {
         var (circleId, me) = await DiscussionAnimatorAsync(nameof(EnableDiscussion));
@@ -25,19 +26,14 @@ public sealed partial class CircleHub
         {
             return;
         }
-        var wasOn = circle.DiscussionOn;
-        var now = clock.GetUtcNow();
         circle.DiscussionOn = true;
         circle.DiscussionVideo = videoAllowed;
-        circle.DiscussionChangedAt = now;
-        circle.DiscussionChangedByMemberId = me.Id;
         audit.Add(AuditTypes.DiscussionOn, me.UserId, detail: new { circle = circleId, member = me.Id, videoAllowed });
-        var line = wasOn ? null : AddSystemLine(circle, me.Id, "discussion:on");
         await db.SaveChangesAsync();
-        await BroadcastDiscussionAsync(circle, line);
+        await BroadcastDiscussionAsync(circle);
     }
 
-    /// <summary>Switches the discussion off for everyone and clears the raised hands (spec 009 FR-902).</summary>
+    /// <summary>Ends the call for everyone and clears the raised hands (spec 009 FR-902).</summary>
     public async Task DisableDiscussion()
     {
         var (circleId, me) = await DiscussionAnimatorAsync(nameof(DisableDiscussion));
@@ -47,30 +43,14 @@ public sealed partial class CircleHub
             return;
         }
         circle.DiscussionOn = false;
-        circle.DiscussionChangedAt = clock.GetUtcNow();
-        circle.DiscussionChangedByMemberId = me.Id;
         db.RaisedHands.RemoveRange(await db.RaisedHands.Where(h => h.CircleId == circleId).ToListAsync());
         audit.Add(AuditTypes.DiscussionOff, me.UserId, detail: new { circle = circleId, member = me.Id });
-        var line = AddSystemLine(circle, me.Id, "discussion:off");
         await db.SaveChangesAsync();
-        await BroadcastDiscussionAsync(circle, line);
+        await BroadcastDiscussionAsync(circle);
     }
 
-    private CircleMessage AddSystemLine(Circle circle, Guid memberId, string text)
-    {
-        var line = new CircleMessage { CircleId = circle.Id, ActivityId = circle.CurrentActivity, MemberId = memberId, Kind = "system", Text = text, CreatedAt = clock.GetUtcNow() };
-        db.CircleMessages.Add(line);
-        return line;
-    }
-
-    private async Task BroadcastDiscussionAsync(Circle circle, CircleMessage? line)
-    {
-        await Clients.Group(Group(circle.Id)).Discussion(DiscussionRules.State(circle, discussion.Value));
-        if (line is not null)
-        {
-            await Clients.Group(Group(circle.Id)).Message(MessageDto.From(line));
-        }
-    }
+    private Task BroadcastDiscussionAsync(Circle circle) =>
+        Clients.Group(Group(circle.Id)).Discussion(DiscussionRules.State(circle, livekit.Value));
 
     /// <summary>
     /// The one gate of every animator method of the discussion: the role is read from the database, never from the

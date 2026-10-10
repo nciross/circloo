@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Circloo.Api.Tests.Discussion;
 
-/// <summary>Issue #216 (T901): the discussion switch of spec 009. Off by default, animator only, audited.</summary>
+/// <summary>Issues #216 (T901) and #258 (T918): the call switch of spec 009. Off by default, animator only, audited, never written to the chat.</summary>
 [Collection(ApiCollection.Name)]
 public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
 {
@@ -30,23 +30,43 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         (await Assert.ThrowsAsync<HubException>(call)).Message;
 
     [Fact]
-    public async Task A_new_circle_has_the_discussion_off_with_cameras_allowed_for_later()
+    public async Task A_new_circle_has_the_call_off_with_video_and_hand_to_speak_for_later()
     {
         var circle = await _host.Room.CircleAsync();
         var row = await _host.CircleRowAsync(circle.Id);
-        Assert.Equal((false, true, (DateTimeOffset?)null, (Guid?)null), (row.DiscussionOn, row.DiscussionVideo, row.DiscussionChangedAt, row.DiscussionChangedByMemberId));
+        Assert.Equal((false, true, "hand"), (row.DiscussionOn, row.DiscussionVideo, row.DiscussionSpeaking));
 
+        // The test host has no call server: the view says so (FR-935).
         var view = await circle.Http.GetFromJsonAsync<CircleView>($"/api/circles/{circle.Id}");
-        Assert.False(view!.Discussion.On);
-        Assert.False(view.Discussion.VideoAllowed);
-        Assert.Null(view.Recording);
+        Assert.Equal(new DiscussionState(false, false, "hand", false, "none", null), view!.Discussion);
         Assert.All(view.Messages, m => Assert.Null(m.ReplyToId));
+
+        var json = await circle.Http.GetStringAsync(new Uri($"/api/circles/{circle.Id}", UriKind.Relative));
+        Assert.DoesNotContain("\"recording\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"discussion\":{\"on\":false,\"videoAllowed\":false,\"speaking\":\"hand\",\"available\":false,\"away\":\"none\",\"awayEndsAt\":null}", json, StringComparison.Ordinal);
 
         var hub = _host.Room.Hub(circle.Cookies);
         var pushed = new Inbox<DiscussionState>(hub, "Discussion");
         await hub.StartAsync();
         await hub.InvokeAsync<Guid[]>("Enter", circle.Id);
         Assert.False((await pushed.NextAsync()).On);
+    }
+
+    [Fact]
+    public async Task The_view_says_calls_are_available_when_a_call_server_is_configured()
+    {
+        await using var factory = new ApiFactory(pg.Container.GetConnectionString(), new Dictionary<string, string?>
+        {
+            ["LiveKit:Url"] = "ws://localhost:7880",
+            ["LiveKit:ApiUrl"] = "http://localhost:7880",
+            ["LiveKit:ApiKey"] = "circloo-test",
+            ["LiveKit:ApiSecret"] = new string('s', 40),
+        });
+        var circle = await new DiscussionHost(factory).Room.CircleAsync();
+
+        var view = await circle.Http.GetFromJsonAsync<CircleView>($"/api/circles/{circle.Id}");
+
+        Assert.True(view!.Discussion.Available);
     }
 
     [Theory]
@@ -116,7 +136,6 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         var (_, _, guestCookies) = await _host.Room.JoinAsync(circle.Code, "Guest", "fox");
         var guest = _host.Room.Hub(guestCookies);
         var pushed = new Inbox<DiscussionState>(guest, "Discussion");
-        var lines = new Inbox<MessageDto>(guest, "Message");
         await guest.StartAsync();
         await guest.InvokeAsync<Guid[]>("Enter", circle.Id);
         Assert.False((await pushed.NextAsync()).On);
@@ -124,13 +143,8 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         await using var animator = await _host.EnteredAsync(circle.Cookies, circle.Id);
         await animator.InvokeAsync("EnableDiscussion", true);
         var on = await pushed.NextAsync().WaitAsync(TimeSpan.FromSeconds(1));
-        Assert.Equal((true, true), (on.On, on.VideoAllowed));
-        Assert.Equal("discussion:on", (await lines.NextAsync(m => m.Kind == "system" && m.Text.StartsWith("discussion:", StringComparison.Ordinal))).Text);
-
-        var row = await _host.CircleRowAsync(circle.Id);
-        var animatorMember = (await _host.Room.MembersAsync(circle.Id)).Single(m => m.Role == Roles.Animator);
-        Assert.Equal(animatorMember.Id, row.DiscussionChangedByMemberId);
-        Assert.NotNull(row.DiscussionChangedAt);
+        Assert.Equal((true, true, "hand"), (on.On, on.VideoAllowed, on.Speaking));
+        Assert.True((await _host.CircleRowAsync(circle.Id)).DiscussionOn);
         Assert.Single(await _host.AuditAsync("discussion.on", circle.Id));
 
         // A reload: the new connection and the page load both see it.
@@ -163,8 +177,7 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         var row = await _host.CircleRowAsync(circle.Id);
         Assert.Equal((true, false), (row.DiscussionOn, row.DiscussionVideo));
         Assert.Equal(2, (await _host.AuditAsync("discussion.on", circle.Id)).Count);
-        var lines = await _host.Room.DbAsync(db => db.CircleMessages.Where(m => m.CircleId == circle.Id && m.Text == "discussion:on").CountAsync());
-        Assert.Equal(1, lines);
+        Assert.Equal(0, await _host.Room.DbAsync(db => db.CircleMessages.CountAsync(m => m.CircleId == circle.Id)));
     }
 
     [Fact]
@@ -215,21 +228,5 @@ public sealed class DiscussionSwitchTests(PostgresFixture pg) : IAsyncLifetime
         await audience.InvokeAsync<object?>("EnterAudience", circle.Id);
         Assert.True((await pushed.NextAsync()).On);
         await audience.DisposeAsync();
-    }
-
-    [Fact]
-    public async Task A_circle_from_before_the_migration_gets_the_defaults()
-    {
-        var circle = await _host.Room.CircleAsync();
-        var owner = (await _host.CircleRowAsync(circle.Id)).OwnerUserId;
-        var old = Guid.CreateVersion7();
-        var now = DateTimeOffset.UtcNow;
-        await _host.Room.DbAsync(db => db.Database.ExecuteSqlInterpolatedAsync(
-            $"""
-            INSERT INTO "Circles" ("Id","OwnerUserId","Name","JoinCode","Activities","Locale","CreatedAt","ExpiresAt","QaAllowAnonymous")
-            VALUES ({old}, {owner}, 'Before', {Guid.NewGuid().ToString("N")[..10]}, ARRAY[]::text[], 'en', {now}, {now.AddDays(7)}, false)
-            """));
-        var row = await _host.CircleRowAsync(old);
-        Assert.Equal((false, true, (DateTimeOffset?)null, (Guid?)null), (row.DiscussionOn, row.DiscussionVideo, row.DiscussionChangedAt, row.DiscussionChangedByMemberId));
     }
 }

@@ -230,7 +230,7 @@ public sealed partial class CircleHub
         Context.Items[AudienceKey] = circleId;
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
-        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, discussion.Value));
+        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, livekit.Value));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
         await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         if (await ActiveSessionAsync(circleId) is not { } active)

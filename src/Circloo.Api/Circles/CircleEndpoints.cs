@@ -26,7 +26,7 @@ public sealed record CircleBody(Guid Id, string Name, string Character, int Ring
 public sealed record CircleView(
     Guid Id, string Name, string? JoinCode, string[] Activities, string? CurrentActivity, string Status, string Locale,
     MemberDto Me, MemberDto[] Members, MessageDto[] Messages, BoardNoteDto[] Notes, CanvasNoteDto[] Canvas, DecideView Decide,
-    RoomSettings Settings, HandsView Hands, DiscussionState Discussion, RecordingState? Recording);
+    RoomSettings Settings, HandsView Hands, DiscussionState Discussion);
 /// <param name="Taken">Characters with no free ring left (kept for the current join screen).</param>
 /// <param name="Characters">Every character with its use count and free rings (spec 008, contracts/rest.md).</param>
 public sealed record JoinInfo(Guid CircleId, string Name, string AnimatorName, string AnimatorCharacter, string[] Taken, bool Full, bool AlreadyIn,
@@ -121,7 +121,7 @@ public static class CircleEndpoints
                 r.ClosedAt is null && r.ExpiresAt > now ? "open" : "closed", r.CreatedAt, r.People, r.Bodies)));
         }).RequireAuthorization();
 
-        circles.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, TimeProvider clock, Polls polls, Qa qa, IOptions<DiscussionOptions> discussion, CancellationToken ct) =>
+        circles.MapGet("/{id:guid}", async (Guid id, HttpContext ctx, CirclooDbContext db, TimeProvider clock, Polls polls, Qa qa, IOptions<LiveKitOptions> livekit, CancellationToken ct) =>
         {
             var me = await CircleAccess.ResolveAsync(db, ctx.User, id, ct);
             if (me is null)
@@ -155,7 +155,7 @@ public static class CircleEndpoints
                 [.. messages.OrderBy(m => m.Id).Select(m => likes.TryGetValue(m.Id, out var l) ? MessageDto.From(m, l.Count, l.Mine) : MessageDto.From(m))], [.. notes.Select(BoardNoteDto.From)], [.. canvas.Select(CanvasNoteDto.From)],
                 // Forms are filled in by their task (spec 007 T707).
                 DecideView.Empty(c) with { Poll = poll.Poll, PollResults = poll.Results, PollVotes = poll.Votes, Polls = poll.Finished, Qa = questions },
-                RoomSettings.Of(c), Hands.View(hands), DiscussionRules.State(c, discussion.Value), null));
+                RoomSettings.Of(c), Hands.View(hands), DiscussionRules.State(c, livekit.Value)));
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,

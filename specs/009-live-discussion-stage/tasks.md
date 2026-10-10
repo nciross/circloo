@@ -95,7 +95,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T918 **Persistence cleanup and options (API).**
+- [x] T918 **Persistence cleanup and options (API).** (#258)
   - Migration `src/Circloo.Api/Data/Migrations/*_GroupCallsLiveKit.cs` per `data-model.md`: drop `RecordingEvents` and `Recordings` (with their indexes and check), drop `Circle.DiscussionChangedAt` and `DiscussionChangedByMemberId`, add `Circle.DiscussionSpeaking` (`varchar(8)`, default `'hand'`, check `IN ('hand','open')`). `Down` restores the previous shape. Entities and `CirclooDbContext.cs` updated (remove `Recording`, `RecordingEvent`).
   - `src/Circloo.Api/Discussion/DiscussionOptions.cs` trimmed to `AwayEndSeconds`; new `LiveKitOptions.cs` (`Url`, `ApiUrl`, `ApiKey`, `ApiSecret`, `TokenMinutes`), validated at start-up only when `Url` is set (secret at least 32 characters, schemes checked).
   - `src/Circloo.Api/Discussion/DiscussionRules.cs`: `DiscussionState(On, VideoAllowed, Speaking, Available, Away, AwayEndsAt)`; remove `Seat`, `StageView`, `RecordingState`.

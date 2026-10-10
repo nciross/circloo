@@ -1,12 +1,10 @@
 <!--
 Sync Impact Report
-Version: 2.0.0 → 2.1.0 (MINOR: a new technology constraint and an accepted infrastructure exception; founder decision D9, 2026-10-08, #270)
-Modified: VII. Simple, Disposable Infrastructure (the call server VM is an accepted exception), Technology & Infrastructure Constraints (new "Real-time media" line, "Production is one container" names the call server VM).
-Added sections: none. Removed sections: none.
-Source: spec 009 (specs/009-live-discussion-stage/: plan Complexity Tracking, research R23 and D8 to D10), docs/architecture/overview.md (Call server).
-Templates checked: plan-template.md, spec-template.md, tasks-template.md, checklist-template.md, constitution-template.md. No change needed (the Constitution Check reads the principles below).
-Docs updated: specs/009-live-discussion-stage/plan.md (Constitution Check, Complexity Tracking), docs/architecture/overview.md (Call server).
-Follow-up TODOs: none.
+Version: 1.1.0 → 2.0.0 (MAJOR: technology constraints redefined; founder stack decision #17)
+Modified: Technology & Infrastructure Constraints (Next.js/Prisma/Auth.js → .NET Aspire/EF Core/React+TS), VI (test tooling named).
+Added principles: VIII. Secure by Design, IX. Zero-Cost Development.
+Templates: plan/spec/tasks templates remain compatible (Constitution Check reads the principles below).
+Docs updated: docs/architecture/overview.md, PRODUCT.md (Stack), CLAUDE.md.
 -->
 
 # circloo Constitution
@@ -32,7 +30,7 @@ Circle content is visible only to members. Invitations work with or without emai
 Domain logic and API routes have automated tests written with or before the code. Every user story in a spec has at least one end-to-end acceptance test (Playwright), including one non-Latin locale run. Tests must pass in CI before merge.
 
 ### VII. Simple, Disposable Infrastructure
-All Azure resources for an environment live in **one** resource group `rg-circloo-<env>`, defined in Bicep under `infra/` and driven by `azd`. Any environment can be created with `scripts/deploy` and removed with `scripts/destroy`. New Azure resources are added to the IaC, never created by hand in the portal. Prefer managed services and managed identity over self-hosted components and keys. Accepted exception: the group call server (spec 009) is one self-hosted Linux VM, because no managed service carries its UDP media and TURN on 443. It lives in the same resource group and Bicep, is created only on request (`callsEnabled`, false by default), is disposable (rebuilt from cloud-init, removed by `scripts/destroy`, stores nothing) and, outside production, uses the cheapest size that works and shuts down every night.
+All Azure resources for an environment live in **one** resource group `rg-circloo-<env>`, defined in Bicep under `infra/` and driven by `azd`. Any environment can be created with `scripts/deploy` and removed with `scripts/destroy`. New Azure resources are added to the IaC, never created by hand in the portal. Prefer managed services and managed identity over self-hosted components and keys.
 
 ### VIII. Secure by Design (NON-NEGOTIABLE)
 Security is designed in, not bolted on. Every plan carries a threat model for what it adds. Defaults: least privilege and managed identity, secrets only in user-secrets (dev) or Key Vault (prod), HttpOnly host-prefixed session cookies, CSRF protection on every unsafe request, a strict Content-Security-Policy without inline scripts, server-side validation of all input, rate limits on anything that sends email, costs money or can be brute-forced, no account enumeration, no secrets or raw personal data in logs (hash them), and errors without internal detail. Security-relevant events are audited. AI features filter inputs and outputs for safety and never receive more personal data than they need.
@@ -45,9 +43,8 @@ Running, testing and demoing circloo locally needs no paid cloud resource. The A
 - **Frontend**: React + TypeScript (strict) + Vite in `src/web`. **Zustand** holds client state and **TanStack Query** holds server state. i18next provides `en|fr|ar|es`.
 - **AI**: Microsoft Foundry (Azure AI Foundry models) behind an `IAiProvider` abstraction, with a free local provider in dev.
 - **Real time**: SignalR (Azure SignalR Service / Web PubSub in prod) + Yjs for boards. **Email**: ACS Email in prod, Mailpit in dev. **Files**: Blob Storage (Azurite in dev).
-- **Real-time media**: a self-hosted LiveKit SFU, one node, never recording. Calls are never recorded or transcribed. Only chat messages are stored: calls, emoji, raised hands and who speaks never are. The audit log keeps animator actions only.
 - Deviations require a justified entry in the plan's Complexity Tracking.
-- Production is one container (the API serves the SPA) listening on `PORT`. The call server VM is an accepted exception (principle VII). Configuration comes only from environment variables and Key Vault (see `docs/architecture/overview.md`).
+- Production is one container (the API serves the SPA) listening on `PORT`. Configuration comes only from environment variables and Key Vault (see `docs/architecture/overview.md`).
 - Tests: xUnit + Testcontainers (API), Vitest (web), Playwright (e2e).
 - Humour content is kind: no jokes targeting religion, ethnicity, gender, nationality or politics.
 
@@ -60,4 +57,4 @@ Running, testing and demoing circloo locally needs no paid cloud resource. The A
 ## Governance
 This constitution supersedes other practices. Amendments are made with `/speckit-constitution` in a PR linked to an issue, with a version bump (MAJOR: principle removed/redefined; MINOR: principle added; PATCH: wording). Every plan's Constitution Check gate must pass or carry a justified exception.
 
-**Version**: 2.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-09
+**Version**: 2.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01

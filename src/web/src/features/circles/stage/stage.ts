@@ -100,10 +100,8 @@ function ensureMesh(): MeshManager {
     getIce: () => deps.fetchIce(circleId),
     // A refused signal (limits, unknown seat) only means that link does not come up; never an error for the person.
     send: (to, kind, linkId, payload) => void deps.invoke('Signal', to, kind, linkId, payload).catch(() => undefined),
-    limits: () => {
-      const d = useStage.getState().discussion
-      return { stageMax: d?.stageMax ?? 8, listenersMax: d?.listenersMax ?? 8 }
-    },
+    // The server no longer sends mesh limits (spec 009, 2026-10-08); the mesh itself goes with T924.
+    limits: () => ({ stageMax: 8, listenersMax: 8 }),
     onChange: () => useStage.setState({ links: mesh?.snapshot() ?? [] }),
   })
   return mesh
