@@ -708,49 +708,376 @@
     opacity: 0;
   }
 }
-.chat__msg {
-  display: flex;
-  align-items: flex-start;
+/*
+ * One sender's run of messages (spec 008 US3): the character with its ring and the name once, then the bubbles, whose
+ * corners tighten on the sender's side so the run reads as one voice. Yours sit at the inline end without a name.
+ */
+.chat__group {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  align-items: start;
   gap: var(--s-2);
-  max-inline-size: 85%;
-  animation: rise-in var(--dur-move) var(--ease-out);
+  max-inline-size: 88%;
 }
-.chat__msg.is-mine {
+.chat__group.is-mine {
+  grid-template-columns: minmax(0, 1fr);
   align-self: flex-end;
-  flex-direction: row-reverse;
 }
 .chat__avatar {
-  flex: none;
-  inline-size: 1.5rem;
-  block-size: 1.5rem;
-  margin-block-start: var(--s-1);
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+}
+.chat__stack {
+  display: grid;
+  gap: var(--s-1);
+  justify-items: start;
+  min-inline-size: 0;
+}
+.chat__group.is-mine .chat__stack {
+  justify-items: end;
+}
+.chat__from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+  min-block-size: 1.75rem;
+  margin: 0;
+  padding-inline-start: var(--s-1);
+}
+.chat__from .chat__name {
+  font-weight: 800;
+}
+.chat__role {
+  font-size: 0.625rem;
+}
+.chat__lines {
+  display: grid;
+  gap: 2px;
+  justify-items: inherit;
+  min-inline-size: 0;
+}
+/* A message, then its thread under it. */
+.chat__msg {
+  display: grid;
+  gap: 2px;
+  justify-items: inherit;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+/* The actions sit beside a short bubble and wrap under a long one, so a run of messages stays one block. */
+.chat__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 2px var(--s-1);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.chat__group.is-mine .chat__msg > .chat__body {
+  flex-direction: row-reverse;
 }
 .chat__bubble {
   display: grid;
   gap: 2px;
   min-inline-size: 0;
+  max-inline-size: 100%;
   padding: var(--s-2) var(--s-3);
   border: 1px solid var(--hairline);
   border-radius: var(--r-md);
   background: var(--paper);
 }
-/* Yours: outlined in the beam, like your body on the ring. */
-.chat__msg.is-mine .chat__bubble {
+.chat__group:not(.is-mine) .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
+  border-start-start-radius: var(--r-xs);
+}
+.chat__group:not(.is-mine) .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
+  border-end-start-radius: var(--r-xs);
+}
+.chat__group.is-mine .chat__msg:not(:first-child) > .chat__body > .chat__bubble {
+  border-start-end-radius: var(--r-xs);
+}
+.chat__group.is-mine .chat__msg:not(:last-child) > .chat__body > .chat__bubble {
+  border-end-end-radius: var(--r-xs);
+}
+/* Yours: the light violet of a picked option, in the flow and in a thread. */
+.chat__group.is-mine .chat__msg > .chat__body > .chat__bubble,
+.chat__reply.is-mine > .chat__body > .chat__bubble {
   border-color: transparent;
   background: var(--beam-subtle);
-}
-.chat__msg.is-animator .chat__name::after {
-  content: ' ★';
-  color: var(--brass);
-}
-.chat__bubble .chat__name {
-  font-size: var(--fs-xs);
-  color: var(--ink-soft);
 }
 .chat__bubble .chat__text {
   margin: 0;
   white-space: pre-line;
   overflow-wrap: anywhere;
+}
+/* Hidden (the animator's copy only): a dashed outline and the word, the text kept so it can come back. */
+.chat__msg.is-hidden > .chat__body > .chat__bubble,
+.chat__reply.is-hidden > .chat__body > .chat__bubble {
+  border: 2px dashed var(--hairline-strong);
+  background: transparent;
+}
+.chat__hidden-tag,
+.chat__reply-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* Under each bubble: the likes and, for the animator, hide or show again. Quiet until used. */
+.chat__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+.chat__acts:empty {
+  display: none;
+}
+.chat__like,
+.chat__hide,
+.chat__answer,
+.chat__likes {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-block-size: 1.75rem;
+  min-inline-size: 1.75rem;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  justify-content: center;
+}
+.chat__like,
+.chat__hide,
+.chat__answer {
+  cursor: pointer;
+  transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
+}
+.chat__like:hover,
+.chat__hide:hover,
+.chat__answer:hover {
+  background: var(--paper-hover);
+  color: var(--ink);
+}
+.chat__like:focus-visible,
+.chat__hide:focus-visible,
+.chat__answer:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.chat__like[aria-busy='true'],
+.chat__hide[aria-busy='true'] {
+  cursor: progress;
+}
+/* You liked it: the heart fills (shape, not colour alone) and the word "Liked" appears. */
+.chat__like[aria-pressed='true'] {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+.chat__like[aria-pressed='true'] svg,
+.chat__likes svg {
+  color: var(--beam);
+}
+.chat__hide.is-hidden {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* On touch the targets reach 44 px without spreading the conversation out. */
+@media (pointer: coarse) {
+  .chat__like::after,
+  .chat__hide::after,
+  .chat__answer::after,
+  .chat__replied-btn::after {
+    content: '';
+    position: absolute;
+    inset: -0.5rem -0.2rem;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chat__like[aria-pressed='true'] svg {
+    animation: like-pop var(--dur-move) var(--ease-out);
+  }
+}
+@keyframes like-pop {
+  40% {
+    transform: scale(1.3);
+  }
+}
+
+/*
+ * A thread (spec 009 US5 #2): the replies under their message, set in from the inline start along a quiet rule, each
+ * with a small character and the name once per run. One level only.
+ */
+.chat__thread {
+  display: grid;
+  gap: var(--s-1);
+  justify-items: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  margin-block: var(--s-1) var(--s-2);
+  margin-inline-start: var(--s-3);
+  padding-inline-start: var(--s-3);
+  border-inline-start: 2px solid var(--hairline);
+}
+.chat__reply {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__reply-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+  margin: 0;
+  margin-block-start: var(--s-1);
+}
+.chat__reply-avatar {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+.chat__reply-from .chat__name {
+  font-weight: 800;
+}
+/* Reached from a "replied" line: marked for a moment by the focus colour, never by fading. */
+.chat__msg.is-found > .chat__body > .chat__bubble,
+.chat__reply.is-found > .chat__body > .chat__bubble {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.chat__msg:focus,
+.chat__reply:focus {
+  outline: none;
+}
+
+/*
+ * Live lines (spec 009 US5 #3): the call and the hands, centred like the round's own lines but outlined instead of
+ * filled, because they are a live trace that a reload does not bring back.
+ */
+.chat__live {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  max-inline-size: 100%;
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-ring);
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__live svg {
+  flex: none;
+}
+/* A reply that went under an earlier message, marked where it happened; a tap takes you to it. */
+.chat__replied {
+  align-self: center;
+  max-inline-size: 100%;
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.chat__replied-btn {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1) var(--s-2);
+  max-inline-size: 100%;
+  min-block-size: 1.75rem;
+  padding: 0.15rem 0.7rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
+}
+.chat__replied-btn:hover {
+  background: var(--paper-hover);
+  color: var(--ink);
+}
+.chat__replied-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.chat__replied-btn svg {
+  flex: none;
+}
+.chat__replied-show {
+  color: var(--violet-link);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* The list stays put while you read older messages; this pill takes you down to the new ones. */
+.chat__view {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-block-size: 0;
+}
+.chat__jump {
+  position: absolute;
+  inset-block-end: var(--s-3);
+  inset-inline: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  inline-size: max-content;
+  min-block-size: 2.5rem;
+  margin-inline: auto;
+  padding: 0 var(--s-4);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--charcoal);
+  color: var(--on-charcoal);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-overlay);
+  cursor: pointer;
+}
+.chat__jump:hover {
+  background: var(--charcoal-hover);
+}
+.chat__jump:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chat__jump {
+    animation: jump-in var(--dur-move) var(--ease-out);
+  }
+}
+@keyframes jump-in {
+  from {
+    transform: translateY(0.75rem);
+  }
+}
+.chat__action-error {
+  margin: 0;
+  padding: var(--s-2) var(--s-4) 0;
+}
+/* The animator's chat switch, on its own line under the panel title. */
+.chat__settings {
+  flex-basis: 100%;
 }
 /* Arrival moves, never fades: text keeps its contrast while it settles. */
 @keyframes rise-in {
@@ -840,6 +1167,138 @@
 .composer__send[aria-disabled='true'] {
   opacity: 0.4;
   cursor: not-allowed;
+}
+/* Answering a message: who and its first words above the field, with Cancel at the inline end. */
+.composer__reply {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding-block: var(--s-1);
+  padding-inline: var(--s-3) var(--s-1);
+  border-radius: var(--r-md);
+  background: var(--paper-sunken);
+  animation: rise-in var(--dur-move) var(--ease-out);
+}
+.composer__reply-icon {
+  flex: none;
+  color: var(--ink-soft);
+}
+.composer__reply-text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+}
+.composer__reply-to {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.composer__reply-quote {
+  overflow: hidden;
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Slow mode or a pause, said above the field; the seconds left count down in tabular figures. */
+.composer__mode {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.composer__mode svg {
+  flex: none;
+}
+.composer__mode.is-waiting {
+  color: var(--ink);
+  font-weight: 700;
+}
+/* Paused for participants: what happened and what still works, in place of the field. */
+.composer__paused {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--paper-sunken);
+}
+.composer__paused-icon {
+  flex: none;
+  margin-block-start: 2px;
+}
+.composer__paused p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+.composer__paused strong {
+  font-weight: 800;
+}
+.composer__paused span {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+/* ---------- Room settings: the animator's chat mode and reactions switch ---------- */
+.room-settings {
+  display: grid;
+  gap: var(--s-2);
+  min-inline-size: 0;
+}
+.room-settings__title {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+:lang(ar) .room-settings__title {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.room-settings .seg {
+  justify-items: stretch;
+}
+.room-settings .seg__track {
+  display: flex;
+}
+.room-settings .seg__opt {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+/* Centred labels: the pressed fill alone marks the choice, without the side bar of other segmented controls. */
+.room-settings .seg__opt::before {
+  display: none;
+}
+/* Beside the chat: one line, so the conversation keeps its room. */
+.room-settings.is-compact .seg__track {
+  flex-wrap: nowrap;
+}
+.room-settings.is-compact .seg__opt {
+  gap: var(--s-1);
+  min-block-size: 2rem;
+  padding: 0.15rem 0.5rem;
+  font-size: var(--fs-sm);
+}
+
+@media (pointer: coarse) {
+  .room-settings.is-compact .seg__opt {
+    min-block-size: 2.75rem;
+  }
+}
+.room-settings__help {
+  margin: 0;
+}
+.room-settings__toggle {
+  display: grid;
+  gap: var(--s-1);
 }
 
 /* ---------- The thinking panda: draws itself, line by line ---------- */

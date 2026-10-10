@@ -11,7 +11,7 @@ type Busy = 'chat' | 'audio' | 'video' | 'mode' | 'mute'
 
 /**
  * The animator's switches while the circle is open (spec 009 US1 and US3, T926): Chat (spec 008's room setting, paused
- * means off), Audio call and Video call (video includes the voices: switching video off keeps the call going, switching
+ * means off; on is open or slow, and switching it on again brings back slow mode if that is what it was, T909), Audio call and Video call (video includes the voices: switching video off keeps the call going, switching
  * the call off ends it), and who can speak, Hand to speak or Open mic, chosen before the call and changed during it.
  * In Open mic, Mute everyone switches every microphone off once. Without a call server the call switches are left out
  * and the Call tab says why; the chat switch stays. The server decides who may change anything; this only asks.
@@ -20,6 +20,7 @@ export function DiscussionSwitch() {
   const { t } = useTranslation()
   const discussion = useStage((s) => s.discussion)
   const settings = useRoom((s) => s.settings)
+  const chatResume = useRoom((s) => s.chatResume)
   const on = discussion?.on ?? false
   const available = discussion?.available ?? true
   const video = on && (discussion?.videoAllowed ?? false)
@@ -57,8 +58,8 @@ export function DiscussionSwitch() {
         checked={chatOn}
         busy={busy === 'chat'}
         label={t('circles.call.chatSwitch')}
-        help={t('circles.call.chatHelp')}
-        onToggle={() => void run('chat', () => useRoom.getState().setRoomSettings({ ...settings, chat: chatOn ? 'paused' : 'open' }))}
+        help={settings.chat === 'slow' ? t('circles.call.chatHelpSlow') : !chatOn && chatResume === 'slow' ? t('circles.call.chatHelpResumeSlow') : t('circles.call.chatHelp')}
+        onToggle={() => void run('chat', () => useRoom.getState().setRoomSettings({ ...settings, chat: chatOn ? 'paused' : chatResume }))}
       />
       {available ? (
         <>

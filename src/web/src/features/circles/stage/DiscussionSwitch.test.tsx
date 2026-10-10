@@ -13,7 +13,7 @@ const ok = () => vi.fn((..._args: unknown[]) => Promise.resolve())
 const toggle = (name: string) => screen.getByRole('switch', { name })
 
 const original = useRoom.getState()
-beforeEach(() => useRoom.setState({ settings: settings() }))
+beforeEach(() => useRoom.setState({ settings: settings(), chatResume: 'open' }))
 afterEach(() => {
   resetStage()
   useRoom.setState({ settings: original.settings, setRoomSettings: original.setRoomSettings })
@@ -103,6 +103,22 @@ describe('DiscussionSwitch', () => {
     expect(toggle('Chat')).toHaveAttribute('aria-checked', 'false')
     await userEvent.click(toggle('Chat'))
     expect(setRoomSettings).toHaveBeenLastCalledWith({ chat: 'open', reactions: false, pirikooQuiet: false })
+  })
+
+  it('brings slow mode back when the chat is switched on again, and says so while it is off', async () => {
+    const setRoomSettings = ok()
+    useRoom.setState({ settings: settings({ chat: 'slow' }), chatResume: 'slow', setRoomSettings })
+    useStage.setState({ discussion: state() })
+    const { rerender } = render(<DiscussionSwitch />)
+    expect(toggle('Chat')).toHaveAttribute('aria-checked', 'true')
+    expect(toggle('Chat')).toHaveAccessibleDescription(/in slow mode/)
+    await userEvent.click(toggle('Chat'))
+    expect(setRoomSettings).toHaveBeenCalledWith({ chat: 'paused', reactions: true, pirikooQuiet: false })
+    useRoom.setState({ settings: settings({ chat: 'paused' }) })
+    rerender(<DiscussionSwitch />)
+    expect(toggle('Chat')).toHaveAccessibleDescription(/back to slow mode/)
+    await userEvent.click(toggle('Chat'))
+    expect(setRoomSettings).toHaveBeenLastCalledWith({ chat: 'slow', reactions: true, pirikooQuiet: false })
   })
 
   it('keeps only the chat switch when calls are not available here', () => {

@@ -39,42 +39,6 @@ async function join(browser: Browser, code: string, name: string, character: str
   return page
 }
 
-/**
- * Switches reactions on or off as the animator, straight on the hub (SignalR's JSON protocol over a WebSocket), since
- * the room settings controls come with the chat UI (T806). Same cookies, same checks as the app's own connection.
- */
-async function setReactions(page: Page, circleId: string, on: boolean) {
-  await page.evaluate(async ({ id, on }) => {
-    const rs = '\u001e'
-    const neg = (await (await fetch('/hubs/circle/negotiate?negotiateVersion=1', { method: 'POST', credentials: 'same-origin' })).json()) as { connectionToken: string }
-    const ws = new WebSocket(`${location.origin.replace(/^http/, 'ws')}/hubs/circle?id=${encodeURIComponent(neg.connectionToken)}`)
-    await new Promise((ok, ko) => {
-      ws.onopen = ok
-      ws.onerror = ko
-    })
-    const waiting = new Map<string, (m: { error?: string }) => void>()
-    let buffer = ''
-    ws.onmessage = (e) => {
-      buffer += String(e.data)
-      const frames = buffer.split(rs)
-      buffer = frames.pop() ?? ''
-      for (const f of frames) {
-        const m = JSON.parse(f) as { type?: number; invocationId?: string; error?: string }
-        if (m.type === 3 && m.invocationId) waiting.get(m.invocationId)?.(m)
-      }
-    }
-    ws.send(JSON.stringify({ protocol: 'json', version: 1 }) + rs)
-    const invoke = (n: string, target: string, args: unknown[]) =>
-      new Promise<void>((ok, ko) => {
-        waiting.set(n, (m) => (m.error ? ko(new Error(m.error)) : ok()))
-        ws.send(JSON.stringify({ type: 1, invocationId: n, target, arguments: args }) + rs)
-      })
-    await invoke('1', 'Enter', [id])
-    await invoke('2', 'SetRoomSettings', [{ chat: 'open', reactions: on, pirikooQuiet: false }])
-    ws.close()
-  }, { id: circleId, on })
-}
-
 const clap = (page: Page) => page.locator('.reaction-bar__btn[data-kind="clap"]')
 const chip = (page: Page, kind: string) => page.locator(`.reaction-tally__chip[data-kind="${kind}"]`)
 
@@ -154,10 +118,13 @@ test('reactions: a burst from five people floats and groups on every screen, the
   // The chips leave once the room is quiet.
   await expect(chip(page, 'clap')).toHaveCount(0, { timeout: 6_000 })
 
-  // The animator switches reactions off: the bar disappears for everyone, and on again.
-  await setReactions(page, circle.id, false)
+  // The animator switches reactions off beside the notes: the bar disappears for everyone, and on again.
+  const reactionsSwitch = page.locator('.presenter__settings [data-setting="reactions"]')
+  await expect(reactionsSwitch).toHaveAttribute('aria-checked', 'true')
+  await reactionsSwitch.click()
+  await expect(reactionsSwitch).toHaveAttribute('aria-checked', 'false')
   for (const p of [page, ...people]) await expect(p.locator('.reaction-bar')).toHaveCount(0)
-  await setReactions(page, circle.id, true)
+  await reactionsSwitch.click()
   await expect(kenji.locator('.reaction-bar')).toBeVisible()
 
   // Ending the presentation keeps nothing on screen.
