@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '../../../i18n'
@@ -17,7 +17,15 @@ const person = (id: string, over: Partial<CallParticipant> = {}): CallParticipan
   id, name: id, local: false, speaking: false, quality: 'good', mic: false, camera: false, video: null, ...over,
 })
 
-afterEach(() => resetStage())
+beforeEach(() => {
+  // jsdom has no WebRTC; the Call tab offers Join only where it exists.
+  vi.stubGlobal('RTCPeerConnection', class {})
+})
+
+afterEach(() => {
+  resetStage()
+  vi.unstubAllGlobals()
+})
 
 describe('CallPanel', () => {
   it('gives the animator the three switches, the call off by default', async () => {
@@ -101,6 +109,15 @@ describe('CallPanel', () => {
     expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Nadia', 'Aminahas the floor'])
     await userEvent.click(screen.getByRole('button', { name: 'Join call' }))
     expect(join).toHaveBeenCalled()
+  })
+
+  it('tells a browser without live audio or video why it cannot join, with no Join button (US4 #6)', () => {
+    vi.stubGlobal('RTCPeerConnection', undefined)
+    useStage.setState({ discussion: state({ on: true }), roster: ['nadia'] })
+    render(<CallPanel isAnimator={false} members={members} />)
+    expect(screen.getByText('This browser cannot join the call. You can still chat and raise your hand.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Join call' })).toBeNull()
+    expect(screen.getByText('1 person in the call')).toBeInTheDocument()
   })
 
   it('says an audio call is on, and that calls are not available here without a call server', () => {

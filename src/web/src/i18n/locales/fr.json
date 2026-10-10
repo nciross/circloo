@@ -1047,6 +1047,45 @@
         "unsupported": "Ce navigateur ne peut pas rejoindre l’appel. Tu peux toujours écrire dans le chat et lever la main.",
         "lost": "La connexion à l’appel a été perdue. Rejoins-le quand tu es prêt.",
         "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil."
+      },
+      "device": {
+        "primer": "Ta caméra et ton micro vont aux personnes de cet appel en passant par le serveur d’appel de circloo. Rien n’est enregistré ni gardé.",
+        "continue": "Continuer",
+        "notNow": "Pas maintenant",
+        "retry": "Réessayer",
+        "dismiss": "Fermer",
+        "what": {
+          "audio": "le micro",
+          "video": "la caméra"
+        },
+        "denied": {
+          "audio": "Ton navigateur bloque le micro. Tu peux toujours écouter, écrire dans le chat et lever la main.",
+          "video": "Ton navigateur bloque la caméra. Les autres voient ton personnage à la place."
+        },
+        "no-device": {
+          "audio": "Aucun micro trouvé. Tu peux toujours écouter, écrire dans le chat et lever la main.",
+          "video": "Aucune caméra trouvée. Les autres voient ton personnage à la place."
+        },
+        "busy": {
+          "audio": "Une autre application utilise ton micro. Ferme-la, puis réessaie.",
+          "video": "Une autre application utilise ta caméra. Ferme-la, puis réessaie."
+        },
+        "blocked": {
+          "audio": "Un réglage de cet appareil ou de ton organisation bloque le micro ici. Tu peux toujours écouter, écrire dans le chat et lever la main.",
+          "video": "Un réglage de cet appareil ou de ton organisation bloque la caméra ici. Les autres voient ton personnage à la place."
+        },
+        "unsupported": {
+          "audio": "Ce navigateur ne peut pas utiliser de micro sur cette page. Tu peux toujours écouter, écrire dans le chat et lever la main.",
+          "video": "Ce navigateur ne peut pas utiliser de caméra sur cette page. Les autres voient ton personnage à la place."
+        },
+        "allow": {
+          "chromium": "Pour l’autoriser à nouveau, clique sur l’icône au début de la barre d’adresse, règle {{device}} sur Autoriser, puis réessaie.",
+          "android": "Pour l’autoriser à nouveau, touche l’icône au début de la barre d’adresse, ouvre Autorisations et autorise {{device}}. Si ça reste bloqué, autorise l’accès pour ce navigateur dans les réglages du téléphone.",
+          "firefox": "Pour l’autoriser à nouveau, clique sur l’icône au début de la barre d’adresse, retire le blocage pour {{device}}, puis réessaie.",
+          "safari": "Pour l’autoriser à nouveau, ouvre le menu Safari, puis Réglages pour ce site web, règle {{device}} sur Autoriser, puis réessaie.",
+          "ios": "Pour l’autoriser à nouveau, touche aA dans la barre d’adresse, puis Réglages du site web, et autorise {{device}}. Puis réessaie.",
+          "other": "Pour l’autoriser à nouveau, ouvre les réglages de ce site dans ton navigateur et autorise {{device}}, puis réessaie."
+        }
       }
     },
     "ring": {

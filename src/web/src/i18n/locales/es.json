@@ -1047,6 +1047,45 @@
         "unsupported": "Este navegador no puede unirse a la llamada. Puedes seguir escribiendo en el chat y levantar la mano.",
         "lost": "Se ha perdido la conexión con la llamada. Vuelve a unirte cuando quieras.",
         "joined-elsewhere": "Te has unido a la llamada desde otra pestaña u otro dispositivo."
+      },
+      "device": {
+        "primer": "Tu cámara y tu micrófono llegan a las personas de esta llamada a través del servidor de llamadas de circloo. No se graba ni se guarda nada.",
+        "continue": "Continuar",
+        "notNow": "Ahora no",
+        "retry": "Reintentar",
+        "dismiss": "Cerrar",
+        "what": {
+          "audio": "el micrófono",
+          "video": "la cámara"
+        },
+        "denied": {
+          "audio": "Tu navegador está bloqueando el micrófono. Aún puedes escuchar, escribir en el chat y levantar la mano.",
+          "video": "Tu navegador está bloqueando la cámara. Los demás ven tu personaje en su lugar."
+        },
+        "no-device": {
+          "audio": "No se ha encontrado ningún micrófono. Aún puedes escuchar, escribir en el chat y levantar la mano.",
+          "video": "No se ha encontrado ninguna cámara. Los demás ven tu personaje en su lugar."
+        },
+        "busy": {
+          "audio": "Otra aplicación está usando tu micrófono. Ciérrala y vuelve a intentarlo.",
+          "video": "Otra aplicación está usando tu cámara. Ciérrala y vuelve a intentarlo."
+        },
+        "blocked": {
+          "audio": "Un ajuste de este dispositivo o de tu organización bloquea el micrófono aquí. Aún puedes escuchar, escribir en el chat y levantar la mano.",
+          "video": "Un ajuste de este dispositivo o de tu organización bloquea la cámara aquí. Los demás ven tu personaje en su lugar."
+        },
+        "unsupported": {
+          "audio": "Este navegador no puede usar un micrófono en esta página. Aún puedes escuchar, escribir en el chat y levantar la mano.",
+          "video": "Este navegador no puede usar una cámara en esta página. Los demás ven tu personaje en su lugar."
+        },
+        "allow": {
+          "chromium": "Para volver a permitir el acceso, haz clic en el icono al principio de la barra de direcciones, pon {{device}} en Permitir y vuelve a intentarlo.",
+          "android": "Para volver a permitir el acceso, toca el icono al principio de la barra de direcciones, abre Permisos y permite {{device}}. Si sigue bloqueado, permite el acceso a este navegador en los ajustes del teléfono.",
+          "firefox": "Para volver a permitir el acceso, haz clic en el icono al principio de la barra de direcciones, quita el bloqueo para {{device}} y vuelve a intentarlo.",
+          "safari": "Para volver a permitir el acceso, abre el menú Safari, luego Ajustes de este sitio web, pon {{device}} en Permitir y vuelve a intentarlo.",
+          "ios": "Para volver a permitir el acceso, toca aA en la barra de direcciones, luego Ajustes del sitio web, y permite {{device}}. Después, vuelve a intentarlo.",
+          "other": "Para volver a permitir el acceso, abre los ajustes de este sitio en tu navegador, permite {{device}} y vuelve a intentarlo."
+        }
       }
     },
     "ring": {

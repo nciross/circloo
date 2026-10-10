@@ -27,3 +27,19 @@ export function classifyMediaError(error: unknown): MediaProblem {
       return 'busy'
   }
 }
+
+/** Which set of steps re-allows a blocked device: the browsers differ in where they keep a site's permissions. */
+export type BrowserFamily = 'chromium' | 'android' | 'firefox' | 'safari' | 'ios' | 'other'
+
+export function browserFamily(
+  ua: string = typeof navigator === 'undefined' ? '' : navigator.userAgent,
+  touch: boolean = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 1,
+): BrowserFamily {
+  // iPadOS asks for desktop pages and says Macintosh; its touch screen gives it away.
+  if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && touch)) return 'ios'
+  if (/Android/.test(ua)) return 'android'
+  if (/Firefox\//.test(ua)) return 'firefox'
+  if (/Chrome\/|Chromium\/|Edg\//.test(ua)) return 'chromium'
+  if (/Safari\//.test(ua)) return 'safari'
+  return 'other'
+}

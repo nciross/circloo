@@ -1046,6 +1046,45 @@
         "unsupported": "This browser cannot join the call. You can still chat and raise your hand.",
         "lost": "The connection to the call was lost. Join again when you are ready.",
         "joined-elsewhere": "You joined the call from another tab or device."
+      },
+      "device": {
+        "primer": "Your camera and microphone go to the people in this call through circloo's call server. Nothing is recorded or kept.",
+        "continue": "Continue",
+        "notNow": "Not now",
+        "retry": "Try again",
+        "dismiss": "Dismiss",
+        "what": {
+          "audio": "the microphone",
+          "video": "the camera"
+        },
+        "denied": {
+          "audio": "Your browser is blocking the microphone. You can still listen, chat and raise your hand.",
+          "video": "Your browser is blocking the camera. The others see your character instead."
+        },
+        "no-device": {
+          "audio": "No microphone found. You can still listen, chat and raise your hand.",
+          "video": "No camera found. The others see your character instead."
+        },
+        "busy": {
+          "audio": "Another app is using your microphone. Close it, then try again.",
+          "video": "Another app is using your camera. Close it, then try again."
+        },
+        "blocked": {
+          "audio": "A setting on this device or in your organisation blocks the microphone here. You can still listen, chat and raise your hand.",
+          "video": "A setting on this device or in your organisation blocks the camera here. The others see your character instead."
+        },
+        "unsupported": {
+          "audio": "This browser cannot use a microphone on this page. You can still listen, chat and raise your hand.",
+          "video": "This browser cannot use a camera on this page. The others see your character instead."
+        },
+        "allow": {
+          "chromium": "To allow it again, click the icon at the start of the address bar, set {{device}} to Allow, then try again.",
+          "android": "To allow it again, tap the icon at the start of the address bar, open Permissions and allow {{device}}. If it stays blocked, allow it for this browser in your phone's settings.",
+          "firefox": "To allow it again, click the icon at the start of the address bar, remove the block on {{device}}, then try again.",
+          "safari": "To allow it again, open the Safari menu, then Settings for This Website, set {{device}} to Allow, then try again.",
+          "ios": "To allow it again, tap aA in the address bar, then Website Settings, and allow {{device}}. Then try again.",
+          "other": "To allow it again, open this site's settings in your browser and allow {{device}}, then try again."
+        }
       }
     },
     "ring": {

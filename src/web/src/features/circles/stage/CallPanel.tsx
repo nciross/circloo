@@ -4,7 +4,7 @@ import { Phone, PhoneOff, Volume2 } from 'lucide-react'
 import type { HandsView, Member } from '../../../api/circles'
 import { Character } from '../../../components/Character'
 import { hubCode } from '../room'
-import { useStage, type CallParticipant } from './stage'
+import { callSupported, useStage, type CallParticipant } from './stage'
 import { DiscussionSwitch } from './DiscussionSwitch'
 import { PersonMenu } from './PersonMenu'
 import { useAwayLeft } from './away'
@@ -78,7 +78,10 @@ export function CallPanel({ isAnimator, members = [], hands: viewHands }: { isAn
         {on && available ? (
           <>
             {count > 0 ? <p className="call__count">{t('circles.call.inCall', { count })}</p> : null}
-            {connection === 'idle' ? (
+            {connection === 'idle' && !callSupported() ? (
+              // Nothing to try again: this browser has no live audio or video, and the room works without it (US4 #6).
+              <p className="call__unsupported">{t('circles.call.errors.unsupported')}</p>
+            ) : connection === 'idle' ? (
               <button type="button" className="btn btn--primary call__join" onClick={() => void join()}>
                 <Phone size={18} aria-hidden="true" />
                 {t('circles.call.join')}

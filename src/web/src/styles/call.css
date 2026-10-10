@@ -133,6 +133,13 @@
   inline-size: 100%;
   margin-block-start: var(--s-2);
 }
+/* A browser that cannot join reads why where Join would be; the rest of the room works as before. */
+.call__unsupported {
+  margin: var(--s-2) 0 0;
+  color: var(--on-card);
+  font-weight: 600;
+  line-height: 1.45;
+}
 .call__in {
   display: flex;
   flex-wrap: wrap;
@@ -672,6 +679,91 @@
   font-weight: 700;
 }
 
+/* ---------- Devices (T907): the primer before the browser asks, and what went wrong ---------- */
+/* Either one takes the bar's first row to itself, above the device buttons it is about. */
+.call-bar__state:has(.call-primer, .device-problem) {
+  flex-basis: 100%;
+}
+.call-primer,
+.device-problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  inline-size: 100%;
+  animation: call-notice-in var(--dur-enter) var(--ease-out);
+}
+.call-primer {
+  padding-block: var(--s-1) var(--s-3);
+  padding-inline: var(--s-1);
+  border-block-end: 2px solid var(--hairline);
+}
+.call-primer__icon,
+.device-problem__icon {
+  flex: none;
+}
+.call-primer__text {
+  flex: 1 1 18rem;
+  min-inline-size: 0;
+  max-inline-size: 60ch;
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.call-primer__actions,
+.device-problem__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-inline-start: auto;
+}
+.device-problem {
+  align-items: flex-start;
+  padding-block: var(--s-2);
+  padding-inline: var(--s-3) var(--s-1);
+  border-radius: var(--r-md);
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+}
+.device-problem__icon {
+  margin-block-start: 0.15rem;
+}
+.device-problem__text {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  max-inline-size: 64ch;
+  align-self: center;
+}
+.device-problem__what {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.device-problem__how {
+  margin: var(--s-1) 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+.device-problem__actions {
+  align-self: center;
+  gap: var(--s-1);
+}
+.device-problem__retry {
+  --btn-ring: var(--warning-text);
+  --btn-fg: var(--warning-text);
+}
+.device-problem__close {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  color: var(--warning-text);
+}
+.device-problem__close:focus-visible,
+.device-problem__retry:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* ---------- The animator's person menu (T926) ---------- */
 .room,
 .person-menu {
@@ -821,6 +913,10 @@
     /* One row: two device buttons of 3rem, the view switch and Leave, in a 2px outline with a little padding. */
     --call-bar-h: 4.25rem;
   }
+  /* The primer or a device problem adds a row to the bar: the stage gives it room rather than slide under it. */
+  .room:has(.call-bar .call-primer, .call-bar .device-problem) {
+    --call-bar-h: 11rem;
+  }
   .room__centre.is-call .call-stage {
     block-size: calc(100dvh - var(--topbar-h) - var(--workbar-h) - var(--s-4) - var(--s-5) - var(--call-bar-h) - 4.5rem);
     min-block-size: 16rem;
@@ -859,6 +955,11 @@
   }
   .call-bar__state {
     flex-basis: 100%;
+  }
+  /* Phones: the primer's and the problem's buttons share the row under the sentence. */
+  .call-primer__actions,
+  .device-problem__actions {
+    margin-inline-start: 0;
   }
   .call-bar__end {
     gap: var(--s-1);
@@ -910,7 +1011,9 @@
   .call-tile__bars i,
   .call-stage__joining-char,
   .person-menu,
-  .call-notice {
+  .call-notice,
+  .call-primer,
+  .device-problem {
     animation: none;
   }
   .call-tile__bars i:nth-child(2) {

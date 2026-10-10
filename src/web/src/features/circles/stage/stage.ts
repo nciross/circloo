@@ -39,6 +39,13 @@ export interface MyDevices {
 
 export type Source = 'microphone' | 'camera'
 
+/** Why a device did not start. Each failure gets a new id, so the same problem twice is said twice. */
+export interface DeviceProblem {
+  id: number
+  kind: MediaKind
+  problem: MediaProblem
+}
+
 /**
  * What the animator changed for people in this call, kept from the animator's own successful calls. The hub never sends
  * it back (contracts/hub.md: the notices go to the person), so another animator tab or a reload starts from empty; the
@@ -59,8 +66,8 @@ interface StageState {
   /** What the call server lets you publish; null while you are not in the call. */
   myPermissions: CallRights | null
   me: MyDevices
-  /** Why the last device did not start; the UI explains it (T907). */
-  deviceProblem: { kind: MediaKind; problem: MediaProblem } | null
+  /** Why the last device did not start; the call bar explains it until it is dismissed or tried again (T907). */
+  deviceProblem: DeviceProblem | null
   /** The browser blocks the call's sound until a tap calls `startAudio`. */
   audioBlocked: boolean
   participants: CallParticipant[]
@@ -76,6 +83,7 @@ interface StageState {
   setMic: (on: boolean) => Promise<void>
   setCamera: (on: boolean) => Promise<void>
   startAudio: () => Promise<void>
+  dismissDeviceProblem: () => void
   dismissNotice: (id: number) => void
   /** Starts the call, or changes video and the speaking mode while it is on. The mode stays as it is unless given. */
   enableDiscussion: (videoAllowed: boolean, speaking?: DiscussionState['speaking']) => Promise<void>
@@ -111,6 +119,8 @@ let circleId: string | null = null
 let engine: CallEngine | null = null
 let generation = 0
 let noticeId = 0
+let problemId = 0
+const problem = (kind: MediaKind, p: MediaProblem): DeviceProblem => ({ id: ++problemId, kind, problem: p })
 const MAX_NOTICES = 20
 const OFF: MyDevices = { mic: false, camera: false }
 const NOT_IN_CALL = { connection: 'idle' as CallConnection, myPermissions: null, me: OFF, participants: [], audioBlocked: false, deviceProblem: null }
@@ -153,7 +163,7 @@ function listenerFor(gen: number): CallListener {
     onParticipants: (participants) => set({ participants }),
     onRights: (myPermissions) => set({ myPermissions }),
     onDevices: (me) => set({ me }),
-    onDeviceProblem: (kind, problem) => set({ deviceProblem: { kind, problem } }),
+    onDeviceProblem: (kind, p) => set({ deviceProblem: problem(kind, p) }),
     onAudioBlocked: (audioBlocked) => set({ audioBlocked }),
   }
 }
@@ -232,7 +242,7 @@ export const useStage = create<StageState>()((set, get) => ({
     if (on) {
       // A revoked microphone (Hand to speak without the floor, muted by the animator) is a disabled button: no request.
       if (!get().myPermissions?.canSpeak) return
-      if (!mediaSupported()) return set({ deviceProblem: { kind: 'audio', problem: 'unsupported' } })
+      if (!mediaSupported()) return set({ deviceProblem: problem('audio', 'unsupported') })
       set({ deviceProblem: null })
     }
     await e.setMic(on)
@@ -242,7 +252,7 @@ export const useStage = create<StageState>()((set, get) => ({
     if (!e || !inCall(get().connection)) return
     if (on) {
       if (!get().myPermissions?.canVideo || get().discussion?.videoAllowed === false) return
-      if (!mediaSupported()) return set({ deviceProblem: { kind: 'video', problem: 'unsupported' } })
+      if (!mediaSupported()) return set({ deviceProblem: problem('video', 'unsupported') })
       set({ deviceProblem: null })
     }
     await e.setCamera(on)
@@ -250,6 +260,7 @@ export const useStage = create<StageState>()((set, get) => ({
   startAudio: async () => {
     await engine?.startAudio()
   },
+  dismissDeviceProblem: () => set({ deviceProblem: null }),
   dismissNotice: (id) => set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })),
   enableDiscussion: (videoAllowed, speaking) =>
     call('EnableDiscussion', videoAllowed, speaking ?? get().discussion?.speaking ?? 'hand'),
