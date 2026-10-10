@@ -1,0 +1,699 @@
+/*
+ * The group call (spec 009 T925): the Call tab inside the room's focal card, the stage in the centre and the call's bar.
+ *
+ * - The Call tab: whether a call is on, Join call with the number of people in it, and the people as buddy rows with
+ *   their state in words. Everything inside the card uses the card's own tokens, which flip at night by themselves.
+ * - The stage fills the centre: a grid of rounded tiles (video, or the person's character on their own pastel, never an
+ *   empty box), or the speaker large over a strip. A speaking person gets an ink outline and the word "Speaking".
+ * - The bar sits at the bottom of the centre, in the page's flow: on a phone it stays above the sheet or its pill and
+ *   never covers the chat composer.
+ * Logical properties only, so Arabic mirrors without extra rules. Reduced motion stills the sound bars and the arrivals;
+ * text never fades or moves.
+ */
+
+/* ---------- The Call tab, inside the focal card ---------- */
+.call {
+  display: grid;
+  align-content: start;
+  gap: var(--s-4);
+  padding-inline: var(--s-1);
+}
+.call__switch {
+  display: grid;
+  gap: var(--s-2);
+  padding-block-end: var(--s-4);
+  border-block-end: 1px solid var(--card-line);
+}
+.call__switch .field__help {
+  margin: 0;
+  color: var(--on-card-faint);
+}
+.call__switch .switch {
+  justify-self: start;
+  color: var(--on-card);
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.call__switch .switch__track {
+  background: var(--seg-empty);
+}
+.call__switch .switch:hover .switch__track {
+  background: var(--on-card-faint);
+}
+.call__switch .switch[aria-checked='true'] .switch__track {
+  background: var(--ok);
+}
+.call__switch .switch__knob {
+  background: var(--on-card);
+}
+.call__switch .switch:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+.call__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  justify-self: start;
+  min-block-size: 2.75rem;
+  color: var(--on-card);
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+.call__check input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+  accent-color: var(--on-card);
+}
+.call__switch .call__check-help {
+  margin-block-start: calc(-1 * var(--s-2));
+}
+
+.call__now {
+  display: grid;
+  gap: var(--s-2);
+}
+.call__state {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+:lang(ar) .call__state {
+  letter-spacing: 0;
+}
+.call__state-mark {
+  flex: none;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border: 2px solid var(--on-card-faint);
+  border-radius: 50%;
+}
+.call__state-mark.is-on {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+.call__count {
+  margin: 0;
+  color: var(--on-card-soft);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+/* Join is the card's one big action: the full width of the tab, under the thumb on a phone. */
+.call__join {
+  inline-size: 100%;
+  margin-block-start: var(--s-2);
+}
+.call__in {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-block-start: var(--s-1);
+}
+.call__you {
+  flex-basis: 100%;
+  margin: 0;
+  font-weight: 600;
+}
+.call__now .field__error {
+  margin: 0;
+}
+
+/* The people in the call: buddy rows in a sunken block of the card. */
+.call__people {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--card-sunken);
+  color: var(--on-card);
+}
+.call__people-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 800;
+}
+.call__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.call__person {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-3);
+  padding-block: var(--s-2);
+}
+.call__person + .call__person {
+  border-block-start: 1px solid var(--card-line);
+}
+.call__person-char {
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  border-radius: 50%;
+}
+.call__person.is-speaking .call__person-char {
+  box-shadow: 0 0 0 2px var(--card-sunken), 0 0 0 4px var(--on-card);
+}
+.call__person-text {
+  display: grid;
+  min-inline-size: 0;
+}
+.call__person-name {
+  overflow: hidden;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.call__person-you {
+  font-weight: 500;
+  color: var(--on-card-soft);
+}
+.call__person-state {
+  font-size: var(--fs-xs);
+  color: var(--on-card-faint);
+}
+
+/* Raised hands wait along an arc, first to speak at the inline start (spec 008; T927 brings the full queue). */
+.call__arc {
+  --hand: 1.75rem;
+  --arc-r: 4.25rem;
+  --dir: 1;
+  position: relative;
+  block-size: calc(var(--arc-r) + var(--hand) / 2 + 2px);
+  margin: var(--s-2) 0 0;
+  padding: 0;
+  list-style: none;
+  overflow: clip;
+}
+[dir='rtl'] .call__arc {
+  --dir: -1;
+}
+.call__arc::before {
+  content: '';
+  position: absolute;
+  inset-block-end: calc(-1 * var(--arc-r));
+  inset-inline-start: 50%;
+  inline-size: calc(2 * var(--arc-r));
+  block-size: calc(2 * var(--arc-r));
+  margin-inline-start: calc(-1 * var(--arc-r));
+  border: 2px solid var(--seg-empty);
+  border-radius: 50%;
+}
+.call__hand {
+  --a: calc(-60deg + 120deg * (var(--i, 0) + 0.5) / var(--n, 1));
+  position: absolute;
+  inset-block-end: calc(var(--hand) / -2);
+  inset-inline-start: 50%;
+  inline-size: var(--hand);
+  block-size: var(--hand);
+  margin-inline-start: calc(var(--hand) / -2);
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  box-shadow: 0 0 0 2px var(--on-card-faint);
+  transform: rotate(calc(var(--a) * var(--dir))) translateY(calc(-1 * var(--arc-r))) rotate(calc(var(--a) * var(--dir) * -1));
+}
+.call__hand-char {
+  inline-size: 85%;
+  block-size: 85%;
+}
+
+/* ---------- The stage, in the centre ---------- */
+/* While the call shows, the round stays mounted under it but out of sight (and out of the accessibility tree). */
+.room__centre.is-call > :not(.call-stage, .call-bar) {
+  display: none;
+}
+.call-stage {
+  container: call-stage / size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-block-size: 22rem;
+}
+.call-stage__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+}
+.call-stage__layout .seg__opt {
+  min-block-size: 2.5rem;
+}
+.call-stage__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin-inline-start: auto;
+}
+.call-stage__page {
+  min-inline-size: 7.5rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.call-stage__page-btn {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--hairline);
+}
+.call-stage__page-btn[aria-disabled='true'] {
+  color: var(--ink-faint);
+  background: transparent;
+  cursor: not-allowed;
+}
+.call-stage__page-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The grid fills what is left: columns by the number of tiles, rows share the height. */
+.call-stage__grid {
+  --cols: 1;
+  flex: 1 1 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: var(--s-3);
+  min-block-size: 0;
+  margin: 0;
+  /* Room for the speaking outline outside the tiles. */
+  padding: 5px;
+  list-style: none;
+}
+.call-stage__grid:is([data-count='2'], [data-count='3'], [data-count='4']) {
+  --cols: 2;
+}
+.call-stage__grid:is([data-count='5'], [data-count='6'], [data-count='7'], [data-count='8'], [data-count='9']) {
+  --cols: 3;
+}
+/* A tall stage (a phone held upright): two people stack, six fit as two columns of three. */
+@container call-stage (aspect-ratio < 1) {
+  .call-stage__grid[data-count='2'] {
+    --cols: 1;
+  }
+  .call-stage__grid:is([data-count='5'], [data-count='6']) {
+    --cols: 2;
+  }
+}
+/* Speaker view: the first tile large, the rest of the page in a strip under it. */
+.call-stage[data-layout='speaker'] .call-stage__grid {
+  grid-template-columns: repeat(var(--strip, 1), minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) clamp(4.5rem, 22%, 8rem);
+  grid-auto-rows: 0;
+}
+.call-stage[data-layout='speaker'] .call-stage__grid[data-count='1'] {
+  grid-template-rows: minmax(0, 1fr);
+}
+.call-tile.is-big {
+  grid-column: 1 / -1;
+}
+
+.call-tile {
+  --tile-bg: var(--mint);
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-inline-size: 0;
+  min-block-size: 0;
+  container-type: size;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--tile-bg);
+  color: var(--note-ink);
+  animation: call-tile-in var(--dur-enter) var(--ease-out) both;
+}
+.call-tile[data-tone='1'] {
+  --tile-bg: var(--butter);
+}
+.call-tile[data-tone='2'] {
+  --tile-bg: var(--peach);
+}
+.call-tile[data-tone='3'] {
+  --tile-bg: var(--sky-pastel);
+}
+.call-tile[data-tone='4'] {
+  --tile-bg: var(--lavender);
+}
+.call-tile[data-tone='5'] {
+  --tile-bg: var(--blush);
+}
+.call-tile.is-speaking {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.call-tile__video {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+/* Your own preview is a mirror, as people expect of themselves. */
+.call-tile.is-self .call-tile__video {
+  transform: scaleX(-1);
+}
+.call-tile__char {
+  inline-size: clamp(2.5rem, 42cqmin, 9rem);
+  block-size: clamp(2.5rem, 42cqmin, 9rem);
+}
+.call-tile__marks {
+  position: absolute;
+  inset-block-start: var(--s-2);
+  inset-inline-start: var(--s-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  max-inline-size: calc(100% - var(--s-4));
+}
+.call-tile__speaking,
+.call-tile__floor,
+.call-tile__weak {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.call-tile__speaking {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.call-tile__floor {
+  background: var(--paper);
+  color: var(--ink);
+}
+.call-tile__weak {
+  position: absolute;
+  inset-block-start: var(--s-2);
+  inset-inline-end: var(--s-2);
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+}
+/* Three sound bars beside the word; they move, the word never does. */
+.call-tile__bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  block-size: 0.7rem;
+}
+.call-tile__bars i {
+  inline-size: 3px;
+  block-size: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: bottom;
+  animation: call-bars 0.9s var(--ease-in-out) infinite alternate;
+}
+.call-tile__bars i:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.call-tile__bars i:nth-child(3) {
+  animation-delay: -0.6s;
+}
+.call-tile__name {
+  position: absolute;
+  inset-block-end: var(--s-2);
+  inset-inline-start: var(--s-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-inline-size: calc(100% - var(--s-4));
+  margin: 0;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.call-tile__who {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.call-tile__you {
+  flex: none;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.call-tile__mic {
+  flex: none;
+  color: var(--danger-text);
+}
+/* Small tiles (a strip, a phone page): smaller marks, the character still reads. */
+@container (max-block-size: 7rem) {
+  .call-tile__name {
+    padding-inline: 0.5rem;
+    font-size: var(--fs-xs);
+  }
+  .call-tile__marks {
+    inset-block-start: var(--s-1);
+    inset-inline-start: var(--s-1);
+  }
+}
+
+.call-stage__joining {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--s-3);
+  border-radius: var(--r-xl);
+  background: var(--paper-sunken);
+  font-weight: 700;
+}
+.call-stage__joining p {
+  margin: 0;
+}
+.call-stage__joining-char {
+  inline-size: 5rem;
+  block-size: 5rem;
+  animation: call-bob 1.4s var(--ease-in-out) infinite alternate;
+}
+.call-stage__alone {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+/* ---------- The call's bar ---------- */
+.call-bar {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--paper);
+}
+.room__centre > .call-bar {
+  flex: none;
+}
+.call-bar__state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+.call-bar__state:empty {
+  display: none;
+}
+.call-bar__state > p {
+  margin: 0;
+}
+.call-bar__note {
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.call-bar__note.is-warn {
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+}
+.call-bar__problem {
+  flex: 1 1 14rem;
+  margin: 0;
+  color: var(--danger-text);
+  font-weight: 600;
+}
+.call-bar__devices {
+  display: flex;
+  gap: var(--s-2);
+}
+.call-bar__device {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+  transition:
+    background-color var(--dur-state) var(--ease-settle),
+    color var(--dur-state) var(--ease-settle),
+    transform var(--dur-press) var(--ease-settle);
+}
+.call-bar__device:hover {
+  background: var(--paper-sunken);
+}
+.call-bar__device:active {
+  transform: scale(0.95);
+}
+/* On is the charcoal pill, like every switch that is on. */
+.call-bar__device.is-on {
+  background: var(--charcoal);
+  color: var(--on-charcoal);
+  box-shadow: none;
+}
+.call-bar__device.is-on:hover {
+  background: var(--charcoal-hover);
+}
+.call-bar__device[aria-disabled='true'] {
+  color: var(--ink-faint);
+  box-shadow: inset 0 0 0 2px var(--hairline-strong);
+  background: transparent;
+  cursor: not-allowed;
+  transform: none;
+}
+.call-bar__device:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.call-bar__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-inline-start: auto;
+}
+.call-bar__view .seg__opt {
+  min-block-size: 2.5rem;
+}
+.call-bar.is-joining .call-bar__state {
+  font-weight: 700;
+}
+
+/* ---------- Phones and narrow rooms ---------- */
+@media (max-width: 59.99rem) {
+  /* The stage fits between the work bar and the call's bar, above the sheet's pill (or the half sheet when open). */
+  .room {
+    /* One row: two device buttons of 3rem, the view switch and Leave, in a 2px outline with a little padding. */
+    --call-bar-h: 4.25rem;
+  }
+  .room__centre.is-call .call-stage {
+    block-size: calc(100dvh - var(--topbar-h) - var(--workbar-h) - var(--s-4) - var(--s-5) - var(--call-bar-h) - 4.5rem);
+    min-block-size: 16rem;
+  }
+  .room__grid:has(.room-side.is-open) .room__centre.is-call .call-stage {
+    block-size: calc(100dvh - var(--topbar-h) - var(--workbar-h) - var(--s-4) - var(--s-5) - var(--call-bar-h) - var(--sheet-half) - var(--s-4));
+    min-block-size: 12rem;
+  }
+  /* During a call the corner belongs to the call's bar: Pirikoo stays one tap away in the header's search. */
+  body:has(.room__centre > .call-bar) .pkl {
+    display: none;
+  }
+  .room__centre > .call-bar {
+    inset-block-end: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+  .room__grid:has(.room-side.is-open) .room__centre > .call-bar {
+    inset-block-end: calc(var(--sheet-half) + var(--s-2));
+  }
+  .room__grid:has(.room-side.is-open.is-full) .room__centre > .call-bar {
+    position: static;
+  }
+  .call-stage__page {
+    min-inline-size: 0;
+  }
+  .call-stage__grid {
+    gap: var(--s-2);
+  }
+  .call-tile__name {
+    font-size: var(--fs-xs);
+  }
+}
+@media (max-width: 39.99rem) {
+  .call-bar {
+    padding: var(--s-2);
+    border-radius: var(--r-lg);
+  }
+  .call-bar__state {
+    flex-basis: 100%;
+  }
+  .call-bar__end {
+    gap: var(--s-1);
+  }
+  .call-bar__leave {
+    padding-inline: 1rem;
+  }
+  /* The view switch keeps its icons; each option is named by its aria-label. */
+  .call-bar__view .seg__opt > span[aria-hidden='true']:not(.seg__icon) {
+    display: none;
+  }
+  .call-bar__view .seg__opt {
+    min-block-size: 2.75rem;
+    padding-inline: 0.7rem;
+  }
+}
+
+/* ---------- Motion ---------- */
+@keyframes call-tile-in {
+  from {
+    translate: 0 6px;
+  }
+}
+@keyframes call-bars {
+  from {
+    transform: scaleY(0.35);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes call-bob {
+  to {
+    transform: translateY(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .call-tile,
+  .call-tile__bars i,
+  .call-stage__joining-char {
+    animation: none;
+  }
+  .call-tile__bars i:nth-child(2) {
+    transform: scaleY(0.7);
+  }
+  .call-tile__bars i:nth-child(1) {
+    transform: scaleY(0.45);
+  }
+  .call-bar__device {
+    transition: none;
+  }
+}

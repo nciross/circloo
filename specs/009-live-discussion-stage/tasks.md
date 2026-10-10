@@ -173,7 +173,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T923.
 
-- [ ] T925 [US2] [UI] **Call UI: grid, active speaker, pages, phone layout.** `/impeccable shape call` first (or the manual review), then:
+- [x] T925 [US2] [UI] **Call UI: grid, active speaker, pages, phone layout.** (#265) `/impeccable shape call` first (or the manual review), then:
   - `grid.ts` (+ test): tile order (active speaker, animator, floor holder, cameras on, join order), pages of 9 on a computer and 4 on a phone, the speaker kept on screen, off-page publications disabled.
   - `CallPanel.tsx` (rail Call tab): call state, Join call with the roster count ("12 in the call"), the people in the call, the "Soon" placeholder removed. `CallStage.tsx`, `CallTile.tsx`, `CallControls.tsx`: the grid in the centre during a video call (switchable with the whiteboard), speaker view, tiles with video or character and name (FR-912), "speaking" as outline and text, "Weak connection", Reconnecting and Failed states with Join again, Leave. Phone layout: grid above the bottom sheet, thumb-reachable controls, never over the composer.
   - `src/web/src/styles/call.css` with logical properties and reduced motion.

@@ -1,0 +1,158 @@
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LayoutGrid, Mic, MicOff, PhoneOff, PanelsTopLeft, Video, VideoOff, Volume2 } from 'lucide-react'
+import type { Member } from '../../../api/circles'
+import { Segmented } from '../../../components/Segmented'
+import { useJoinsAnnouncement } from './joins'
+import { useStage } from './stage'
+
+export type CentreView = 'call' | 'round'
+
+/**
+ * The call's bottom bar (spec 009 US2 #5 and #7, US4 #8 and #9): microphone, camera (video calls only) and Leave under the
+ * thumb, "Tap to hear the call" when the browser held the sound back, Reconnecting and Weak connection in words, and the
+ * switch between the call and the round when one runs. When the call failed it says why and offers Join again.
+ * It sits in the page's flow at the bottom of the centre, so it never covers the chat composer of the sheet.
+ */
+export function CallControls({ members, view, onView, roundLabel }: {
+  members: Member[]
+  view: CentreView
+  /** Given when the centre has a round to switch to. */
+  onView?: (view: CentreView) => void
+  roundLabel?: string
+}) {
+  const { t } = useTranslation()
+  const connection = useStage((s) => s.connection)
+  const error = useStage((s) => s.error)
+  const join = useStage((s) => s.join)
+  const leave = useStage((s) => s.leave)
+
+  if (connection === 'idle') return null
+  if (connection === 'failed') {
+    return (
+      <section className="call-bar is-failed" aria-label={t('circles.call.controls')}>
+        <p className="call-bar__problem" role="alert">{t(`circles.call.errors.${error ?? 'failed'}`, { defaultValue: t('circles.call.errors.failed') })}</p>
+        <div className="call-bar__end">
+          <button type="button" className="btn btn--primary" onClick={() => void join()}>{t('circles.call.joinAgain')}</button>
+          <button type="button" className="btn btn--subtle" onClick={() => void leave()}>{t('common.close')}</button>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className={`call-bar is-${connection}`} aria-label={t('circles.call.controls')}>
+      {connection === 'joining' ? (
+        <p className="call-bar__state" role="status">{t('circles.call.joining')}</p>
+      ) : (
+        <InCall members={members} />
+      )}
+      <div className="call-bar__end">
+        {onView && roundLabel ? (
+          <Segmented
+            label={t('circles.call.showIn')}
+            hideLabel
+            className="call-bar__view"
+            value={view}
+            onChange={onView}
+            choices={[
+              { value: 'call', label: t('circles.call.showCall'), ariaLabel: t('circles.call.showCall'), icon: <LayoutGrid size={16} /> },
+              { value: 'round', label: roundLabel, ariaLabel: roundLabel, icon: <PanelsTopLeft size={16} /> },
+            ]}
+          />
+        ) : null}
+        <button type="button" className="btn btn--danger call-bar__leave" onClick={() => void leave()}>
+          <PhoneOff size={18} aria-hidden="true" />
+          {t('circles.call.leave')}
+        </button>
+      </div>
+    </section>
+  )
+}
+
+/** The devices and the call's health while you are in it. */
+function InCall({ members }: { members: Member[] }) {
+  const { t } = useTranslation()
+  const connection = useStage((s) => s.connection)
+  const me = useStage((s) => s.me)
+  const rights = useStage((s) => s.myPermissions)
+  const videoAllowed = useStage((s) => s.discussion?.videoAllowed ?? true)
+  const audioBlocked = useStage((s) => s.audioBlocked)
+  const participants = useStage((s) => s.participants)
+  const setMic = useStage((s) => s.setMic)
+  const setCamera = useStage((s) => s.setCamera)
+  const startAudio = useStage((s) => s.startAudio)
+  const [busy, setBusy] = useState<'mic' | 'camera' | null>(null)
+
+  const self = participants.find((p) => p.local)
+  const weak = self?.quality === 'poor' || self?.quality === 'lost'
+  const others = participants.filter((p) => !p.local)
+  const names = new Map(members.map((m) => [m.id, m.name]))
+  const announcement = useJoinsAnnouncement(
+    others.map((p) => p.id),
+    (id) => names.get(id) || others.find((p) => p.id === id)?.name || id,
+    t,
+  )
+
+  const canSpeak = !!rights?.canSpeak
+  const canVideo = !!rights?.canVideo
+  const run = async (which: 'mic' | 'camera', action: () => Promise<void>) => {
+    if (busy) return
+    setBusy(which)
+    try {
+      await action()
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <>
+      <div className="call-bar__state">
+        {connection === 'reconnecting' ? <p className="call-bar__note is-warn" role="status">{t('circles.call.reconnecting')}</p> : null}
+        {connection === 'connected' && weak ? <p className="call-bar__note is-warn" role="status">{t('circles.call.weakMine')}</p> : null}
+        {audioBlocked ? (
+          <button type="button" className="btn btn--primary call-bar__hear" onClick={() => void startAudio()}>
+            <Volume2 size={18} aria-hidden="true" />
+            {t('circles.call.hear')}
+          </button>
+        ) : null}
+      </div>
+      <div className="call-bar__devices">
+        <button
+          type="button"
+          className={`call-bar__device${me.mic ? ' is-on' : ''}`}
+          aria-pressed={me.mic}
+          aria-disabled={!canSpeak || undefined}
+          aria-busy={busy === 'mic' || undefined}
+          aria-label={t('circles.call.mic')}
+          aria-describedby={canSpeak ? undefined : 'call-mic-locked'}
+          title={canSpeak ? t('circles.call.mic') : t('circles.call.micLocked')}
+          onClick={() => canSpeak && void run('mic', () => setMic(!me.mic))}
+        >
+          {me.mic ? <Mic size={20} aria-hidden="true" /> : <MicOff size={20} aria-hidden="true" />}
+        </button>
+        {canSpeak ? null : <span id="call-mic-locked" className="visually-hidden">{t('circles.call.micLocked')}</span>}
+        {videoAllowed ? (
+          <>
+            <button
+              type="button"
+              className={`call-bar__device${me.camera ? ' is-on' : ''}`}
+              aria-pressed={me.camera}
+              aria-disabled={!canVideo || undefined}
+              aria-busy={busy === 'camera' || undefined}
+              aria-label={t('circles.call.camera')}
+              aria-describedby={canVideo ? undefined : 'call-camera-locked'}
+              title={canVideo ? t('circles.call.camera') : t('circles.call.cameraLocked')}
+              onClick={() => canVideo && void run('camera', () => setCamera(!me.camera))}
+            >
+              {me.camera ? <Video size={20} aria-hidden="true" /> : <VideoOff size={20} aria-hidden="true" />}
+            </button>
+            {canVideo ? null : <span id="call-camera-locked" className="visually-hidden">{t('circles.call.cameraLocked')}</span>}
+          </>
+        ) : null}
+      </div>
+      <p className="visually-hidden" aria-live="polite">{announcement}</p>
+    </>
+  )
+}
