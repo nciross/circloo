@@ -127,7 +127,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 **Independent Test**: the animator starts a video call in Hand to speak; a participant's pass has no microphone; giving the floor grants it; switching video off removes cameras; removing a member keeps them out.
 
-- [ ] T920 [US1] [US3] **Switches and speaking mode (API).**
+- [x] T920 [US1] [US3] **Switches and speaking mode (API).**
   - `CallPermissions.cs`: recompute a member's or everyone's permissions with `CallRules` and apply them through `UpdateParticipant` (skip people not in the call).
   - `CircleHub.Discussion.cs`: `EnableDiscussion(bool videoAllowed, string speaking)` (start: room created; while on: video and mode changes applied to everyone), `DisableDiscussion()` (hands cleared, `DeleteRoom`, moderation cleared), `SetSpeakingMode(string)`, `calls-unavailable` when not configured, `try-again` when the call server fails (nothing kept). Audits `discussion.on`, `discussion.off`, `call.mode`. `CallNotice` events per `contracts/hub.md`.
   - Closing a circle (`CircleEndpoints.cs` close) ends its call (`DeleteRoom`, audit reason `circle-closed`).

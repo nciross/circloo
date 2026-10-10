@@ -73,6 +73,11 @@ public interface ICircleClient
     Task RoomSettings(RoomSettings settings);
     /// <summary>The raised hands changed (spec 008): the queue oldest first and who has the floor. The audience screen shows only the count.</summary>
     Task Hands(HandsView view);
+    /// <summary>
+    /// Something happened in the call (spec 009, <see cref="CallNoticeKinds"/>): the client draws a live line, never
+    /// stored (FR-930). <paramref name="byMemberId"/> is who did it, <paramref name="subjectMemberId"/> who it is about.
+    /// </summary>
+    Task CallNotice(string kind, Guid? byMemberId, Guid? subjectMemberId);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -94,7 +99,8 @@ public sealed class CirclePresence
 /// </summary>
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
-    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace) : Hub<ICircleClient>
+    Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace,
+    CallLifecycle calls, CallPermissions callPermissions) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 

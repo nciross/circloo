@@ -22,7 +22,7 @@ public sealed class PersistenceTests(PostgresFixture pg) : IAsyncLifetime
 
     public Task InitializeAsync()
     {
-        _factory = new ApiFactory(pg.Container.GetConnectionString());
+        _factory = new ApiFactory(pg.Container.GetConnectionString(), FakeLiveKitRooms.Settings()) { Configure = new FakeLiveKitRooms().Install };
         _host = new DiscussionHost(_factory);
         return Task.CompletedTask;
     }
@@ -107,14 +107,16 @@ public sealed class PersistenceTests(PostgresFixture pg) : IAsyncLifetime
         await using var animator = await _host.EnteredAsync(circle.Cookies, circle.Id);
         var before = await _host.Room.DbAsync(db => db.CircleMessages.CountAsync(m => m.CircleId == circle.Id));
 
-        await animator.InvokeAsync("EnableDiscussion", true);
-        await animator.InvokeAsync("EnableDiscussion", false);
+        await animator.InvokeAsync("EnableDiscussion", true, "hand");
+        await animator.InvokeAsync("EnableDiscussion", false, "open");
+        await animator.InvokeAsync("SetSpeakingMode", "hand");
         await animator.InvokeAsync("DisableDiscussion");
-        await animator.InvokeAsync("EnableDiscussion", true);
+        await animator.InvokeAsync("EnableDiscussion", true, "hand");
         await animator.InvokeAsync("DisableDiscussion");
 
         Assert.Equal(before, await _host.Room.DbAsync(db => db.CircleMessages.CountAsync(m => m.CircleId == circle.Id)));
         Assert.Equal(2, (await _host.AuditAsync("discussion.off", circle.Id)).Count);
+        Assert.Equal(2, (await _host.AuditAsync("call.mode", circle.Id)).Count);
     }
 
     /// <summary>A throwaway database in the shared Postgres container, so migrations can go down and up without touching the others.</summary>

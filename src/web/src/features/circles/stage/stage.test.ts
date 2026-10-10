@@ -253,13 +253,27 @@ describe('animator actions', () => {
     await s.muteMember('m')
     await s.allowUnmute('m')
     expect(t.calls).toEqual([
-      ['EnableDiscussion', false],
+      ['EnableDiscussion', false, 'hand'],
       ['DisableDiscussion'],
       ['GiveFloor', 'm'],
       ['TakeFloor', 'm'],
       ['RemoveFromStage', 'm'],
       ['MuteMember', 'm'],
       ['AllowUnmute', 'm'],
+    ])
+  })
+
+  it('keeps the speaking mode of the call when only video changes, unless a mode is given', async () => {
+    const t = setup()
+    useStage.setState({ discussion: discussion({ speaking: 'open' }) })
+    await useStage.getState().enableDiscussion(false)
+    await useStage.getState().enableDiscussion(true, 'hand')
+    useStage.setState({ discussion: null })
+    await useStage.getState().enableDiscussion(true)
+    expect(t.calls).toEqual([
+      ['EnableDiscussion', false, 'open'],
+      ['EnableDiscussion', true, 'hand'],
+      ['EnableDiscussion', true, 'hand'],
     ])
   })
 })

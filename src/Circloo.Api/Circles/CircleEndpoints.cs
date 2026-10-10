@@ -159,7 +159,7 @@ public static class CircleEndpoints
         }).RequireAuthorization(SessionAuthentication.CircleMemberPolicy);
 
         circles.MapPost("/{id:guid}/close", async (Guid id, HttpContext ctx, CirclooDbContext db, AuditLog audit, TimeProvider clock,
-            IHubContext<CircleHub, ICircleClient> hub, LiveSessions live, CancellationToken ct) =>
+            IHubContext<CircleHub, ICircleClient> hub, LiveSessions live, CallLifecycle calls, CancellationToken ct) =>
         {
             var userId = ctx.User.GetUserId();
             var circle = await db.Circles.FirstOrDefaultAsync(c => c.Id == id && c.OwnerUserId == userId, ct);
@@ -171,6 +171,10 @@ public static class CircleEndpoints
             audit.Add(AuditTypes.CircleClosed, userId, detail: new { circle = id });
             await db.SaveChangesAsync(ct);
             await live.EndForCircleAsync(id, userId, ct);
+            // A closed circle has no call (spec 009): everyone leaves it, and the room goes.
+            var animator = await db.CircleMembers.AsNoTracking()
+                .Where(m => m.CircleId == id && m.UserId == userId && m.LeftAt == null).Select(m => (Guid?)m.Id).FirstOrDefaultAsync(ct);
+            await calls.EndAsync(circle, userId, animator, CallLifecycle.CircleClosed);
             await hub.Clients.Group(CircleHub.Group(id)).Closed();
             return Results.NoContent();
         }).RequireAuthorization();
