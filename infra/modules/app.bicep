@@ -9,7 +9,20 @@ param authSecret string
 param webImageName string
 param communicationDataLocation string
 
+// Group calls (spec 009 T917): the call server VM exists only when callsEnabled is true. main.bicep picks the other
+// values per environment (research R23).
+param callsEnabled bool
+param callsVmSize string
+param callsDiskSku string
+param callsTurnTls bool
+param callsShutdownTime string
+@secure()
+param liveKitApiSecret string
+@secure()
+param callsVmPassword string
+
 var placeholderImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+var webName = 'ca-circloo-${token}' // ≤ 32 chars; azd finds it by the azd-service-name tag
 var webPort = 3000
 var postgresAdmin = 'circlooadmin'
 var postgresDb = 'circloo'
@@ -309,8 +322,42 @@ resource converter 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
+// ---------- Group call server (spec 009 T917, research R23): only when callsEnabled ----------
+// The webhook address is built from the environment's domain rather than read from the web app, which itself reads
+// this module's outputs.
+var liveKitApiKey = 'circloo'
+module calls 'livekit.bicep' = if (callsEnabled) {
+  name: 'circloo-calls'
+  params: {
+    location: location
+    tags: tags
+    token: token
+    vmSize: callsVmSize
+    diskSku: callsDiskSku
+    turnTls: callsTurnTls
+    shutdownTime: callsShutdownTime
+    apiSecret: liveKitApiSecret
+    apiKey: liveKitApiKey
+    adminPassword: callsVmPassword
+    vaultName: vault.name
+    webhookUrl: 'https://${webName}.${containerEnv.properties.defaultDomain}/api/livekit/webhook'
+  }
+}
+
+// Without these settings the app shows "Group calls are not available here" (FR-935).
+var callSecrets = callsEnabled ? [
+  { name: 'livekit-api-secret', keyVaultUrl: calls!.outputs.secretUri, identity: identity.id }
+] : []
+var callSettings = callsEnabled ? [
+  { name: 'LiveKit__Url', value: calls!.outputs.url }
+  { name: 'LiveKit__ApiUrl', value: calls!.outputs.apiUrl }
+  { name: 'LiveKit__ApiKey', value: liveKitApiKey }
+  { name: 'LiveKit__ApiSecret', secretRef: 'livekit-api-secret' }
+  { name: 'Discussion__AwayEndSeconds', value: '300' }
+] : []
+
 resource web 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'ca-circloo-${token}' // ≤ 32 chars; azd finds it by the azd-service-name tag
+  name: webName
   location: location
   tags: union(tags, { 'azd-service-name': 'web' })
   identity: {
@@ -329,12 +376,12 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
       registries: [
         { server: registry.properties.loginServer, identity: identity.id }
       ]
-      secrets: [
+      secrets: concat([
         { name: 'database-url', keyVaultUrl: secretDatabaseUrl.properties.secretUri, identity: identity.id }
         { name: 'auth-secret', keyVaultUrl: secretAuth.properties.secretUri, identity: identity.id }
         { name: 'webpubsub-connection-string', keyVaultUrl: secretPubSub.properties.secretUri, identity: identity.id }
         { name: 'acs-connection-string', keyVaultUrl: secretAcs.properties.secretUri, identity: identity.id }
-      ]
+      ], callSecrets)
     }
     template: {
       containers: [
@@ -342,7 +389,7 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
           name: 'web'
           image: empty(webImageName) ? placeholderImage : webImageName
           resources: { cpu: json('0.5'), memory: '1Gi' }
-          env: [
+          env: concat([
             { name: 'ASPNETCORE_HTTP_PORTS', value: string(webPort) }
             { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
             { name: 'Security__TrustForwardedHeaders', value: 'true' }
@@ -363,7 +410,7 @@ resource web 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'Presentations__ConverterUrl', value: 'https://${converter.properties.configuration.ingress.fqdn}' }
             { name: 'AZURE_CLIENT_ID', value: identity.properties.clientId }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
-          ]
+          ], callSettings)
           // Probes only for the real app; the placeholder image has no /health.
           probes: empty(webImageName) ? [] : [
             { type: 'Liveness', httpGet: { path: '/alive', port: webPort }, periodSeconds: 30 }
@@ -385,3 +432,6 @@ output keyVaultName string = vault.name
 output webUri string = 'https://${web.properties.configuration.ingress.fqdn}'
 output emailSender string = emailSender
 output aiEndpoint string = 'https://${foundry.properties.customSubDomainName}.openai.azure.com/openai/v1/'
+// The call server's address for browsers (wss://lk-<token>...), empty when calls are not enabled.
+output liveKitUrl string = callsEnabled ? calls!.outputs.url : ''
+output callsVmName string = callsEnabled ? calls!.outputs.vmName : ''

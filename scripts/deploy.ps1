@@ -6,10 +6,20 @@
   Needs PowerShell 7 (pwsh), the Azure CLI (az) and the Azure Developer CLI (azd). From Windows PowerShell 5.1 run:
     pwsh ./scripts/deploy.ps1
   Every step stops with one clear sentence when something is missing (tool, sign-in, subscription, azd environment).
+
+  Group calls (spec 009): the call server VM is created only when the azd variable CALLS_ENABLED is true (false by
+  default in every environment). Its other settings default per environment (prod / everything else) and can each be
+  overridden with an azd variable: CALLS_VM_SIZE (Standard_B2als_v2 / Standard_B2ats_v2), CALLS_DISK_SKU
+  (StandardSSD_LRS / Standard_LRS), CALLS_TURN_TLS (true / false), CALLS_SHUTDOWN_TIME (off / 2000, Paris time).
+  When calls are enabled, this script starts the VM after provisioning (scripts/calls-start.ps1), because a
+  deployment does not start a VM deallocated by the nightly shutdown. To start it without a full deploy:
+    ./scripts/calls-start.ps1 -Environment dev
+  Turning CALLS_ENABLED off again does not delete the VM (deployments only add or update): scripts/destroy does.
 .EXAMPLE
   ./scripts/deploy.ps1                       # env "dev" in francecentral
   ./scripts/deploy.ps1 -Environment prod -Location westeurope
   ./scripts/deploy.ps1 -Subscription <id-or-name>
+  azd env set CALLS_ENABLED true; ./scripts/deploy.ps1   # dev with the call server
 #>
 param(
   [string]$Environment = 'dev',
@@ -31,10 +41,13 @@ function Invoke-Checked([string]$what, [scriptblock]$command) {
   if ($LASTEXITCODE -ne 0) { Stop-Deploy "Deployment stopped: $what failed (exit code $LASTEXITCODE). See the output above." }
 }
 
-function New-Secret([int]$bytes = 32) {
+function New-Secret([int]$bytes = 32, [switch]$LettersAndDigits) {
   $b = [byte[]]::new($bytes); [Security.Cryptography.RandomNumberGenerator]::Fill($b)
+  $text = [Convert]::ToBase64String($b) -replace '[+/=]', ''
+  # -LettersAndDigits: for the LiveKit secret, written into a YAML key file on the call server.
+  if ($LettersAndDigits) { return $text }
   # URL-safe, and always contains upper/lower/digit/symbol to satisfy PostgreSQL complexity rules.
-  ([Convert]::ToBase64String($b) -replace '[+/=]', '') + 'Aa1!'
+  $text + 'Aa1!'
 }
 
 if (-not $Environment) { Stop-Deploy 'Give an environment name, for example -Environment dev.' }
@@ -77,9 +90,11 @@ Invoke-Checked 'setting the subscription' { azd env set AZURE_SUBSCRIPTION_ID $s
 # Generate secrets once; they are stored in .azure/<env>/.env (gitignored) and pushed to Key Vault by Bicep.
 $values = @(azd env get-values --no-prompt)
 if ($LASTEXITCODE -ne 0) { Stop-Deploy "Could not read the azd environment '$Environment'." }
-foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET') {
+# The call server's two (LIVEKIT_API_SECRET, CALLS_VM_PASSWORD) are generated too, so turning calls on later needs
+# nothing else; Bicep uses them only when CALLS_ENABLED is true.
+foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET', 'CALLS_VM_PASSWORD', 'LIVEKIT_API_SECRET') {
   if (-not ($values -match "^$name=")) {
-    $secret = New-Secret
+    $secret = if ($name -eq 'LIVEKIT_API_SECRET') { New-Secret 48 -LettersAndDigits } else { New-Secret }
     Invoke-Checked "storing $name" { azd env set $name $secret --no-prompt }
   }
 }
@@ -89,7 +104,8 @@ foreach ($name in 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET') {
 # "get-values" shows the carriage return escaped as \r (and escapes other characters too, e.g. "!" as "\!", so its text
 # must never be written back). The real value comes from "get-value": PowerShell splits native output at a carriage
 # return, so joining its lines gives the value without it. Nothing was ever provisioned with these values.
-$parameterKeys = 'AZURE_ENV_NAME', 'AZURE_LOCATION', 'AZURE_SUBSCRIPTION_ID', 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET', 'SERVICE_WEB_IMAGE_NAME'
+$parameterKeys = 'AZURE_ENV_NAME', 'AZURE_LOCATION', 'AZURE_SUBSCRIPTION_ID', 'POSTGRES_ADMIN_PASSWORD', 'AUTH_SECRET', 'SERVICE_WEB_IMAGE_NAME',
+  'CALLS_ENABLED', 'CALLS_VM_SIZE', 'CALLS_DISK_SKU', 'CALLS_TURN_TLS', 'CALLS_SHUTDOWN_TIME', 'CALLS_VM_PASSWORD', 'LIVEKIT_API_SECRET'
 foreach ($key in $parameterKeys) {
   $escaped = $values | Where-Object { $_ -like "$key=*" } | Select-Object -First 1
   if (-not $escaped -or $escaped -notmatch '\\r') { continue }
@@ -111,6 +127,20 @@ if (Test-Path 'src/Circloo.Api/Dockerfile') {
 } else {
   Write-Host 'No app yet (src/Circloo.Api/Dockerfile missing) - provisioning infrastructure only.' -ForegroundColor Yellow
   Invoke-Checked 'azd provision' { azd provision --no-prompt }
+}
+
+# Group calls: a deployment does not start a VM that the nightly shutdown deallocated, so start it (idempotent).
+$values = @(azd env get-values --no-prompt)
+if ($LASTEXITCODE -ne 0) { Stop-Deploy "Could not read the azd environment '$Environment'." }
+if ($values -match '^CALLS_ENABLED="?true"?$') {
+  & (Join-Path $PSScriptRoot 'calls-start.ps1') -Environment $Environment
+  if ($LASTEXITCODE -ne 0) { Stop-Deploy 'Deployment stopped: starting the call server failed. See the output above.' }
+} else {
+  # Turning calls off does not delete an existing call server; say so, since it keeps costing money.
+  $left = @(az vm list --resource-group "rg-circloo-$Environment" --query "[?starts_with(name, 'vm-circloo-')].name" -o tsv --only-show-errors 2>$null | Where-Object { $_ })
+  if ($left) {
+    Write-Host "Calls are disabled, but the call server VM $($left -join ', ') still exists and keeps costing money (IP and disk). Turning CALLS_ENABLED off does not delete it: run scripts/destroy, or delete its resources." -ForegroundColor Yellow
+  }
 }
 
 Write-Host "`nDeployed to resource group rg-circloo-$Environment" -ForegroundColor Green

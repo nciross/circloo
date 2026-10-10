@@ -2,6 +2,7 @@
 <#
 .SYNOPSIS
   Destroy a circloo environment: deletes the whole resource group rg-circloo-<env> and purges Key Vault.
+  That includes the group call server (VM, disk, public IPs, network, auto-shutdown schedule) when calls were enabled.
 .EXAMPLE
   ./scripts/destroy.ps1            # asks for confirmation
   ./scripts/destroy.ps1 -Environment dev -Yes

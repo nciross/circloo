@@ -6,6 +6,13 @@
     "location": { "value": "${AZURE_LOCATION}" },
     "postgresAdminPassword": { "value": "${POSTGRES_ADMIN_PASSWORD}" },
     "authSecret": { "value": "${AUTH_SECRET}" },
-    "webImageName": { "value": "${SERVICE_WEB_IMAGE_NAME=}" }
+    "webImageName": { "value": "${SERVICE_WEB_IMAGE_NAME=}" },
+    "callsEnabled": { "value": "${CALLS_ENABLED=false}" },
+    "callsVmSize": { "value": "${CALLS_VM_SIZE=}" },
+    "callsDiskSku": { "value": "${CALLS_DISK_SKU=}" },
+    "callsTurnTls": { "value": "${CALLS_TURN_TLS=}" },
+    "callsShutdownTime": { "value": "${CALLS_SHUTDOWN_TIME=}" },
+    "liveKitApiSecret": { "value": "${LIVEKIT_API_SECRET=}" },
+    "callsVmPassword": { "value": "${CALLS_VM_PASSWORD=}" }
   }
 }

@@ -1,0 +1,47 @@
+# The call server on the Azure VM (spec 009 T917, research R23 and R28). A template: infra/modules/livekit.bicep fills
+# the placeholders below and the VM's boot script writes the result to /etc/livekit/livekit.yaml at every boot.
+# Keys come from key_file, written root-only at every boot from Key Vault (livekit-api-secret) through the VM's own
+# identity, never from this file. No egress, no ingress, no SIP: media is never recorded (SC-906, checked by
+# CallServerConfigTests). Same image pin as the AppHost and the test fixture: livekit/livekit-server:v1.13.7.
+port: 7880
+key_file: /etc/livekit/keys.yaml
+rtc:
+  # ICE over TCP when UDP is blocked.
+  tcp_port: 7881
+  # One UDP port for all media (mux), so the NSG opens one port, not a range.
+  udp_port: 7882
+  # The VM's static public IP, the address browsers send media to (no STUN lookup).
+  node_ip: "${NODE_IP}"
+  use_external_ip: false
+turn:
+  # LiveKit's own TURN, no third party (research R28). TURN/UDP on 3478 in every environment.
+  enabled: true
+  udp_port: 3478
+  # Relay ports (LiveKit's default, written out to match the NSG): the relay forwards to this server's public IP, so
+  # the NSG opens them to the VM's own public IP only, never to the internet.
+  relay_range_start: 30000
+  relay_range_end: 40000
+  # TURN/TLS on 443 of turn-<token> when callsTurnTls is true (5349 here, 0 = off): Caddy terminates TLS for that
+  # name and forwards with a PROXY protocol v2 header, so TURN sees each browser's real address.
+  tls_port: ${TURN_TLS_PORT}
+  domain: "${TURN_DOMAIN}"
+  external_tls: true
+  proxy_protocol: true
+room:
+  # Only the API opens rooms, with its own limits (research R21).
+  auto_create: false
+  # The server can mute a microphone but never switch one on (FR-908).
+  enable_remote_unmute: false
+# Speaker detection (issue #276, research R25): the same values as livekit.dev.yaml, LiveKit v1.13.7's defaults written
+# out. Shorter windows drop the speaking highlight between words.
+audio:
+  update_interval: 400
+  smooth_intervals: 2
+webhook:
+  api_key: "${API_KEY}"
+  urls:
+    - "${WEBHOOK_URL}"
+# Little personal data in logs (research R26): warnings only, journald keeps them 3 days on the VM.
+logging:
+  level: warn
+  pion_level: error
