@@ -105,7 +105,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T901. Coordinate with the open branch of T908 (#223), which also touches `CircleHub.Discussion.cs`: merge one, rebase the other.
 
-- [ ] T919 **Call passes: token endpoint, permissions, LiveKit room client, CSP (API).**
+- [x] T919 **Call passes: token endpoint, permissions, LiveKit room client, CSP (API).**
   - `LiveKitTokens.cs` (research R20): join pass and admin token, HS256, `canPublish: false` when no source is allowed.
   - `CallRules.cs`: the permission table of research R22 as one pure function.
   - `LiveKitRooms.cs`: `ILiveKitRooms` and a typed `HttpClient` for Twirp JSON (`CreateRoom`, `DeleteRoom`, `ListParticipants`, `GetParticipant`, `UpdateParticipant`, `MutePublishedTrack`, `RemoveParticipant`), 3 s timeout, one retry on 5xx, no payload logging.

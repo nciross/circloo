@@ -4,6 +4,7 @@ using Circloo.Api.Auth;
 using Circloo.Api.Circles;
 using Circloo.Api.Integrations;
 using Circloo.Api.Data;
+using Circloo.Api.Discussion;
 using Circloo.Api.Email;
 using Circloo.Api.Pirikoo;
 using Circloo.Api.Presentations;
@@ -69,7 +70,10 @@ builder.Services.AddHttpClient(IntegrationSender.ClientName, c => c.Timeout = Ti
 builder.Services.AddSingleton<IntegrationSender>();
 // The deck converter is internal only; conversions of large decks take up to two minutes (spec 006, R1).
 builder.Services.AddOptions<CircleOptions>().BindConfiguration(CircleOptions.Section).ValidateDataAnnotations().ValidateOnStart();
-Circloo.Api.Discussion.DiscussionOptions.AddDiscussion(builder.Services);
+DiscussionOptions.AddDiscussion(builder.Services);
+// Group calls (spec 009): passes signed here, rooms driven through the call server's RoomService.
+builder.Services.AddSingleton<CallModeration>();
+LiveKitRooms.AddLiveKitRooms(builder.Services);
 builder.Services.AddOptions<PresentationOptions>().BindConfiguration(PresentationOptions.Section);
 builder.Services.AddSingleton<SlideStore>();
 builder.Services.AddScoped<LiveSessions>();
@@ -174,6 +178,7 @@ api.MapCircleEndpoints();
 api.MapIntegrationEndpoints();
 api.MapPirikooEndpoints();
 api.MapPresentationEndpoints();
+api.MapCallEndpoints();
 api.MapFallback(() => Results.NotFound());
 
 app.MapHub<CircleHub>("/hubs/circle");
