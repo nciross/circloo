@@ -1,7 +1,9 @@
 using Circloo.Api.Data;
+using Circloo.Api.Discussion;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 
 namespace Circloo.Api.Circles;
@@ -177,9 +179,14 @@ public sealed partial class CircleHub
 
     #endregion
 
-    #region Hands (T809)
+    #region Hands (T809, spec 009 T921)
 
     private const int GiveFloorAttempts = 3;
+
+    /// <summary>Raising or lowering one's own hand, per <see cref="HandWindow"/> across tabs (spec 009 FR-921, <c>hand</c>).</summary>
+    private const int HandsPerWindow = 6;
+
+    private static readonly TimeSpan HandWindow = TimeSpan.FromSeconds(10);
 
     public async Task RaiseHand()
     {
@@ -188,6 +195,7 @@ public sealed partial class CircleHub
         {
             throw new HubException("animator-cannot-raise");
         }
+        TakeHand(me);
         // One row per member: parallel raises from several tabs leave one, and the first keeps the place.
         var added = await db.Database.ExecuteSqlAsync($"""
             INSERT INTO "RaisedHands" ("CircleId", "MemberId", "RaisedAt", "HasFloor")
@@ -200,7 +208,10 @@ public sealed partial class CircleHub
         }
     }
 
-    /// <summary>Lowers the caller's own hand, or (animator only) another member's. Lowering the speaker's hand ends their turn.</summary>
+    /// <summary>
+    /// Lowers the caller's own hand, or (animator only) another member's. Lowering the speaker's hand ends their turn:
+    /// in a call in Hand to speak their microphone permission goes with it before the change is kept.
+    /// </summary>
     public async Task LowerHand(Guid? memberId)
     {
         var (circleId, me) = await RoomMemberAsync();
@@ -209,32 +220,59 @@ public sealed partial class CircleHub
         {
             throw new HubException("animator-only");
         }
-        var removed = await db.RaisedHands.Where(h => h.CircleId == circleId && h.MemberId == target).ExecuteDeleteAsync();
+        if (target == me.Id)
+        {
+            TakeHand(me);
+        }
+        var circle = me.Circle!;
+        var hadFloor = false;
+        var removed = await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            await using var tx = await db.Database.BeginTransactionAsync();
+            hadFloor = await db.RaisedHands.AnyAsync(h => h.CircleId == circleId && h.MemberId == target && h.HasFloor);
+            var deleted = await db.RaisedHands.Where(h => h.CircleId == circleId && h.MemberId == target).ExecuteDeleteAsync();
+            if (hadFloor)
+            {
+                await PutFloorOnCallAsync(circle, tx, [target]);
+            }
+            await tx.CommitAsync();
+            return deleted;
+        });
         if (removed > 0)
         {
             await BroadcastHandsAsync(circleId);
+        }
+        if (hadFloor && FloorOnCall(circle))
+        {
+            await Clients.Group(MemberGroup(target)).CallNotice(CallNoticeKinds.FloorTaken, me.Id, target);
         }
     }
 
     public async Task LowerAllHands()
     {
-        var (circleId, me) = await RoomMemberAsync(animatorOnly: true);
-        await ClearHandsAsync(circleId, me.UserId, "lower-all");
+        var (_, me) = await RoomMemberAsync(animatorOnly: true);
+        await ClearHandsAsync(me, "lower-all", tryAgainOnCallFailure: true);
     }
 
     /// <summary>
     /// The previous speaker's hand goes down and <paramref name="memberId"/> gets the floor, in one transaction. Two
-    /// animator tabs racing hit the one-floor index: the loser tries again.
+    /// animator tabs racing hit the one-floor index: the loser tries again. In a call in Hand to speak the floor is the
+    /// microphone: the previous speaker loses it and the new one gets it (never switched on for them) before the change
+    /// is kept, and both are told.
     /// </summary>
     public async Task GiveFloor(Guid memberId)
     {
-        var (circleId, _) = await RoomMemberAsync(animatorOnly: true);
+        var (circleId, me) = await RoomMemberAsync(animatorOnly: true);
+        var circle = me.Circle!;
+        Guid? previous = null;
+        var moved = false;
         for (var attempt = 1; ; attempt++)
         {
             try
             {
                 await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
                 {
+                    (previous, moved) = (null, false);
                     await using var tx = await db.Database.BeginTransactionAsync();
                     var hand = await db.RaisedHands.AsNoTracking()
                         .Where(h => h.CircleId == circleId && h.MemberId == memberId && db.CircleMembers.Any(m => m.Id == h.MemberId && m.LeftAt == null))
@@ -243,6 +281,7 @@ public sealed partial class CircleHub
                     {
                         return;
                     }
+                    previous = await db.RaisedHands.Where(h => h.CircleId == circleId && h.HasFloor).Select(h => (Guid?)h.MemberId).FirstOrDefaultAsync();
                     await db.RaisedHands.Where(h => h.CircleId == circleId && h.HasFloor).ExecuteDeleteAsync();
                     var marked = await db.RaisedHands.Where(h => h.CircleId == circleId && h.MemberId == memberId)
                         .ExecuteUpdateAsync(s => s.SetProperty(h => h.HasFloor, true));
@@ -250,7 +289,10 @@ public sealed partial class CircleHub
                     {
                         throw new HubException("hand-invalid");
                     }
+                    // The previous speaker's microphone goes before the new one's comes: never two at once.
+                    await PutFloorOnCallAsync(circle, tx, previous is { } before ? [before, memberId] : [memberId]);
                     await tx.CommitAsync();
+                    moved = true;
                 });
                 break;
             }
@@ -263,18 +305,91 @@ public sealed partial class CircleHub
             }
         }
         await BroadcastHandsAsync(circleId);
+        if (moved && FloorOnCall(circle))
+        {
+            if (previous is { } before)
+            {
+                await Clients.Group(MemberGroup(before)).CallNotice(CallNoticeKinds.FloorTaken, me.Id, before);
+            }
+            await Clients.Group(MemberGroup(memberId)).CallNotice(CallNoticeKinds.FloorGiven, me.Id, memberId);
+        }
     }
 
-    /// <summary>Removes every hand and the floor, audits it and tells the circle. Does nothing when no hand is up.</summary>
-    private async Task ClearHandsAsync(Guid circleId, Guid? userId, string reason)
+    /// <summary>
+    /// Removes every hand and the floor, audits it and tells the circle. Does nothing when no hand is up. In a call in
+    /// Hand to speak the floor holder's microphone goes too: before the change is kept when the animator asked for it
+    /// (<paramref name="tryAgainOnCallFailure"/>, <c>LowerAllHands</c>), at best effort when an activity changes.
+    /// </summary>
+    private async Task ClearHandsAsync(CircleMember me, string reason, bool tryAgainOnCallFailure = false)
     {
-        var cleared = await db.RaisedHands.Where(h => h.CircleId == circleId).ExecuteDeleteAsync();
+        var circle = me.Circle!;
+        Guid? floor = null;
+        var cleared = await db.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            await using var tx = await db.Database.BeginTransactionAsync();
+            floor = await db.RaisedHands.Where(h => h.CircleId == circle.Id && h.HasFloor).Select(h => (Guid?)h.MemberId).FirstOrDefaultAsync();
+            var deleted = await db.RaisedHands.Where(h => h.CircleId == circle.Id).ExecuteDeleteAsync();
+            if (floor is { } holder && tryAgainOnCallFailure)
+            {
+                await PutFloorOnCallAsync(circle, tx, [holder]);
+            }
+            await tx.CommitAsync();
+            return deleted;
+        });
         if (cleared == 0)
         {
             return;
         }
-        await audit.WriteAsync(AuditTypes.HandsCleared, userId, detail: new { circle = circleId, reason, count = cleared });
-        await BroadcastHandsAsync(circleId);
+        if (floor is { } speaker && !tryAgainOnCallFailure && FloorOnCall(circle))
+        {
+            await callPermissions.TryApplyAsync(circle, [speaker]);
+        }
+        await audit.WriteAsync(AuditTypes.HandsCleared, me.UserId, detail: new { circle = circle.Id, reason, count = cleared });
+        await BroadcastHandsAsync(circle.Id);
+        if (floor is { } taken && FloorOnCall(circle))
+        {
+            await Clients.Group(MemberGroup(taken)).CallNotice(CallNoticeKinds.FloorTaken, me.Id, taken);
+        }
+    }
+
+    /// <summary>
+    /// Inside a hands transaction that moved the floor: with a call on in Hand to speak, puts the microphone permission
+    /// of <paramref name="concerned"/> on the call server (recomputed from the uncommitted hands). If the call server
+    /// fails, the hands change is rolled back, whoever was already updated is put back, and the caller gets
+    /// <c>try-again</c> (contracts/hub.md rule 5).
+    /// </summary>
+    private async Task PutFloorOnCallAsync(Circle circle, IDbContextTransaction tx, Guid[] concerned)
+    {
+        if (!FloorOnCall(circle))
+        {
+            return;
+        }
+        var done = new List<Guid>();
+        try
+        {
+            foreach (var id in concerned)
+            {
+                await callPermissions.ApplyAsync(circle, id, CancellationToken.None);
+                done.Add(id);
+            }
+        }
+        catch (LiveKitException)
+        {
+            await tx.RollbackAsync();
+            await callPermissions.TryApplyAsync(circle, done);
+            throw new HubException("try-again");
+        }
+    }
+
+    /// <summary>Whether the floor is a microphone right now (a call in Hand to speak, on a host with a call server).</summary>
+    private bool FloorOnCall(Circle circle) => livekit.Value.Available && CallRules.FloorGivesMicrophone(circle);
+
+    private void TakeHand(CircleMember me)
+    {
+        if (!limits.TryTake(me.Id, RateLimits.Hand, HandsPerWindow, HandWindow))
+        {
+            throw new HubException("slow-down");
+        }
     }
 
     private async Task BroadcastHandsAsync(Guid circleId) =>

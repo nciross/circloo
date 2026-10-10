@@ -100,7 +100,7 @@ public sealed class CirclePresence
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
     Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace,
-    CallLifecycle calls, CallPermissions callPermissions) : Hub<ICircleClient>
+    CallLifecycle calls, CallPermissions callPermissions, CallModeration moderation) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -205,7 +205,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, activityId));
         await ResetRoomSettingsAsync(circleId);
-        await ClearHandsAsync(circleId, me.UserId, "activity-started");
+        await ClearHandsAsync(me, "activity-started");
         var started = await AddMessageAsync(circleId, activityId, me.Id, "system", $"start:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(activityId, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(started));
@@ -225,7 +225,7 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await polls.CloseOpenAsync(circleId, me.UserId);
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         await ResetRoomSettingsAsync(circleId);
-        await ClearHandsAsync(circleId, me.UserId, "activity-ended");
+        await ClearHandsAsync(me, "activity-ended");
         var ended = await AddMessageAsync(circleId, activityId, me.Id, "system", $"end:{activityId}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));

@@ -74,7 +74,7 @@ public sealed partial class CircleHub
         await db.Presentations.Where(p => p.Id == deck.Id).ExecuteUpdateAsync(s => s.SetProperty(p => p.LastUsedAt, now));
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, ActivityCatalog.Presentation));
         await ResetRoomSettingsAsync(circleId);
-        await ClearHandsAsync(circleId, me.UserId, "presentation-started");
+        await ClearHandsAsync(me, "presentation-started");
 
         var started = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"start:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(ActivityCatalog.Presentation, me.Id));
@@ -210,7 +210,7 @@ public sealed partial class CircleHub
         }
         await db.Circles.Where(c => c.Id == circleId).ExecuteUpdateAsync(s => s.SetProperty(c => c.CurrentActivity, (string?)null));
         await ResetRoomSettingsAsync(circleId);
-        await ClearHandsAsync(circleId, me.UserId, "presentation-ended");
+        await ClearHandsAsync(me, "presentation-ended");
         var ended = await AddMessageAsync(circleId, ActivityCatalog.Presentation, me.Id, "system", $"end:{ActivityCatalog.Presentation}");
         await Clients.Group(Group(circleId)).Activity(new ActivityState(null, me.Id));
         await Clients.Group(Group(circleId)).Message(MessageDto.From(ended));

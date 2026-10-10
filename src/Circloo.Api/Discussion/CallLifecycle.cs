@@ -68,6 +68,24 @@ public sealed partial class CallLifecycle(CirclooDbContext db, ILiveKitRooms roo
         return true;
     }
 
+    /// <summary>
+    /// Takes one member out of the call: the call server disconnects them, then their hand goes down (with the floor if
+    /// they had it) and the circle sees the new queue. Used by the animator's <c>RemoveFromCall</c>. A path where a
+    /// member leaves or is removed from the circle during a call must call it too (the API has none yet). It does not
+    /// keep them out: a removal from the call also goes into <see cref="CallModeration"/>, and a former member's passes
+    /// are refused by membership.
+    /// Throws <see cref="LiveKitException"/> when the call server fails, before the hand changes.
+    /// </summary>
+    public async Task DropAsync(Guid circleId, Guid memberId)
+    {
+        await rooms.RemoveParticipantAsync(CallRules.RoomName(circleId), memberId.ToString(), CancellationToken.None);
+        var lowered = await db.RaisedHands.Where(h => h.CircleId == circleId && h.MemberId == memberId).ExecuteDeleteAsync();
+        if (lowered > 0)
+        {
+            await hub.Clients.Group(CircleHub.Group(circleId)).Hands(await Hands.LoadAsync(db, circleId));
+        }
+    }
+
     [LoggerMessage(Level = LogLevel.Warning, Message = "The call of circle {CircleId} ended but its room could not be deleted")]
     private static partial void LogRoomNotDeleted(ILogger logger, Guid circleId);
 }

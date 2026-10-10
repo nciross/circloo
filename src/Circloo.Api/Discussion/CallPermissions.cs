@@ -1,3 +1,4 @@
+using Circloo.Api.Circles;
 using Circloo.Api.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,73 @@ public sealed partial class CallPermissions(CirclooDbContext db, ILiveKitRooms r
         ArgumentNullException.ThrowIfNull(circle);
         var rights = await RightsAsync(circle, [memberId], ct);
         return await rooms.UpdateParticipantAsync(CallRules.RoomName(circle.Id), memberId.ToString(), rights[memberId], ct);
+    }
+
+    /// <summary>
+    /// Best effort, for changes nobody can be asked to retry (an activity change, the hand grace, putting back a change
+    /// the call server half took): applies each member's permission and logs a failure without failing. The next
+    /// change or pass of that member repairs it.
+    /// </summary>
+    public async Task TryApplyAsync(Circle circle, IEnumerable<Guid> memberIds)
+    {
+        ArgumentNullException.ThrowIfNull(circle);
+        ArgumentNullException.ThrowIfNull(memberIds);
+        foreach (var id in memberIds.Distinct())
+        {
+            try
+            {
+                await ApplyAsync(circle, id, CancellationToken.None);
+            }
+            catch (LiveKitException)
+            {
+                LogBestEffortFailed(log);
+            }
+        }
+    }
+
+    /// <summary>
+    /// "Mute everyone" in Open mic (research R22): mutes every published microphone track in the call except the
+    /// animators'. Permissions stay as they are, so people may unmute again: a reset, not a lock. The call server never
+    /// unmutes anyone (<c>enable_remote_unmute</c> is off). Throws <see cref="LiveKitException"/> if any mute fails; the
+    /// ones already done stay muted, and trying again mutes the rest. Returns how many tracks were muted.
+    /// </summary>
+    public async Task<int> MuteMicrophonesAsync(Circle circle, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(circle);
+        var room = CallRules.RoomName(circle.Id);
+        var people = await rooms.ListParticipantsAsync(room, ct);
+        var animators = await db.CircleMembers.AsNoTracking()
+            .Where(m => m.CircleId == circle.Id && m.LeftAt == null && m.Role == Roles.Animator)
+            .Select(m => m.Id.ToString())
+            .ToListAsync(ct);
+        var tracks = people
+            .Where(p => !animators.Contains(p.Identity, StringComparer.OrdinalIgnoreCase))
+            .SelectMany(p => p.Tracks.Where(t => t.Source == CallRights.MicrophoneSource && !t.Muted).Select(t => (p.Identity, t.Sid)))
+            .ToList();
+
+        var muted = 0;
+        var failed = false;
+        using var gate = new SemaphoreSlim(Concurrency);
+        await Task.WhenAll(tracks.Select(async t =>
+        {
+            await gate.WaitAsync(ct);
+            try
+            {
+                if (await rooms.MutePublishedTrackAsync(room, t.Identity, t.Sid, muted: true, ct))
+                {
+                    Interlocked.Increment(ref muted);
+                }
+            }
+            catch (LiveKitException)
+            {
+                failed = true;
+            }
+            finally
+            {
+                gate.Release();
+            }
+        }));
+        return failed ? throw new LiveKitException("The call server did not mute every microphone.") : muted;
     }
 
     /// <summary>
@@ -115,4 +183,7 @@ public sealed partial class CallPermissions(CirclooDbContext db, ILiveKitRooms r
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Putting a call permission back after a failed change did not work")]
     private static partial void LogRestoreFailed(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "A call permission could not be updated: the next change or pass repairs it")]
+    private static partial void LogBestEffortFailed(ILogger logger);
 }

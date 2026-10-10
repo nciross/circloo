@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using Circloo.Api.Data;
+using Circloo.Api.Discussion;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Circloo.Api.Circles;
 
@@ -50,17 +52,38 @@ public sealed partial class HandsGrace(IServiceScopeFactory scopes, CirclePresen
             }
             await using var scope = scopes.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<CirclooDbContext>();
+            var hadFloor = await db.RaisedHands.AnyAsync(h => h.CircleId == circleId && h.MemberId == memberId && h.HasFloor);
             var removed = await db.RaisedHands.Where(h => h.CircleId == circleId && h.MemberId == memberId).ExecuteDeleteAsync();
             if (removed > 0)
             {
                 var hub = scope.ServiceProvider.GetRequiredService<IHubContext<CircleHub, ICircleClient>>();
                 await hub.Clients.Group(CircleHub.Group(circleId)).Hands(await Hands.LoadAsync(db, circleId));
+                if (hadFloor)
+                {
+                    await TakeMicrophoneAsync(scope.ServiceProvider, db, hub, circleId, memberId);
+                }
             }
         }
         catch (Exception e)
         {
             LowerFailed(e, memberId);
         }
+    }
+
+    /// <summary>
+    /// The floor holder's hand went with the grace period: in a call in Hand to speak their microphone permission goes
+    /// too (spec 009 contracts/hub.md, time-based rules), at best effort since nobody is waiting for an answer.
+    /// </summary>
+    private static async Task TakeMicrophoneAsync(IServiceProvider services, CirclooDbContext db, IHubContext<CircleHub, ICircleClient> hub,
+        Guid circleId, Guid memberId)
+    {
+        var circle = await db.Circles.AsNoTracking().FirstOrDefaultAsync(c => c.Id == circleId);
+        if (circle is null || !services.GetRequiredService<IOptions<LiveKitOptions>>().Value.Available || !CallRules.FloorGivesMicrophone(circle))
+        {
+            return;
+        }
+        await services.GetRequiredService<CallPermissions>().TryApplyAsync(circle, [memberId]);
+        await hub.Clients.Group(CircleHub.MemberGroup(memberId)).CallNotice(CallNoticeKinds.FloorTaken, null, memberId);
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Lowering the hand of {MemberId} after the grace period failed")]
