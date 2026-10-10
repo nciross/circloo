@@ -17,7 +17,11 @@ public sealed class CallModeration
     /// <summary>Per circle, the members in the call with the call server's participant and room ids of their connection.</summary>
     private readonly ConcurrentDictionary<Guid, ConcurrentDictionary<Guid, RosterEntry>> _rosters = new();
 
-    private sealed record RosterEntry(string? ParticipantSid, string? RoomSid);
+    /// <summary>Hands out each join's place in the order (issue #277): increasing, never reused, shared by every circle.</summary>
+    private long _joins;
+
+    /// <param name="Joined">The join's place in the order. A connection that replaces another keeps it.</param>
+    private sealed record RosterEntry(string? ParticipantSid, string? RoomSid, long Joined);
 
     public MemberModeration Of(Guid circleId, Guid memberId) =>
         _circles.TryGetValue(circleId, out var members) && members.TryGetValue(memberId, out var state) ? state : MemberModeration.None;
@@ -41,21 +45,27 @@ public sealed class CallModeration
         _rosters.TryRemove(circleId, out _);
     }
 
-    /// <summary>Who is in the circle's call now, as the call server last told us. Empty when nobody is.</summary>
-    public Guid[] Roster(Guid circleId) => _rosters.TryGetValue(circleId, out var people) ? [.. people.Keys] : [];
+    /// <summary>
+    /// Who is in the circle's call now, as the call server last told us, in the order they joined (issue #277): the
+    /// same list for everyone, so the grid's join order is too. Someone who leaves and comes back joined last. Empty
+    /// when nobody is.
+    /// </summary>
+    public Guid[] Roster(Guid circleId) =>
+        _rosters.TryGetValue(circleId, out var people) ? [.. people.OrderBy(p => p.Value.Joined).Select(p => p.Key)] : [];
 
     /// <summary>
     /// The member's connection joined the call. True when the roster changed (they were not in it). A second
-    /// connection with the same identity replaces the first on the call server, so it replaces it here too.
+    /// connection with the same identity replaces the first on the call server, so it replaces it here too, in the
+    /// same place of the join order.
     /// </summary>
     public bool Joined(Guid circleId, Guid memberId, string? participantSid, string? roomSid)
     {
         var people = _rosters.GetOrAdd(circleId, _ => new ConcurrentDictionary<Guid, RosterEntry>());
         var added = true;
-        people.AddOrUpdate(memberId, _ => new RosterEntry(participantSid, roomSid), (_, _) =>
+        people.AddOrUpdate(memberId, _ => new RosterEntry(participantSid, roomSid, Interlocked.Increment(ref _joins)), (_, current) =>
         {
             added = false;
-            return new RosterEntry(participantSid, roomSid);
+            return new RosterEntry(participantSid, roomSid, current.Joined);
         });
         return added;
     }

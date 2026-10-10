@@ -60,7 +60,7 @@ type CallNoticeKind =
 |---|---|---|
 | `Discussion(state)` | circle group (audience screen included) | a switch, the mode or the away state changed; also pushed on `Enter` and `EnterAudience` |
 | `CallNotice(kind, byMemberId?, subjectMemberId?)` | circle group, or one member's group (see the kinds) | tells people what happened, in kind words (the client translates). Never stored |
-| `CallRoster(memberIds)` | circle group (not the audience screen) | who is in the call, from the call server's webhooks, coalesced through `LiveThrottle` (at most every 250 ms, latest last) |
+| `CallRoster(memberIds)` | circle group (not the audience screen) | who is in the call, in join order (the same list for everyone; a rejoin goes last), from the call server's webhooks, coalesced through `LiveThrottle` (at most every 250 ms, latest last) |
 | `Hands(view)` (008) | circle group | the queue or the floor changed. The audience screen renders only the count |
 | `Reactions(burst)` (008) | circle group (audience screen included) | at most every 400 ms while reactions arrive |
 | `RoomSettings(settings)` (008) | circle group | the chat or reactions switch changed |
