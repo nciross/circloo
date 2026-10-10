@@ -215,7 +215,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 ## Phase 6: User Story 5 - Talk in writing (P2)
 
-- [ ] T908 [P] [US5] **Replies; call lines are not stored (API)** *(changed 2026-10-08, #223)*.
+- [x] T908 [P] [US5] **Replies; call lines are not stored (API)** *(changed 2026-10-08, #223)*.
   - `Reply(long parentId, string text)` sharing one send path with `Say` (clean, safety filter, spec 008 limits, slow mode and pause, `ReplyToId`); `reply-invalid` unless the parent is a visible member message of the same circle and not itself a reply. `MessageDto` gains `ReplyToId`. The circle view returns replies; hiding a parent hides its replies for members.
   - **Changed**: no persisted call system lines. Drop the stage and recording line kinds from the branch's `SystemLines.cs` (or the helper altogether if nothing else uses it).
   - **Tests** `ReplyTests.cs`: as on the branch, minus the system-line rows, plus "a call start and end write no `CircleMessages` row".

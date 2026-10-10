@@ -145,6 +145,10 @@ public sealed partial class CircleHub
         {
             await Clients.Group(Group(circleId)).Message(view);
         }
+        if (changed)
+        {
+            await SendReplyVisibilityAsync(circleId, messageId, hidden);
+        }
     }
 
     public async Task SetRoomSettings(RoomSettings settings)

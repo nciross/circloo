@@ -182,7 +182,10 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         return online;
     }
 
-    public async Task Say(string text)
+    public Task Say(string text) => SendAsync(text, null);
+
+    /// <summary>The one send path of <see cref="Say"/> and <c>Reply</c>: clean, safety filter, parent check, 008 limits, store, broadcast.</summary>
+    private async Task SendAsync(string text, long? parentId)
     {
         var (circleId, me) = await CurrentAsync();
         var clean = TextRules.Clean(text, TextRules.MessageMax) ?? throw new HubException("message-invalid");
@@ -190,8 +193,18 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         {
             throw new HubException("message-unsafe");
         }
+        if (parentId is not null)
+        {
+            // One level only: the parent is a visible member message of this circle that is not itself a reply.
+            var valid = await db.CircleMessages.AsNoTracking().AnyAsync(m => m.Id == parentId && m.CircleId == circleId
+                && m.Kind == "member" && m.HiddenAt == null && m.ReplyToId == null);
+            if (!valid)
+            {
+                throw new HubException("reply-invalid");
+            }
+        }
         await CheckChatLimitsAsync(me);
-        var message = await AddMessageAsync(circleId, me.Circle!.CurrentActivity, me.Id, "member", clean);
+        var message = await AddMessageAsync(circleId, me.Circle!.CurrentActivity, me.Id, "member", clean, parentId);
         await Clients.Group(Group(circleId)).Message(MessageDto.From(message));
         // The next keystroke after a message announces typing again at once.
         Context.Items.Remove(TypingKey);
@@ -520,9 +533,9 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         return me;
     }
 
-    private async Task<CircleMessage> AddMessageAsync(Guid circleId, string? activityId, Guid? memberId, string kind, string text)
+    private async Task<CircleMessage> AddMessageAsync(Guid circleId, string? activityId, Guid? memberId, string kind, string text, long? replyToId = null)
     {
-        var message = new CircleMessage { CircleId = circleId, ActivityId = activityId, MemberId = memberId, Kind = kind, Text = text, CreatedAt = clock.GetUtcNow() };
+        var message = new CircleMessage { CircleId = circleId, ActivityId = activityId, MemberId = memberId, Kind = kind, Text = text, ReplyToId = replyToId, CreatedAt = clock.GetUtcNow() };
         db.CircleMessages.Add(message);
         await db.SaveChangesAsync();
         return message;

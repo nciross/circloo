@@ -133,9 +133,10 @@ public static class CircleEndpoints
             var c = me.Circle!;
             var members = await db.CircleMembers.AsNoTracking().Where(m => m.CircleId == id && m.LeftAt == null)
                 .OrderBy(m => m.JoinedAt).Select(m => MemberDto.From(m)).ToArrayAsync(ct);
-            // Hidden messages only ever reach the animator (spec 008 FR-813).
+            // Hidden messages, and the replies to them, only ever reach the animator (spec 008 FR-813, spec 009 FR-913).
             var animator = me.Role == Roles.Animator;
-            var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id && (animator || m.HiddenAt == null))
+            var messages = await db.CircleMessages.AsNoTracking().Where(m => m.CircleId == id && (animator || (m.HiddenAt == null
+                    && (m.ReplyToId == null || !db.CircleMessages.Any(parentRow => parentRow.Id == m.ReplyToId && parentRow.HiddenAt != null)))))
                 .OrderByDescending(m => m.Id).Take(200).ToListAsync(ct);
             var messageIds = messages.Select(m => m.Id).ToList();
             var likes = await db.MessageLikes.AsNoTracking().Where(l => messageIds.Contains(l.MessageId))
