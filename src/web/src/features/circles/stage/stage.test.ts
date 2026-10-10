@@ -312,4 +312,52 @@ describe('animator actions', () => {
     resetStage()
     await expect(state().giveFloor('x')).rejects.toThrow('offline')
   })
+
+  it('keep the mutes and removals this tab made, once the hub accepted them', async () => {
+    setup()
+    const s = state()
+    await s.muteMember('amina', 'microphone')
+    await s.muteMember('amina', 'microphone')
+    await s.muteMember('theo', 'camera')
+    await s.removeFromCall('lucia')
+    expect(state().moderation).toEqual({ microphone: ['amina'], camera: ['theo'], removed: ['lucia'] })
+    await s.allowMember('amina', 'microphone')
+    await s.allowMember('theo', 'camera')
+    await s.allowBack('lucia')
+    expect(state().moderation).toEqual({ microphone: [], camera: [], removed: [] })
+    // Mute everyone is a reset, not a lock: nothing to remember.
+    await s.muteEveryone()
+    expect(state().moderation).toEqual({ microphone: [], camera: [], removed: [] })
+  })
+
+  it('keep nothing the hub refused', async () => {
+    setup({ invoke: vi.fn(() => Promise.reject(new Error('HubException: try-again'))) })
+    await expect(state().muteMember('amina', 'microphone')).rejects.toThrow('try-again')
+    await expect(state().removeFromCall('amina')).rejects.toThrow('try-again')
+    expect(state().moderation).toEqual({ microphone: [], camera: [], removed: [] })
+  })
+
+  it('forget the mutes and removals when the call ends, as the server does', async () => {
+    const t = setup()
+    await state().muteMember('amina', 'microphone')
+    await state().removeFromCall('theo')
+    t.fire('Discussion', discussion({ videoAllowed: false }))
+    expect(state().moderation.removed).toEqual(['theo'])
+    t.fire('Discussion', discussion({ on: false }))
+    expect(state().moderation).toEqual({ microphone: [], camera: [], removed: [] })
+  })
+})
+
+describe('hands', () => {
+  it('follows the hub: the queue and the floor, and nothing from a replaced connection', () => {
+    const t = setup()
+    const view = { queue: [{ memberId: 'amina', raisedAt: '2026-10-09T10:00:00Z' }], floor: 'theo' }
+    t.fire('Hands', view)
+    expect(state().hands).toEqual(view)
+    t.fire('Hands', { queue: 'nope' })
+    expect(state().hands).toEqual(view)
+    t.stale()
+    t.fire('Hands', { queue: [], floor: null })
+    expect(state().hands).toEqual(view)
+  })
 })

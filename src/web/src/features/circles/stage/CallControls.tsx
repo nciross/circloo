@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { LayoutGrid, Mic, MicOff, PhoneOff, PanelsTopLeft, Video, VideoOff, Volume2 } from 'lucide-react'
 import type { Member } from '../../../api/circles'
 import { Segmented } from '../../../components/Segmented'
+import { useAwayLeft } from './away'
+import { AwayLine } from './AwayLine'
 import { useJoinsAnnouncement } from './joins'
 import { useStage } from './stage'
 
@@ -83,6 +85,7 @@ function InCall({ members }: { members: Member[] }) {
   const setCamera = useStage((s) => s.setCamera)
   const startAudio = useStage((s) => s.startAudio)
   const [busy, setBusy] = useState<'mic' | 'camera' | null>(null)
+  const awayLeft = useAwayLeft()
 
   const self = participants.find((p) => p.local)
   const weak = self?.quality === 'poor' || self?.quality === 'lost'
@@ -111,6 +114,7 @@ function InCall({ members }: { members: Member[] }) {
       <div className="call-bar__state">
         {connection === 'reconnecting' ? <p className="call-bar__note is-warn" role="status">{t('circles.call.reconnecting')}</p> : null}
         {connection === 'connected' && weak ? <p className="call-bar__note is-warn" role="status">{t('circles.call.weakMine')}</p> : null}
+        {awayLeft !== null ? <AwayLine left={awayLeft} announce className="call-bar__note is-warn" /> : null}
         {audioBlocked ? (
           <button type="button" className="btn btn--primary call-bar__hear" onClick={() => void startAudio()}>
             <Volume2 size={18} aria-hidden="true" />

@@ -99,8 +99,8 @@ test('workspace: work bar, whiteboard at the centre, rail and Call tab (#244)', 
     await tabs.last().click()
   }
 
-  // Call tab: the real Live discussion switch, off by default; no call yet, so nobody can join.
-  const toggle = side.getByRole('switch')
+  // Call tab: the real Video call switch, off by default; no call yet, so nobody can join.
+  const toggle = side.locator('[data-switch="video"]')
   await expect(toggle).toHaveAttribute('aria-checked', 'false')
   await expect(side.locator('.call__join')).toHaveCount(0)
   await axe(page)
@@ -112,7 +112,10 @@ test('workspace: work bar, whiteboard at the centre, rail and Call tab (#244)', 
   await expect(theoSide.locator('.call__state')).toHaveText(ar ? 'مكالمة فيديو جارية.' : 'A video call is on.')
   await expect(theoSide.locator('.call__join')).toBeVisible()
   await expect(theoSide.getByRole('switch')).toHaveCount(0)
-  await toggle.click()
+  // The Audio call switch ends the call (the Video call switch alone would keep the voices going).
+  const audioCall = side.locator('[data-switch="audio"]')
+  await audioCall.click()
+  await expect(audioCall).toHaveAttribute('aria-checked', 'false')
   await expect(toggle).toHaveAttribute('aria-checked', 'false')
 
   // A round opens: the whiteboard fills the centre and the work bar names who started it.

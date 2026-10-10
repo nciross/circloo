@@ -18,57 +18,80 @@
   gap: var(--s-4);
   padding-inline: var(--s-1);
 }
-.call__switch {
+.call__switches {
   display: grid;
-  gap: var(--s-2);
-  padding-block-end: var(--s-4);
-  border-block-end: 1px solid var(--card-line);
+  gap: var(--s-3);
+  padding-block-start: var(--s-4);
+  border-block-start: 1px solid var(--card-line);
+  color: var(--on-card);
 }
-.call__switch .field__help {
+.call__switches-title {
+  margin: 0;
+  color: var(--on-card-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+:lang(ar) .call__switches-title {
+  font-size: var(--fs-xs);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.call__switches .field__help {
   margin: 0;
   color: var(--on-card-faint);
 }
-.call__switch .switch {
+/* A switch and its sentence: the sentence starts under the label, not under the track. */
+.call__toggle {
+  display: grid;
+  gap: 0.1rem;
+}
+.call__toggle .field__help {
+  padding-inline-start: calc(2.75rem + var(--s-3));
+}
+.call__switches .switch {
   justify-self: start;
   color: var(--on-card);
   font-size: var(--fs-md);
   font-weight: 700;
 }
-.call__switch .switch__track {
-  background: var(--seg-empty);
+/* On the card a switch inverts like its buttons: off is an outlined track (3:1 against the card), on the card's ink. */
+.call__switches .switch__track {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--on-card-faint);
 }
-.call__switch .switch:hover .switch__track {
+.call__switches .switch__knob {
   background: var(--on-card-faint);
+  box-shadow: none;
 }
-.call__switch .switch[aria-checked='true'] .switch__track {
-  background: var(--ok);
+.call__switches .switch:hover .switch__track {
+  background: var(--card-hover);
 }
-.call__switch .switch__knob {
+.call__switches .switch[aria-checked='true'] .switch__track,
+.call__switches .switch[aria-checked='true']:hover .switch__track {
   background: var(--on-card);
+  box-shadow: none;
 }
-.call__switch .switch:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: var(--r-sm);
+.call__switches .switch[aria-checked='true'] .switch__knob {
+  background: var(--card);
 }
-.call__check {
-  display: inline-flex;
-  align-items: center;
+.call__mode-pick {
+  display: grid;
   gap: var(--s-2);
-  justify-self: start;
-  min-block-size: 2.75rem;
+  padding-block-start: var(--s-1);
+}
+.call__switches .seg__label {
   color: var(--on-card);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: 700;
 }
-.call__check input {
-  inline-size: 1.25rem;
-  block-size: 1.25rem;
+.call__mute-all {
+  justify-self: start;
+  margin-block-start: var(--s-1);
+}
+.call__switch-error {
   margin: 0;
-  accent-color: var(--on-card);
-}
-.call__switch .call__check-help {
-  margin-block-start: calc(-1 * var(--s-2));
 }
 
 .call__now {
@@ -126,6 +149,22 @@
   margin: 0;
 }
 
+/* The speaking mode in plain words, for the people in the call. */
+.call__mode {
+  margin: 0;
+  color: var(--on-card-soft);
+  font-weight: 600;
+}
+/* No animator connected: the sentence, then the minutes and seconds left in heavy figures. */
+.call__away {
+  margin: 0;
+  font-weight: 600;
+}
+.call__away-clock {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 /* The people in the call: buddy rows in a sunken block of the card. */
 .call__people {
   display: grid;
@@ -155,6 +194,9 @@
 .call__person + .call__person {
   border-block-start: 1px solid var(--card-line);
 }
+.call__person.has-menu {
+  grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+}
 .call__person-char {
   inline-size: 2.25rem;
   block-size: 2.25rem;
@@ -180,6 +222,19 @@
 .call__person-state {
   font-size: var(--fs-xs);
   color: var(--on-card-faint);
+}
+.call__person-error {
+  font-size: var(--fs-xs);
+}
+.call__allow-back {
+  flex: none;
+}
+.call__people .person-menu__trigger {
+  color: var(--on-card);
+}
+.call__people .person-menu__trigger:hover,
+.call__people .person-menu__trigger[aria-expanded='true'] {
+  background: var(--card-hover);
 }
 
 /* Raised hands wait along an arc, first to speak at the inline start (spec 008; T927 brings the full queue). */
@@ -230,7 +285,7 @@
 
 /* ---------- The stage, in the centre ---------- */
 /* While the call shows, the round stays mounted under it but out of sight (and out of the accessibility tree). */
-.room__centre.is-call > :not(.call-stage, .call-bar) {
+.room__centre.is-call > :not(.call-stage, .call-bar, .call-notice) {
   display: none;
 }
 .call-stage {
@@ -457,6 +512,23 @@
   flex: none;
   color: var(--danger-text);
 }
+/* The animator's menu sits in the corner opposite the name; the name gives it room. */
+.call-tile__menu {
+  position: absolute;
+  inset-block-end: var(--s-2);
+  inset-inline-end: var(--s-2);
+}
+.call-tile.has-menu .call-tile__name {
+  max-inline-size: calc(100% - var(--s-4) - var(--menu-btn) - var(--s-2));
+}
+.call-tile__menu .person-menu__trigger {
+  background: var(--paper);
+  color: var(--ink);
+}
+.call-tile__menu .person-menu__trigger:hover,
+.call-tile__menu .person-menu__trigger[aria-expanded='true'] {
+  background: var(--paper-hover);
+}
 /* Small tiles (a strip, a phone page): smaller marks, the character still reads. */
 @container (max-block-size: 7rem) {
   .call-tile__name {
@@ -600,8 +672,150 @@
   font-weight: 700;
 }
 
+/* ---------- The animator's person menu (T926) ---------- */
+.room,
+.person-menu {
+  --menu-btn: 2.5rem;
+}
+.person-menu__trigger {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--menu-btn, 2.5rem);
+  block-size: var(--menu-btn, 2.5rem);
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  transition:
+    background-color var(--dur-state) var(--ease-settle),
+    transform var(--dur-press) var(--ease-settle);
+}
+.person-menu__trigger:active {
+  transform: scale(0.95);
+}
+.person-menu__trigger:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* Drawn over the page (a tile clips what overflows it), placed by the component under or over its trigger. */
+.person-menu {
+  position: fixed;
+  z-index: 60;
+  inline-size: max-content;
+  min-inline-size: 13rem;
+  max-inline-size: min(20rem, calc(100vw - 1rem));
+  padding-block: var(--s-1);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-overlay);
+  animation: person-menu-in var(--dur-move) var(--ease-out);
+}
+.person-menu__list {
+  display: grid;
+}
+.person-menu__item {
+  display: flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding: 0.35rem var(--s-4);
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  text-align: start;
+  transition: background-color var(--dur-press) var(--ease-out);
+}
+.person-menu__item:hover,
+.person-menu__item:focus-visible {
+  background: var(--paper-hover);
+  outline-offset: -2px;
+}
+.person-menu__item:active {
+  background: var(--paper-pressed);
+}
+.person-menu__item.is-danger {
+  color: var(--danger-text);
+}
+.person-menu[aria-busy='true'] .person-menu__item {
+  cursor: progress;
+}
+.person-menu__confirm {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-4) var(--s-3);
+}
+.person-menu__question {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.person-menu__answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.person-menu__error {
+  margin: var(--s-2) var(--s-4) var(--s-1);
+  color: var(--danger-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* ---------- Notices to the person (T926): one line above the call's bar ---------- */
+.call-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding-block: 0.25rem;
+  padding-inline: var(--s-4) 0.25rem;
+  border: 2px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--ink);
+  animation: call-notice-in var(--dur-enter) var(--ease-out);
+}
+.room__centre > .call-notice {
+  flex: none;
+}
+/* Empty, it stays in the page as a live region and takes no room. */
+.call-notice.is-empty {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  animation: none;
+}
+.call-notice__text {
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+  font-weight: 600;
+}
+.call-notice__close {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  color: var(--ink);
+}
+.call-notice__close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
 /* ---------- Phones and narrow rooms ---------- */
 @media (max-width: 59.99rem) {
+  /* A thumb's worth for the person menu on phones and tablets. */
+  .room,
+  .person-menu {
+    --menu-btn: 2.75rem;
+  }
   /* The stage fits between the work bar and the call's bar, above the sheet's pill (or the half sheet when open). */
   .room {
     /* One row: two device buttons of 3rem, the view switch and Leave, in a 2px outline with a little padding. */
@@ -668,6 +882,16 @@
     translate: 0 6px;
   }
 }
+@keyframes person-menu-in {
+  from {
+    translate: 0 6px;
+  }
+}
+@keyframes call-notice-in {
+  from {
+    translate: 0 8px;
+  }
+}
 @keyframes call-bars {
   from {
     transform: scaleY(0.35);
@@ -684,7 +908,9 @@
 @media (prefers-reduced-motion: reduce) {
   .call-tile,
   .call-tile__bars i,
-  .call-stage__joining-char {
+  .call-stage__joining-char,
+  .person-menu,
+  .call-notice {
     animation: none;
   }
   .call-tile__bars i:nth-child(2) {
@@ -693,7 +919,8 @@
   .call-tile__bars i:nth-child(1) {
     transform: scaleY(0.45);
   }
-  .call-bar__device {
+  .call-bar__device,
+  .person-menu__trigger {
     transition: none;
   }
 }

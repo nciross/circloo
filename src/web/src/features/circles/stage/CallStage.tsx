@@ -5,6 +5,7 @@ import type { Member } from '../../../api/circles'
 import { Character } from '../../../components/Character'
 import { Segmented } from '../../../components/Segmented'
 import { CallTile } from './CallTile'
+import { PersonMenu } from './PersonMenu'
 import { useCompact } from './compact'
 import { PAGE_SIZE, nextSpeaker, pageOf, syncVideos } from './grid'
 import { useStage } from './stage'
@@ -14,13 +15,16 @@ type Layout = 'grid' | 'speaker'
 /**
  * The call in the centre of the room (spec 009 US2, T925): a grid that fills the centre, or the speaker large with the
  * others in a strip. Pages of 9 tiles on a computer and 4 on a phone, your own preview on each; the active speaker always
- * on screen. Only the videos on the page are received (SC-912). The controls are a separate bar (CallControls).
+ * on screen. Only the videos on the page are received (SC-912). The controls are a separate bar (CallControls). The
+ * animator finds each participant's menu on their tile (T926).
  */
-export function CallStage({ members, floor }: { members: Member[]; floor: string | null }) {
+export function CallStage({ members, floor: viewFloor, isAnimator = false }: { members: Member[]; floor: string | null; isAnimator?: boolean }) {
   const { t } = useTranslation()
   const participants = useStage((s) => s.participants)
   const roster = useStage((s) => s.roster)
   const connection = useStage((s) => s.connection)
+  const liveHands = useStage((s) => s.hands)
+  const floor = liveHands ? liveHands.floor : viewFloor
   const compact = useCompact()
   const [picked, setLayout] = useState<Layout>('grid')
   // Four tiles on a phone are already large: the grid it is, and the switch goes.
@@ -105,7 +109,14 @@ export function CallStage({ members, floor }: { members: Member[]; floor: string
           aria-label={view.pages > 1 ? t('circles.call.tilesPaged', { page: view.page + 1, pages: view.pages }) : t('circles.call.tiles')}
         >
           {view.tiles.map((p, i) => (
-            <CallTile key={p.id} person={p} member={byId.get(p.id)} floor={p.id === floor} big={layout === 'speaker' && i === 0 && view.tiles.length > 1} />
+            <CallTile
+              key={p.id}
+              person={p}
+              member={byId.get(p.id)}
+              floor={p.id === floor}
+              big={layout === 'speaker' && i === 0 && view.tiles.length > 1}
+              menu={isAnimator && !p.local && !animators.has(p.id) ? <PersonMenu memberId={p.id} name={byId.get(p.id)?.name || p.name} /> : undefined}
+            />
           ))}
         </ul>
       )}

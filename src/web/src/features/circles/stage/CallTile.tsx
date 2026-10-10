@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MicOff } from 'lucide-react'
 import type { Member } from '../../../api/circles'
@@ -9,9 +9,17 @@ import { toneOf } from './grid'
 /**
  * One person in the call (FR-912): their video over their character on their own pastel, never an empty box; their
  * name on a white pill with a struck microphone when it is off. Speaking is an ink outline and the word "Speaking", never
- * colour alone; the sound bars beside the word move only without reduced motion, the word itself never moves.
+ * colour alone; the sound bars beside the word move only without reduced motion, the word itself never moves. For the
+ * animator, the person's menu (T926) sits in the corner opposite the name.
  */
-export function CallTile({ person, member, floor, big = false }: { person: CallParticipant; member?: Member; floor: boolean; big?: boolean }) {
+export function CallTile({ person, member, floor, big = false, menu }: {
+  person: CallParticipant
+  member?: Member
+  floor: boolean
+  big?: boolean
+  /** The animator's menu for this person, when they have one. */
+  menu?: ReactNode
+}) {
   const { t } = useTranslation()
   const ref = useRef<HTMLVideoElement>(null)
   const video = person.video
@@ -29,7 +37,7 @@ export function CallTile({ person, member, floor, big = false }: { person: CallP
 
   return (
     <li
-      className={['call-tile', video ? 'has-video' : '', person.speaking ? 'is-speaking' : '', person.local ? 'is-self' : '', big ? 'is-big' : ''].filter(Boolean).join(' ')}
+      className={['call-tile', video ? 'has-video' : '', person.speaking ? 'is-speaking' : '', person.local ? 'is-self' : '', big ? 'is-big' : '', menu ? 'has-menu' : ''].filter(Boolean).join(' ')}
       data-member={person.id}
       data-tone={toneOf(person.id)}
     >
@@ -55,6 +63,7 @@ export function CallTile({ person, member, floor, big = false }: { person: CallP
         </span>
       ) : null}
       {weak ? <span className="call-tile__weak">{t('circles.call.weak')}</span> : null}
+      {menu ? <span className="call-tile__menu">{menu}</span> : null}
     </li>
   )
 }

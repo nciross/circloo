@@ -16,6 +16,7 @@ import { ParticipantView } from './present/ParticipantView'
 import { PresentationPicker } from './present/PresentationPicker'
 import { useCircleConnection, useRoom } from './room'
 import { CallControls, type CentreView } from './stage/CallControls'
+import { CallNotices } from './stage/CallNotices'
 import { CallStage } from './stage/CallStage'
 import { useStage } from './stage/stage'
 import { RoomPanels } from './room/RoomPanels'
@@ -175,7 +176,7 @@ export default function CircleRoom() {
       ) : (
         <div className={['room__grid', presenting && isAnimator && live ? 'is-presenting' : '', presenting && !isAnimator ? 'is-following' : ''].filter(Boolean).join(' ')}>
           <section id={CENTRE_ID} className={`room__main room__centre${centreView === 'call' ? ' is-call' : ''}`} aria-label={centreView === 'call' ? t('circles.call.stageTitle') : centreLabel} tabIndex={-1}>
-            {centreView === 'call' ? <CallStage members={members} floor={view.hands?.floor ?? null} /> : null}
+            {centreView === 'call' ? <CallStage members={members} floor={view.hands?.floor ?? null} isAnimator={isAnimator} /> : null}
             {presenting ? (
               <div className="room__reveal">
                 {isAnimator ? (live ? <PresenterView state={live} circleId={view.id} /> : stateLate ? <PresentationPicker /> : <Loading />) : <ParticipantView />}
@@ -203,6 +204,7 @@ export default function CircleRoom() {
                 </div>
               </section>
             )}
+            <CallNotices meId={view.me.id} />
             <CallControls members={members} view={centreView} onView={hasRound ? setPicked : undefined} roundLabel={roundLabel} />
           </section>
           <RoomPanels

@@ -1,47 +1,14 @@
-import { writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { expect, test, type Browser, type Page } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { expect, test, type Page } from '@playwright/test'
 import { localeOf, signIn } from './helpers'
+import {
+  VOICE, axe, closeHubCalls, createCircle, decodedVideos, guest, hubCall, joinAndHear, openCallTab, quietPirikoo, trackPeerConnections, watchCsp,
+} from './call-helpers'
 
-// Spec 009 T925: the call on every screen against the local LiveKit of the AppHost. Chromium's fake devices (a test
+// Spec 009 T925 and T926: the call on every screen and the animator's controls, against the local LiveKit of the AppHost. Chromium's fake devices (a test
 // pattern and a beep) stand in for the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar"
 // a Pixel 7 in Arabic. E2E_CALL_PEERS sets how many pages fill the paging test (12 by default).
-
-/**
- * A voice the call server recognises as speech. Chromium's own fake microphone only beeps briefly once a second, which the
- * call server's speaker detection rightly ignores; this loops 2 s of a voiced, gliding, syllable-shaped sound instead.
- */
-function voiceWav(): Buffer {
-  const rate = 16000
-  const n = rate * 2
-  const data = Buffer.alloc(n * 2)
-  let phase = 0
-  for (let i = 0; i < n; i++) {
-    const time = i / rate
-    phase += (2 * Math.PI * (150 + 50 * Math.sin(2 * Math.PI * 0.7 * time))) / rate
-    const syllables = 0.65 + 0.35 * Math.sin(2 * Math.PI * 4 * time)
-    const voiced = Math.sin(phase) + 0.5 * Math.sin(2 * phase) + 0.25 * Math.sin(3 * phase)
-    data.writeInt16LE(Math.round(Math.max(-1, Math.min(1, 0.45 * syllables * voiced)) * 32767), i * 2)
-  }
-  const head = Buffer.alloc(44)
-  head.write('RIFF', 0)
-  head.writeUInt32LE(36 + data.length, 4)
-  head.write('WAVEfmt ', 8)
-  head.writeUInt32LE(16, 16)
-  head.writeUInt16LE(1, 20)
-  head.writeUInt16LE(1, 22)
-  head.writeUInt32LE(rate, 24)
-  head.writeUInt32LE(rate * 2, 28)
-  head.writeUInt16LE(2, 32)
-  head.writeUInt16LE(16, 34)
-  head.write('data', 36)
-  head.writeUInt32LE(data.length, 40)
-  return Buffer.concat([head, data])
-}
-const VOICE = join(tmpdir(), 'circloo-e2e-voice.wav')
-writeFileSync(VOICE, voiceWav())
 
 test.use({
   launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-audio-capture=${VOICE}`] },
@@ -49,148 +16,6 @@ test.use({
 })
 
 const PEERS = Number(process.env.E2E_CALL_PEERS ?? 12)
-const GUESTS = [
-  { en: 'Amina', ar: 'أمينة', character: 'fox' },
-  { en: 'Théo', ar: 'تيو', character: 'owl' },
-  { en: 'Lucía', ar: 'لوسيا', character: 'cat' },
-  { en: 'Youssef', ar: 'يوسف', character: 'frog' },
-  { en: 'Inès', ar: 'إيناس', character: 'bear' },
-  { en: 'Malik', ar: 'مالك', character: 'bunny' },
-  { en: 'Sofía', ar: 'صوفيا', character: 'bee' },
-  { en: 'Hugo', ar: 'هوغو', character: 'lion' },
-  { en: 'Leïla', ar: 'ليلى', character: 'koala' },
-  { en: 'Omar', ar: 'عمر', character: 'whale' },
-  { en: 'Camille', ar: 'كاميل', character: 'dino' },
-  { en: 'Kenji', ar: 'كنجي', character: 'chick' },
-]
-
-/** Keeps every peer connection of the page, so the test can read what it receives (getStats), as the app never exposes it. */
-function trackPeerConnections() {
-  const Native = window.RTCPeerConnection
-  const all: RTCPeerConnection[] = []
-  Object.assign(window, { __pcs: all })
-  window.RTCPeerConnection = class extends Native {
-    constructor(...args: ConstructorParameters<typeof RTCPeerConnection>) {
-      super(...args)
-      all.push(this)
-    }
-  }
-}
-
-async function axe(page: Page) {
-  const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze()
-  expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([])
-}
-
-/** Pirikoo's suggestions float over the bottom corner; this test is about the call, so they are turned off when they show. */
-async function quietPirikoo(page: Page) {
-  await page.addLocatorHandler(page.locator('.pkl__tip:not([hidden])'), async () => {
-    await page.locator('.pkl__off').click()
-  })
-}
-
-/** CSP violations reported by any page of the test. */
-function watchCsp(page: Page, into: string[]) {
-  page.on('console', (m) => {
-    if (/Content Security Policy|Refused to (connect|load|execute|apply)/i.test(m.text())) into.push(m.text())
-  })
-}
-
-async function createCircle(page: Page, locale: 'en' | 'ar') {
-  return page.evaluate(async (lng) => {
-    await fetch('/api/auth/csrf', { credentials: 'same-origin' })
-    const token = decodeURIComponent(document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))!.slice('XSRF-TOKEN='.length))
-    const res = await fetch('/api/circles', {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': token },
-      body: JSON.stringify({ name: lng === 'ar' ? 'اجتماع الفريق' : 'Team call', activities: ['canvas', 'quick-question'], character: 'panda', locale: lng }),
-    })
-    const body = (await res.json()) as { id: string; joinCode: string }
-    const view = (await (await fetch(`/api/circles/${body.id}`, { credentials: 'same-origin' })).json()) as { me: { id: string } }
-    return { id: body.id, code: body.joinCode, me: view.me.id }
-  }, locale)
-}
-
-async function guest(browser: Browser, code: string, i: number, locale: 'en' | 'ar', phone: boolean, csp: string[]) {
-  const g = GUESTS[i % GUESTS.length]!
-  const ctx = await browser.newContext({
-    locale: locale === 'ar' ? 'ar-MA' : 'en-GB',
-    permissions: ['camera', 'microphone'],
-    ...(phone ? { viewport: { width: 412, height: 839 }, isMobile: true, hasTouch: true } : { viewport: { width: 1280, height: 720 } }),
-  })
-  await ctx.addInitScript(trackPeerConnections)
-  const page = await ctx.newPage()
-  watchCsp(page, csp)
-  await quietPirikoo(page)
-  await page.goto(`/join/${code}`)
-  await page.locator('input[name=name]').fill(`${locale === 'ar' ? g.ar : g.en}${i >= GUESTS.length ? ` ${i}` : ''}`)
-  await page.locator(`.pick__item:has(input[value=${g.character}])`).click()
-  // The ring picker shows when the character is already used.
-  const ring = page.locator('.rings__item.is-picked')
-  if (await ring.count()) await ring.click()
-  await page.locator('form button[type=submit]').click()
-  // Many pages with cameras on load this machine: the join gets more time than the default.
-  await expect(page).toHaveURL(/\/c\/[0-9a-f-]+$/, { timeout: 20_000 })
-  const id = await page.evaluate(async () => {
-    const circle = location.pathname.split('/').pop()
-    return ((await (await fetch(`/api/circles/${circle}`, { credentials: 'same-origin' })).json()) as { me: { id: string } }).me.id
-  })
-  return { page, id, name: locale === 'ar' ? g.ar : g.en }
-}
-
-/** Opens the Call tab, from the rail, the phone's pill or the open sidebar. */
-async function openCallTab(page: Page) {
-  const side = page.locator('[data-slot="room-side"]')
-  const rail = side.locator('.room-side__rail-btn[data-tab="call"]')
-  const pill = side.locator('.room-side__handle:not(.room-side__rail-btn)')
-  if (await rail.isVisible()) await rail.click()
-  else if (await pill.isVisible()) await pill.click()
-  await side.locator('.room-side__tab[aria-controls$="-panel-call"]').click()
-  return side
-}
-
-/** Taps Join call and returns how long until the first audio packets arrive (SC-903). */
-async function joinAndHear(page: Page) {
-  const side = await openCallTab(page)
-  const started = Date.now()
-  await side.locator('.call__join').click()
-  await expect.poll(() => audioPackets(page), { timeout: 10_000, intervals: [50] }).toBeGreaterThan(0)
-  return Date.now() - started
-}
-
-function audioPackets(page: Page) {
-  return page.evaluate(async () => {
-    let n = 0
-    for (const pc of (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs) {
-      if (pc.connectionState === 'closed') continue
-      ;(await pc.getStats()).forEach((s: { type: string; kind?: string; packetsReceived?: number }) => {
-        if (s.type === 'inbound-rtp' && s.kind === 'audio') n += s.packetsReceived ?? 0
-      })
-    }
-    return n
-  })
-}
-
-/** How many videos this page decodes: inbound video whose decoded frames grow over 3 s (research R32). */
-async function decodedVideos(page: Page) {
-  const frames = () =>
-    page.evaluate(async () => {
-      const out: Record<string, number> = {}
-      const pcs = (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs
-      for (const [i, pc] of pcs.entries()) {
-        if (pc.connectionState === 'closed') continue
-        ;(await pc.getStats()).forEach((s: { type: string; kind?: string; id: string; framesDecoded?: number }) => {
-          if (s.type === 'inbound-rtp' && s.kind === 'video') out[`${i}:${s.id}`] = s.framesDecoded ?? 0
-        })
-      }
-      return out
-    })
-  const before = await frames()
-  await page.waitForTimeout(3000)
-  const after = await frames()
-  return Object.entries(after).filter(([id, n]) => n > (before[id] ?? 0)).length
-}
 
 test.describe('call', () => {
   test('call: join and hear, speaking, characters for cameras off, leave, the audience screen (spec 009 US2)', async ({ page, browser }, info) => {
@@ -216,10 +41,10 @@ test.describe('call', () => {
     await expect(aminaSide.locator('.call__state')).toHaveText(ar ? 'لا توجد مكالمة الآن.' : 'No call right now.')
     await expect(aminaSide.locator('.call__join')).toHaveCount(0)
 
-    // The animator starts a video call (the switch of T906 until T926), joins and switches the microphone on.
+    // The animator starts a video call with the Video call switch, joins and switches the microphone on.
     const side = await openCallTab(page)
-    await side.getByRole('switch').click()
-    await expect(side.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
+    await side.locator('[data-switch="video"]').click()
+    await expect(side.locator('[data-switch="video"]')).toHaveAttribute('aria-checked', 'true')
     await side.locator('.call__join').click()
     await expect(page.locator('.call-bar__device')).toHaveCount(2)
     const mic = page.locator('.call-bar__device').first()
@@ -293,8 +118,8 @@ test.describe('call', () => {
     const circle = await createCircle(page, locale)
     await page.goto(`/app/circles/${circle.id}`)
     const side = await openCallTab(page)
-    await side.getByRole('switch').click()
-    await expect(side.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
+    await side.locator('[data-switch="video"]').click()
+    await expect(side.locator('[data-switch="video"]')).toHaveAttribute('aria-checked', 'true')
     await side.locator('.call__join').click()
     await expect(page.locator('.call-bar__device')).toHaveCount(2)
 
@@ -336,5 +161,237 @@ test.describe('call', () => {
     expect(await page.evaluate(() => (window as unknown as { __pcs: RTCPeerConnection[] }).__pcs.every((pc) => pc.connectionState === 'closed'))).toBe(true)
     expect(csp).toEqual([])
     for (const g of guests) await g.page.context().close()
+  })
+})
+
+/** The app's own words in the test's language, so notices are checked as people read them. */
+function words(locale: 'en' | 'ar') {
+  const all = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8')) as {
+    circles: { call: { audioOn: string; videoOn: string; mode: Record<string, string>; notices: Record<string, string>; errors: Record<string, string> } }
+  }
+  return all.circles.call
+}
+
+const LIVEKIT_UMD = fileURLToPath(new URL('../node_modules/livekit-client/dist/livekit-client.umd.js', import.meta.url))
+
+test.describe('controls', () => {
+  test('controls: every switch and action from the animator; a participant has none and is refused (spec 009 US1, US3)', async ({ page, browser }, info) => {
+    test.setTimeout(300_000)
+    const locale = localeOf(info)
+    const w = words(locale)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    watchCsp(page, csp)
+    await quietPirikoo(page)
+    await signIn(page, locale, 'e2e-controls')
+    const circle = await createCircle(page, locale)
+    const amina = await guest(browser, circle.code, 0, locale, phone, csp)
+    const theo = await guest(browser, circle.code, 1, locale, phone, csp)
+    await page.goto(`/app/circles/${circle.id}`)
+    await expect(page.locator('.people__row.is-online')).toHaveCount(3)
+
+    // A participant sees no control, and every request they craft is refused.
+    const aminaSide = await openCallTab(amina.page)
+    await expect(aminaSide.locator('.call__state')).toBeVisible()
+    await expect(aminaSide.locator('[data-switch], .call__mode-seg, .person-menu__trigger')).toHaveCount(0)
+    expect(await hubCall(amina.page, circle.id, 'EnableDiscussion', [true, 'open'])).toContain('animator-only')
+    expect(await hubCall(amina.page, circle.id, 'SetRoomSettings', [{ chat: 'paused', reactions: true, pirikooQuiet: false }])).toContain('animator-only')
+
+    // Chat off: people can no longer write (the server says so); on again.
+    const side = await openCallTab(page)
+    const chat = side.locator('[data-switch="chat"]')
+    const audio = side.locator('[data-switch="audio"]')
+    const video = side.locator('[data-switch="video"]')
+    await expect(chat).toHaveAttribute('aria-checked', 'true')
+    await chat.click()
+    await expect(chat).toHaveAttribute('aria-checked', 'false')
+    expect(await hubCall(amina.page, circle.id, 'Say', ['Bonjour'])).toContain('chat-paused')
+    await chat.click()
+    await expect(chat).toHaveAttribute('aria-checked', 'true')
+
+    // Audio call, then video: everyone reads it, and the mode in plain words. Nobody joins by themselves.
+    await audio.click()
+    await expect(audio).toHaveAttribute('aria-checked', 'true')
+    await expect(video).toHaveAttribute('aria-checked', 'false')
+    await expect(aminaSide.locator('.call__state')).toHaveText(w.audioOn)
+    await expect(aminaSide.locator('.call__mode')).toHaveText(w.mode.handWords!)
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['call-started']!)
+    await video.click()
+    await expect(video).toHaveAttribute('aria-checked', 'true')
+    await expect(aminaSide.locator('.call__state')).toHaveText(w.videoOn)
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['video-on']!)
+    await expect(amina.page.locator('.call-bar')).toHaveCount(0)
+    await axe(page)
+
+    await side.locator('.call__join').click()
+    await expect(page.locator('.call-bar__device')).toHaveCount(2)
+    for (const g of [amina, theo]) {
+      await (await openCallTab(g.page)).locator('.call__join').click()
+      await expect(g.page.locator('.call-bar__device')).toHaveCount(2)
+    }
+    const tile = (id: string) => page.locator(`.call-tile[data-member="${id}"]`)
+    await expect(tile(amina.id)).toBeVisible()
+    await expect(tile(theo.id)).toBeVisible()
+    // No menu on the animator's own tile.
+    await expect(tile(circle.me).locator('.person-menu__trigger')).toHaveCount(0)
+    const menu = page.locator('.person-menu')
+    const act = async (trigger: ReturnType<Page['locator']>, action: string) => {
+      await trigger.click()
+      await menu.locator(`[data-action="${action}"]`).click()
+      await expect(menu).toHaveCount(0)
+    }
+    const onTile = (id: string) => tile(id).locator('.person-menu__trigger')
+
+    // Hand to speak: no microphone without the floor. The floor goes to a raised hand, from the tile's menu, and back.
+    const aminaMic = amina.page.locator('.call-bar__device').first()
+    await expect(aminaMic).toHaveAttribute('aria-disabled', 'true')
+    expect(await hubCall(amina.page, circle.id, 'RaiseHand', [], true)).toBeNull()
+    await act(onTile(amina.id), 'give')
+    await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['floor-given']!)
+    await expect(tile(amina.id).locator('.call-tile__floor')).toBeVisible()
+    await aminaMic.click()
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
+    await act(onTile(amina.id), 'take')
+    await expect(aminaMic).toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+
+    // Open mic: anyone may speak; Mute everyone switches microphones off once and locks nothing.
+    await openCallTab(page)
+    const open = side.locator('.call__mode-seg .seg__opt').nth(1)
+    await open.click()
+    await expect(open).toHaveAttribute('aria-pressed', 'true')
+    await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['mode-open']!)
+    await aminaMic.click()
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
+    await side.locator('.call__mute-all').click()
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+    await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['muted-everyone']!)
+
+    // One person's microphone, from the people list this time: off, then allowed again without switching it on.
+    await aminaMic.click()
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'true')
+    const inList = (id: string) => side.locator(`.call__people [data-member-menu="${id}"]`)
+    await openCallTab(page)
+    await act(inList(amina.id), 'mute-mic')
+    await expect(aminaMic).toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['mic-muted']!)
+    await openCallTab(page)
+    await act(inList(amina.id), 'allow-mic')
+    await expect(aminaMic).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaMic).toHaveAttribute('aria-pressed', 'false')
+
+    // Her camera, from her tile.
+    const aminaCam = amina.page.locator('.call-bar__device').nth(1)
+    await aminaCam.click()
+    await expect(aminaCam).toHaveAttribute('aria-pressed', 'true')
+    await expect(tile(amina.id).locator('video')).toBeVisible({ timeout: 10_000 })
+    await act(onTile(amina.id), 'stop-camera')
+    await expect(aminaCam).toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaCam).toHaveAttribute('aria-pressed', 'false')
+    await expect(tile(amina.id).locator('video')).toHaveCount(0)
+    await act(onTile(amina.id), 'allow-camera')
+    await expect(aminaCam).not.toHaveAttribute('aria-disabled', 'true')
+    await expect(aminaCam).toHaveAttribute('aria-pressed', 'false')
+
+    // Video off: every camera stops within 2 s and the call goes on with voices.
+    const theoCam = theo.page.locator('.call-bar__device').nth(1)
+    await theoCam.click()
+    await expect(theoCam).toHaveAttribute('aria-pressed', 'true')
+    await expect(theo.page.locator('.call-stage video')).toHaveCount(1, { timeout: 10_000 })
+    await openCallTab(page)
+    const off = Date.now()
+    await video.click()
+    await expect(theo.page.locator('.call-stage video')).toHaveCount(0, { timeout: 2_000 })
+    console.log(`video off to cameras stopped: ${Date.now() - off} ms`)
+    await expect(theo.page.locator('.call-bar__device')).toHaveCount(1)
+    await expect(audio).toHaveAttribute('aria-checked', 'true')
+    await expect(theo.page.locator('.call-bar')).toBeVisible()
+
+    // Removal, from the people list: out at once, a rejoin is refused, then allowed back by the animator.
+    await openCallTab(page)
+    await inList(theo.id).click()
+    await menu.locator('[data-action="remove"]').click()
+    await expect(menu.locator('[data-cancel]')).toBeFocused()
+    await axe(page)
+    await menu.locator('[data-confirm]').click()
+    await expect(theo.page.locator('.call-bar')).toHaveCount(0, { timeout: 2_000 })
+    await expect(theo.page.locator('.call-notice__text')).toHaveText(w.notices.removed!)
+    const theoSide = await openCallTab(theo.page)
+    await theoSide.locator('.call__join').click()
+    await expect(theoSide.locator('.call__now .field__error')).toHaveText(w.errors['removed-from-call']!)
+    await expect(side.locator('.call__removed')).toContainText(theo.name)
+    await side.locator('.call__allow-back').click()
+    await expect(side.locator('.call__removed')).toHaveCount(0)
+    await expect(theo.page.locator('.call-notice__text')).toHaveText(w.notices['allowed-back']!)
+    await theoSide.locator('.call__join').click()
+    await expect(theo.page.locator('.call-bar__device')).toHaveCount(1)
+    await axe(amina.page)
+
+    // The Audio call switch ends it for everyone.
+    await audio.click()
+    await expect(audio).toHaveAttribute('aria-checked', 'false')
+    await expect(amina.page.locator('.call-bar')).toHaveCount(0, { timeout: 2_000 })
+    await expect(amina.page.locator('.call-notice__text')).toHaveText(w.notices['call-ended']!)
+    await closeHubCalls(amina.page)
+    expect(csp).toEqual([])
+    for (const g of [amina, theo]) await g.page.context().close()
+  })
+
+  test('controls: Hand to speak holds against a modified client with a real pass (research R22)', async ({ page, browser }, info) => {
+    test.setTimeout(180_000)
+    const locale = localeOf(info)
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    await quietPirikoo(page)
+    await signIn(page, locale, 'e2e-controls-r22')
+    const circle = await createCircle(page, locale)
+    await page.goto(`/app/circles/${circle.id}`)
+    const side = await openCallTab(page)
+    await side.locator('[data-switch="video"]').click()
+    await expect(side.locator('[data-switch="video"]')).toHaveAttribute('aria-checked', 'true')
+    await side.locator('.call__join').click()
+    await expect(page.locator('.call-bar__device')).toHaveCount(2)
+
+    // Youssef never taps anything: a script takes his real pass, connects, claims every right and publishes audio.
+    const rogue = await guest(browser, circle.code, 3, locale, phone, csp, { bypassCSP: true })
+    await rogue.page.addScriptTag({ path: LIVEKIT_UMD })
+    const result = await rogue.page.evaluate(async (circleId) => {
+      await fetch('/api/auth/csrf', { credentials: 'same-origin' })
+      const token = decodeURIComponent(document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))!.slice('XSRF-TOKEN='.length))
+      const res = await fetch(`/api/circles/${circleId}/call/token`, { method: 'POST', credentials: 'same-origin', headers: { 'X-XSRF-TOKEN': token } })
+      const pass = (await res.json()) as { url: string; token: string; canSpeak: boolean }
+      type Lk = {
+        Room: new () => {
+          connect(url: string, token: string): Promise<void>
+          localParticipant: { permissions?: Record<string, unknown>; publishTrack(track: unknown): Promise<unknown> }
+        }
+        createLocalAudioTrack(): Promise<unknown>
+      }
+      const lk = (window as unknown as { LivekitClient: Lk }).LivekitClient
+      const room = new lk.Room()
+      await room.connect(pass.url, pass.token)
+      room.localParticipant.permissions = { ...room.localParticipant.permissions, canPublish: true, canPublishSources: [] }
+      const track = await lk.createLocalAudioTrack()
+      let outcome = 'published'
+      try {
+        await Promise.race([room.localParticipant.publishTrack(track), new Promise((_, reject) => setTimeout(() => reject(new Error('no answer')), 15_000))])
+      } catch (e) {
+        outcome = `refused: ${e instanceof Error ? e.message : String(e)}`
+      }
+      Object.assign(window, { __rogue: room })
+      return { canSpeak: pass.canSpeak, outcome }
+    }, circle.id)
+    console.log(`modified client: ${result.outcome}`)
+    expect(result.canSpeak).toBe(false)
+    expect(result.outcome).not.toBe('published')
+    // The animator sees him in the call with his microphone off: nothing of his reaches anyone.
+    await expect(page.locator(`.call-tile[data-member="${rogue.id}"]`)).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator(`.call-tile[data-member="${rogue.id}"] .call-tile__mic`)).toBeVisible()
+    await rogue.page.context().close()
   })
 })

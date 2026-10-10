@@ -182,7 +182,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T923, T920 and spec 008 T804 (merged).
 
-- [ ] T926 [US1] [US3] [UI] **Animator controls: three switches, speaking mode, person menu.** `/impeccable shape call-controls` first (or manual), then:
+- [x] T926 [US1] [US3] [UI] **Animator controls: three switches, speaking mode, person menu.** (#266) `/impeccable shape call-controls` first (or manual), then:
   - `DiscussionSwitch.tsx` becomes the three switches: Chat (spec 008 `SetRoomSettings`, paused means off), Audio call, Video call (start, switch video, end), and the speaking mode (Hand to speak or Open mic) before and during the call; "Group calls are not available here" when `available` is false.
   - `PersonMenu.tsx` on a tile and in the people list: give the floor, take it (lower hand), mute microphone, stop camera, allow, remove from call, allow back. Mute everyone (Open mic). Errors translated, including `try-again`.
   - Participant side: the current mode in plain words; in Hand to speak the microphone button is replaced by Raise hand; kind notices for every `CallNotice` to the person.
