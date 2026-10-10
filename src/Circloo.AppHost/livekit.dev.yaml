@@ -1,0 +1,25 @@
+# Local LiveKit call server (spec 009, research R30). Zero cost: a container on this machine.
+# The AppHost fills the node IP and webhook URL placeholders below and passes this body as LIVEKIT_CONFIG (no file mounted).
+# Keys come from LIVEKIT_KEYS ("circloo-dev: <secret>", the generated livekit-secret parameter), never from this file.
+# No TURN, no egress, no ingress, no SIP: media is never recorded (SC-906, checked by CallServerConfigTests).
+port: 7880
+bind_addresses:
+  - 0.0.0.0
+rtc:
+  tcp_port: 7881
+  # One UDP port for all media (mux), so a single fixed port is published.
+  udp_port: 7882
+  # The address the browser is told to send media to. livekit-node-ip sets it to the LAN address for phone tests.
+  node_ip: "${NODE_IP}"
+  use_external_ip: false
+room:
+  # Only the API opens rooms, with its own limits (research R21).
+  auto_create: false
+  # The server can mute a microphone but never switch one on (FR-908).
+  enable_remote_unmute: false
+webhook:
+  api_key: circloo-dev
+  urls:
+    - "${WEBHOOK_URL}"
+logging:
+  level: info
