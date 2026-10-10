@@ -169,7 +169,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
   Depends on T919 (contract) and T920 (hub events). Can start against the contract with fakes.
 
-- [ ] T924 **Remove the mesh.** Delete `mesh.ts`, `link.ts`, `fakes.ts` and their tests; `fetchIce`, `IceConfig`, `Seat`, `StageView`, `SignalKind`, `StageNoticeKind` and recording types in `src/web/src/api/*.ts`; any leftover `Discussion:IceUrls` use; the CSP or docs lines about public STUN. `npx tsc -b`, lint and Vitest stay green. Research R27.
+- [x] T924 **Remove the mesh.** Delete `mesh.ts`, `link.ts`, `fakes.ts` and their tests; `fetchIce`, `IceConfig`, `Seat`, `StageView`, `SignalKind`, `StageNoticeKind` and recording types in `src/web/src/api/*.ts`; any leftover `Discussion:IceUrls` use; the CSP or docs lines about public STUN. `npx tsc -b`, lint and Vitest stay green. Research R27.
 
   Depends on T923.
 
