@@ -63,3 +63,43 @@ A connector framework with OAuth per organization: Microsoft 365/Teams (Graph), 
 
 ## Domain model (initial)
 `User`, `OtpChallenge`, `UserSession`, `AuditEvent`, `EmailOutbox`, then `Organization`, `IdentityProvider`, `Circle` (kind: friends|family|team), `Membership`, `Invite`, `CheckIn`, `Reaction`, `Board`, `Spark`. Group calls store only their settings on `Circle` (`DiscussionOn`, `DiscussionVideo`, `DiscussionSpeaking`); nothing about a call itself is stored (spec 009).
+
+## Group calls: final limits and measured numbers
+Spec 009 (#212). The settings are in "Infrastructure" above and in `specs/009-live-discussion-stage/data-model.md`. This section holds the limits the code ships with and what was measured.
+
+**Limits**
+- **Call size**: the whole circle, `Circles__MaxPeople` (default 100), passed to LiveKit as the room's `max_participants`. Targets: 100 listening with up to 6 speaking (SC-910), 25 with cameras on (SC-911). Not load-tested yet (T929).
+- **Tiles**: 9 video tiles per page on a computer, 4 on a phone, the active speaker always on screen. A device decodes at most the tiles it shows plus one.
+- **Video quality**: cameras capture at 720p on a computer and 540p on a phone, with simulcast layers. On a phone-sized screen every remote camera is capped at the 360p layer and adaptive stream uses a pixel density of 1 (#278).
+- **Speaker detection**: LiveKit `audio.update_interval` 400 ms and `smooth_intervals` 2 (its defaults, written out). Shorter windows made the highlight flicker between words (#276). A muted microphone ends the highlight on the client at once.
+- **Call passes**: 5 minutes (`LiveKit__TokenMinutes`, 1 to 30), at most 10 per member per minute. Animator actions: at most 30 per 10 seconds per member.
+- **Animator away**: the call ends 300 s after the animator's last tab closes (`Discussion__AwayEndSeconds`, 60 to 3600).
+- **Reactions**: grouped in 400 ms bursts, at most 12 emoji moving at once, a still count with reduced motion.
+
+**Measured locally**
+These numbers are **local**: LiveKit v1.13.7 in Podman on the development laptop, Chromium with fake devices, 4 pages, one Playwright worker. They come from the last full run of the T928 "measurements" suite, after the fixes #275 to #278 (2026-10-09). The en column is a laptop (1280 px), the ar column a Pixel 7 in Arabic. Every target was met on both.
+
+| Criterion | Measured | Target | en, laptop | ar, phone |
+|---|---|---|---|---|
+| SC-903 | join to first audio, median of 20 | ≤ 2000 ms | 397 ms | 404 ms |
+| SC-903 | join to first audio, p95 of 20 | ≤ 4000 ms | 1022 ms | 886 ms |
+| R32 | audio concealed, last join | info | 0.00 % | 0.00 % |
+| SC-912 | videos decoded per page | ≤ shown + 1 | shown + 0 | shown + 0 |
+| SC-912 | tallest frame received | about 360p on a phone | 180p | 360p |
+| SC-913 | floor given, slowest page | ≤ 1000 ms | 248 ms | 259 ms |
+| SC-913 | speaking highlight on, slowest page | ≤ 1000 ms | 685 ms | 551 ms |
+| SC-913 | speaking highlight off, slowest page | ≤ 1000 ms | 103 ms | 82 ms |
+| SC-913 | microphone muted, slowest page | ≤ 1000 ms | 277 ms | 261 ms |
+| SC-913 | floor taken, slowest page | ≤ 1000 ms | 143 ms | 133 ms |
+| SC-913 | camera stopped, slowest page | ≤ 1000 ms | 309 ms | 270 ms |
+| SC-913 | removed from the call, slowest page | ≤ 1000 ms | 147 ms | 86 ms |
+| SC-913 | video switched off, slowest page | ≤ 2000 ms | 260 ms | 253 ms |
+| SC-916 | UDP blocked, join over ICE/TCP, slowest of 5 | ≤ 6000 ms | 1422 ms | 967 ms |
+| SC-906 | rows about the calls, every table compared | chat and audited changes only | met | met |
+
+Run them with `E2E_CALL_PEERS=4 npx playwright test e2e/call.spec.ts -g "measurements" --workers=1` (quickstart A). A laptop with about 4 GB free cannot run 12 pages.
+
+**Pending**
+- **Azure**: the deployed call server's numbers (TURN/TLS on 443 for SC-903 and SC-916, CPU for SC-910 and SC-911, packet loss for SC-914) wait for the call server's deployment (#257) and the load test (T929).
+- **Real devices**: the two reference phones and battery use (SC-915) and an office network that allows only 443 (quickstart C).
+- **SC-909**: one session with 5 to 10 people. No result is claimed before it is run.

@@ -25,6 +25,7 @@ Product truth (users, purpose, principles) lives in [`/PRODUCT.md`](../../PRODUC
 - Invite **by email** (an email with a join link is sent).
 - Invite **without email**: a shareable link or a short code (QR too) with expiry and a max-uses limit. The invitee joins with just a display name and can attach an email later to keep access across devices.
 - Owners/admins can revoke invites and remove members.
+- *Note (spec 009, group calls)*: in a live room the circle's **animator** runs the call. Only the animator switches chat, the audio call and the video call, picks the speaking mode (Open mic or Hand to speak, the default), gives and takes the floor, mutes a microphone, stops a camera and removes someone from the call (they stay in the circle and its chat). The server checks the role on every request. Members join a call by their own choice. Calls allowed per organization would be configuration (E6), not built yet.
 
 ### E3: Daily check-in (mood and motivation)
 - A one-tap mood plus optional note and "need", once a day per circle (editable that day).
@@ -37,6 +38,7 @@ Product truth (users, purpose, principles) lives in [`/PRODUCT.md`](../../PRODUC
 - Sticky notes with colours, columns, drag and drop, dot voting, a timer, presence (live cursors and avatars).
 - Real-time sync via Azure Web PubSub. Works on mobile (read and add notes) and desktop (full editing).
 - Export a board as an image or Markdown.
+- *Note (spec 009, group calls)*: live activities include **audio and video calls for the whole circle**, beside the board, the chat, raised hands and emoji reactions. Media goes through circloo's own call server (self-hosted LiveKit), is never recorded, and nothing about a call is stored: **only chat is saved**. In Hand to speak the floor also grants the microphone, enforced by the call server. Computers show 9 video tiles a page and phones 4, the active speaker always on screen. The call works from the keyboard and with a screen reader in the four languages.
 
 ### E5: Fun: icebreakers and jokes
 - "Spark of the day" on the circle home page; a "start a meeting" button that shows an icebreaker.
