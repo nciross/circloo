@@ -1,283 +1,323 @@
 ---
 
-description: "Tasks for the live discussion stage (spec 009)"
+description: "Tasks for the live discussion: group calls (spec 009, amended 2026-10-08)"
 ---
 
-# Tasks: Live discussion: stage with audio and video, raised hands and a text-only session record
+# Tasks: Live discussion: group audio and video calls with chat, raised hands and emoji
 
 **Input**: Design documents from `specs/009-live-discussion-stage/`: plan, spec, research, data-model, contracts and quickstart.
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/hub.md, contracts/rest.md
 
-**Tests**: required by the constitution (VI). Every task ships its API tests (xUnit + Testcontainers) in `tests/Circloo.Api.Tests/Discussion/`. UI tasks also ship their Playwright journey in `en` (desktop) and `ar` (phone) with axe, in one file, `src/web/e2e/discussion.spec.ts` (one `describe` per task, to keep merges trivial), using `--use-fake-device-for-media-stream`.
+**Amended 2026-10-08.** The founder moved calls to a self-hosted LiveKit call server and dropped recording. Done tasks stay as history. New tasks continue at T916. The table "Existing task issues" says what happens to #216 to #230.
 
-**Organization**: one task = one GitHub task issue = one PR (repo convention). IDs use the 9xx range of this spec. Paths follow plan.md: API in `src/Circloo.Api`, tests in `tests/Circloo.Api.Tests`, web in `src/web`.
+**Tests**: required by the constitution (VI). Every task ships its API tests (xUnit + Testcontainers) in `tests/Circloo.Api.Tests/Discussion/`. UI tasks also ship their Playwright journey in `en` (desktop) and `ar` (phone) with axe, in one file, `src/web/e2e/call.spec.ts` (one `describe` per task), with fake media devices against the AppHost's LiveKit.
 
-**Spec 008 prerequisites** (state on 2026-10-05: only T801 to T803 are merged): T902 needs T809 (hands hub), T906 needs T804 (sidebar) and T810 (hands UI), T908 needs T805 (chat hub), T909 needs T806 (chat UI). Do not start a task before its 008 prerequisite is merged.
+**Organization**: one task = one GitHub task issue = one PR. IDs use the 9xx range of this spec.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: can run in parallel with the other [P] tasks of the same phase (different files, no dependency)
-- **[Story]**: user story from spec.md (US1 to US7)
-- **[UI]**: touches the interface. It needs the **ux-designer** (Impeccable is not installed, #126: manual review against `docs/design/anti-ai-look.md` and WCAG 2.2 AA, recorded in the PR with the skipped Impeccable steps from plan.md "Impeccable runs per UI task").
+- **[Story]**: user story from spec.md (US1 to US8; US6 is removed)
+- **[UI]**: touches the interface; needs the **ux-designer** (Impeccable, or the manual review when it cannot run, #126)
+- **[infra]**: needs the **azure-infra** agent
+
+## Existing task issues (#216 to #230)
+
+| Task | Issue | Status | What happens |
+|---|---|---|---|
+| T901 Foundation and the switch (API) | #216 | **Done** (closed, PR #231) | History. Its switch is reused as the call switch; T918 removes what it added for recording |
+| T902 Stage hub: hands, floor and seats | #217 | **Superseded** | Close as superseded by T919, T920 and T921 (no stage, no seats; permissions on the call server) |
+| T903 Time rules: seat grace, invitations, animator away | #218 | **Superseded** | Close as superseded by T922 (only "animator away ends the call" remains; seats and invitations are gone) |
+| T904 Signalling hub and ICE servers | #219 | **Superseded** | Close as superseded by T919 (call pass) and LiveKit's own ICE/TURN (research R28) |
+| T905 Client mesh manager | #220 | **Done** (closed, PR #233) | History. Its mesh is deleted by T924; `media.ts` and the store shell are kept |
+| T906 Stage UI | #221 | **Superseded** | Close as superseded by T925 (call UI) and T926 (animator controls) |
+| T907 Camera and microphone permission UX and fallbacks | #222 | **Changed** | Keep the issue; update its body to the new T907 below (LiveKit errors, TCP/TLS fallback, reconnecting, new primer text) |
+| T908 Replies and system lines (API) | #223 | **Changed** | Keep the issue; update its body to the new T908 below (replies stay; call lines are live, not stored). Branch `feat/223-replies-system-lines` exists without a PR and needs the change |
+| T909 Conversation UI: threads and system lines | #224 | **Changed** | Keep the issue; update its body to the new T909 below (live call lines from `CallNotice`) |
+| T910 Recording hub and persistence | #225 | **Dropped** (closed) | Nothing to do. Its tables are dropped by T918 |
+| T911 Recording indicator and notice | #226 | **Dropped** (closed) | Nothing to do |
+| T912 Transcript API | #227 | **Dropped** (closed) | Nothing to do |
+| T913 Transcript view | #228 | **Dropped** (closed) | Nothing to do |
+| T914 Accessibility and i18n pass | #229 | **Changed** | Keep the issue; update its body to the new T914 below (call surfaces, no recording) |
+| T915 Journey, docs and audit | #230 | **Changed** | Keep the issue; update its body to the new T915 below (real devices on the deployed call server, perf results) |
+
+Task issues for T916 to T929 are published from this list. T930 was added after the founder's answers of 2026-10-08 and needs its own issue. Issue edits and closures are Nicolas's or the issue-planner's job, not part of this docs change.
+
+---
+
+## Done (history, 2026-10-05 plan)
+
+- [x] T901 [US1] **Foundation and the switch (API).** Migration `LiveDiscussionStage` (`Circle.DiscussionOn`, `DiscussionVideo`, `DiscussionChangedAt`, `DiscussionChangedByMemberId`, `CircleMessage.ReplyToId`, `Recordings`, `RecordingEvents`), `DiscussionOptions`, `DiscussionRules`, `EnableDiscussion(bool)` and `DisableDiscussion()` with refusal audits, `Discussion` pushed on `Enter`, `Permissions-Policy` on room routes, `Discussion__IceUrls__0` blank in the AppHost. (#216, PR #231)
+- [x] T905 [US4] **Client mesh manager (no visible UI).** `stage.ts`, `mesh.ts`, `link.ts`, `media.ts`, `fakes.ts` and their Vitest tests. (#220, PR #233)
+
+## Dropped (2026-10-08)
+
+- ~~T910 Recording hub and persistence~~ (#225), ~~T911 Recording indicator and notice~~ (#226), ~~T912 Transcript API~~ (#227), ~~T913 Transcript view, export and delete~~ (#228). User Story 6 is removed.
+
+## Superseded (2026-10-08)
+
+- ~~T902~~ (#217) → T919, T920, T921. ~~T903~~ (#218) → T922. ~~T904~~ (#219) → T919. ~~T906~~ (#221) → T925, T926.
 
 ---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-No setup task: no package, container or Azure resource is added (plan "Technical Context", research R18).
+- [ ] T916 [P] **LiveKit in the AppHost and the test fixture (dev, zero cost).**
+  - `src/Circloo.AppHost/AppHost.cs`: a container `livekit` from `livekit/livekit-server:v1.13.7` (pin noted next to the Gotenberg one), a generated persisted secret parameter `livekit-secret` (at least 32 characters) and a parameter `livekit-node-ip` (default `127.0.0.1`). Configuration in `src/Circloo.AppHost/livekit.dev.yaml`, passed as `LIVEKIT_CONFIG` (YAML body, placeholders filled), and `LIVEKIT_KEYS`, exactly as research R30: ports 7880/7881/7882, `udp_port` mux, `node_ip`, `use_external_ip: false`, `auto_create: false`, `enable_remote_unmute: false`, webhook to the API's endpoint, no TURN, no egress. Endpoints 7880 (http), 7881 (tcp), 7882 (udp) with fixed host ports and `isProxied: false`. The API gets `LiveKit__Url=ws://localhost:7880`, `LiveKit__ApiUrl` (the container endpoint), `LiveKit__ApiKey=circloo-dev`, `LiveKit__ApiSecret` (the parameter). Remove `Discussion__IceUrls__0`.
+  - `tests/Circloo.Api.Tests/Infrastructure/LiveKitFixture.cs`: Testcontainers, same image, `--dev --bind 0.0.0.0`, exposing the HTTP port, shared by the LiveKit tests.
+  - **Docs**: `docs/architecture/overview.md` local topology already lists `livekit`; re-check ports and the parameter names against the code.
+  - **Tests**: the fixture starts and answers `GET /` with 200 (a smoke test in `LiveKitRoomsTests.cs` comes with T919); `tests/Circloo.Api.Tests/Discussion/CallServerConfigTests.cs` asserts `livekit.dev.yaml` has no `egress`, `ingress` or `sip` section and `auto_create` and `enable_remote_unmute` are false (SC-906). T917 adds the production file to the same test.
+  - **Check**: `dotnet run --project src/Circloo.AppHost` with Docker and with Podman starts LiveKit; `curl http://localhost:7880` answers OK.
+
+  Depends on nothing (T901 merged).
+
+- [ ] T917 [P] [infra] **Call server in Azure (azure-infra): one small VM, cheap in dev.** Founder decision D8 (research R23):
+  - `infra/modules/livekit.bicep` called from `infra/modules/app.bicep` only when the new parameter `callsEnabled` is true (**default false in every environment**; `infra/main.bicep` and `infra/main.parameters.json` pass it from `CALLS_ENABLED`). Ubuntu LTS VM, system-assigned identity with Key Vault Secrets User, Standard static public IP with DNS label `lk-<token>`, NSG allowing only 443/tcp, 7881/tcp, 7882/udp, 3478/udp, no SSH from the internet, auto OS security updates.
+  - **Per-environment parameters** (defaults picked from `environmentName` like spec 008 T812, each overridable by an azd variable; table in research R23):
+    - `callsVmSize` (`CALLS_VM_SIZE`): `Standard_B2als_v2` in `prod`, `Standard_B2ats_v2` elsewhere. Check that a 5-person video call runs on B2ats_v2 (CPU and memory noted in the PR); if not, use `Standard_B1ms` as the dev default and say so.
+    - `callsDiskSku` (`CALLS_DISK_SKU`): `StandardSSD_LRS` in `prod`, `Standard_LRS` (Standard HDD, 32 GiB) elsewhere.
+    - `callsTurnTls` (`CALLS_TURN_TLS`): true in `prod` (a second static IP with DNS label `turn-<token>` and TURN/TLS on 443), false elsewhere (one IP, no extra static resource).
+    - `callsShutdownTime` (`CALLS_SHUTDOWN_TIME`): empty in `prod`, `2000` elsewhere, time zone `Romance Standard Time`, as a `Microsoft.DevTestLab/schedules` daily auto-shutdown (deallocates the VM).
+  - **Starting it again**: `scripts/deploy.ps1` and `.sh` run `az vm start` after provisioning when calls are enabled (a deployment does not start a deallocated VM); new `scripts/calls-start.ps1` and `.sh` (`-Environment dev`) start it without a full deploy. Document both in the scripts' help and in `docs/architecture/overview.md`.
+  - `infra/livekit/livekit.yaml` (the LiveKit configuration template, added to `CallServerConfigTests`) and `infra/livekit/cloud-init.yaml`: Docker, the pinned `livekit/livekit-server:v1.13.7` with host networking, Caddy (pinned) terminating TLS for `lk-…` (WebSocket and Twirp to 7880) and, when `callsTurnTls`, for `turn-…` (to LiveKit's TURN with `external_tls: true`), Let's Encrypt certificates, a boot script that reads `livekit-api-secret` from Key Vault through the VM identity (IMDS) into a root-only key file, LiveKit config with `node_ip` = the static IP, `udp_port: 7882`, `tcp_port: 7881`, TURN/UDP on 3478, `auto_create: false`, `enable_remote_unmute: false`, webhook to `https://<web fqdn>/api/livekit/webhook`, logging `warn` with `pion_level: error`, journald retention 3 days. No egress, ingress or SIP.
+  - **Secret**: `scripts/deploy.ps1` and `.sh` generate `LIVEKIT_API_SECRET` into `.azure/<env>/.env` like `AUTH_SECRET`; Bicep stores it as Key Vault secret `livekit-api-secret`; the `web` app gets `LiveKit__ApiSecret` as a secret reference and `LiveKit__Url`, `LiveKit__ApiUrl`, `LiveKit__ApiKey`, `Discussion__AwayEndSeconds` as plain values (only when `callsEnabled`).
+  - **Outputs**: `liveKitUrl`. **Docs**: confirm the env list, the parameters and the "Call server" paragraph in `docs/architecture/overview.md`, with the monthly cost of both profiles from the pricing calculator.
+  - **Checks**: `az bicep build --file infra/main.bicep`; with `callsEnabled` false nothing new is created; deploy a dev environment with `CALLS_ENABLED=true`, join from two networks, let the nightly shutdown run, start it with `scripts/calls-start`, then `scripts/destroy` removes it all.
+
+  Depends on T916 for the config shape. Deployed calls are off until it lands. Merge after T930 if possible, so the constitution already allows the VM.
+
+- [ ] T930 [P] **Constitution amendment for the call server (MINOR).** Founder decision D9. Run `/speckit-constitution` in its own branch, issue and PR (not on a feature branch): version 2.0.0 → 2.1.0; Technology & Infrastructure Constraints gains "Real-time media: a self-hosted LiveKit SFU, one node, never recording"; the "production is one container" line and principle VII name the call server VM as an accepted exception (created only on request, disposable, nightly shutdown outside production); the Sync Impact Report lists spec 009 and `docs/architecture/overview.md`. Then remove the "until the D9 amendment" wording from this plan's Complexity Tracking.
+
+  Depends on nothing. Merge before T917 if possible.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: data, options and the switch that every story builds on.
+- [ ] T918 **Persistence cleanup and options (API).**
+  - Migration `src/Circloo.Api/Data/Migrations/*_GroupCallsLiveKit.cs` per `data-model.md`: drop `RecordingEvents` and `Recordings` (with their indexes and check), drop `Circle.DiscussionChangedAt` and `DiscussionChangedByMemberId`, add `Circle.DiscussionSpeaking` (`varchar(8)`, default `'hand'`, check `IN ('hand','open')`). `Down` restores the previous shape. Entities and `CirclooDbContext.cs` updated (remove `Recording`, `RecordingEvent`).
+  - `src/Circloo.Api/Discussion/DiscussionOptions.cs` trimmed to `AwayEndSeconds`; new `LiveKitOptions.cs` (`Url`, `ApiUrl`, `ApiKey`, `ApiSecret`, `TokenMinutes`), validated at start-up only when `Url` is set (secret at least 32 characters, schemes checked).
+  - `src/Circloo.Api/Discussion/DiscussionRules.cs`: `DiscussionState(On, VideoAllowed, Speaking, Available, Away, AwayEndsAt)`; remove `Seat`, `StageView`, `RecordingState`.
+  - `src/Circloo.Api/Circles/CircleEndpoints.cs` and `src/web/src/api/circles.ts`: circle view `discussion` per `contracts/rest.md`; `recording` removed.
+  - `CircleHub.Discussion.cs`: `EnableDiscussion`/`DisableDiscussion` stop writing `discussion:on`/`off` rows and the `DiscussionChanged*` columns (the hub broadcast stays; `CallNotice` arrives in T920).
+  - **Tests** `tests/Circloo.Api.Tests/Discussion/PersistenceTests.cs`: the migration applies on a database with circles from before (defaults: off, video true, hand); the recording tables are gone; switching on and off writes no `CircleMessages` row; `DiscussionSwitchTests.cs` updated.
 
-- [x] T901 [US1] **Foundation and the switch (API).** Entities, migration, options and the two animator methods, exactly as `data-model.md` and `contracts/hub.md`:
-  - **Migration** `src/Circloo.Api/Data/Migrations/*_LiveDiscussionStage.cs` with entities in `src/Circloo.Api/Data/Entities.cs` and `CirclooDbContext.cs`: `Circle.DiscussionOn` "default false", `DiscussionVideo` "default true", `DiscussionChangedAt`, `DiscussionChangedByMemberId`; `CircleMessage.ReplyToId` "self FK, restrict, indexed"; new `Recording` (unique partial index on `CircleId` where `EndedAt IS NULL`) and `RecordingEvent` (check constraint: text only for `message`; index `(RecordingId, Id)`).
-  - **Options and rules.** `src/Circloo.Api/Discussion/DiscussionOptions.cs` (every `Discussion:*` key of data-model.md with ranges, validated at start-up; blank `IceUrls` entries dropped, schemes checked) and `src/Circloo.Api/Discussion/DiscussionRules.cs` (records `DiscussionState`, `Seat`, `StageView`, `RecordingState`; `VideoAllowed(circle)`). Registered in `src/Circloo.Api/Program.cs`.
-  - **Hub.** New partial `src/Circloo.Api/Circles/CircleHub.Discussion.cs` with `EnableDiscussion(bool videoAllowed)` and `DisableDiscussion()` (animator only, idempotent, audit `discussion.on` / `discussion.off`, persisted system lines, `Discussion` broadcast, deletes the circle's `RaisedHand` rows; the `Hands` broadcast is added by T902 once spec 008 T809 has added that event). `Enter` and `EnterAudience` push `Discussion` to the caller (`ICircleClient` in `CircleHub.cs`). A shared `RefuseAnimatorOnly(method)` helper writes `discussion.refused` (ids only, at most 5 rows per member per minute) and is used by every animator method of this feature. T902 adds the stage clearing and T910 the recording stop to `DisableDiscussion`.
-  - **Circle view.** `src/Circloo.Api/Circles/CircleEndpoints.cs` returns `discussion`, `messages[].replyToId` and `recording: null` (T910 fills it), per `contracts/rest.md`. Types in `src/web/src/api/circles.ts`.
-  - **Permissions-Policy.** `src/Circloo.Api/Security/SecurityHeaders.cs` allows `camera=(self), microphone=(self)` only on `/c/{guid}` and `/app/circles/{guid}`, and keeps `camera=(), microphone=()` on the audience route and everywhere else (R15).
-  - **Local config.** `src/Circloo.AppHost/AppHost.cs` sets `Discussion__IceUrls__0` blank (host candidates only, no internet needed).
-  - **Docs.** `docs/architecture/overview.md` was updated together with this plan (the rule: a plan that changes a decision updates it in the same change); T901 only re-checks it against the code and adds anything the implementation changed. It holds: a stack row "Live discussion media" (WebRTC mesh, signalling over SignalR, no media on servers), the `Discussion__*` settings in the env list (plain settings, no secret, no Bicep change), the `Permissions-Policy` exception in "Security by design", and `Recording`, `RecordingEvent` in the domain model.
-  - **Tests.**
-    - `tests/Circloo.Api.Tests/Discussion/DiscussionHost.cs`: like `LiveRoom/RoomHost.cs`, with a hub helper, a fake-clock tick helper and a log-capture provider.
-    - `tests/Circloo.Api.Tests/Discussion/DiscussionSwitchTests.cs`: off by default; every one of `EnableDiscussion` and `DisableDiscussion` is refused for a participant, a guest, a signed-in non-animator, a non-member and an audience connection (SC-902) with an audit row each; the animator's switch reaches a member within 1 s; the setting survives a new connection; `videoAllowed` can change while on; the migration applies on a database with circles from before (defaults); switching off clears the hands queue and the setting within 2 s (FR-902).
-    - `tests/Circloo.Api.Tests/Discussion/SecurityHeaderTests.cs`: the three header values on the room route, the audience route and `/`.
+  Depends on T901. Coordinate with the open branch of T908 (#223), which also touches `CircleHub.Discussion.cs`: merge one, rebase the other.
 
-  Depends on T801 (merged).
+- [ ] T919 **Call passes: token endpoint, permissions, LiveKit room client, CSP (API).**
+  - `LiveKitTokens.cs` (research R20): join pass and admin token, HS256, `canPublish: false` when no source is allowed.
+  - `CallRules.cs`: the permission table of research R22 as one pure function.
+  - `LiveKitRooms.cs`: `ILiveKitRooms` and a typed `HttpClient` for Twirp JSON (`CreateRoom`, `DeleteRoom`, `ListParticipants`, `GetParticipant`, `UpdateParticipant`, `MutePublishedTrack`, `RemoveParticipant`), 3 s timeout, one retry on 5xx, no payload logging.
+  - `CallEndpoints.cs`: `POST /api/circles/{id}/call/token` exactly per `contracts/rest.md` (checks in order, `CreateRoom`, pass, `no-store`, rate limit `call-token` in `Security/RateLimits.cs`). Mapped in `Program.cs`.
+  - `Security/SecurityHeaders.cs`: `connect-src` gains the call server's `ws(s)` and `http(s)` origins from `LiveKit:Url` (research R29).
+  - **Tests**:
+    - `CallPermissionTests.cs`: every row of the permission table, and the empty-sources rule;
+    - `CallTokenTests.cs`: refused for a non-member, a closed circle, call off, calls unavailable, a removed member, over the limit, without CSRF; the pass carries the right identity, room, expiry and permissions; never appears in logs;
+    - `LiveKitRoomsTests.cs` (with `LiveKitFixture`): a pass validates on `/rtc/validate` and a tampered one does not; `CreateRoom` is idempotent; `DeleteRoom` and `ListParticipants` work;
+    - `SecurityHeaderTests.cs`: the new `connect-src`, unchanged `Permissions-Policy` on the three routes.
 
-**Checkpoint**: the migration applies, existing circles behave as before (SC-901), and the animator can switch discussion on and off.
-
----
-
-## Phase 3: User Story 2 and 3 - Hands, floor and the stage (Priority: P1) 🎯 MVP
-
-**Goal**: raised hands lead to the floor, the stage holds at most 8 senders, the animator controls it (spec US2, US3).
-
-**Independent Test**: three participants raise hands, the animator gives the floor to the first, who joins the stage. The animator mutes, takes the floor and removes people. The stage refuses a ninth. A dropped person loses the seat after 30 s.
-
-- [ ] T902 [US2] [US3] **Stage hub: hands, floor and seats (API).**
-  - `src/Circloo.Api/Discussion/StageRegistry.cs`: singleton, per circle seats (`stage` or `viewer`; `invited`, `onStage`, `reconnecting`), connection ids, `MutedByAnimator`, `AudioOn`, `VideoOn`, animator connections. Fed from `Enter` and `OnDisconnectedAsync` in `src/Circloo.Api/Circles/CircleHub.cs`.
-  - `src/Circloo.Api/Circles/CircleHub.Discussion.cs`: `GiveFloor` discussion branch (extends 008's method in `CircleHub.Room.cs`: hand must be up, `stage-full` counts seats plus invitations, reserves an `invited` seat, deletes the hand), `JoinStage`, `LeaveStage`, `WatchStage`, `StopWatching`, `TakeFloor`, `RemoveFromStage`, `MuteMember`, `AllowUnmute`, `SetMedia`; per-member `RoomLimits` (`stage-join` 6 a minute, `media` 20 per 10 s, `hand` 6 per 10 s on the 008 hand methods, `stage-admin` 30 per 10 s); audits `stage.floor`, `stage.taken`, `stage.removed`, `stage.muted`; persisted system lines; `Stage` coalesced through `LiveThrottle`, `StageNotice` to the affected member. The animator seats themselves with `JoinStage`. `DisableDiscussion` (T901) now clears the registry and broadcasts `Stage` and 008's `Hands`.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/StageHubTests.cs`:
-    - every animator method is refused for a participant, a guest, a non-member and an audience connection;
-    - the floor needs a raised hand, deletes it and invites; the ninth seat gets `stage-full` and a configured cap of 2 is honoured;
-    - a second connection of the same member takes over the seat;
-    - mute forces audio off and `SetMedia(audioOn: true)` is refused until `AllowUnmute`; the server never sets a device on;
-    - `video-not-allowed` when cameras are off (kids-safe path);
-    - remove needs a new hand and floor; leave frees the seat; viewers are capped (`listeners-full`) and never become senders;
-    - rate limits across two tabs of one member;
-    - events: `Stage` and `StageNotice` reach the right connections only; 20 rapid changes produce few `Stage` broadcasts, the last one correct;
-    - a participant cannot read other circles' seats;
-    - with discussion off, every method of this task answers `discussion-off` and sends nothing;
-    - a raised hand reaches the animator's connection within 1 s and the queue order matches the raise order (SC-904).
-
-  Depends on T901 and spec 008 T809.
-- [ ] T903 [US3] **Time rules: seat grace, invitations and animator away (API).**
-  - `src/Circloo.Api/Discussion/DiscussionWatchdog.cs`: a `BackgroundService` that calls `TickAsync(now)` every 5 s over the circles in the registry. Rules: a dropped seat leaves after `SeatGraceSeconds` (30, `stage.left` with reason `dropped`), an invitation expires after `InviteSeconds` (60), the animator-away freeze at `AwayFreezeSeconds` (60) and the end at `AwayEndSeconds` (300: discussion off with reason `animator-away`, stage cleared, `StageNotice('discussion-ended')`, audit). The away clock only starts if the animator had been connected in this room session (R8). `Discussion.away` and `awayEndsAt` are broadcast.
-  - `src/Circloo.Api/Circles/CircleHub.Discussion.cs`: `JoinStage` and `WatchStage` answer `animator-away` for non-animators while frozen.
-  - The recording cap, warning and orphan recovery are added to the same loop by T910.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/WatchdogTests.cs` on `FakeTimeProvider` (`ApiFactory.Clock`), calling `TickAsync` directly: a drop inside 30 s keeps the seat and the person can return; after 30 s it is gone and the next hand is next; an animator back inside 60 s changes nothing; at 60 s the stage freezes and joins are refused but links and hands carry on; at 5 min the discussion ends and the setting is off; a circle where the animator never connected does not end.
-
-  Depends on T902.
-- [ ] T904 [US3] [US4] **Signalling hub and ICE servers (API).**
-  - `Signal(toMemberId, kind, linkId, payload)` in `src/Circloo.Api/Circles/CircleHub.Discussion.cs` exactly per `contracts/hub.md`: same-circle registered seats only (stage and stage, viewer and stage in either direction, never viewer and viewer), sender id from the server, SDP at most 16 KB starting `v=0`, ICE at most 2 KB and valid JSON, limits per member per 10 s of 40 offer/answer and 300 ICE through `RoomLimits`, the single code `signal-refused`, delivery to the target seat's connection only, nothing stored or logged.
-  - `GET /api/circles/{id}/discussion/ice` in `src/Circloo.Api/Discussion/DiscussionEndpoints.cs` (members only, discussion on, `ttlSeconds`, `no-store`), a rate-limit policy in `src/Circloo.Api/Security/RateLimits.cs`, mapped in `src/Circloo.Api/Program.cs`.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/SignalingTests.cs`:
-    - a relay between two seats arrives at the target connection only, with the server's sender id even when the payload claims another;
-    - refused (all as `signal-refused`) to a member who is not seated, to another circle's member, from viewer to viewer, with an oversized or malformed payload, an unknown kind, and over the limits;
-    - the audience screen never receives a `Signal`;
-    - a hostile participant cannot probe whether a member exists;
-    - a marker string put in a payload appears in no log line and no database row (SC-906);
-    - the ICE endpoint refuses non-members and discussion off, and returns the configured list (blank entries dropped).
-
-  Depends on T902.
-
-**Checkpoint**: the server enforces who can sit, speak and signal. No browser media code exists yet.
+  Depends on T916 and T918.
 
 ---
 
-## Phase 4: User Story 4 - Camera and microphone: permissions and fallbacks (Priority: P1)
+## Phase 3: User Story 1 and 3 - Switches, speaking mode, floor and moderation (API, P1) 🎯 MVP
 
-**Goal**: a mesh manager that connects the stage and degrades kindly, then the UI around it (spec US4).
+**Goal**: the server owns every rule of the call (spec US1, US3).
 
-**Independent Test**: with fake devices a person accepts audio only and is heard; another denies permission and still uses chat and hands; a third has no microphone and reads a clear message.
+**Independent Test**: the animator starts a video call in Hand to speak; a participant's pass has no microphone; giving the floor grants it; switching video off removes cameras; removing a member keeps them out.
 
-- [x] T905 [P] [US4] **Client mesh manager (no visible UI).** In `src/web/src/features/circles/stage/`:
-  - `stage.ts`: the zustand store (`discussion`, `seats`, `recording`, `myMedia`, announcements queue) and `bindStage(connection, isCurrent)` binding `Discussion`, `Stage`, `StageNotice`, `Recording`, `RecordingWarning` and `Signal`, hooked up in `src/web/src/features/circles/room.ts` the way `bindPresentation` is. Actions `joinStage`, `leaveStage`, `watchStage`, `setMedia` and the animator ones call the hub through the existing `invoke`.
-  - `mesh.ts`: `MeshManager` opens one `PeerLink` per seat it must talk to (stage to stage, viewers to stage), fetches ICE servers from `GET /api/circles/{id}/discussion/ice` on first use (`src/web/src/api/discussion.ts`), closes links to anyone the `Stage` view no longer lists, and plays a remote person's audio and video only while the server's `Stage` view says on stage, not muted and media on (R4, R7). Bitrate budget per link (R2).
-  - `link.ts`: `PeerLink` with up-front transceivers, the offerer rule (viewer, else smaller member id), `linkId`, `replaceTrack` for mic and camera, one ICE restart, `getStats()` every 3 s for the weak-link rule (video off first, audio stays), and `data-link-state` / `data-receiving` values for the UI.
-  - `media.ts`: feature detection, per-kind `getUserMedia` (640x360 at 24 fps), and the mapping of `NotAllowedError`, `NotFoundError`, `OverconstrainedError`, `NotReadableError`, `AbortError`, `SecurityError` to `denied`, `no-device`, `busy`, `blocked` (R14). No device label is ever sent anywhere.
-  - **Vitest**: `mesh.test.ts` and `link.test.ts` on a fake `RTCPeerConnection` (offerer choice, glare-free, stale `linkId` discarded, links closed when a seat disappears, remote audio gated by the server view, weak link drops video then recovers, ICE restart once), `media.test.ts` (every error mapping, audio-only fallback when the camera fails, no both-at-once request), `stage.test.ts` (store updates, rejoin after a drop).
+- [ ] T920 [US1] [US3] **Switches and speaking mode (API).**
+  - `CallPermissions.cs`: recompute a member's or everyone's permissions with `CallRules` and apply them through `UpdateParticipant` (skip people not in the call).
+  - `CircleHub.Discussion.cs`: `EnableDiscussion(bool videoAllowed, string speaking)` (start: room created; while on: video and mode changes applied to everyone), `DisableDiscussion()` (hands cleared, `DeleteRoom`, moderation cleared), `SetSpeakingMode(string)`, `calls-unavailable` when not configured, `try-again` when the call server fails (nothing kept). Audits `discussion.on`, `discussion.off`, `call.mode`. `CallNotice` events per `contracts/hub.md`.
+  - Closing a circle (`CircleEndpoints.cs` close) ends its call (`DeleteRoom`, audit reason `circle-closed`).
+  - The Chat switch is spec 008's `SetRoomSettings`: no server change; the client wires it in T926.
+  - **Tests** (`DiscussionSwitchTests.cs` extended, with a fake `ILiveKitRooms` recording calls): each method refused for a participant, a guest, a non-member and the audience (SC-902); start creates the room; video off updates every participant without camera; mode change updates microphones and keeps animator mutes; end deletes the room and clears hands within 2 s (FR-902); a call server failure leaves the database unchanged; no `CircleMessages` row is written.
 
-  Depends on T901 (types). Can start before T902 to T904 against the contract and a fake hub; its end-to-end check lands in T906.
-- [ ] T906 [US1] [US2] [US3] [UI] **Stage UI, shaped with the ux-designer.** `/impeccable shape stage` first (or the manual equivalent), then:
-  - `src/web/src/features/circles/stage/DiscussionSwitch.tsx`: the animator's switch and "Allow cameras" in the room settings (`src/web/src/features/circles/room/RoomSettings.tsx` from spec 008 T806, or the room header if it is not there yet), with the plain explanation and the "off by default" copy (US1). Mirrors in Arabic.
-    - **Note (#244, PR #245):** the switch already landed, in the room rail's **Call** tab (`stage/CallPanel.tsx`), not in RoomSettings or the header. Its strings are `circles.call.*` (not `circles.discussion.*`), and `configureStage`/`bindStage` are wired in `room.ts`. Build the stage area into `CallPanel.tsx` (it shows a "Soon" placeholder today), and don't duplicate or rename the switch. T914's key check must cover `circles.call.*`.
-  - `StagePanel.tsx`, `StageGrid.tsx`, `StageTile.tsx`, `StageControls.tsx`: the Discussion area in `src/web/src/features/circles/CircleRoom.tsx` (main area next to the sidebar from T804). Tiles show the video or, when it is off, the character with ring and the name (FR-912), and text states ("on stage", "muted", "speaking", "weak connection"). Controls: raise and lower hand (reusing `HandsQueue.tsx` from T810), join, leave, mic, camera, and for the animator: give the floor, take the floor, mute, allow unmute, remove. Full, frozen ("The animator is away") and ended ("The animator ended the discussion") states. Viewers: "Watch the stage" with the IP disclosure, "n watching", `listeners-full` message. Order and arrow keys follow right-to-left. Phone layout: stage above the sidebar sheet, never covering the answer pad or presenter controls.
-  - `src/web/src/styles/stage.css` with logical properties and `prefers-reduced-motion` honoured (no waving, no pulse; a text "speaking" label always).
-  - `src/web/src/features/circles/present/AudienceScreen.tsx`: the hand count only (the indicator is T911).
-  - Strings `circles.discussion.*` and `circles.stage.*` in `src/web/src/i18n/locales/{en,fr,ar,es}.json`, including every error code of `contracts/hub.md`.
-  - **e2e** `src/web/e2e/discussion.spec.ts` "stage" with `test.use({ launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] } })`: switch on and off (participant sees nothing before, refused crafted call), nothing asks for a camera or microphone before a device button is pressed (US1 #2), three hands in order, floor given, join, mic on, the others report `data-receiving="audio"`, mute and allow, leave, a full stage, take floor, remove, switching off during a live call stops media for everyone and shows "The animator ended the discussion", animator away banner, the audience screen shows only the count; no CSP violation in the console; en desktop and ar phone with axe. A stage-of-N test uses 4 pages (`E2E_STAGE_PEERS=8` for 8) and checks every pair connects within 3 s (SC-903).
+  Depends on T919.
 
-  Depends on T902, T904, T905, spec 008 T804 and T810.
-- [ ] T907 [US4] [UI] **Camera and microphone permission UX and fallbacks.** `/impeccable shape device-permissions` first (or manual), then in `src/web/src/features/circles/stage/`:
-  - `PermissionPrimer.tsx`: before the first browser prompt, one sentence ("Your camera and microphone go straight to the people on stage. circloo does not keep them. They can see your network address.") with a Continue button and a short "more" disclosure about STUN. Nothing is requested before the person presses a device button (FR-904, FR-910).
-  - `DeviceProblem.tsx`: `denied` (how to allow it again, per browser, with the retry), `no-device` (join with audio only, or listen), `busy` (clear message and Try again), `blocked`, unsupported browser ("This browser cannot join the live discussion. You can still chat and raise your hand."), a link that cannot connect ("Can't connect to Amina. Chat and hands still work", the TURN-later case), weak connection notice.
-  - Camera off shows the character and name; audio only still works; a listener with no devices is on the stage as a listener (US4 #4).
-  - Strings `circles.stage.device.*` in all four locales.
-  - **e2e** in `src/web/e2e/discussion.spec.ts` "devices": accept audio only and be heard; deny and still use chat and raise hand; no microphone message; busy then Try again; no `RTCPeerConnection` message; reach the chat controls in under 5 s (SC-907). Failures come from an init script that rejects `getUserMedia` with the named errors. en desktop and ar phone with axe.
+- [ ] T921 [US3] **Floor, mutes and removal (API).**
+  - `CallModeration.cs` (singleton): per circle, muted microphone, stopped camera, removed set; cleared when the call ends.
+  - `CircleHub.Room.cs` (spec 008): `GiveFloor`, `LowerHand` (of the floor holder), `LowerAllHands` and the hand grace call `CallPermissions` when a call is on (Hand to speak: grant or revoke the microphone; send `floor-given`/`floor-taken`). Hand limit `hand` 6 per 10 s.
+  - `CircleHub.Discussion.cs`: `MuteMember`, `AllowMember`, `MuteEveryone` (Open mic only, `MutePublishedTrack` on microphone tracks), `RemoveFromCall` (removed set, `RemoveParticipant`, hand lowered, audit `call.removed`), `AllowBack`. Limit `call-admin` 30 per 10 s.
+  - A member who leaves or is removed from the circle is removed from the call.
+  - If a revoked source does not unpublish on the pinned LiveKit version, fall back to `MutePublishedTrack` on that track (research R22) and note it in the PR.
+  - **Tests** `CallModerationTests.cs`: every method refused for non-animators; floor handover updates two people; a mute survives a new pass; allow switches nothing on; mute everyone refused in Hand to speak; removal refuses new passes and lowers the hand; allow back works; ending the call clears everything; nothing is stored or audited except `call.removed`.
 
-  Depends on T906.
+  Depends on T920.
 
-**Checkpoint**: a working stage with fallbacks, end to end.
+- [ ] T922 [US3] **Webhook enforcement, roster and animator away (API).**
+  - `LiveKitWebhook.cs` and `POST /api/livekit/webhook` in `CallEndpoints.cs` per `contracts/rest.md`: signature, `iss`, `sha256`, 64 KB cap, rate limit; `participant_joined` enforcement in the background; roster updates; `CallRoster` coalesced through `LiveThrottle`; `Enter` pushes it.
+  - `CallAway.cs`: like `HandsGrace`, on `TimeProvider`. Started in `OnDisconnectedAsync` when the circle's last animator connection closes during a call, cancelled on `Enter` by an animator, fires `DisableDiscussion` logic with reason `animator-away`. `Discussion.away` and `awayEndsAt` broadcast.
+  - **Tests** `WebhookTests.cs`: a valid event is accepted; bad signature, wrong `iss`, wrong body hash, expired token and oversized body are refused without detail; a removed member, a former member and a call that is off are removed again; the roster follows joins and leaves and never reaches the audience screen. `CallAwayTests.cs` on `FakeTimeProvider`: an animator back within 5 minutes changes nothing; after 5 minutes the call ends; a second animator tab keeps the call.
 
----
+  Depends on T921.
 
-## Phase 5: User Story 5 - Talk in writing (Priority: P2)
-
-**Goal**: replies in the circle chat, and status changes as system lines (spec US5).
-
-**Independent Test**: participants post messages and replies, everyone sees them in order and the animator can hide one. Stage events appear as small lines.
-
-- [ ] T908 [P] [US5] **Replies and system lines (API).**
-  - `Reply(long parentId, string text)` in `src/Circloo.Api/Circles/CircleHub.Recording.cs` sharing one private send path with `Say` in `src/Circloo.Api/Circles/CircleHub.cs` (clean, safety filter, spec 008 limits, slow mode and pause, `ReplyToId`): `reply-invalid` unless the parent is a visible member message of the same circle and not itself a reply. `MessageDto` gains `ReplyToId` in `src/Circloo.Api/Circles/CircleRules.cs`.
-  - The circle view returns the replies; hiding a parent hides its replies for members (spec 008 hiding rules).
-  - The persisted system line texts of `data-model.md` are written by the hub methods of T901 and T902 through one helper, `SystemLine(kind, memberId, actorId?)`, so the text format lives in one place.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/ReplyTests.cs`: a reply in order; refused for a missing, other-circle, hidden, system or already-reply parent; unsafe text refused in en, fr, ar and es; slow mode and pause apply to replies; a non-member is refused (FR-903); hidden parent hides the reply for members but not for the animator; system lines are written for on, off, joined, left, floor, mute and removal and carry no names.
-
-  Depends on T901 and spec 008 T805.
-- [ ] T909 [US5] [UI] **Conversation UI: threads and system lines.** `/impeccable shape discussion-thread` first (or manual), then:
-  - `src/web/src/features/circles/room/ChatPanel.tsx` (spec 008 T806) gains a Reply action, a nested one-level thread under the parent, a "replying to Amina" composer state and a way to cancel; `Reply` in `src/web/src/features/circles/room.ts` and `replyToId` handling in the message upsert.
-  - `src/web/src/features/circles/Chat.tsx` `SystemLine` renders the new coded lines (`stage:joined`, `floor:given`, `muted`, …), and the discussion shows **local** lines for hands raised and lowered, grouped (a burst reads "3 hands raised") and never stored (R12).
-  - Strings `circles.discussion.lines.*` and `circles.chat.reply.*` in all four locales.
-  - **e2e** "conversation": post, reply, order, hide, system lines for a stage change, grouped hand lines; en desktop and ar phone (thread and composer mirror) with axe.
-
-  Depends on T906, T908 and spec 008 T806.
+**Checkpoint**: the server enforces who may speak, show a camera and stay in the call. No call UI yet.
 
 ---
 
-## Phase 6: User Story 6 - Record the session as a text transcript (Priority: P2)
+## Phase 4: User Story 2 and 4 - The call on every screen (P1)
 
-**Goal**: the animator records text only, everyone knows, and the animator alone reads, exports and deletes it (spec US6).
+**Goal**: a fast, adaptive call with our own UI and kind fallbacks (spec US2, US4).
 
-**Independent Test**: the animator starts a recording, a late joiner sees the indicator at once, a participant's crafted start or stop is refused. After stopping, the animator opens a transcript with messages, hands and stage times, and no media.
+- [ ] T923 [P] [US2] [US4] **Client call engine (no visible UI).**
+  - `src/web/package.json`: `livekit-client` at exactly `2.22.3`.
+  - `src/web/src/features/circles/stage/call.ts`: the only file that imports `livekit-client`, through `import()`. Connects with the pass from `POST /api/circles/{id}/call/token` (`src/web/src/api/discussion.ts`), room options of research R25 (adaptive stream, dynacast, simulcast layers, VP8, DTX and RED, speech preset), `startAudio()` inside the Join tap, events mapped to the store (active speakers, connection quality, reconnecting, permissions changed, device errors through `classifyMediaError`). Microphone and camera requested one at a time. When the page is hidden and the browser ends the camera track, the camera state becomes off and stays off on return until the person switches it on (US2 #6).
+  - `stage.ts`: rebuilt around the engine: `discussion`, `roster`, `myPermissions`, `connection` (`idle`, `joining`, `connected`, `reconnecting`, `failed`), `participants` (tracks, speaking, quality), `notices`; actions `join`, `leave`, `setMic`, `setCamera`, and the animator actions through the hub. No more `MeshManager` import.
+  - **Vitest** `call.test.ts` and `stage.test.ts` on a fake `Room`: lazy import only on join; pass fetched once per join; permissions changed disables the microphone button; reconnecting and failed states; device errors mapped; leave stops tracks.
 
-- [ ] T910 [US6] **Recording hub and persistence (API).**
-  - `src/Circloo.Api/Discussion/Recorder.cs`: `StartAsync`, `StopAsync(reason)`, `Capture(...)`, the cache of the active recording in `StageRegistry`, caps (50 000 events, 50 recordings per circle), one recording per circle through the partial unique index (a lost race returns the running one), idempotent start and stop.
-  - `src/Circloo.Api/Circles/CircleHub.Recording.cs`: `StartRecording(title?)` (phase `notice`, then `capturing` at `CaptureFrom`), `StopRecording`, `AcknowledgeRecordingNotice` (connection state), `Recording` broadcast and push on `Enter` before anything else, the notice gate (`notice-required` for non-animators on `Say`, `Reply`, `RaiseHand`, `JoinStage` until acknowledged), 6 starts per hour per animator, audits `recording.started` and `recording.stopped`, persisted system lines.
-  - **Capture hooks** (text events only): `Say` and `Reply` (message snapshot with id), 008's `RaiseHand` and `LowerHand`, and the stage methods of T902 (`stage.joined`, `stage.left` with reason, `floor.given`, `floor.taken`, `muted`, `unmute.allowed`). Nothing in signalling or media code can reach the recorder.
-  - **Stops** in one unit of work: `DisableDiscussion` (reason `discussion-off`), circle close in `src/Circloo.Api/Circles/CircleEndpoints.cs` (`circle-closed`), animator away 5 min (`animator-away`), and, through `DiscussionWatchdog` (T903), the cap (`max-length`, `RecordingWarning` to the animator before it) and orphans after a restart (`restart`).
-  - Circle view `recording` filled in.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/RecordingTests.cs`:
-    - start and stop are refused for a participant, a guest, a non-member and an audience connection, and each refusal is audited (FR-914);
-    - a message sent before `CaptureFrom` is not in the record, one after is;
-    - two parallel starts give exactly one recording;
-    - a connection that joins during a recording receives `Recording` first and cannot `Say`, `Reply`, `RaiseHand` or `JoinStage` until it acknowledges (`notice-required`);
-    - a message sent with no recording is in no transcript;
-    - switch off, circle close, animator away, the cap and a simulated restart each end it with the right reason;
-    - the event cap and the per-circle cap;
-    - **SC-906**: after a full call with signalling, every stored row has an allowed kind, `Text` only on messages, no column holds anything else, and the captured logs contain no SDP, ICE or message text.
+  Depends on T919 (contract) and T920 (hub events). Can start against the contract with fakes.
 
-  Depends on T902, T903, T908 and spec 008 T805.
-- [ ] T911 [US6] [UI] **Recording indicator and notice.** `/impeccable shape recording-indicator` first (or manual), then in `src/web/src/features/circles/stage/`:
-  - `RecordingIndicator.tsx`: text "Recording (text only)" plus an icon, never colour alone, with a short explanation on focus or press. Rendered by `src/web/src/features/circles/CircleRoom.tsx` in the room header, outside the activity area, so it is visible on desktop, on phones, with the sidebar collapsed, during a presentation and on the audience screen (`src/web/src/features/circles/present/AudienceScreen.tsx`). Nothing can cover or collapse it.
-  - `RecordingBanner.tsx`: the notice ("The animator is recording this session as text: messages, raised hands and who was on stage. No audio or video is kept. Only the animator can read it."), shown on start and on entry to a room with a recording, before the composer and hand button are enabled. It calls `AcknowledgeRecordingNotice` once rendered (no accept button). Assertive announcement on start.
-  - `RecordButton.tsx`: the animator's Record session / Stop, a "recording stops in 15 minutes" warning from `RecordingWarning`, and the "Recording stopped" state.
-  - Strings `circles.recording.*` in all four locales.
-  - **e2e** "recording": start, notice and indicator for all pages, a late joiner sees it before typing, a participant's crafted `StartRecording` is refused, the indicator on desktop, phone, collapsed sidebar and the audience screen, stop; en desktop and ar phone with axe (SC-905).
+- [ ] T924 **Remove the mesh.** Delete `mesh.ts`, `link.ts`, `fakes.ts` and their tests; `fetchIce`, `IceConfig`, `Seat`, `StageView`, `SignalKind`, `StageNoticeKind` and recording types in `src/web/src/api/*.ts`; any leftover `Discussion:IceUrls` use; the CSP or docs lines about public STUN. `npx tsc -b`, lint and Vitest stay green. Research R27.
 
-  Depends on T906, T910 and spec 008 T804.
-- [ ] T912 [P] [US6] **Transcript API: read, export, delete.**
-  - `src/Circloo.Api/Discussion/DiscussionEndpoints.cs`: list, paged read, export and delete per `contracts/rest.md`, animator only (403 and an audit row for other members, 404 for non-members), working for closed circles, delete refused while running (`recording-running`), audits `recording.exported` and `recording.deleted`, rate limits.
-  - `src/Circloo.Api/Discussion/TranscriptExport.cs` with `src/Circloo.Api/Resources/transcript/{en,fr,ar,es}.json`: text and Markdown, escaped, bidi-isolated names and text, `hidden` marks from `CircleMessage.HiddenAt`, "Former member", attachment headers.
-  - `src/web/src/api/discussion.ts`: typed queries and mutations.
-  - **Tests** `tests/Circloo.Api.Tests/Discussion/TranscriptEndpointTests.cs`: a participant, a guest and a non-member are refused on all four endpoints; the animator reads, pages (`after` and `limit`), exports txt and md in each of the four languages and deletes; Markdown and HTML in a message are escaped; an Arabic message keeps its isolates; hidden messages are marked; replies carry their parent; deleted members read as "Former member"; export carries no data from another circle; delete cascades the events; CSRF is required on delete.
+  Depends on T923.
 
-  Depends on T910. Parallel with T911.
-- [ ] T913 [US6] [UI] **Transcript view, export and delete.** `/impeccable shape transcript` first (or manual), then `src/web/src/features/circles/stage/TranscriptList.tsx` (the animator's recordings with date, length and how it ended) and `TranscriptView.tsx` (entries with times and people, replies nested, hidden messages labelled, stage events as small lines, "No audio or video was kept"), Export text and Markdown buttons (language follows the interface), Delete with a confirm. Reached from the animator's room settings and the circle page. Strings `circles.transcript.*` in all four locales. **e2e** "transcript": record, stop, open, export both formats (file text checked), delete; a participant has no link and the direct URL is refused; en desktop and ar phone with axe.
+- [ ] T925 [US2] [UI] **Call UI: grid, active speaker, pages, phone layout.** `/impeccable shape call` first (or the manual review), then:
+  - `grid.ts` (+ test): tile order (active speaker, animator, floor holder, cameras on, join order), pages of 9 on a computer and 4 on a phone, the speaker kept on screen, off-page publications disabled.
+  - `CallPanel.tsx` (rail Call tab): call state, Join call with the roster count ("12 in the call"), the people in the call, the "Soon" placeholder removed. `CallStage.tsx`, `CallTile.tsx`, `CallControls.tsx`: the grid in the centre during a video call (switchable with the whiteboard), speaker view, tiles with video or character and name (FR-912), "speaking" as outline and text, "Weak connection", Reconnecting and Failed states with Join again, Leave. Phone layout: grid above the bottom sheet, thumb-reachable controls, never over the composer.
+  - `src/web/src/styles/call.css` with logical properties and reduced motion.
+  - Strings `circles.call.*` in all four locales.
+  - **e2e** `src/web/e2e/call.spec.ts` "call": start (by API helper or the existing switch), three pages join and report receiving audio within 2 s; speaking highlight; camera off shows the character; 12 pages show 9 tiles and a page control on desktop, 4 on a phone, with the decoding check (SC-912); leave; the audience screen requests no pass, plays no sound and shows no names (FR-934); no CSP violation; en desktop and ar phone with axe.
 
-  Depends on T906, T912.
+  Depends on T923, T920 and spec 008 T804 (merged).
 
----
+- [ ] T926 [US1] [US3] [UI] **Animator controls: three switches, speaking mode, person menu.** `/impeccable shape call-controls` first (or manual), then:
+  - `DiscussionSwitch.tsx` becomes the three switches: Chat (spec 008 `SetRoomSettings`, paused means off), Audio call, Video call (start, switch video, end), and the speaking mode (Hand to speak or Open mic) before and during the call; "Group calls are not available here" when `available` is false.
+  - `PersonMenu.tsx` on a tile and in the people list: give the floor, take it (lower hand), mute microphone, stop camera, allow, remove from call, allow back. Mute everyone (Open mic). Errors translated, including `try-again`.
+  - Participant side: the current mode in plain words; in Hand to speak the microphone button is replaced by Raise hand; kind notices for every `CallNotice` to the person.
+  - **e2e** "controls": every switch and action from the animator; a participant sees none of them and crafted hub calls are refused; Hand to speak is enforced (a script that connects with the participant's real pass and tries to publish audio is refused, research R22); video off stops cameras within 2 s; removal and the rejoin attempt; en desktop and ar phone with axe.
 
-## Phase 7: User Story 7 - Keyboard and screen reader (Priority: P2)
+  Depends on T925, T921, T922.
 
-**Goal**: everything works from the keyboard and is announced, grouped and translated (spec US7).
+- [ ] T907 [US4] [UI] **Camera and microphone permission UX and fallbacks** *(changed 2026-10-08, #222)*. `/impeccable shape device-permissions` first (or manual), then in `src/web/src/features/circles/stage/`:
+  - `PermissionPrimer.tsx`: before the first browser prompt in the session, one sentence: "Your camera and microphone go to the people in this call through circloo's call server. Nothing is recorded or kept." with Continue. Nothing is requested before a device button is pressed (FR-904, FR-910).
+  - `DeviceProblem.tsx`: `denied` (how to allow it again, per browser, with retry), `no-device` (audio only or listen), `busy` (Try again), `blocked`, unsupported browser, "You can't join the call from this network. Chat and hands still work." after the TCP and TLS fallbacks fail.
+  - Strings `circles.call.device.*` in all four locales.
+  - **e2e** "devices": audio only and heard; denied and still listening, chatting and reacting; no microphone; busy then Try again; no WebRTC support; UDP blocked joins over TCP (SC-916); reach chat and hand controls in under 5 s (SC-907); en desktop and ar phone with axe.
 
-**Independent Test**: with the keyboard only, a person raises a hand, joins the stage when given the floor, mutes and leaves. A screen reader hears each change once, politely, and the recording start assertively.
+  Depends on T925.
 
-- [ ] T914 [US7] [UI] **Accessibility and i18n pass.** `/impeccable audit` over the whole discussion surface and `/impeccable harden` (or the manual equivalent), then fix:
-  - `src/web/src/features/circles/stage/announce.ts` (+ `announce.test.ts`): reuses the batching in `src/web/src/features/circles/room/grouping.ts` (spec 008 T806): polite grouped announcements for hands, floor, mute, removal, joins (at most one every few seconds in a burst, own queue place when it changes), assertive for the recording start and stop, all translated.
-  - Keyboard: every control of T906, T907, T909, T911 and T913 reachable in logical order with visible focus, arrow keys and focus order mirrored in Arabic, no keyboard trap in the primer or banners, targets at least 24 px (WCAG 2.2 AA).
-  - Reduced motion: no waving or pulse, "speaking" always as text. A person who cannot see the stage has name and state as text.
-  - **i18n check**: a Vitest test that every `circles.discussion.*`, `circles.stage.*`, `circles.recording.*` and `circles.transcript.*` key exists in all four locale files and that every hub error code of `contracts/hub.md` has a message; long French and Spanish strings checked for overflow (`harden`).
-  - **e2e** "keyboard and screen reader": keyboard-only journey (raise, joined, mute, leave, record, stop), live-region assertions for each announcement kind, reduced-motion emulation, the whole surface under axe in en and ar.
-
-  Depends on T906, T907, T909, T911, T913 and spec 008 T806.
+**Checkpoint**: a complete group call with enforced speaking modes, on computers and phones, with fallbacks.
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns
+## Phase 5: User Story 3 and 8 - Raised hands and emoji in the call (P2)
 
-- [ ] T915 **Journey, docs and audit.**
-  - **Playwright**: the full journey of quickstart B in `src/web/e2e/discussion.spec.ts` (en desktop, ar phone, axe, reduced motion, fake devices), including the 8-person stage (`E2E_STAGE_PEERS=8`, SC-903) and a check that no CSP violation appears.
-  - **Real devices**: run quickstart C (two laptops and a phone on different networks, Safari iOS), and record the result and the strict-network outcome (input to decision D2).
-  - **Design review**: `/impeccable audit` and `/impeccable critique` on the stage, permission UX, thread, recording indicator and transcript, with findings fixed or justified. While Impeccable is unavailable, the ux-designer review is recorded instead (#126), listing the steps still to rerun.
-  - **Docs**: `PRODUCT.md` (live discussion, text-only record), `docs/product/prd.md` (E4 and E2 notes), `docs/architecture/overview.md` (final settings and limits), and a privacy sentence for decision D5.
-  - **Quickstart**: run `quickstart.md` end to end.
-  - **Ideas**: comment progress on #212; confirm #96 is closed as superseded and note spec 008's `GiveFloor` change on #183 and #166.
-  - **SC-909**: run one session with 5 to 8 people (or validate after release) and note the result in the PR. Do not claim a result before it is run.
+- [ ] T927 [US3] [US8] [UI] **Raise hand and reactions in the call.** `/impeccable shape call-reactions` first (or manual), then:
+  - Raise and lower hand in `CallControls.tsx`, reusing spec 008's `HandsQueue` (T810) with "You are 2nd"; the queue in the Call tab.
+  - Reactions: `React` allowed while a call is on (`CircleHub.Room.cs` rule from spec 008 T807, extended here, with a hub test); `CallReactions.tsx` floats grouped bursts over the call grid on every screen, a counter under reduced motion, a summary for screen readers; hidden when reactions are off.
+  - **Tests**: hub test that reactions work with a call on and no presentation and store nothing, and that during a running presentation they add to its anonymous totals (D11); e2e "hands and reactions": raise, place, floor given from the queue; 20 pages send 👏 and every page shows one grouped burst; en desktop and ar phone with axe.
 
-  Depends on T906, T907, T909, T911, T913 and T914.
+  Depends on T925, T926 and spec 008 T807 (#181), T808 (#182), T810 (#184).
+
+---
+
+## Phase 6: User Story 5 - Talk in writing (P2)
+
+- [ ] T908 [P] [US5] **Replies; call lines are not stored (API)** *(changed 2026-10-08, #223)*.
+  - `Reply(long parentId, string text)` sharing one send path with `Say` (clean, safety filter, spec 008 limits, slow mode and pause, `ReplyToId`); `reply-invalid` unless the parent is a visible member message of the same circle and not itself a reply. `MessageDto` gains `ReplyToId`. The circle view returns replies; hiding a parent hides its replies for members.
+  - **Changed**: no persisted call system lines. Drop the stage and recording line kinds from the branch's `SystemLines.cs` (or the helper altogether if nothing else uses it).
+  - **Tests** `ReplyTests.cs`: as on the branch, minus the system-line rows, plus "a call start and end write no `CircleMessages` row".
+
+  Depends on T918 and spec 008 T805 (merged). The branch `feat/223-replies-system-lines` is the starting point.
+
+- [ ] T909 [US5] [UI] **Conversation UI: threads and live call lines** *(changed 2026-10-08, #224)*. `/impeccable shape discussion-thread` first (or manual), then:
+  - `ChatPanel.tsx` (spec 008 T806): Reply action, one-level thread, "replying to Amina" composer state and cancel; `Reply` in `room.ts` and `replyToId` handling.
+  - Live lines in the chat from `CallNotice` (call started or ended, video on or off, mode, floor) and from `Hands` events (grouped: "3 hands raised"), never stored, gone after a reload (US5 #3).
+  - Strings `circles.call.lines.*` and `circles.chat.reply.*` in all four locales.
+  - **e2e** "conversation": post, reply, order, hide, live lines appear and are gone after a reload; en desktop and ar phone with axe.
+
+  Depends on T908, T925 and spec 008 T806 (#180).
+
+---
+
+## Phase 7: Measurements, accessibility and the journey
+
+- [ ] T928 [US2] [US3] [US4] **Call e2e measurements against the local LiveKit.**
+  - `src/web/e2e/call-helpers.ts`: a multi-page fixture (`E2E_CALL_PEERS`, default 4), fake media flags, `getStats()` helpers (receiving audio, decoded video count, concealed audio ratio, time from Join to the first audio packet).
+  - "measurements" describe in `call.spec.ts`: join to first audio over 20 joins, median ≤ 2 s and p95 ≤ 4 s locally (SC-903); decoded videos ≤ visible tiles + 1 on desktop and phone (SC-912); speaking highlight ≤ 1 s and mute, floor, camera stop and removal ≤ 1 s for every page (SC-913); UDP-blocked join ≤ 6 s (SC-916); after the whole run, the database comparison of SC-906 through an API test helper.
+  - Results printed as a short table the PR quotes.
+
+  Depends on T925, T926, T907, T922.
+
+- [ ] T929 **Load and network performance test.**
+  - `tests/perf/livekit-load.ps1` and `.sh`: `lk load-test` from a pinned `livekit/livekit-cli` container: 100 subscribers with 6 audio publishers, then 25 video publishers with 75 subscribers, 5 minutes each; node CPU sampled (locally `docker stats`, on Azure the VM metrics). Targets SC-910 and SC-911 (CPU under 70%).
+  - `tests/perf/netem/`: a Linux container with `tc netem` (10% and 30% loss, 150 ms delay) running headless Chromium in a call; reads concealment and freeze counts (SC-914).
+  - Phone session for SC-915 recorded by hand (quickstart C).
+  - A short `tests/perf/README.md` saying how to run each part and that results go in the PR, never invented.
+  - If the production size (B2als_v2) misses the targets, say which size does; the founder allowed sizing up only on this evidence (D8).
+
+  Depends on T928 for the local run and T917 for the Azure numbers.
+
+- [ ] T914 [US7] [UI] **Accessibility and i18n pass** *(changed 2026-10-08, #229)*. `/impeccable audit` over the whole call surface and `/impeccable harden` (or manual), then fix:
+  - `stage/announce.ts` (+ test), reusing spec 008's batching: polite grouped announcements for call start and end, hands, floor, mutes and removal of me; no announcement per active speaker change, the current speaker available as text.
+  - Keyboard: every control of T925, T926, T907, T927 and T909 reachable in logical order with visible focus, page changes in the grid by keyboard, arrow keys and focus order mirrored in Arabic, no trap in the primer or menus, targets at least 24 px.
+  - Reduced motion: no floating reactions, no pulsing; "speaking" always as text.
+  - **i18n check**: a Vitest test that every `circles.call.*` and `circles.chat.reply.*` key exists in all four locale files and every error code of `contracts/hub.md` has a message.
+  - **e2e** "keyboard and screen reader": keyboard-only journey (join, raise hand, unmute with the floor, react, leave), live-region assertions, reduced-motion emulation, axe in en and ar.
+
+  Depends on T925, T926, T907, T927, T909.
+
+- [ ] T915 **Journey, docs and audit** *(changed 2026-10-08, #230)*.
+  - **Playwright**: the full journey of quickstart B in `call.spec.ts` (en desktop, ar phone, axe, reduced motion, fake devices).
+  - **Real devices**: quickstart C against the deployed call server (needs T917), including a 443-only network and the two reference phones; results in the PR.
+  - **Design review**: `/impeccable audit` and `critique` over the call, controls, permissions, reactions and thread, findings fixed or justified.
+  - **Docs**: `PRODUCT.md` (group calls, only chat saved), `docs/product/prd.md` (E4 and E2 notes), `docs/architecture/overview.md` (final settings, limits and measured numbers).
+  - **Ideas**: comment progress on #212; note on #183 and #166 that the floor now also grants the microphone in Hand to speak.
+  - **SC-909**: one session with 5 to 10 people; no result claimed before it is run.
+
+  Depends on every task above.
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Foundational**: T901 blocks everything (it needs only the merged T801).
-- **Stage and signalling (API)**: T902 (needs spec 008 T809) → T903 and T904 in parallel.
-- **Client**: T905 is [P], starts after T901. T906 needs T902, T904, T905 and spec 008 T804 and T810. T907 follows T906.
-- **Conversation**: T908 is [P], after T901 (needs spec 008 T805). T909 needs T906, T908 and spec 008 T806.
-- **Recording**: T910 needs T902, T903 and T908. T911 (UI) and T912 (API) are parallel after T910. T913 needs T906 and T912.
-- **Accessibility**: T914 after every UI task. **Polish**: T915 last.
+- **Setup**: T916 [P] first (needs only merged T901). T917 [P] [infra] follows T916; it blocks deployed calls and the Azure half of T929 and T915, nothing else. T930 [P] (constitution) can start at once and should merge before T917.
+- **Foundational**: T918 → T919.
+- **API**: T919 → T920 → T921 → T922.
+- **Client**: T923 [P] after T919 (contract) → T924. T925 after T923 and T920. T926 after T925, T921, T922. T907 after T925.
+- **Hands and reactions**: T927 after T925, T926 and spec 008 T807, T808, T810.
+- **Conversation**: T908 [P] after T918; T909 after T908, T925 and spec 008 T806.
+- **Measurements**: T928 after T925, T926, T907, T922. T929 after T928 (local) and T917 (Azure).
+- **Release gate**: T914 after every UI task, then T915.
 
 ```text
-T801 (008, merged) ── T901 ─┬─ T902 ─┬─ T903 ────────────────────────┐
-                            │        ├─ T904 ──┐                      │
-                            ├─ T905 ──────────┴─ T906 ─┬─ T907 ───────┤
-   008 T809 ─── T902        │      008 T804+T810 ─ T906├─ T909 ───────┤
-                            └─ T908 ───────────────────┘   │          │
-   008 T805 ─── T908         T902+T903+T908 ─ T910 ─┬─ T911 ──────────┼─ T914 ─ T915
-   008 T806 ─── T909                                └─ T912 ─ T913 ───┘
+T901 (done) ─ T916 ─┐
+              T918 ─┴─ T919 ─┬─ T920 ─ T921 ─ T922 ───────────────┐
+                             └─ T923 ─ T924                        │
+                                  └─── T925 ─┬─ T926 ──────────────┼─ T928 ─ T929
+                                             ├─ T907 ──────────────┤          │
+     008 T807+T808+T810 ─────────────────────┼─ T927               │          │
+              T918 ─ T908 ───────────────────┴─ T909 (008 T806)    │          │
+                                                    T914 ──────────┴──────── T915
+     T930 ─ T917 ────────────────────────────────────────────────── (T929 Azure, T915 devices)
 ```
 
 ## Parallel Example
 
 ```text
-After T901:      T902 Stage hub        (StageRegistry.cs, CircleHub.Discussion.cs, StageHubTests.cs)
-                 T905 Mesh manager     (stage/mesh.ts, link.ts, media.ts, stage.ts, *.test.ts)
-                 T908 Replies          (CircleHub.Recording.cs Reply, ReplyTests.cs)
-After T902:      T903 Watchdog         (DiscussionWatchdog.cs, WatchdogTests.cs)
-                 T904 Signalling       (CircleHub.Discussion.cs Signal, DiscussionEndpoints.cs ice, SignalingTests.cs)
-After T910:      T911 Indicator UI     (stage/Recording*.tsx, CircleRoom.tsx, AudienceScreen.tsx)
-                 T912 Transcript API   (DiscussionEndpoints.cs, TranscriptExport.cs, Resources/transcript/*.json)
+Right away:      T916 AppHost LiveKit      (AppHost.cs, LiveKitFixture.cs)
+                 T918 Cleanup migration    (Migrations, Entities.cs, DiscussionOptions.cs, LiveKitOptions.cs)
+After T918:      T908 Replies              (CircleHub.Replies.cs, ReplyTests.cs)
+After T919:      T920 Switches (API)       (CircleHub.Discussion.cs, CallPermissions.cs)
+                 T923 Call engine          (stage/call.ts, stage/stage.ts, package.json)
+After T925:      T907 Devices UI           (PermissionPrimer.tsx, DeviceProblem.tsx)
+                 T926 Animator controls    (DiscussionSwitch.tsx, PersonMenu.tsx)
 ```
 
-T902, T903 and T904 all add to `CircleHub.Discussion.cs`; merge them one at a time and rebase. The file has one region per feature (switch, stage, signalling) to keep conflicts trivial. The three UI tasks T906, T907 and T909 share `discussion.spec.ts` and the locale files: one `describe` and one key group per task.
+T920, T921 and T922 all add to `CircleHub.Discussion.cs`; merge them one at a time. The UI tasks share `call.spec.ts` and the locale files: one `describe` and one key group per task.
 
 ## Implementation Strategy
 
-1. **MVP**: T901 → T902 → T904 → T905 → T906. The animator switches it on, gives the floor and the stage connects (listening and chat still work without devices).
-2. **Increment 2**: T903 (animator away and grace) and T907 (permission UX and fallbacks), so real devices fail kindly.
-3. **Increment 3**: T908 → T909 (threads and system lines).
-4. **Increment 4**: T910 → T911 and T912 → T913 (recording and transcripts). Nothing is recorded until the notice and indicator exist: do not merge T910 into a released build without T911.
-5. **Release gate**: T914 (accessibility and i18n), then T915 (journey, real devices, docs).
+1. **MVP**: T916 → T918 → T919 → T920 → T921 → T923 → T924 → T925. The animator starts an audio or video call, Hand to speak is enforced, the floor grants the microphone, everyone sees a fast grid. Locally, at zero cost.
+2. **Increment 2**: T922 (removal holds, roster, animator away), T926 (all animator controls), T907 (devices and networks).
+3. **Increment 3**: T927 (hands and reactions in the call), T908 → T909 (threads and live lines).
+4. **Deployed**: T930 → T917, then T929 and the device part of T915 on Azure.
+5. **Release gate**: T928, T914, T915.
 
 ## Notes
 
-- Each task's PR contains `Closes #<task issue>`. The parent idea is #212. Task issues are created by `/speckit-taskstoissues` after this plan is accepted.
-- With Live discussion off (the default), every existing circle behaves exactly as before (SC-901): no task changes a default.
-- A TURN relay, a media server for large audiences, co-animators and per-organisation policies are out of scope. The TURN task needs azure-infra and a founder decision (research D2).
+- Each task's PR contains `Closes #<task issue>`. The parent idea is #212.
+- With calls off (the default), every existing circle behaves exactly as before (SC-901): no task changes a default for circles that never start a call.
+- Out of scope: recording of any kind, screen sharing, captions, breakout rooms, end-to-end encryption, several floors at once, co-animators, per-organisation policies, and #255 (training, certification and exams).
