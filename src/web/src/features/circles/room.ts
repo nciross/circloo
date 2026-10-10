@@ -260,8 +260,8 @@ export function useCircleConnection(view: CircleView | undefined) {
       if (a.activityId !== PRESENTATION) useLive.getState().reset()
     })
     bindPresentation(connection, () => useRoom.getState().connection === connection)
-    // The live discussion (spec 009 T905/T906): the stage store reaches the hub only through this connection.
-    configureStage({ circleId: id, selfId, deps: { invoke: (method, ...args) => call(method, ...args) } })
+    // The group call (spec 009 T923): the stage store reaches the hub only through this connection.
+    configureStage({ circleId: id, deps: { invoke: (method, ...args) => call(method, ...args) } })
     bindStage(connection, () => useRoom.getState().connection === connection)
     connection.on('Message', add)
     connection.on('AiThinking', (thinking: boolean) => useRoom.setState((s) => ({ thinking, draft: thinking ? '' : s.draft })))

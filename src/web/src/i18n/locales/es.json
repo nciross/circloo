@@ -922,7 +922,19 @@
       "errors": {
         "failed": "No ha funcionado. Inténtalo de nuevo en un momento.",
         "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",
-        "animator-only": "Solo el animador puede cambiar esto."
+        "animator-only": "Solo el animador puede cambiar esto.",
+        "calls-unavailable": "Las llamadas de grupo no están disponibles aquí.",
+        "mode-invalid": "Eso no funciona con este modo de palabra.",
+        "call-off": "Ahora mismo no hay ninguna llamada.",
+        "slow-down": "Es mucho de golpe. Espera un momento y vuelve a intentarlo.",
+        "try-again": "El servidor de llamadas no ha respondido. Inténtalo de nuevo.",
+        "member-invalid": "Esto no se aplica a esa persona.",
+        "source-invalid": "Solo se pueden cambiar el micrófono y la cámara.",
+        "removed-from-call": "El animador te ha sacado de esta llamada.",
+        "unreachable": "No puedes unirte a la llamada desde esta red. El chat y las manos levantadas siguen funcionando.",
+        "unsupported": "Este navegador no puede unirse a la llamada. Puedes seguir escribiendo en el chat y levantar la mano.",
+        "lost": "Se ha perdido la conexión con la llamada. Vuelve a unirte cuando quieras.",
+        "joined-elsewhere": "Te has unido a la llamada desde otra pestaña u otro dispositivo."
       }
     },
     "ring": {

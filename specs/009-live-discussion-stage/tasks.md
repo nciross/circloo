@@ -161,7 +161,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 **Goal**: a fast, adaptive call with our own UI and kind fallbacks (spec US2, US4).
 
-- [ ] T923 [P] [US2] [US4] **Client call engine (no visible UI).**
+- [x] T923 [P] [US2] [US4] **Client call engine (no visible UI).** (#263)
   - `src/web/package.json`: `livekit-client` at exactly `2.22.3`.
   - `src/web/src/features/circles/stage/call.ts`: the only file that imports `livekit-client`, through `import()`. Connects with the pass from `POST /api/circles/{id}/call/token` (`src/web/src/api/discussion.ts`), room options of research R25 (adaptive stream, dynacast, simulcast layers, VP8, DTX and RED, speech preset), `startAudio()` inside the Join tap, events mapped to the store (active speakers, connection quality, reconnecting, permissions changed, device errors through `classifyMediaError`). Microphone and camera requested one at a time. When the page is hidden and the browser ends the camera track, the camera state becomes off and stays off on return until the person switches it on (US2 #6).
   - `stage.ts`: rebuilt around the engine: `discussion`, `roster`, `myPermissions`, `connection` (`idle`, `joining`, `connected`, `reconnecting`, `failed`), `participants` (tracks, speaking, quality), `notices`; actions `join`, `leave`, `setMic`, `setCamera`, and the animator actions through the hub. No more `MeshManager` import.

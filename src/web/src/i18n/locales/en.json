@@ -922,7 +922,19 @@
       "errors": {
         "failed": "That did not work. Try again in a moment.",
         "offline": "You are offline. It will work again once the room reconnects.",
-        "animator-only": "Only the animator can change this."
+        "animator-only": "Only the animator can change this.",
+        "calls-unavailable": "Group calls are not available here.",
+        "mode-invalid": "That does not work in this speaking mode.",
+        "call-off": "There is no call on right now.",
+        "slow-down": "That was a lot at once. Wait a moment and try again.",
+        "try-again": "The call server did not answer. Try again.",
+        "member-invalid": "This does not apply to that person.",
+        "source-invalid": "Only the microphone or the camera can be changed.",
+        "removed-from-call": "The animator removed you from this call.",
+        "unreachable": "You can’t join the call from this network. Chat and hands still work.",
+        "unsupported": "This browser cannot join the call. You can still chat and raise your hand.",
+        "lost": "The connection to the call was lost. Join again when you are ready.",
+        "joined-elsewhere": "You joined the call from another tab or device."
       }
     },
     "ring": {

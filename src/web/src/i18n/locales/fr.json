@@ -922,7 +922,19 @@
       "errors": {
         "failed": "Ça n’a pas marché. Réessaie dans un instant.",
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
-        "animator-only": "Seul l’animateur peut changer ce réglage."
+        "animator-only": "Seul l’animateur peut changer ce réglage.",
+        "calls-unavailable": "Les appels de groupe ne sont pas disponibles ici.",
+        "mode-invalid": "Ça ne marche pas avec ce mode de parole.",
+        "call-off": "Aucun appel n’est en cours.",
+        "slow-down": "Ça fait beaucoup d’un coup. Attends un instant et réessaie.",
+        "try-again": "Le serveur d’appel n’a pas répondu. Réessaie.",
+        "member-invalid": "Ça ne s’applique pas à cette personne.",
+        "source-invalid": "Seuls le micro et la caméra peuvent être changés.",
+        "removed-from-call": "L’animateur t’a retiré de cet appel.",
+        "unreachable": "Impossible de rejoindre l’appel depuis ce réseau. Le chat et les mains levées marchent toujours.",
+        "unsupported": "Ce navigateur ne peut pas rejoindre l’appel. Tu peux toujours écrire dans le chat et lever la main.",
+        "lost": "La connexion à l’appel a été perdue. Rejoins-le quand tu es prêt.",
+        "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil."
       }
     },
     "ring": {
