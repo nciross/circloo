@@ -31,6 +31,7 @@ Extends the circle hub (`/hubs/circle`, `CircleHub` / `ICircleClient`), in the p
 | `React(string kind)` (spec 008) | member | As in 008, and also allowed while a call is on (not only during a presentation). Nothing is counted or stored outside a presentation | `reaction-invalid` |
 | `SetRoomSettings(RoomSettings)` (spec 008) | animator | Unchanged. It is the **Chat** switch (`chat: 'paused'` is "chat off") and the reactions switch | 008 codes |
 | `Reply(long parentId, string text)` | member | Same path as `Say` (clean, safety filter, 008 limits and modes) with `ReplyToId`. Broadcasts `Message` | `message-invalid`, `message-unsafe`, `reply-invalid`, `chat-paused`, `slow-mode:<s>`, `slow-down` |
+| `LikeMessage(long messageId)` (008, extended) | member | As in 008. A reply whose parent is hidden counts as hidden for members, who no longer see it, so their like is refused. The animator still sees it and may like it (issue #279) | `message-invalid`, `own-message`, `message-hidden` |
 
 Animator action limit (`call-admin`): 30 per 10 s per member, across `MuteMember`, `AllowMember`, `MuteEveryone`, `RemoveFromCall`, `AllowBack`, `SetSpeakingMode`.
 

@@ -75,7 +75,11 @@ public sealed partial class CircleHub
         }
     }
 
-    /// <summary>Toggles the caller's like. Never on one's own message or a hidden one; the count is recomputed from the rows.</summary>
+    /// <summary>
+    /// Toggles the caller's like. Never on one's own message or a hidden one, and for members never on a reply whose
+    /// parent is hidden, which they no longer see (issue #279; the animator still does). The count is recomputed from
+    /// the rows.
+    /// </summary>
     public async Task LikeMessage(long messageId)
     {
         var (circleId, me) = await RoomMemberAsync();
@@ -85,7 +89,9 @@ public sealed partial class CircleHub
         {
             throw new HubException("own-message");
         }
-        if (message.HiddenAt is not null)
+        if (message.HiddenAt is not null
+            || (message.ReplyToId is { } parentId && me.Role != Roles.Animator
+                && await db.CircleMessages.AnyAsync(p => p.Id == parentId && p.HiddenAt != null)))
         {
             throw new HubException("message-hidden");
         }
