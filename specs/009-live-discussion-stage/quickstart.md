@@ -15,8 +15,10 @@ dotnet test tests/Circloo.Api.Tests --filter "FullyQualifiedName~Discussion"   #
 cd src/web; npx tsc -b; npm run lint; npx vitest run
 $env:E2E_BASE_URL='http://localhost:5173'; $env:MAILPIT_URL='http://localhost:8025'
 npx playwright test e2e/call.spec.ts              # en desktop + ar phone, fake devices, axe, local LiveKit
-$env:E2E_CALL_PEERS='12'; npx playwright test e2e/call.spec.ts -g "measurements"   # before a release
+$env:E2E_CALL_PEERS='12'; npx playwright test e2e/call.spec.ts -g "measurements" --workers=1   # before a release
 ```
+
+The "measurements" describe (T928) runs serially and prints a table per project (join to first audio, decoding, moderation speed, UDP blocked). Its default is 4 pages; `E2E_CALL_PEERS` raises it. For the SC-906 comparison set `$env:E2E_DATABASE_URL='postgres://postgres:<password>@localhost:<port>/<database>'` to the e2e stack's database (the AppHost's `postgres` parameters); without it that test is skipped. A missed target fails the last test, "every target met", after everything was measured.
 
 Expected: everything passes. The e2e uses `--use-fake-device-for-media-stream` and `--use-fake-ui-for-media-stream`. The UDP-blocked case adds `--force-webrtc-ip-handling-policy=disable_non_proxied_udp`. Device failures come from an init script that rejects `getUserMedia`.
 
