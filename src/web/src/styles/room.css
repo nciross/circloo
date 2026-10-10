@@ -414,6 +414,10 @@
   color: var(--card);
   box-shadow: none;
 }
+/* The shared rule inks the chosen icon for a light pill; on this dark one it follows the label (Open mic, T915). */
+.room-side .seg__opt[aria-pressed='true'] .seg__icon {
+  color: currentColor;
+}
 .room-side .seg__opt::before {
   display: none;
 }

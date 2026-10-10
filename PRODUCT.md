@@ -47,6 +47,8 @@ The same small space works for your family dinner planning and your team retro. 
 
 - Languages: English, French, Arabic (full RTL layout), Spanish. All UI and fun content exist in all four.
 - Spaces ("circles") are private by default; only members and invitees see content.
+- **Group calls** (spec 009): the animator of a circle can open an audio or video call for the whole circle, on circloo's own call server. The animator has three switches, chat, audio and video, and picks how people speak: **Open mic** (anyone may switch their microphone on) or **Hand to speak** (people raise a hand, and the floor grants the microphone to one person at a time). Joining is each person's choice, with the camera and microphone off. Deployed environments without a call server say "Group calls are not available here" and keep chat, hands and reactions.
+- **Only chat is saved.** Calls are never recorded or transcribed. Who joined, who spoke, the floor, mutes, the history of raised hands, emoji reactions and the speaking highlight are never stored; a raised hand exists only while it is up. Chat messages, their replies, likes and hidden state are.
 - Deployed to Azure in one resource group per environment, with one-command deploy/destroy.
 - Undecided: pricing, native mobile apps, end-to-end encryption.
 
@@ -71,4 +73,4 @@ The same small space works for your family dinner planning and your team retro. 
 
 ## Accessibility & Inclusion
 
-WCAG 2.2 AA. Full RTL mirroring for Arabic. Mood input is never colour-only (always words or icon + label). Respect `prefers-reduced-motion`. Readable by non-native speakers: short sentences, no idioms in UI strings (idioms belong in jokes).
+WCAG 2.2 AA. Full RTL mirroring for Arabic. The whole group call works from the keyboard and with a screen reader: changes of hands, the floor, mutes and the call are read in grouped, polite sentences, never one per event. Mood input is never colour-only (always words or icon + label). Respect `prefers-reduced-motion`. Readable by non-native speakers: short sentences, no idioms in UI strings (idioms belong in jokes).

@@ -67,10 +67,16 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
     focused()
   }, [focusTab, open, active, focused])
 
-  // On a phone the four tabs scroll sideways: the open one is always brought into view, whoever opened it.
+  // When the four tabs scroll sideways (a phone, a laptop's narrow card), the open one is always brought into view,
+  // whoever opened it, and again when it grows: a call starting puts a count on Call after it was revealed.
   useEffect(() => {
     const tab = tabRefs.current[active]
-    if (open && tab) revealTab(tab)
+    if (!open || !tab) return
+    revealTab(tab)
+    if (typeof ResizeObserver === 'undefined') return
+    const grows = new ResizeObserver(() => revealTab(tab))
+    grows.observe(tab)
+    return () => grows.disconnect()
   }, [open, active])
 
   const onTabKey = (e: KeyboardEvent) => {

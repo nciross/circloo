@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { expect, test as base, type Browser, type Page } from '@playwright/test'
+import { expect, test as base, type Browser, type Locator, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import postgres from 'postgres'
 
@@ -131,6 +131,62 @@ export function watchCsp(page: Page, into: string[]) {
   page.on('console', (m) => {
     if (/Content Security Policy|Refused to (connect|load|execute|apply)/i.test(m.text())) into.push(m.text())
   })
+}
+
+/** What has the focus in the page, as `tag.class`, or 'body'. */
+export function focused(page: Page) {
+  return page.evaluate(() => {
+    const el = document.activeElement as HTMLElement | null
+    return el && el !== document.body ? `${el.tagName.toLowerCase()}.${el.className}` : 'body'
+  })
+}
+
+/**
+ * The keyboard of one person in the room (T914): `tabTo` presses Tab (or Shift+Tab) until the target has the focus and
+ * checks a visible focus ring at every stop on the way; `toTab` reaches one of the side's tabs from the keyboard (the
+ * phone's pill opens the sheet first) and moves with the arrows in reading order, mirrored in Arabic.
+ */
+export function keys(page: Page, ar: boolean) {
+  const side = page.locator('[data-slot="room-side"]')
+  const tab = (id: string) => side.locator(`.room-side__tab[aria-controls$="-panel-${id}"]`)
+  const tabTo = async (target: Locator, back = false, max = 70) => {
+    for (let i = 0; i < max; i++) {
+      if (await target.evaluate((el) => el === document.activeElement).catch(() => false)) return
+      await page.keyboard.press(back ? 'Shift+Tab' : 'Tab')
+      const ring = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement | null
+        if (!el || el === document.body || el.closest('.canvas, .pkl, .topbar, .guest-bar, header')) return 'skip'
+        const s = getComputedStyle(el)
+        const outline = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0
+        return outline || s.boxShadow !== 'none' ? 'ok' : `${el.tagName}.${el.className}`
+      })
+      if (ring !== 'ok' && ring !== 'skip') throw new Error(`No visible focus on ${ring}`)
+    }
+    throw new Error(`Never reached ${target} (focus on ${await focused(page)})`)
+  }
+  const next = ar ? 'ArrowLeft' : 'ArrowRight'
+  const prev = ar ? 'ArrowRight' : 'ArrowLeft'
+  const toTab = async (id: string) => {
+    const pill = side.locator('.room-side__handle:not(.room-side__rail-btn)')
+    if (await pill.isVisible()) {
+      await tabTo(pill)
+      await page.keyboard.press('Enter')
+    } else {
+      await tabTo(side.locator('.room-side__tab[aria-selected="true"]'))
+    }
+    const ids = ['people', 'chat', 'hands', 'call']
+    for (let i = 0; i < 6 && (await tab(id).getAttribute('aria-selected')) !== 'true'; i++) {
+      const at = ids.indexOf((await page.evaluate(() => document.activeElement?.getAttribute('aria-controls') ?? '')).replace(/.*-panel-/, ''))
+      await page.keyboard.press(at < ids.indexOf(id) ? next : prev)
+    }
+    await expect(tab(id)).toBeFocused()
+    // The open tab is in view in the strip that scrolls sideways on a phone.
+    const strip = (await side.locator('[role="tablist"]').boundingBox())!
+    const box = (await tab(id).boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(strip.x - 1)
+    expect(box.x + box.width).toBeLessThanOrEqual(strip.x + strip.width + 1)
+  }
+  return { side, tab, tabTo, toTab }
 }
 
 export async function createCircle(page: Page, locale: 'en' | 'ar') {
@@ -363,6 +419,28 @@ export async function dbSnapshot(): Promise<Snapshot | null> {
       out.set(name, new Set(rows.map((r) => r.row)))
     }
     return out
+  } finally {
+    await sql.end()
+  }
+}
+
+/**
+ * What one circle left in the e2e database (SC-906 for one circle, safe beside other tests): its chat messages and the
+ * types of the audit rows about it. Null when E2E_DATABASE_URL is not set.
+ */
+export async function circleRows(circleId: string) {
+  const url = process.env.E2E_DATABASE_URL
+  if (!url) return null
+  const sql = postgres(url, { max: 1, onnotice: () => {} })
+  try {
+    const messages = await sql<{ kind: string; text: string; reply: boolean }[]>`
+      SELECT "Kind" AS kind, "Text" AS text, "ReplyToId" IS NOT NULL AS reply FROM "CircleMessages" WHERE "CircleId" = ${circleId} ORDER BY "Id"`
+    const audits = await sql<{ type: string }[]>`
+      SELECT DISTINCT "Type" AS type FROM "AuditEvents" WHERE "Detail"->>'circle' = ${circleId} ORDER BY 1`
+    const tables = await sql<{ name: string }[]>`
+      SELECT table_name AS name FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name ~* '(record|transcript|call)' ORDER BY 1`
+    return { messages, audits: audits.map((a) => a.type), tables: tables.map((t) => t.name) }
   } finally {
     await sql.end()
   }
