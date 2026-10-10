@@ -259,6 +259,12 @@ public sealed partial class CircleHub
             }
             throw new HubException("try-again");
         }
+        // Off the roster now, for everyone in the room (issue #275): their screens drop the tile on it, without waiting
+        // for the call server to tell each browser. Its webhook for this connection then changes nothing.
+        if (moderation.Left(circle.Id, target, null))
+        {
+            RequestRoster(throttle, circle.Id);
+        }
         if (!first)
         {
             return;
