@@ -11,7 +11,7 @@ import { create } from 'zustand'
 import type { HubConnection } from '@microsoft/signalr'
 import { ApiError } from '../../../api/client'
 import { CALL_NOTICE_KINDS, fetchCallPass, type CallNoticeKind, type CallPass } from '../../../api/discussion'
-import type { DiscussionState, HandsView } from '../../../api/circles'
+import type { DiscussionState } from '../../../api/circles'
 import { mediaSupported, type MediaKind, type MediaProblem } from './media'
 import { createCallEngine, type CallConnection, type CallEngine, type CallListener, type CallParticipant, type CallRights } from './call'
 
@@ -72,8 +72,6 @@ interface StageState {
   audioBlocked: boolean
   participants: CallParticipant[]
   notices: CallNotice[]
-  /** Raised hands and the floor (spec 008 `Hands`), live from the hub; null until the room loads them. */
-  hands: HandsView | null
   /** The animator's mutes and removals in this call, as far as this tab knows (see `Moderation`). */
   moderation: Moderation
   /** Joins the call. Call it from the Join tap: it starts the sound there. */
@@ -193,7 +191,6 @@ export const useStage = create<StageState>()((set, get) => ({
   roster: [],
   error: null,
   notices: [],
-  hands: null,
   moderation: NO_MODERATION,
   ...NOT_IN_CALL,
   join: async () => {
@@ -294,10 +291,6 @@ export function bindStage(connection: Pick<HubConnection, 'on'>, isCurrent: () =
     if (!isCurrent() || !Array.isArray(ids)) return
     useStage.setState({ roster: ids.filter((x): x is string => typeof x === 'string') })
   })
-  connection.on('Hands', (view: HandsView) => {
-    if (!isCurrent() || !view || !Array.isArray(view.queue)) return
-    useStage.setState({ hands: { queue: view.queue, floor: view.floor ?? null } })
-  })
   connection.on('CallNotice', (kind: unknown, byMemberId?: unknown, subjectMemberId?: unknown) => {
     if (!isCurrent() || typeof kind !== 'string' || !NOTICE_KINDS.has(kind)) return
     if (CALL_ENDED.has(kind) && useStage.getState().connection !== 'idle') void endCall({ error: null })
@@ -310,5 +303,5 @@ export function resetStage() {
   void endCall({ error: null })
   circleId = null
   deps = defaults
-  useStage.setState({ discussion: null, roster: [], notices: [], hands: null, moderation: NO_MODERATION })
+  useStage.setState({ discussion: null, roster: [], notices: [], moderation: NO_MODERATION })
 }

@@ -69,9 +69,9 @@ describe('CallControls', () => {
     expect(leave).toHaveBeenCalled()
   })
 
-  it('keeps a microphone the call server does not allow off, and says why', async () => {
+  it('keeps a microphone the call server does not allow off in Open mic (muted by the animator), and says why', async () => {
     const setMic = vi.fn(() => Promise.resolve())
-    connected({ setMic, myPermissions: { canSpeak: false, canVideo: true } })
+    connected({ setMic, discussion: state({ speaking: 'open' }), myPermissions: { canSpeak: false, canVideo: true } })
     render(<CallControls members={members} view="call" />)
     const mic = screen.getByRole('button', { name: 'Microphone' })
     expect(mic).toHaveAttribute('aria-disabled', 'true')
@@ -97,11 +97,11 @@ describe('CallControls', () => {
   it('says Reconnecting and Weak connection in words', () => {
     connected({ connection: 'reconnecting' })
     const { unmount } = render(<CallControls members={members} view="call" />)
-    expect(screen.getByRole('status')).toHaveTextContent('Reconnecting…')
+    expect(screen.getByText('Reconnecting…')).toHaveAttribute('role', 'status')
     unmount()
     connected({ participants: [{ ...me, quality: 'poor' }] })
     render(<CallControls members={members} view="call" />)
-    expect(screen.getByRole('status')).toHaveTextContent('Weak connection')
+    expect(screen.getByText(/^Weak connection/)).toHaveAttribute('role', 'status')
   })
 
   it('says why the call failed and offers Join again', async () => {
@@ -209,7 +209,7 @@ describe('CallControls: devices (T907)', () => {
     render(<CallControls members={members} view="call" />)
     await userEvent.click(screen.getByRole('button', { name: 'Microphone' }))
     expect(setMic).toHaveBeenCalledWith(true)
-    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Microphone' })).toBeNull()
   })
 
   it('takes the primer away with the floor', async () => {
@@ -263,7 +263,7 @@ describe('CallControls: devices (T907)', () => {
     act(() => useStage.setState({ deviceProblem: { id: 2, kind: 'audio', problem: 'busy' } }))
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
     expect(setMic).toHaveBeenCalledTimes(2)
-    expect(screen.queryByRole('group')).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Microphone' })).toBeNull()
     expect(screen.queryByRole('alert')).toBeNull()
     expect(screen.getByRole('button', { name: 'Microphone' })).toHaveFocus()
   })

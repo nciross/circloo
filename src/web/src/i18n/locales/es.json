@@ -874,6 +874,50 @@
       "valueAway": "ausente",
       "peopleHere": "Personas presentes"
     },
+    "hands": {
+      "tab": "Manos",
+      "raise": "Levantar la mano",
+      "lower": "Bajar la mano",
+      "done": "He terminado",
+      "youHaveFloor": "Tienes la palabra",
+      "place_ordinal_other": "Estás en el puesto {{count}}",
+      "speaking": "<name>{{name}}</name> tiene la palabra",
+      "next": "Después: <name>{{name}}</name>",
+      "title_zero": "No hay manos levantadas",
+      "title_one": "{{count}} persona espera",
+      "title_other": "{{count}} personas esperan",
+      "emptyAnimator": "Cuando alguien levante la mano, aparecerá aquí en el orden en que la levantó.",
+      "emptyParticipant": "Levanta la mano para pedir la palabra. Quien anima la da por turnos.",
+      "waitedNow": "Ahora mismo",
+      "waited_one": "Espera desde hace {{count}} min",
+      "waited_other": "Espera desde hace {{count}} min",
+      "give": "Dar la palabra",
+      "giveTo": "Dar la palabra a {{name}}",
+      "lowerOf": "Bajar la mano de {{name}}",
+      "lowerShort": "Bajar",
+      "endTurn": "Terminar turno",
+      "lowerAll": "Bajar todas las manos",
+      "handUp": "mano levantada",
+      "hasFloor": "tiene la palabra",
+      "up_one": "{{count}} mano levantada",
+      "up_other": "{{count}} manos levantadas",
+      "say": {
+        "raisedOne": "{{name}} levanta la mano",
+        "raisedMany": "{{names}} levantan la mano",
+        "raisedCount_one": "{{count}} persona levanta la mano",
+        "raisedCount_other": "{{count}} personas levantan la mano",
+        "down": "Tu mano está bajada."
+      },
+      "errors": {
+        "hand-invalid": "Esa mano ya está bajada.",
+        "slow-down": "Con calma: espera unos segundos antes de volver a levantar la mano.",
+        "try-again": "La fila acaba de cambiar. Inténtalo de nuevo.",
+        "animator-only": "Solo quien anima puede hacer esto.",
+        "animator-cannot-raise": "Quien anima da la palabra y no levanta la mano.",
+        "offline": "Estás sin conexión. Volverá a funcionar cuando la sala se reconecte.",
+        "failed": "No ha funcionado. Inténtalo de nuevo en un momento."
+      }
+    },
     "missing": {
       "title": "Círculo no encontrado",
       "body": "Quizás terminó o no formas parte de él."
@@ -928,6 +972,7 @@
       "micLocked": "Tu micrófono sigue apagado hasta que el animador te dé la palabra.",
       "cameraLocked": "Tu cámara sigue apagada hasta que el animador la permita.",
       "controls": "Controles de la llamada",
+      "react": "Reacciones",
       "reconnecting": "Reconectando…",
       "weak": "Conexión débil",
       "weakMine": "Conexión débil. El vídeo puede pararse; tu voz sigue.",
@@ -1093,6 +1138,32 @@
       "label": "{{name}}: {{count}} personas",
       "labelMood": "{{name}}: {{count}} personas, casi todo {{mood}}",
       "running": "hay una actividad en marcha"
+    },
+    "reactions": {
+      "bar": "Enviar una reacción",
+      "kinds": {
+        "clap": "Aplausos",
+        "heart": "Corazón",
+        "laugh": "Risa",
+        "wow": "Asombro",
+        "like": "Me gusta",
+        "party": "Fiesta"
+      },
+      "rest": "Cinco reacciones es el máximo por ahora. Las siguientes vuelven a contar en unos segundos.",
+      "say": {
+        "clap_one": "{{count}} aplauso",
+        "clap_other": "{{count}} aplausos",
+        "heart_one": "{{count}} corazón",
+        "heart_other": "{{count}} corazones",
+        "laugh_one": "{{count}} risa",
+        "laugh_other": "{{count}} risas",
+        "wow_one": "{{count}} asombro",
+        "wow_other": "{{count}} asombros",
+        "like_one": "{{count}} me gusta",
+        "like_other": "{{count}} me gusta",
+        "party_one": "{{count}} fiesta",
+        "party_other": "{{count}} fiestas"
+      }
     }
   },
   "boards": {

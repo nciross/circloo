@@ -244,52 +244,6 @@
   background: var(--card-hover);
 }
 
-/* Raised hands wait along an arc, first to speak at the inline start (spec 008; T927 brings the full queue). */
-.call__arc {
-  --hand: 1.75rem;
-  --arc-r: 4.25rem;
-  --dir: 1;
-  position: relative;
-  block-size: calc(var(--arc-r) + var(--hand) / 2 + 2px);
-  margin: var(--s-2) 0 0;
-  padding: 0;
-  list-style: none;
-  overflow: clip;
-}
-[dir='rtl'] .call__arc {
-  --dir: -1;
-}
-.call__arc::before {
-  content: '';
-  position: absolute;
-  inset-block-end: calc(-1 * var(--arc-r));
-  inset-inline-start: 50%;
-  inline-size: calc(2 * var(--arc-r));
-  block-size: calc(2 * var(--arc-r));
-  margin-inline-start: calc(-1 * var(--arc-r));
-  border: 2px solid var(--seg-empty);
-  border-radius: 50%;
-}
-.call__hand {
-  --a: calc(-60deg + 120deg * (var(--i, 0) + 0.5) / var(--n, 1));
-  position: absolute;
-  inset-block-end: calc(var(--hand) / -2);
-  inset-inline-start: 50%;
-  inline-size: var(--hand);
-  block-size: var(--hand);
-  margin-inline-start: calc(var(--hand) / -2);
-  display: grid;
-  place-items: center;
-  border-radius: var(--r-pill);
-  background: var(--card);
-  box-shadow: 0 0 0 2px var(--on-card-faint);
-  transform: rotate(calc(var(--a) * var(--dir))) translateY(calc(-1 * var(--arc-r))) rotate(calc(var(--a) * var(--dir) * -1));
-}
-.call__hand-char {
-  inline-size: 85%;
-  block-size: 85%;
-}
-
 /* ---------- The stage, in the centre ---------- */
 /* While the call shows, the round stays mounted under it but out of sight (and out of the accessibility tree). */
 .room__centre.is-call > :not(.call-stage, .call-bar, .call-notice) {
@@ -624,7 +578,8 @@
   display: flex;
   gap: var(--s-2);
 }
-.call-bar__device {
+.call-bar__device,
+.call-bar__react-toggle {
   display: inline-grid;
   place-items: center;
   inline-size: 3rem;
@@ -639,19 +594,23 @@
     color var(--dur-state) var(--ease-settle),
     transform var(--dur-press) var(--ease-settle);
 }
-.call-bar__device:hover {
+.call-bar__device:hover,
+.call-bar__react-toggle:hover {
   background: var(--paper-sunken);
 }
-.call-bar__device:active {
+.call-bar__device:active,
+.call-bar__react-toggle:active {
   transform: scale(0.95);
 }
 /* On is the charcoal pill, like every switch that is on. */
-.call-bar__device.is-on {
+.call-bar__device.is-on,
+.call-bar__react-toggle.is-on {
   background: var(--charcoal);
   color: var(--on-charcoal);
   box-shadow: none;
 }
-.call-bar__device.is-on:hover {
+.call-bar__device.is-on:hover,
+.call-bar__react-toggle.is-on:hover {
   background: var(--charcoal-hover);
 }
 .call-bar__device[aria-disabled='true'] {
@@ -661,7 +620,8 @@
   cursor: not-allowed;
   transform: none;
 }
-.call-bar__device:focus-visible {
+.call-bar__device:focus-visible,
+.call-bar__react-toggle:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
@@ -677,6 +637,74 @@
 }
 .call-bar.is-joining .call-bar__state {
   font-weight: 700;
+}
+
+/* ---------- Hands and reactions in the call (T927) ---------- */
+/* The hand is spec 008's pill, as tall as the device buttons beside it. A waiting hand carries its place as a small
+   charcoal number; the full "You are 2nd" is in its name and in the Call tab. */
+.call-bar__hand {
+  position: relative;
+  min-block-size: 3rem;
+  gap: var(--s-2);
+}
+.hand-btn__place {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 1.375rem;
+  block-size: 1.375rem;
+  padding-inline: 0.3rem;
+  border-radius: var(--r-pill);
+  background: var(--charcoal);
+  color: var(--on-charcoal);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+/* On a computer the six reactions sit in the bar, after the devices. */
+.call-bar__reactions {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+.call-bar__reaction-bar .reaction-bar__hint:empty {
+  display: none;
+}
+/* On a phone they open as a row of their own above the devices, and stay open for more taps. */
+.call-bar__tray {
+  order: -1;
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+  animation: call-notice-in var(--dur-enter) var(--ease-out);
+}
+.call-bar__tray .reaction-bar {
+  justify-items: center;
+}
+.call-bar__tray .reaction-bar__buttons {
+  flex-wrap: nowrap;
+}
+/* Reactions rise from the bar over whatever the centre shows, the grid or the round, and never take a pointer. The
+   grouped "👏 ×20" chips wait just above the bar at the inline end: under reduced motion they are the counter. */
+.call-reactions {
+  --reaction-lane-end: 4%;
+  --reaction-lane-width: 22%;
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: calc(100% + 2px);
+  block-size: min(20rem, 55dvh);
+  pointer-events: none;
+}
+.call-reactions__tally {
+  position: absolute;
+  inset-block-end: var(--s-2);
+  inset-inline-end: var(--s-2);
+  justify-content: flex-end;
+  max-inline-size: calc(100% - 2 * var(--s-2));
+  font-size: var(--fs-sm);
+}
+.call-reactions .reaction-tally__chip {
+  box-shadow: var(--shadow-overlay);
 }
 
 /* ---------- Devices (T907): the primer before the browser asks, and what went wrong ---------- */
@@ -913,6 +941,10 @@
     /* One row: two device buttons of 3rem, the view switch and Leave, in a 2px outline with a little padding. */
     --call-bar-h: 4.25rem;
   }
+  /* The reactions' row adds to the bar too. */
+  .room:has(.call-bar__tray) {
+    --call-bar-h: 7.5rem;
+  }
   /* The primer or a device problem adds a row to the bar: the stage gives it room rather than slide under it. */
   .room:has(.call-bar .call-primer, .call-bar .device-problem) {
     --call-bar-h: 11rem;
@@ -937,6 +969,10 @@
   }
   .room__grid:has(.room-side.is-open.is-full) .room__centre > .call-bar {
     position: static;
+  }
+  /* The full sheet covers the centre: nothing to float over. */
+  .room__grid:has(.room-side.is-open.is-full) .call-reactions {
+    display: none;
   }
   .call-stage__page {
     min-inline-size: 0;
@@ -964,8 +1000,38 @@
   .call-bar__end {
     gap: var(--s-1);
   }
+  .call-bar__devices {
+    gap: var(--s-1);
+  }
+  .call-bar__device,
+  .call-bar__react-toggle,
+  .call-bar__hand,
   .call-bar__leave {
-    padding-inline: 1rem;
+    inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+    block-size: 2.75rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .call-bar__hand,
+  .call-bar__leave {
+    justify-content: center;
+  }
+  .call-bar__hand .hand-btn__label,
+  .call-bar__leave-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .call-bar__hand .hand-btn__place {
+    position: absolute;
+    inset-block-start: -0.3rem;
+    inset-inline-end: -0.3rem;
+    box-shadow: 0 0 0 2px var(--paper);
   }
   /* The view switch keeps its icons; each option is named by its aria-label. */
   .call-bar__view .seg__opt > span[aria-hidden='true']:not(.seg__icon) {
@@ -1023,6 +1089,7 @@
     transform: scaleY(0.45);
   }
   .call-bar__device,
+  .call-bar__react-toggle,
   .person-menu__trigger {
     transition: none;
   }

@@ -139,10 +139,10 @@ public sealed class Polls(CirclooDbContext db, IHubContext<CircleHub, ICircleCli
 }
 
 /// <summary>
-/// Coalesces live updates per key (a poll, a question, a form) to at most one send every 250 ms, always sending the
-/// latest state last (trailing edge), so a burst of votes costs a few broadcasts. Sends for one key never overlap: a
-/// request while one runs waits for it and the window, so an older state can't arrive after a newer one. A key is
-/// dropped once a window passes with nothing to send. Per replica, like hub groups.
+/// Coalesces live updates per key (a poll, a question, a form) to at most one send every 250 ms (or the window the
+/// request asks for), always sending the latest state last (trailing edge), so a burst of votes costs a few broadcasts.
+/// Sends for one key never overlap: a request while one runs waits for it and the window, so an older state can't
+/// arrive after a newer one. A key is dropped once a window passes with nothing to send. Per replica, like hub groups.
 /// </summary>
 public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<LiveThrottle> log)
 {
@@ -153,11 +153,13 @@ public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<Li
     private sealed class Slot
     {
         public Func<IServiceProvider, Task>? Pending;
+        public TimeSpan Window = LiveThrottle.Window;
         public bool Running;
         public bool Removed;
     }
 
-    public void Request(string key, Func<IServiceProvider, Task> send)
+    /// <param name="window">The pause between two sends of this key; 250 ms when not given (reactions use 400 ms).</param>
+    public void Request(string key, Func<IServiceProvider, Task> send, TimeSpan? window = null)
     {
         while (true)
         {
@@ -169,6 +171,7 @@ public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<Li
                     continue; // its loop just ended: take a fresh slot
                 }
                 slot.Pending = send; // the latest request wins
+                slot.Window = window ?? Window;
                 if (slot.Running)
                 {
                     return; // the running loop sends it after the current send and the window
@@ -185,9 +188,10 @@ public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<Li
         while (true)
         {
             Func<IServiceProvider, Task>? send;
+            TimeSpan window;
             lock (slot)
             {
-                (send, slot.Pending) = (slot.Pending, null);
+                (send, slot.Pending, window) = (slot.Pending, null, slot.Window);
                 if (send is null)
                 {
                     slot.Removed = true;
@@ -205,7 +209,7 @@ public sealed partial class LiveThrottle(IServiceScopeFactory scopes, ILogger<Li
             {
                 UpdateFailed(e, key);
             }
-            var rest = (long)Window.TotalMilliseconds - (Environment.TickCount64 - started);
+            var rest = (long)window.TotalMilliseconds - (Environment.TickCount64 - started);
             if (rest > 0)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(rest));

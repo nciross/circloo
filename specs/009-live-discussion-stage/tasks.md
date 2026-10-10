@@ -204,7 +204,7 @@ Task issues for T916 to T929 are published from this list. T930 was added after 
 
 ## Phase 5: User Story 3 and 8 - Raised hands and emoji in the call (P2)
 
-- [ ] T927 [US3] [US8] [UI] **Raise hand and reactions in the call.** `/impeccable shape call-reactions` first (or manual), then:
+- [x] T927 [US3] [US8] [UI] **Raise hand and reactions in the call.** `/impeccable shape call-reactions` first (or manual), then:
   - Raise and lower hand in `CallControls.tsx`, reusing spec 008's `HandsQueue` (T810) with "You are 2nd"; the queue in the Call tab.
   - Reactions: `React` allowed while a call is on (`CircleHub.Room.cs` rule from spec 008 T807, extended here, with a hub test); `CallReactions.tsx` floats grouped bursts over the call grid on every screen, a counter under reduced motion, a summary for screen readers; hidden when reactions are off.
   - **Tests**: hub test that reactions work with a call on and no presentation and store nothing, and that during a running presentation they add to its anonymous totals (D11); e2e "hands and reactions": raise, place, floor given from the queue; 20 pages send 👏 and every page shows one grouped burst; en desktop and ar phone with axe.

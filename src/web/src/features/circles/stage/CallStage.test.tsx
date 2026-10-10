@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event'
 import '../../../i18n'
 import type { Member } from '../../../api/circles'
 import type { CallParticipant, CallVideo } from './call'
+import { useRoom } from '../room'
+import { NO_HANDS } from '../room/hands'
 import { CallStage } from './CallStage'
 import { resetStage, useStage } from './stage'
 
@@ -30,13 +32,14 @@ const tiles = () => within(screen.getByRole('list', { name: /People on screen/ }
 beforeEach(() => phone(false))
 afterEach(() => {
   resetStage()
+  useRoom.setState({ hands: NO_HANDS })
   vi.unstubAllGlobals()
 })
 
 describe('CallStage', () => {
   it('shows 9 tiles a page on a computer, your preview last, and pages by keyboard', async () => {
     inCall()
-    render(<CallStage members={members} floor={null} />)
+    render(<CallStage members={members} />)
     expect(tiles()).toHaveLength(9)
     expect(tiles()[0]).toHaveTextContent('Nadia')
     expect(tiles().at(-1)).toHaveTextContent('Camille (you)')
@@ -53,7 +56,7 @@ describe('CallStage', () => {
   it('shows 4 tiles a page on a phone', () => {
     phone(true)
     inCall()
-    render(<CallStage members={members} floor={null} />)
+    render(<CallStage members={members} />)
     expect(tiles()).toHaveLength(4)
     expect(screen.getByRole('navigation', { name: 'Pages of the call' })).toHaveTextContent('Page 1 of 4')
   })
@@ -61,7 +64,7 @@ describe('CallStage', () => {
   it('outlines the speaker with the word Speaking and keeps them on every page', async () => {
     phone(true)
     inCall({ 9: { speaking: true } })
-    render(<CallStage members={members} floor={null} />)
+    render(<CallStage members={members} />)
     expect(tiles()[0]).toHaveTextContent('Leïla')
     expect(tiles()[0]).toHaveClass('is-speaking')
     expect(within(tiles()[0]!).getByText('Speaking')).toBeInTheDocument()
@@ -73,7 +76,7 @@ describe('CallStage', () => {
 
   it('draws the character and the name when the camera is off, never an empty box', () => {
     inCall({ 1: { mic: false } }, 3)
-    const { container } = render(<CallStage members={members} floor={null} />)
+    const { container } = render(<CallStage members={members} />)
     expect(container.querySelector('video')).toBeNull()
     const amina = tiles().find((li) => li.textContent?.startsWith('Amina'))!
     expect(amina.querySelector('.call-tile__char')).not.toBeNull()
@@ -84,7 +87,7 @@ describe('CallStage', () => {
     phone(true)
     const videos = names.map(() => video())
     inCall(Object.fromEntries(names.map((_, i) => [i, { camera: true, video: videos[i] }])))
-    const { container, unmount } = render(<CallStage members={members} floor={null} />)
+    const { container, unmount } = render(<CallStage members={members} />)
     expect(container.querySelectorAll('video')).toHaveLength(4)
     expect(videos[0]!.attach).toHaveBeenCalled()
     expect(videos[0]!.setEnabled).toHaveBeenLastCalledWith(true)
@@ -101,7 +104,8 @@ describe('CallStage', () => {
 
   it('makes the speaker large in speaker view', async () => {
     inCall({ 2: { speaking: true } }, 4)
-    render(<CallStage members={members} floor="m1" />)
+    useRoom.setState({ hands: { queue: [], floor: 'm1' } })
+    render(<CallStage members={members} />)
     await userEvent.click(screen.getByRole('button', { name: 'Speaker' }))
     expect(tiles()[0]).toHaveClass('is-big')
     expect(tiles()[0]).toHaveTextContent('Théo')
@@ -110,19 +114,19 @@ describe('CallStage', () => {
 
   it('says it is joining, then that you are alone, with your weak connection on your tile', () => {
     useStage.setState({ connection: 'joining' })
-    const { rerender } = render(<CallStage members={members} floor={null} />)
+    const { rerender } = render(<CallStage members={members} />)
     expect(screen.getByRole('status')).toHaveTextContent('Joining the call…')
     act(() => useStage.setState({ connection: 'connected', participants: [person(0, { local: true, quality: 'poor' })], roster: ['m0'] }))
-    rerender(<CallStage members={members} floor={null} />)
+    rerender(<CallStage members={members} />)
     expect(screen.getByText('You are the only one here for now. People appear as they join.')).toBeInTheDocument()
     expect(tiles()[0]).toHaveTextContent('Weak connection')
   })
 
   it('gives the animator a menu on each participant tile, never on their own or another animator', () => {
     inCall({}, 4)
-    const { rerender } = render(<CallStage members={members} floor={null} />)
+    const { rerender } = render(<CallStage members={members} />)
     expect(screen.queryByRole('button', { name: /Options for/ })).toBeNull()
-    rerender(<CallStage members={members} floor={null} isAnimator />)
+    rerender(<CallStage members={members} isAnimator />)
     // m0 (Nadia) is an animator and m3 (Lucía) is you.
     const menus = screen.getAllByRole('button', { name: /Options for/ })
     expect(menus.map((b) => b.getAttribute('aria-label'))).toEqual(['Options for Amina', 'Options for Théo'])
@@ -130,10 +134,10 @@ describe('CallStage', () => {
     expect(menus[0]!.closest('.call-tile')).toHaveClass('has-menu')
   })
 
-  it('follows the live floor from the hub over the page load', () => {
+  it('follows the floor from the room store, the one place the Hands event lands', () => {
     inCall({}, 4)
-    useStage.setState({ hands: { queue: [], floor: 'm2' } })
-    render(<CallStage members={members} floor="m1" />)
+    useRoom.setState({ hands: { queue: [], floor: 'm2' } })
+    render(<CallStage members={members} />)
     expect(screen.getByText('Has the floor').closest('.call-tile')).toHaveAttribute('data-member', 'm2')
   })
 })

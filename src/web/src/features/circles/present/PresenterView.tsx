@@ -8,6 +8,10 @@ import { prefetch, useLive, type PresentationState } from './presentation'
 import { SlideStage } from './SlideStage'
 import { Countdown } from './Countdown'
 import { AnswerProgress } from './AnswerProgress'
+import { ReactionBar } from '../room/ReactionBar'
+import { ReactionLayer } from '../room/ReactionLayer'
+import { ReactionTally } from '../room/ReactionTally'
+import { useReactions } from '../room/reactions'
 
 /** Opens and closes answering on a question slide, then reveals its results (spec 006 US4, US5); a quiz shows its countdown while open. */
 function QuestionControls({ state }: { state: PresentationState }) {
@@ -61,6 +65,7 @@ function QuestionControls({ state }: { state: PresentationState }) {
  * The animator's view while presenting (spec 006 US3): the current slide large, the next one and the notes beside it,
  * n/N and how many follow, and the controls. Notes and the next slide reach only the animator's own connections.
  * Keyboard shortcuts work while focus is inside this view (WCAG 2.1.4), which takes focus when it opens.
+ * The room's reactions float over the slide and group beside it, under the controls; the animator may react too.
  */
 export function PresenterView({ state, circleId }: { state: PresentationState; circleId: string }) {
   const { t, i18n } = useTranslation()
@@ -69,6 +74,9 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
   const members = useRoom((s) => s.members)
   const meId = useRoom((s) => s.me?.id)
   const error = useRoom((s) => s.error)
+  const bursts = useReactions((s) => s.bursts)
+  const waves = useReactions((s) => s.waves)
+  const totals = useReactions((s) => s.totals)
   const [confirming, setConfirming] = useState(false)
   const [popupBlocked, setPopupBlocked] = useState(false)
   const view = useRef<HTMLElement>(null)
@@ -137,7 +145,9 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
     <section ref={view} className="presenter" tabIndex={-1} onKeyDown={onKeyDown} aria-labelledby="presenter-title">
       <h2 id="presenter-title" className="visually-hidden">{t('present.presenterTitle', { name: state.presentationName })}</h2>
       <div className="presenter__main">
-        <SlideStage state={state} className="presenter__stage" />
+        <SlideStage state={state} className="presenter__stage">
+          <ReactionLayer bursts={bursts} />
+        </SlideStage>
         <QuestionControls state={state} />
         <div className="presenter__bar">
           <Button variant="default" className="presenter__prev" icon={<ChevronLeft size={18} className="flip-rtl" />} aria-label={t('present.prev')}
@@ -158,6 +168,10 @@ export function PresenterView({ state, circleId }: { state: PresentationState; c
           ) : (
             <Button ref={endButton} variant="subtle" className="presenter__end" icon={<Square size={14} />} onClick={() => setConfirming(true)}>{t('present.end')}</Button>
           )}
+        </div>
+        <div className="presenter__reactions">
+          <ReactionTally waves={waves} totals={totals} className="presenter__tally" />
+          <ReactionBar className="presenter__react" />
         </div>
         {popupBlocked ? <p className="field__error" role="alert">{t('present.popupBlocked')}</p> : null}
         {error ? <p className="field__error" role="alert">{t(`circles.errors.${error}`, { defaultValue: t('circles.errors.failed') })}</p> : null}

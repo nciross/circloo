@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '../../../i18n'
 import type { DiscussionState, HandsView } from '../../../api/circles'
+import { useRoom } from '../room'
+import { NO_HANDS } from '../room/hands'
 import { PersonMenu } from './PersonMenu'
 import { configureStage, resetStage, useStage } from './stage'
 
@@ -28,11 +30,15 @@ function hub(fail?: string) {
 const trigger = () => screen.getByRole('button', { name: 'Options for Amina' })
 const items = () => within(screen.getByRole('menu')).getAllByRole('menuitem').map((i) => i.textContent)
 
-afterEach(() => resetStage())
+afterEach(() => {
+  resetStage()
+  useRoom.setState({ hands: NO_HANDS })
+})
 
 describe('PersonMenu', () => {
   it('is a menu button: closed, then opened on the first item, arrows move, Escape gives the focus back', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     render(<PersonMenu memberId="amina" name="Amina" />)
     expect(trigger()).toHaveAttribute('aria-haspopup', 'menu')
     expect(trigger()).toHaveAttribute('aria-expanded', 'false')
@@ -58,12 +64,13 @@ describe('PersonMenu', () => {
   })
 
   it('offers the floor only to a raised hand, and takes it back from the floor holder', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     const { rerender } = render(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
     expect(items()).not.toContain('Give the floor')
     await userEvent.click(trigger())
-    useStage.setState({ hands: hands({ queue: [raised('amina')] }) })
+    useRoom.setState({ hands: hands({ queue: [raised('amina')] }) })
     rerender(<PersonMenu memberId="amina" name="Amina" />)
     const h = hub()
     await userEvent.click(trigger())
@@ -72,7 +79,7 @@ describe('PersonMenu', () => {
     expect(h.sent).toEqual([['GiveFloor', 'amina']])
     expect(screen.getByText('Amina has the floor.')).toBeInTheDocument()
     expect(document.activeElement).toBe(trigger())
-    useStage.setState({ hands: hands({ floor: 'amina' }) })
+    useRoom.setState({ hands: hands({ floor: 'amina' }) })
     rerender(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
     await userEvent.click(screen.getByRole('menuitem', { name: 'Take the floor back' }))
@@ -80,7 +87,8 @@ describe('PersonMenu', () => {
   })
 
   it('mutes and allows the microphone and the camera, and the menu follows what it did', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     const h = hub()
     render(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
@@ -96,14 +104,16 @@ describe('PersonMenu', () => {
   })
 
   it('has no camera items in an audio call', async () => {
-    useStage.setState({ discussion: state({ videoAllowed: false }), hands: hands() })
+    useStage.setState({ discussion: state({ videoAllowed: false }) })
+    useRoom.setState({ hands: hands() })
     render(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
     expect(items()).toEqual(['Switch microphone off', 'Remove from call…'])
   })
 
   it('asks once more before removing, in place, with Cancel focused', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     const h = hub()
     render(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
@@ -123,7 +133,8 @@ describe('PersonMenu', () => {
   })
 
   it('shows a refusal in the menu, translated, and keeps the state as it was', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     hub('try-again')
     render(<PersonMenu memberId="amina" name="Amina" />)
     await userEvent.click(trigger())
@@ -134,7 +145,8 @@ describe('PersonMenu', () => {
   })
 
   it('closes on a press outside', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     render(<><PersonMenu memberId="amina" name="Amina" /><p>Elsewhere</p></>)
     await userEvent.click(trigger())
     expect(screen.getByRole('menu')).toBeInTheDocument()
@@ -143,7 +155,8 @@ describe('PersonMenu', () => {
   })
 
   it('is drawn over the page, outside the tile that holds the trigger', async () => {
-    useStage.setState({ discussion: state(), hands: hands() })
+    useStage.setState({ discussion: state() })
+    useRoom.setState({ hands: hands() })
     render(<ul><li data-testid="tile"><PersonMenu memberId="amina" name="Amina" /></li></ul>)
     await userEvent.click(trigger())
     expect(screen.getByTestId('tile')).not.toContainElement(screen.getByRole('menu'))

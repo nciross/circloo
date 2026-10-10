@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { EllipsisVertical } from 'lucide-react'
-import { hubCode } from '../room'
+import { hubCode, useRoom } from '../room'
 import { useStage, type Source } from './stage'
 
 type Action = 'give' | 'take' | 'mute-mic' | 'allow-mic' | 'stop-camera' | 'allow-camera' | 'remove'
@@ -25,7 +25,8 @@ const EDGE = 8
 export function PersonMenu({ memberId, name }: { memberId: string; name: string }) {
   const { t } = useTranslation()
   const discussion = useStage((s) => s.discussion)
-  const hands = useStage((s) => s.hands)
+  // The hands live in the room store (spec 008), the one place the `Hands` event lands.
+  const hands = useRoom((s) => s.hands)
   const moderation = useStage((s) => s.moderation)
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'menu' | 'confirm'>('menu')
@@ -40,8 +41,8 @@ export function PersonMenu({ memberId, name }: { memberId: string; name: string 
   const questionId = `${id}-question`
 
   const items: Item[] = []
-  if (hands?.floor === memberId) items.push({ action: 'take', label: t('circles.call.menu.take') })
-  else if (hands?.queue.some((h) => h.memberId === memberId)) items.push({ action: 'give', label: t('circles.call.menu.give') })
+  if (hands.floor === memberId) items.push({ action: 'take', label: t('circles.call.menu.take') })
+  else if (hands.queue.some((h) => h.memberId === memberId)) items.push({ action: 'give', label: t('circles.call.menu.give') })
   items.push(
     moderation.microphone.includes(memberId)
       ? { action: 'allow-mic', label: t('circles.call.menu.allowMic') }
