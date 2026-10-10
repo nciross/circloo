@@ -1,5 +1,6 @@
 using Circloo.Api.Auth;
 using Circloo.Api.Data;
+using Circloo.Api.Decide;
 using Circloo.Api.Discussion;
 using Circloo.Api.Security;
 using Microsoft.AspNetCore.SignalR;
@@ -22,6 +23,23 @@ public sealed partial class CircleHub
     private const int CallAdminPerWindow = 30;
 
     private static readonly TimeSpan CallAdminWindow = TimeSpan.FromSeconds(10);
+
+    /// <summary>Marks a connection that entered as an animator: when the last one closes during a call, <see cref="CallAway"/> starts.</summary>
+    private const string AnimatorKey = "animator";
+
+    /// <summary>Every connection that entered the circle, never the audience screen: the call's roster goes there.</summary>
+    public static string RosterGroup(Guid circleId) => $"roster:{circleId}";
+
+    /// <summary>
+    /// Sends the circle's roster to its people, at most every 250 ms with the latest last (<see cref="LiveThrottle"/>),
+    /// so 100 people joining at once do not send everyone 100 lists. Used by the webhook and when a call ends.
+    /// </summary>
+    public static void RequestRoster(LiveThrottle throttle, Guid circleId)
+    {
+        ArgumentNullException.ThrowIfNull(throttle);
+        throttle.Request($"call-roster:{circleId}", services => services.GetRequiredService<IHubContext<CircleHub, ICircleClient>>()
+            .Clients.Group(RosterGroup(circleId)).CallRoster(services.GetRequiredService<CallModeration>().Roster(circleId)));
+    }
 
     /// <summary>
     /// Starts the call when it is off (the call server's room is opened first), or, while it is on, switches between
@@ -307,7 +325,38 @@ public sealed partial class CircleHub
         source == CallRights.MicrophoneSource ? state.MicrophoneMuted : state.CameraStopped;
 
     private Task BroadcastDiscussionAsync(Circle circle) =>
-        Clients.Group(Group(circle.Id)).Discussion(DiscussionRules.State(circle, livekit.Value));
+        Clients.Group(Group(circle.Id)).Discussion(StateOf(circle));
+
+    /// <summary>The call as everyone sees it, with the animator-away countdown when one runs.</summary>
+    private DiscussionState StateOf(Circle circle) => DiscussionRules.State(circle, livekit.Value, away.EndsAt(circle.Id));
+
+    /// <summary>
+    /// An animator connection closed: if it was the circle's last one during a call, the animator-away countdown starts
+    /// (research R34) and everyone sees when the call will end. Another animator tab or device keeps the call as it is.
+    /// </summary>
+    private async Task WatchAnimatorAwayAsync(Guid circleId)
+    {
+        var circle = await db.Circles.AsNoTracking().FirstOrDefaultAsync(c => c.Id == circleId);
+        if (circle is null || !circle.DiscussionOn)
+        {
+            return;
+        }
+        var animators = await db.CircleMembers.AsNoTracking()
+            .Where(m => m.CircleId == circleId && m.LeftAt == null && m.Role == Roles.Animator)
+            .Select(m => m.Id)
+            .ToListAsync();
+        if (presence.Online(circleId).Intersect(animators).Any() || !away.Start(circleId))
+        {
+            return;
+        }
+        // A reload: the new tab entered between the check and the start, and found nothing to cancel yet.
+        if (presence.Online(circleId).Intersect(animators).Any())
+        {
+            away.Cancel(circleId);
+            return;
+        }
+        await BroadcastDiscussionAsync(circle);
+    }
 
     /// <summary>
     /// The one gate of every animator method of the discussion: the role is read from the database, never from the

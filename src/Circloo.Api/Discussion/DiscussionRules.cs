@@ -13,8 +13,17 @@ public static class DiscussionRules
     public const string AwayNone = "none";
     public const string AwayAway = "away";
 
-    public static DiscussionState State(Circle circle, LiveKitOptions livekit) =>
-        new(circle.DiscussionOn, VideoAllowed(circle), circle.DiscussionSpeaking, livekit.Available, AwayNone, null);
+    /// <summary>
+    /// The state everyone sees. <paramref name="awayEndsAt"/> is when the call ends if no animator comes back
+    /// (<see cref="CallAway"/>); null while an animator is there. It only counts while the call is on.
+    /// </summary>
+    public static DiscussionState State(Circle circle, LiveKitOptions livekit, DateTimeOffset? awayEndsAt = null)
+    {
+        ArgumentNullException.ThrowIfNull(circle);
+        ArgumentNullException.ThrowIfNull(livekit);
+        var away = circle.DiscussionOn ? awayEndsAt : null;
+        return new(circle.DiscussionOn, VideoAllowed(circle), circle.DiscussionSpeaking, livekit.Available, away is null ? AwayNone : AwayAway, away);
+    }
 
     /// <summary>Cameras are allowed only while the call is on and it is a video call (kids-safe path).</summary>
     public static bool VideoAllowed(Circle circle) => circle.DiscussionOn && circle.DiscussionVideo;

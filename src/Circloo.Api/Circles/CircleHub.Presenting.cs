@@ -230,7 +230,9 @@ public sealed partial class CircleHub
         Context.Items[AudienceKey] = circleId;
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         await Groups.AddToGroupAsync(Context.ConnectionId, AudienceGroup(circleId));
-        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, livekit.Value));
+        // The projector shows no names (spec 009 FR-934): a window that entered before never keeps the call's roster.
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, RosterGroup(circleId));
+        await Clients.Caller.Discussion(StateOf(me.Circle!));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
         await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         if (await ActiveSessionAsync(circleId) is not { } active)

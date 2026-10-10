@@ -78,6 +78,11 @@ public interface ICircleClient
     /// stored (FR-930). <paramref name="byMemberId"/> is who did it, <paramref name="subjectMemberId"/> who it is about.
     /// </summary>
     Task CallNotice(string kind, Guid? byMemberId, Guid? subjectMemberId);
+    /// <summary>
+    /// Who is in the call now, from the call server's webhooks (spec 009 research R24), coalesced. Never stored, and
+    /// never sent to the audience screen.
+    /// </summary>
+    Task CallRoster(Guid[] memberIds);
 }
 
 /// <summary>Who is connected, per circle. In memory: one replica in this version (plan: complexity tracking).</summary>
@@ -100,7 +105,7 @@ public sealed class CirclePresence
 [Authorize(Policy = SessionAuthentication.CircleMemberPolicy)]
 public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presence, TimeProvider clock, CoachRunner coach, SafetyPolicy safety, AuditLog audit, LiveSessions live,
     Polls polls, Qa qa, LiveThrottle throttle, QuizClock quizClock, RoomLimits limits, IOptions<LiveKitOptions> livekit, HandsGrace grace,
-    CallLifecycle calls, CallPermissions callPermissions, CallModeration moderation) : Hub<ICircleClient>
+    CallLifecycle calls, CallPermissions callPermissions, CallModeration moderation, CallAway away) : Hub<ICircleClient>
 {
     public static string Group(Guid circleId) => $"circle:{circleId}";
 
@@ -147,12 +152,24 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(circleId));
         // All of a member's tabs and devices: their own vote, upvotes and answers (spec 007).
         await Groups.AddToGroupAsync(Context.ConnectionId, MemberGroup(me.Id));
+        // The call's roster goes to people, never to the audience screen (spec 009 FR-934).
+        await Groups.AddToGroupAsync(Context.ConnectionId, RosterGroup(circleId));
         if (me.Role == Roles.Animator)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, AnimatorGroup(circleId));
+            Context.Items[AnimatorKey] = true;
         }
         grace.Cancel(me.Id);
-        await Clients.Caller.Discussion(DiscussionRules.State(me.Circle!, livekit.Value));
+        // An animator is back: the animator-away countdown stops, and everyone sees it stop.
+        if (me.Role == Roles.Animator && away.Cancel(circleId))
+        {
+            await BroadcastDiscussionAsync(me.Circle!);
+        }
+        else
+        {
+            await Clients.Caller.Discussion(StateOf(me.Circle!));
+        }
+        await Clients.Caller.CallRoster(moderation.Roster(circleId));
         await Clients.Caller.RoomSettings(RoomSettings.Of(me.Circle!));
         await Clients.Caller.Hands(await Circloo.Api.Circles.Hands.LoadAsync(db, circleId));
         var online = presence.Online(circleId);
@@ -460,6 +477,10 @@ public sealed partial class CircleHub(CirclooDbContext db, CirclePresence presen
             if (!presence.Online(left.Circle).Contains(left.Member))
             {
                 grace.Schedule(left.Circle, left.Member);
+            }
+            if (Context.Items[AnimatorKey] is true)
+            {
+                await WatchAnimatorAwayAsync(left.Circle);
             }
         }
         await base.OnDisconnectedAsync(exception);
