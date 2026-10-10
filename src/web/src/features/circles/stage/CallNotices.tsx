@@ -13,8 +13,8 @@ export const NOTICE_MS = 15_000
 
 /**
  * What happened in the call, told to the person in kind words (spec 009 US1 #5, US3 #3 and #6, US7 #2): the newest
- * notice on one line at the bottom of the centre, above the call's bar, whatever the centre shows. The line is a polite
- * live region that stays in the page while empty, so each new sentence is said once.
+ * notice on one line at the bottom of the centre, above the call's bar, whatever the centre shows. Screen readers hear
+ * it from the room's announcer (`announce.ts`), grouped with the hands, so this line has no live region of its own.
  */
 export function CallNotices({ meId }: { meId: string | null | undefined }) {
   const { t } = useTranslation()
@@ -36,7 +36,7 @@ export function CallNotices({ meId }: { meId: string | null | undefined }) {
 
   return (
     <div className={`call-notice${current ? '' : ' is-empty'}`}>
-      <p className="call-notice__text" role="status">{current?.text}</p>
+      <p className="call-notice__text">{current?.text}</p>
       {current ? (
         <button
           type="button"

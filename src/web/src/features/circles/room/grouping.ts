@@ -139,20 +139,42 @@ export function announceDelay(lastSaid: number, now: number): number {
   return Math.max(CHAT_GATHER, lastSaid + CHAT_EVERY - now)
 }
 
+/** Whom a reply answers, for the announcement: a member (or you), or a message no longer loaded here. */
+export type SayReply = { name: string; mine: boolean } | 'earlier'
+
 type Say =
   | { kind: 'none' }
-  | { kind: 'one'; name: string; text: string }
+  | { kind: 'one'; name: string; text: string; reply?: SayReply }
   | { kind: 'many'; count: number }
 
-/** What a batch comes down to: nothing, one message read out with its sender, or a count ("3 new messages"). */
-export function batchSay(batch: Message[], members: Member[]): Say {
+/**
+ * What a batch comes down to: nothing, one message read out with its sender, or a count ("3 new messages"). A single
+ * reply also says whom it answers ("Kenji, replying to Amina: …"), found in `all`, the messages the tab holds.
+ */
+export function batchSay(batch: Message[], members: Member[], all: Message[] = [], meId?: string | null): Say {
   if (batch.length === 0) return { kind: 'none' }
   if (batch.length > 1) return { kind: 'many', count: batch.length }
   const m = batch[0]!
-  const name = m.kind === 'ai' ? 'circloo' : (members.find((x) => x.id === m.memberId)?.name ?? '')
+  const nameOf = (id: string | null) => members.find((x) => x.id === id)?.name ?? ''
+  const name = m.kind === 'ai' ? 'circloo' : nameOf(m.memberId)
   const flat = m.text.replace(/\s+/g, ' ').trim()
   const text = flat.length > SAY_MAX ? `${flat.slice(0, SAY_MAX - 1).trimEnd()}…` : flat
-  return { kind: 'one', name, text }
+  if (m.replyToId === null || m.replyToId === undefined) return { kind: 'one', name, text }
+  const parent = all.find((x) => x.id === m.replyToId && !x.hidden)
+  const reply: SayReply = parent
+    ? { name: parent.kind === 'ai' ? 'circloo' : nameOf(parent.memberId), mine: !!meId && parent.memberId === meId }
+    : 'earlier'
+  return { kind: 'one', name, text, reply }
+}
+
+/** The sentence for a batch: "Kenji: bravo", "Kenji, replying to Amina: bravo", "3 new messages", or ''. */
+export function sayText(t: TFunction, say: Say): string {
+  if (say.kind === 'many') return t('circles.chat.say.many', { count: say.count })
+  if (say.kind !== 'one') return ''
+  if (!say.reply) return t('circles.chat.say.one', { name: say.name, text: say.text })
+  if (say.reply === 'earlier') return t('circles.chat.say.replyEarlier', { name: say.name, text: say.text })
+  if (say.reply.mine) return t('circles.chat.say.replyYou', { name: say.name, text: say.text })
+  return t('circles.chat.say.reply', { name: say.name, parent: say.reply.name, text: say.text })
 }
 
 /** The hub's "slow-mode:7": the seconds left, or null for any other code. */

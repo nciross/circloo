@@ -636,9 +636,20 @@
 
 /* ---------- Chat ---------- */
 .chat {
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   block-size: min(44rem, calc(100dvh - var(--topbar-h) - 9rem));
   min-block-size: 26rem;
+}
+/* Each part has its row, so a head taken out of the flow (a participant's, on the side card) never hands the
+   conversation's row to the field, which then grew into a tall dark block (T914). */
+.chat > .chat__view {
+  grid-row: 2;
+}
+.chat > .chat__action-error {
+  grid-row: 3;
+}
+.chat > .composer {
+  grid-row: 4;
 }
 .chat__log {
   padding: var(--s-4);

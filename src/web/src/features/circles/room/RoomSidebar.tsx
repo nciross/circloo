@@ -4,6 +4,16 @@ import { ChevronDown, ChevronsLeft, ChevronsRight, ChevronUp, Hand, MessageCircl
 import { activeTab, type SideState } from './useSide'
 import { Count } from './Count'
 
+/** Scrolls the tab strip, never the page, until the tab is in view, in either direction of writing. */
+function revealTab(tab: HTMLElement) {
+  const strip = tab.parentElement
+  if (!strip) return
+  const t = tab.getBoundingClientRect()
+  const s = strip.getBoundingClientRect()
+  if (t.left < s.left) strip.scrollLeft -= s.left - t.left
+  else if (t.right > s.right) strip.scrollLeft += t.right - s.right
+}
+
 /** One tab of the sidebar: People, Chat, Hands and Call. */
 export interface SideTab {
   id: string
@@ -28,7 +38,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
   unread?: number
   hands?: number
   announce?: string
-  /** Other live regions (the hands announcer): kept outside the body, so they speak while it is collapsed. */
+  /** Other live regions (the room's announcer for hands and the call): kept outside the body, so they speak while it is collapsed. */
   live?: ReactNode
 }) {
   const { t } = useTranslation()
@@ -39,9 +49,13 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
   const was = useRef(open)
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  // Closing from inside the sidebar would drop focus; the rail (or the phone pill) that replaces it takes it.
+  // Closing from inside the sidebar would drop focus; the rail (or the phone pill) that replaces it takes it. A focus
+  // already elsewhere stays there: the call's bar after Join call folded the phone's sheet, for one (T914).
+  const bodyRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (was.current && !open) handle.current?.focus()
+    const now = document.activeElement
+    const fromInside = !now || now === document.body || !!bodyRef.current?.contains(now)
+    if (was.current && !open && fromInside) handle.current?.focus()
     was.current = open
   }, [open])
 
@@ -52,6 +66,12 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
     tabRefs.current[active]?.focus()
     focused()
   }, [focusTab, open, active, focused])
+
+  // On a phone the four tabs scroll sideways: the open one is always brought into view, whoever opened it.
+  useEffect(() => {
+    const tab = tabRefs.current[active]
+    if (open && tab) revealTab(tab)
+  }, [open, active])
 
   const onTabKey = (e: KeyboardEvent) => {
     const i = tabs.findIndex((x) => x.id === active)
@@ -137,7 +157,7 @@ export function RoomSidebar({ tabs, side, unread = 0, hands = 0, announce, live 
         </button>
       )}
 
-      <div className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
+      <div ref={bodyRef} className="room-side__body" id={`${base}-body`} hidden={!open} onKeyDown={onSheetKey}>
         <div className="room-side__bar">
           {wide ? null : <span className="room-side__grip" aria-hidden="true" />}
           <div className="room-side__tabs" role="tablist" aria-label={t('circles.room.sideLabel')} onKeyDown={onTabKey}>

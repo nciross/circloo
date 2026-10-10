@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Message } from '../../../api/circles'
 import { useRoom } from '../room'
-import { CHAT_EVERY, announceDelay, batchSay, worthSaying } from './grouping'
+import { CHAT_EVERY, announceDelay, batchSay, sayText, worthSaying } from './grouping'
 
 /**
  * What screen readers hear about the chat (spec 008 US3 #8, SC-809): new messages from others, politely and in batches.
- * One message is read with its sender ("Kenji: bravo"), a burst as a count ("3 new messages"), at most one sentence
- * every few seconds, the same rhythm as the hands. Messages already there when the chat opens, or when the room loads
+ * One message is read with its sender ("Kenji: bravo"), a reply with whom it answers ("Kenji, replying to Amina: bravo",
+ * spec 009 T914), a burst as a count ("3 new messages"), at most one sentence every few seconds, the same rhythm as the
+ * hands. Messages already there when the chat opens, or when the room loads
  * another circle, are never read out; a message hidden before its turn is skipped. The line is emptied between
  * announcements, so the same words are heard again.
  */
@@ -42,11 +43,8 @@ export function useChatAnnouncement(shown: Message[]): string {
       sayTimer.current = undefined
       const batch = latest.current.filter((m) => pending.current.includes(m.id) && !m.hidden)
       pending.current = []
-      const say = batchSay(batch, useRoom.getState().members)
-      const text =
-        say.kind === 'one' ? t('circles.chat.say.one', { name: say.name, text: say.text })
-        : say.kind === 'many' ? t('circles.chat.say.many', { count: say.count })
-        : ''
+      const room = useRoom.getState()
+      const text = sayText(t, batchSay(batch, room.members, latest.current, room.me?.id))
       if (!text) return
       lastSaid.current = Date.now()
       setSaid(text)

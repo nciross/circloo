@@ -1,4 +1,5 @@
-import { useReducedMotion as useReducedMotionBase, type Transition, type Variants } from 'motion/react'
+import { useSyncExternalStore } from 'react'
+import type { Transition, Variants } from 'motion/react'
 
 /*
  * One motion grammar for the whole app (charte graphique, Motion section). Durations mirror the CSS
@@ -26,9 +27,37 @@ export const spring = {
   gentle: { type: 'spring', stiffness: 160, damping: 24, mass: 1.2 } satisfies Transition,
 } as const
 
-/** True when the person asked for less motion. Components keep meaning (fades) and drop movement. */
+const REDUCE = '(prefers-reduced-motion: reduce)'
+let watched: { matchMedia: typeof window.matchMedia; list: MediaQueryList } | null = null
+
+/** The query for the current `matchMedia` (tests swap it), made once and kept. */
+function reduceQuery(): MediaQueryList | null {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return null
+  if (watched?.matchMedia !== window.matchMedia) watched = { matchMedia: window.matchMedia, list: window.matchMedia(REDUCE) }
+  return watched.list
+}
+
+function subscribeReduced(onChange: () => void) {
+  const list = reduceQuery()
+  if (!list) return () => {}
+  if (typeof list.addEventListener === 'function') {
+    list.addEventListener('change', onChange)
+    return () => list.removeEventListener('change', onChange)
+  }
+  // Older Safari only knows addListener.
+  list.addListener?.(onChange)
+  return () => list.removeListener?.(onChange)
+}
+
+const reducedNow = () => reduceQuery()?.matches ?? false
+
+/**
+ * True when the person asked for less motion. Components keep meaning (fades) and drop movement. It follows the setting
+ * live: switched on in the system while a call runs, the floats and the pops stop at once, with no reload (T914). The
+ * `useReducedMotion` of `motion` reads it once per component and never again.
+ */
 export function useReducedMotion(): boolean {
-  return useReducedMotionBase() ?? false
+  return useSyncExternalStore(subscribeReduced, reducedNow, () => false)
 }
 
 /** A list that appears as a list: rows rise 8px one after another, capped so long lists never wait. */

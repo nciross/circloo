@@ -53,6 +53,35 @@ describe('CallStage', () => {
     expect(tiles().map((li) => li.textContent)).toEqual(['Hugo', 'Leïla', 'Omar', 'Camille (you)'])
   })
 
+  it('changes page with Page Up and Page Down, and with the arrows on the page buttons, mirrored in Arabic (T914)', async () => {
+    phone(true)
+    inCall()
+    const { container } = render(<CallStage members={members} isAnimator />)
+    const pages = screen.getByRole('navigation', { name: 'Pages of the call' })
+    const next = within(pages).getByRole('button', { name: 'Next page' })
+    expect(next).toHaveAttribute('aria-keyshortcuts', 'PageDown')
+    // Page Down from a tile's menu button: the page turns and the focus waits on Next page, not on the page body.
+    screen.getAllByRole('button', { name: /Options for/ })[0]!.focus()
+    await userEvent.keyboard('{PageDown}')
+    expect(pages).toHaveTextContent('Page 2 of 4')
+    expect(next).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(pages).toHaveTextContent('Page 3 of 4')
+    await userEvent.keyboard('{End}')
+    expect(pages).toHaveTextContent('Page 4 of 4')
+    await userEvent.keyboard('{PageDown}')
+    expect(pages).toHaveTextContent('Page 4 of 4')
+    await userEvent.keyboard('{PageUp}{Home}')
+    expect(pages).toHaveTextContent('Page 1 of 4')
+
+    // In Arabic the next page is to the left.
+    container.setAttribute('dir', 'rtl')
+    await userEvent.keyboard('{ArrowLeft}')
+    expect(pages).toHaveTextContent('Page 2 of 4')
+    await userEvent.keyboard('{ArrowRight}')
+    expect(pages).toHaveTextContent('Page 1 of 4')
+  })
+
   it('shows 4 tiles a page on a phone', () => {
     phone(true)
     inCall()

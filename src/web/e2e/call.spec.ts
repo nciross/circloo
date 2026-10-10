@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { chromium, expect, type Page, type TestInfo } from '@playwright/test'
+import { chromium, expect, type Locator, type Page, type TestInfo } from '@playwright/test'
 import { localeOf, signIn } from './helpers'
 import {
   CALL_PEERS, FAKE_MEDIA, UDP_BLOCKED, audioPackets, axe, closeHubCalls, concealedAudio, createCircle, dbChanges, dbSnapshot, decodedVideos, decoding,
@@ -8,9 +8,10 @@ import {
   trackPeerConnections, transportProtocols, watchCsp, type Peers, type Snapshot,
 } from './call-helpers'
 
-// Spec 009 T925, T926, T907, T927 and T909: the call on every screen, the animator's controls, the devices, hands and
-// reactions, and the conversation with its replies and live lines, against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for
-// the camera and the microphone (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic.
+// Spec 009 T925, T926, T907, T927, T909 and T914: the call on every screen, the animator's controls, the devices, hands
+// and reactions, the keyboard and screen reader walk-through, and the conversation with its replies and live lines,
+// against the local LiveKit of the AppHost. Chromium's fake devices (a test pattern and a voice) stand in for the camera
+// and the microphone (quickstart A). Project "en" is a laptop, project "ar" a Pixel 7 in Arabic.
 // E2E_CALL_PEERS sets how many pages fill the paging test (12 by default), how many pages clap together in the
 // reactions test (20 by default) and how many pages the measurements use (4 by default, T928); lower it on a machine
 // short of memory.
@@ -70,7 +71,7 @@ test.describe('call', () => {
     for (const g of guests) {
       const tile = g.page.locator(`.call-tile[data-member="${circle.me}"]`)
       await expect(tile).toHaveClass(/is-speaking/, { timeout: 10_000 })
-      await expect(tile.locator('.call-tile__speaking')).toHaveText(ar ? 'يتحدث' : 'Speaking')
+      await expect(tile.locator('.call-tile__speaking')).toHaveText(ar ? 'قيد الحديث' : 'Speaking')
     }
 
     // Cameras off: characters and names, never an empty box; a camera switched on shows its video.
@@ -638,10 +639,9 @@ test.describe('hands and reactions', () => {
     const pages = Math.max(4, CLAPPERS)
     const guests = []
     for (let i = 0; i < pages - 1; i++) guests.push(await guest(browser, circle.code, i, locale, phone, csp))
-    // One page asks for reduced motion (read when the page loads).
+    // One page asks for reduced motion, which takes effect at once, without a reload (T914).
     const still = guests[2]!.page
     await still.emulateMedia({ reducedMotion: 'reduce' })
-    await still.reload()
     await page.goto(`/app/circles/${circle.id}`)
     await expect(page.locator('.people__row.is-online')).toHaveCount(pages, { timeout: 20_000 })
 
@@ -735,6 +735,207 @@ test.describe('hands and reactions', () => {
 
     expect(csp).toEqual([])
     for (const g of guests) await g.page.context().close()
+  })
+})
+
+test.describe('keyboard and screen reader', () => {
+  // T914 (spec 009 US7): a participant takes part in the whole call with the keyboard alone, hears it through one polite
+  // announcer, and switches reduced motion on in the middle of it, without a reload.
+  test('keyboard and screen reader: join, hand, camera, reactions, the floor and the microphone, the Call tab, a reply and leave, keyboard only (spec 009 US7)', async ({ page, browser }, info) => {
+    test.setTimeout(300_000)
+    const locale = localeOf(info)
+    const ar = locale === 'ar'
+    const phone = (page.viewportSize()?.width ?? 1280) < 960
+    const csp: string[] = []
+    watchCsp(page, csp)
+    await quietPirikoo(page)
+    await signIn(page, locale, 'e2e-call-keys')
+    const circle = await createCircle(page, locale)
+    const amina = await guest(browser, circle.code, 0, locale, phone, csp)
+    const a = amina.page
+    await page.goto(`/app/circles/${circle.id}`)
+    await expect(page.locator('.people__row.is-online')).toHaveCount(2)
+    const all = JSON.parse(readFileSync(new URL(`../src/i18n/locales/${locale}.json`, import.meta.url), 'utf8')) as {
+      circles: { call: { notices: Record<string, string> }; chat: { say: Record<string, string> } }
+    }
+    const shot = async (p: Page, name: string) => {
+      if (process.env.E2E_SHOTS) await p.screenshot({ path: `${process.env.E2E_SHOTS}/${locale}-${name}.png` })
+    }
+
+    // Set up by the animator: a canvas (so the chat is in the side card), a message to answer, a video call in Hand to
+    // speak, and the animator in it with the microphone on.
+    expect(await hubCall(page, circle.id, 'StartActivity', ['canvas'])).toBeNull()
+    const question = ar ? 'من يبدأ اليوم؟' : 'Who goes first today?'
+    expect(await hubCall(page, circle.id, 'Say', [question])).toBeNull()
+    expect(await hubCall(page, circle.id, 'EnableDiscussion', [true, 'hand'])).toBeNull()
+    const animatorSide = await openCallTab(page)
+    await animatorSide.locator('.call__join').click()
+    await expect(page.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+
+    // From here on Amina uses the keyboard only.
+    const side = a.locator('[data-slot="room-side"]')
+    const say = a.locator('[data-slot="room-say"]')
+    const focused = (p: Page) => p.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null
+      return el && el !== document.body ? `${el.tagName.toLowerCase()}.${el.className}` : 'body'
+    })
+    /** Tab (or Shift+Tab) until the target has the focus; every stop on the way shows where the focus is. */
+    const tabTo = async (target: Locator, back = false, max = 70) => {
+      for (let i = 0; i < max; i++) {
+        if (await target.evaluate((el) => el === document.activeElement).catch(() => false)) return
+        await a.keyboard.press(back ? 'Shift+Tab' : 'Tab')
+        const ring = await a.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null
+          if (!el || el === document.body || el.closest('.canvas, .pkl, .topbar, .guest-bar, header')) return 'skip'
+          const s = getComputedStyle(el)
+          const outline = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0
+          return outline || s.boxShadow !== 'none' ? 'ok' : `${el.tagName}.${el.className}`
+        })
+        if (ring !== 'ok' && ring !== 'skip') throw new Error(`No visible focus on ${ring}`)
+      }
+      throw new Error(`Never reached ${target} (focus on ${await focused(a)})`)
+    }
+    const next = ar ? 'ArrowLeft' : 'ArrowRight'
+    const prev = ar ? 'ArrowRight' : 'ArrowLeft'
+    const tab = (id: string) => side.locator(`.room-side__tab[aria-controls$="-panel-${id}"]`)
+    /** Into the side's tabs: the phone's pill opens the sheet on its open tab; then the arrows, in reading order. */
+    const toTab = async (id: string) => {
+      const pill = side.locator('.room-side__handle:not(.room-side__rail-btn)')
+      if (await pill.isVisible()) {
+        await tabTo(pill)
+        await a.keyboard.press('Enter')
+      } else {
+        await tabTo(side.locator('.room-side__tab[aria-selected="true"]'))
+      }
+      const ids = ['people', 'chat', 'hands', 'call']
+      for (let i = 0; i < 6 && (await tab(id).getAttribute('aria-selected')) !== 'true'; i++) {
+        const at = ids.indexOf((await a.evaluate(() => document.activeElement?.getAttribute('aria-controls') ?? '')).replace(/.*-panel-/, ''))
+        await a.keyboard.press(at < ids.indexOf(id) ? next : prev)
+      }
+      await expect(tab(id)).toBeFocused()
+      // The open tab is in view in the strip that scrolls sideways on a phone.
+      const strip = (await side.locator('[role="tablist"]').boundingBox())!
+      const box = (await tab(id).boundingBox())!
+      expect(box.x).toBeGreaterThanOrEqual(strip.x - 1)
+      expect(box.x + box.width).toBeLessThanOrEqual(strip.x + strip.width + 1)
+    }
+    await a.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+
+    // The Call tab, Join call: the focus moves on to the bar, where Raise hand takes the microphone's place.
+    await toTab('call')
+    // The arrows follow the reading direction: the tab before Call sits to its right in Arabic.
+    const hands = (await tab('hands').boundingBox())!
+    const call = (await tab('call').boundingBox())!
+    if (ar) expect(hands.x).toBeGreaterThan(call.x)
+    else expect(hands.x).toBeLessThan(call.x)
+    await tabTo(side.locator('.call__join'))
+    await a.keyboard.press('Enter')
+    await expect(a.locator('.call-bar.is-connected')).toBeVisible({ timeout: 20_000 })
+    const hand = a.locator('.call-bar .call-bar__hand')
+    await expect(hand).toBeFocused()
+    await a.keyboard.press('Enter')
+    await expect(hand).toHaveAttribute('data-hand', 'queue')
+    await expect(say).toHaveText(ar ? 'ترتيبك في الدور: 1.' : 'You are 1st.', { timeout: 6_000 })
+    await axe(a)
+
+    // Every control of the call is at least 24 px square (WCAG 2.5.8).
+    const small = await a.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('.call-bar button, .call-stage button, .call-notice button, [data-slot="room-side"] [role="tab"], [data-slot="room-side"] .call button')]
+        .filter((b) => b.getClientRects().length > 0)
+        .map((b) => ({ name: b.getAttribute('aria-label') ?? b.textContent?.trim(), r: b.getBoundingClientRect() }))
+        .filter(({ r }) => r.width < 24 || r.height < 24)
+        .map(({ name, r }) => `${name} ${Math.round(r.width)}x${Math.round(r.height)}`),
+    )
+    expect(small).toEqual([])
+
+    // The camera: Tab, Enter. Nothing asks before a device button (the browser has already allowed it here).
+    const camera = a.locator('.call-bar__device[data-device="video"]')
+    await tabTo(camera)
+    await a.keyboard.press('Enter')
+    await expect(camera).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+
+    // Reduced motion, switched on now, without a reload (#267): nothing floats, the counter is still, and a speaker is
+    // shown with the word, its sound bars still.
+    await a.emulateMedia({ reducedMotion: 'reduce' })
+    await page.locator('.call-bar__device[data-device="audio"]').click()
+    await expect(page.locator('.call-bar__device[data-device="audio"]')).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    const speaking = a.locator(`.call-tile[data-member="${circle.me}"] .call-tile__speaking`)
+    await expect(speaking).toHaveText(ar ? 'قيد الحديث' : 'Speaking', { timeout: 10_000 })
+    expect(await speaking.locator('.call-tile__bars i').first().evaluate((i) => getComputedStyle(i).animationName)).toBe('none')
+
+    // Reactions: on a computer the six sit in the bar; on a phone the Reactions toggle opens them and Escape closes them.
+    if (phone) {
+      const toggle = a.locator('.call-bar__react-toggle')
+      await tabTo(toggle)
+      await a.keyboard.press('Enter')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await tabTo(a.locator('.call-bar__tray .reaction-bar__btn[data-kind="clap"]'))
+      await a.keyboard.press('Enter')
+      await axe(a)
+      await a.keyboard.press('Escape')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await expect(toggle).toBeFocused()
+    } else {
+      await tabTo(a.locator('.call-bar__reactions .reaction-bar__btn[data-kind="clap"]'))
+      await a.keyboard.press('Enter')
+    }
+    const tally = a.locator('[data-slot="call-reactions"] .reaction-tally')
+    await expect(tally.locator('.reaction-tally__chip[data-kind="clap"]')).toHaveAttribute('data-count', '1', { timeout: 5_000 })
+    await expect(tally).toHaveClass(/is-still/)
+    await expect(a.locator('[data-slot="call-reactions"] .reaction-layer')).toHaveCount(0)
+    await expect(page.locator('[data-slot="call-reactions"] .reaction-layer')).toHaveCount(1)
+    await shot(a, 'keys-in-call')
+
+    // The floor: said once, from the notice (not "You have the floor" twice), and the microphone takes the hand's place.
+    expect(await hubCall(page, circle.id, 'GiveFloor', [amina.id])).toBeNull()
+    const mic = a.locator('.call-bar__device[data-device="audio"]')
+    await expect(mic).toBeVisible({ timeout: 5_000 })
+    await expect(say).toHaveText(all.circles.call.notices['floor-given']!, { timeout: 6_000 })
+    await expect(a.locator('.call-notice__text')).toHaveText(all.circles.call.notices['floor-given']!)
+    await expect(a.locator('.call-notice [role="status"], .call-notice [aria-live]')).toHaveCount(0)
+    await tabTo(mic, true)
+    await a.keyboard.press('Enter')
+    await expect(mic).toHaveAttribute('aria-pressed', 'true', { timeout: 10_000 })
+    await expect(a.locator('.call-bar .call-bar__hand')).toHaveAttribute('data-hand', 'floor')
+
+    // The Call tab tells who is in the call and their state in words; the current speaker is there as text.
+    await toTab('call')
+    const nadia = side.locator('.call__person', { hasText: ar ? 'نادية' : 'Nadia' })
+    await expect(nadia.locator('.call__person-state')).toContainText(ar ? 'قيد الحديث' : 'speaking', { timeout: 10_000 })
+    await axe(a)
+
+    // A reply, from the Chat tab: Reply to Nadia, the field takes the focus and says whom it answers; Enter sends.
+    await toTab('chat')
+    const chat = side.locator('.chat')
+    const msg = chat.locator('.chat__msg', { hasText: question })
+    await tabTo(msg.locator('.chat__answer'))
+    await a.keyboard.press('Enter')
+    const field = chat.locator('#composer-input')
+    await expect(field).toBeFocused()
+    await expect(chat.locator('.composer__reply')).toContainText(ar ? 'نادية' : 'Nadia')
+    await axe(a)
+    await shot(a, 'keys-reply')
+    const answer = ar ? 'أنا أبدأ' : 'I can go first'
+    await a.keyboard.type(answer)
+    await a.keyboard.press('Enter')
+    await expect(chat.locator('.composer__reply')).toHaveCount(0)
+    // The animator hears whom it answers: their own message.
+    const replyYou = all.circles.chat.say.replyYou!.replace('{{name}}', amina.name).replace('{{text}}', answer)
+    await expect(page.locator('[data-slot="chat-say"]')).toHaveText(replyYou, { timeout: 8_000 })
+    await expect(page.locator('.chat__thread .chat__reply', { hasText: answer })).toHaveCount(1)
+
+    // Leave: Shift+Tab back to the bar; the focus waits on the centre (Join call is in a closed tab), never on the page.
+    const leave = a.locator('.call-bar__leave')
+    await tabTo(leave, true)
+    await a.keyboard.press('Enter')
+    await expect(a.locator('.call-bar')).toHaveCount(0)
+    await expect.poll(() => focused(a)).not.toBe('body')
+    expect(await a.evaluate(() => !!document.activeElement?.closest('#room-centre, .call__join'))).toBe(true)
+    await axe(a)
+    await shot(a, 'keys-left')
+
+    expect(csp).toEqual([])
+    await a.context().close()
   })
 })
 
@@ -890,7 +1091,7 @@ test.describe('conversation', () => {
     }
     // Words, not codes: the animator reads her own action as "You", the others her name; the burst names both hands.
     await expect(live(page).first()).toHaveText(ar ? 'بدأت مكالمة' : 'You started a call')
-    await expect(live(amina.page).first()).toHaveText(ar ? /^بدأ .?نادية.? مكالمة$/ : /^.?Nadia.? started a call$/)
+    await expect(live(amina.page).first()).toHaveText(ar ? /^مكالمة جديدة بدعوة من .?نادية.?$/ : /^.?Nadia.? started a call$/)
     for (const name of [theo.name, amina.name]) await expect(live(page).nth(1)).toContainText(name)
     await expect(live(amina.page).nth(2)).toContainText(theo.name)
     await axe(amina.page)

@@ -916,7 +916,10 @@
         "animator-only": "Seul l’animateur peut faire ça.",
         "animator-cannot-raise": "L’animateur donne la parole, il ne lève pas la main.",
         "offline": "Tu es hors ligne. Ça remarchera dès que la salle sera reconnectée.",
-        "failed": "Ça n’a pas marché. Réessaie dans un instant."
+        "failed": "Ça n’a pas marché. Réessaie dans un instant.",
+        "not-a-member": "Tu ne fais plus partie de ce cercle.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant.",
+        "audience-read-only": "L’écran public montre seulement la salle. Lève la main depuis ton appareil."
       }
     },
     "missing": {
@@ -995,12 +998,12 @@
       "nextPage": "Page suivante",
       "tiles": "Personnes à l’écran",
       "tilesPaged": "Personnes à l’écran, page {{page}} sur {{pages}}",
-      "alone": "Tu es seul ici pour l’instant. Les autres apparaissent quand ils arrivent.",
+      "alone": "Personne d’autre ici pour l’instant. Les autres apparaissent quand ils arrivent.",
       "controlsTitle": "Réglages de la salle",
       "chatSwitch": "Chat",
-      "chatHelp": "Coupé : tout le monde peut encore le lire, toi seul peux écrire.",
-      "chatHelpSlow": "Activé, en mode lent : un message toutes les 10 secondes par participant. Coupé : tout le monde peut encore le lire, toi seul peux écrire.",
-      "chatHelpResumeSlow": "Coupé : tout le monde peut encore le lire, toi seul peux écrire. Réactivé, il revient en mode lent.",
+      "chatHelp": "Coupé : tout le monde le lit encore, mais il n’y a que toi qui écris.",
+      "chatHelpSlow": "Activé, en mode lent : un message toutes les 10 secondes par participant. Coupé : tout le monde le lit encore, mais il n’y a que toi qui écris.",
+      "chatHelpResumeSlow": "Coupé : tout le monde le lit encore, mais il n’y a que toi qui écris. Réactivé, il revient en mode lent.",
       "audioSwitch": "Appel audio",
       "audioHelpOff": "Lance un appel avec les voix seulement. Personne n’y est tant qu’il n’a pas touché Rejoindre l’appel.",
       "audioHelpOn": "Le couper termine l’appel pour tout le monde.",
@@ -1051,7 +1054,7 @@
         }
       },
       "notices": {
-        "call-started": "L’animateur a lancé un appel. Rejoins-le quand tu es prêt.",
+        "call-started": "L’animateur a lancé un appel. Rejoins-le quand tu veux.",
         "call-ended": "L’animateur a terminé l’appel.",
         "call-ended-away": "L’animateur est resté absent trop longtemps, l’appel s’est donc terminé.",
         "video-on": "La vidéo est activée. Tu peux allumer ta caméra si tu veux.",
@@ -1059,14 +1062,14 @@
         "mode-open": "Micro ouvert : tout le monde dans l’appel peut allumer son micro.",
         "mode-hand": "Main levée : lève la main et attends qu’on te donne la parole.",
         "muted-everyone": "L’animateur a coupé tous les micros. Tu peux rallumer le tien.",
-        "floor-given": "Tu as la parole. Allume ton micro quand tu es prêt.",
+        "floor-given": "Tu as la parole. Allume ton micro quand tu veux.",
         "floor-taken": "La parole est passée à quelqu’un d’autre, ton micro est coupé pour l’instant. Merci pour ton partage.",
         "mic-muted": "L’animateur a coupé ton micro. Tu peux toujours écouter et écrire dans le chat.",
         "mic-allowed": "Tu peux de nouveau utiliser ton micro.",
         "camera-stopped": "L’animateur a coupé ta caméra. Tu peux toujours parler et écrire dans le chat.",
         "camera-allowed": "Tu peux de nouveau allumer ta caméra.",
         "removed": "L’animateur t’a retiré de cet appel. Tu es toujours dans le cercle et dans son chat.",
-        "allowed-back": "L’animateur te laisse revenir. Rejoins l’appel quand tu es prêt."
+        "allowed-back": "L’animateur te laisse revenir. Rejoins l’appel quand tu veux."
       },
       "people": "Dans l’appel",
       "joined": {
@@ -1093,8 +1096,11 @@
         "removed-from-call": "L’animateur t’a retiré de cet appel.",
         "unreachable": "Impossible de rejoindre l’appel depuis ce réseau. Le chat et les mains levées marchent toujours.",
         "unsupported": "Ce navigateur ne peut pas rejoindre l’appel. Tu peux toujours écrire dans le chat et lever la main.",
-        "lost": "La connexion à l’appel a été perdue. Rejoins-le quand tu es prêt.",
-        "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil."
+        "lost": "La connexion à l’appel a été perdue. Rejoins-le quand tu veux.",
+        "joined-elsewhere": "Tu as rejoint l’appel depuis un autre onglet ou un autre appareil.",
+        "not-a-member": "Tu ne fais plus partie de ce cercle.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant.",
+        "audience-read-only": "L’écran public montre seulement la salle. Rejoins l’appel depuis ton appareil."
       },
       "device": {
         "primer": "Ta caméra et ton micro vont aux personnes de cet appel en passant par le serveur d’appel de circloo. Rien n’est enregistré ni gardé.",
@@ -1223,7 +1229,10 @@
       "say": {
         "one": "{{name}} : {{text}}",
         "many_one": "{{count}} nouveau message",
-        "many_other": "{{count}} nouveaux messages"
+        "many_other": "{{count}} nouveaux messages",
+        "reply": "{{name}}, en réponse à {{parent}} : {{text}}",
+        "replyYou": "{{name}}, en réponse à ton message : {{text}}",
+        "replyEarlier": "{{name}}, en réponse à un message plus ancien : {{text}}"
       },
       "pausedTitle": "L’animateur a mis le chat en pause",
       "pausedBody": "Tu peux toujours lire les messages.",
@@ -1254,7 +1263,8 @@
         "message-hidden": "L’animateur a masqué ce message.",
         "settings-invalid": "Ce réglage n’est pas disponible.",
         "reply-invalid": "On ne peut plus répondre à ce message. Envoie le tien comme un nouveau message.",
-        "audience-read-only": "L’écran public montre seulement la salle. Écris depuis ton appareil."
+        "audience-read-only": "L’écran public montre seulement la salle. Écris depuis ton appareil.",
+        "not-entered": "La salle se connecte encore. Réessaie dans un instant."
       },
       "reply": {
         "actionFor": "Répondre à {{name}}",

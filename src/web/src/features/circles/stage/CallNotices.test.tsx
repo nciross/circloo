@@ -43,36 +43,40 @@ describe('noticeText', () => {
 })
 
 describe('CallNotices', () => {
-  it('stays in the page as an empty live region, then says the newest notice', () => {
+  const line = (c: HTMLElement) => c.querySelector('.call-notice__text')!
+
+  it('stays in the page as an empty line, then shows the newest notice, with no live region (the announcer says it)', () => {
     const { container } = render(<CallNotices meId="amina" />)
-    const region = screen.getByRole('status')
-    expect(region).toBeEmptyDOMElement()
+    const text = line(container)
+    expect(text).toBeEmptyDOMElement()
     expect(container.firstChild).toHaveClass('is-empty')
     act(() => useStage.setState({ notices: [notice('call-started'), notice('mic-muted', 'nadia', 'amina')] }))
-    expect(screen.getByRole('status')).toBe(region)
-    expect(region).toHaveTextContent('The animator switched your microphone off. You can still listen and chat.')
+    expect(line(container)).toBe(text)
+    expect(text).toHaveTextContent('The animator switched your microphone off. You can still listen and chat.')
+    expect(screen.queryByRole('status')).toBeNull()
+    expect(container.querySelector('[aria-live]')).toBeNull()
   })
 
   it('Dismiss takes the notice and the older ones away', async () => {
     useStage.setState({ notices: [notice('call-started'), notice('video-on')] })
-    render(<CallNotices meId="amina" />)
+    const { container } = render(<CallNotices meId="amina" />)
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
-    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(line(container)).toBeEmptyDOMElement()
     expect(useStage.getState().notices).toEqual([])
   })
 
   it('goes by itself after a while', () => {
     vi.useFakeTimers()
     useStage.setState({ notices: [notice('removed', 'nadia', 'amina')] })
-    render(<CallNotices meId="amina" />)
-    expect(screen.getByRole('status')).toHaveTextContent('The animator took you out of this call.')
+    const { container } = render(<CallNotices meId="amina" />)
+    expect(line(container)).toHaveTextContent('The animator took you out of this call.')
     act(() => vi.advanceTimersByTime(NOTICE_MS))
-    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(line(container)).toBeEmptyDOMElement()
   })
 
   it('skips the animator’s own actions and shows the one before', () => {
     useStage.setState({ notices: [notice('call-started', 'theo'), notice('mode-open', 'nadia')] })
-    render(<CallNotices meId="nadia" />)
-    expect(screen.getByRole('status')).toHaveTextContent('The animator started a call.')
+    const { container } = render(<CallNotices meId="nadia" />)
+    expect(line(container)).toHaveTextContent('The animator started a call.')
   })
 })

@@ -76,6 +76,28 @@ describe('RoomSidebar', () => {
     expect(window.localStorage.getItem('circloo.room.side')).toBe('open')
   })
 
+  it('brings the open tab into view when the strip scrolls sideways, without scrolling the page (T914)', async () => {
+    window.localStorage.setItem('circloo.room.side', 'closed')
+    // A strip 200 px wide showing People and Chat; Hands and Call lie past its end.
+    const at: Record<string, number> = { People: 0, Chat: 90, Hands: 180, Call: 270 }
+    const rect = (left: number, width: number) => ({ left, right: left + width, top: 0, bottom: 40, width, height: 40, x: left, y: 0, toJSON: () => ({}) })
+    const real = HTMLElement.prototype.getBoundingClientRect
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+      if (this.getAttribute('role') === 'tablist') return rect(0, 200) as DOMRect
+      const label = Object.keys(at).find((k) => this.getAttribute('role') === 'tab' && this.textContent?.startsWith(k))
+      return (label ? rect(at[label]! - this.parentElement!.scrollLeft, 80) : rect(0, 0)) as DOMRect
+    }
+    try {
+      render(<Harness />)
+      await userEvent.click(screen.getByRole('button', { name: 'Call' }))
+      expect(screen.getByRole('tablist').scrollLeft).toBe(150)
+      await userEvent.keyboard('{Home}')
+      expect(screen.getByRole('tablist').scrollLeft).toBe(0)
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = real
+    }
+  })
+
   it('shows "99+" past 99 and reads the exact count', () => {
     window.localStorage.setItem('circloo.room.side', 'closed')
     render(<Harness unread={140} />)

@@ -11,6 +11,7 @@ import { AwayLine } from './AwayLine'
 import { CallReactions } from './CallReactions'
 import { useCompact } from './compact'
 import { DeviceProblem } from './DeviceProblem'
+import { focusAfterLeave, focusOnBar } from './focus'
 import { useJoinsAnnouncement } from './joins'
 import type { MediaKind } from './media'
 import { PermissionPrimer } from './PermissionPrimer'
@@ -41,6 +42,10 @@ export function CallControls({ members, view, onView, roundLabel, reactions = tr
   const error = useStage((s) => s.error)
   const join = useStage((s) => s.join)
   const leave = useStage((s) => s.leave)
+  const leaveCall = () => {
+    void leave()
+    focusAfterLeave()
+  }
 
   if (connection === 'idle') return null
   if (connection === 'failed') {
@@ -51,7 +56,7 @@ export function CallControls({ members, view, onView, roundLabel, reactions = tr
           {error === 'unsupported' ? null : (
             <button type="button" className="btn btn--primary" onClick={() => void join()}>{t('circles.call.joinAgain')}</button>
           )}
-          <button type="button" className="btn btn--subtle" onClick={() => void leave()}>{t('common.close')}</button>
+          <button type="button" className="btn btn--subtle" onClick={leaveCall}>{t('common.close')}</button>
         </div>
       </section>
     )
@@ -78,7 +83,7 @@ export function CallControls({ members, view, onView, roundLabel, reactions = tr
             ]}
           />
         ) : null}
-        <button type="button" className="btn btn--danger call-bar__leave" onClick={() => void leave()}>
+        <button type="button" className="btn btn--danger call-bar__leave" onClick={leaveCall}>
           <PhoneOff size={18} aria-hidden="true" />
           {/* On a phone the icon shows and the word stays its name. */}
           <span className="call-bar__leave-label">{t('circles.call.leave')}</span>
@@ -145,6 +150,10 @@ function InCall({ members, reactions }: { members: Member[]; reactions: boolean 
   // The floor arrives or goes while the hand or the microphone has the focus: it moves to the one now in that place.
   const devicesRef = useRef<HTMLDivElement>(null)
   const speakFocus = useRef(false)
+  // Joined from the Call tab: Join call went away under the focus, which moves on to the bar's first control.
+  useEffect(() => {
+    if (focusOnBar()) devicesRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+  }, [])
   useEffect(() => {
     const lost = !document.activeElement || document.activeElement === document.body
     if (!speakFocus.current || !lost) return
